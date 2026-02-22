@@ -1,14 +1,624 @@
-<!doctype html>
-<html lang="en">
-  <head>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
     <meta name="google-site-verification" content="ZlmtPzh0ZEtN9Rr" />
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>resumora-frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Resumora | Premium Career Elevation Platform</title>
+    <meta name="description" content="Resumora: AI-powered resume & cover letter services. Used by top professionals in 50+ countries. Get your dream job with our expert editing.">
+    <meta name="keywords" content="resume writing, cover letter, career, job search, professional resume, ATS optimized, career coaching">
+    <meta name="author" content="Resumora Global">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Resumora - Elevate Your Career">
+    <meta property="og:description" content="Professional resume & cover letter services with 1 free edit. Trusted worldwide.">
+    <meta property="og:image" content="https://app.resumora.net/og-image.jpg">
+    <meta property="og:url" content="https://app.resumora.net">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Resumora">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Resumora - Elevate Your Career">
+    <meta name="twitter:description" content="Professional resume & cover letter services with 1 free edit. Trusted worldwide.">
+    <meta name="twitter:image" content="https://app.resumora.net/twitter-image.jpg">
+    
+    <!-- Favicon (optional) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Styles & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* ====== CSS (unchanged) ====== */
+        :root {
+            --primary-gold: #D4AF37;
+            --dark-gold: #B8860B;
+            --light-gold: #F4E8C1;
+            --deep-navy: #0A1A3A;
+            --light-navy: #1A2B4A;
+            --cream: #F9F5EB;
+            --white: #FFFFFF;
+            --gray: #E8E8E8;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --shadow: 0 25px 50px rgba(10, 26, 58, 0.25);
+            --shadow-gold: 0 15px 35px rgba(212, 175, 55, 0.4);
+            --gradient-gold: linear-gradient(135deg, #D4AF37 0%, #F4E8C1 50%, #B8860B 100%);
+            --gradient-navy: linear-gradient(135deg, #0A1A3A 0%, #1A2B4A 100%);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:'Montserrat', sans-serif; background:var(--gradient-navy); color:var(--cream); line-height:1.8; overflow-x:hidden; min-height:100vh; position:relative; }
+        body::before { content:''; position:fixed; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at 20% 30%, rgba(212,175,55,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(10,26,58,0.3) 0%, transparent 50%); z-index:-1; }
+        .container { max-width:1400px; margin:0 auto; padding:0 30px; }
+
+        /* Luxury Header */
+        .luxury-header { position:fixed; top:0; width:100%; background:rgba(10,26,58,0.97); backdrop-filter:blur(15px) saturate(180%); -webkit-backdrop-filter:blur(15px) saturate(180%); z-index:10000; padding:25px 0; border-bottom:2px solid var(--primary-gold); box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+        .nav-container { display:flex; justify-content:space-between; align-items:center; }
+        .logo { display:flex; flex-direction:column; align-items:center; text-decoration:none; }
+        .logo img { height:120px; width:auto; margin-bottom:5px; }
+        .logo-text { font-family:'Playfair Display', serif; font-size:18px; font-weight:700; color:var(--primary-gold); letter-spacing:2px; text-transform:uppercase; text-shadow:0 2px 5px rgba(212,175,55,0.3); }
+        .nav-links { display:flex; gap:45px; align-items:center; }
+        .nav-link { color:var(--cream); text-decoration:none; font-weight:600; font-size:16px; padding:12px 25px; border-radius:30px; transition:var(--transition); position:relative; letter-spacing:0.5px; }
+        .nav-link::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:30px; border:2px solid transparent; background:linear-gradient(135deg, var(--primary-gold), var(--dark-gold)) border-box; -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:0; transition:var(--transition); }
+        .nav-link:hover, .nav-link.active { background:var(--gradient-gold); color:var(--deep-navy); transform:translateY(-5px); box-shadow:var(--shadow-gold); }
+        .nav-link:hover::before, .nav-link.active::before { opacity:1; }
+        .language-toggle { display:flex; background:rgba(255,255,255,0.05); border-radius:30px; padding:6px; margin-left:30px; border:1px solid rgba(212,175,55,0.2); }
+        .lang-btn { padding:10px 25px; border:none; background:transparent; color:var(--cream); border-radius:25px; cursor:pointer; font-weight:600; font-size:15px; transition:var(--transition); letter-spacing:0.5px; }
+        .lang-btn:hover { background:rgba(212,175,55,0.1); }
+        .lang-btn.active { background:var(--gradient-gold); color:var(--deep-navy); box-shadow:var(--shadow-gold); transform:scale(1.05); }
+        .cta-button { background:var(--gradient-gold); color:var(--deep-navy); padding:18px 40px; border:none; border-radius:35px; font-weight:700; font-size:16px; cursor:pointer; transition:var(--transition); display:flex; align-items:center; gap:12px; box-shadow:var(--shadow-gold); letter-spacing:0.5px; position:relative; overflow:hidden; z-index:1; }
+        .cta-button::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #F4E8C1 100%); opacity:0; transition:var(--transition); z-index:-1; }
+        .cta-button:hover { transform:translateY(-8px) scale(1.08); box-shadow:0 20px 40px rgba(212,175,55,0.5); }
+        .cta-button:hover::before { opacity:1; }
+        .mobile-menu-btn { display:none; background:none; border:none; color:var(--primary-gold); font-size:28px; cursor:pointer; padding:10px; border-radius:50%; transition:var(--transition); }
+        .mobile-menu-btn:hover { background:rgba(212,175,55,0.1); transform:rotate(90deg); }
+
+        /* Hero Section */
+        .hero-section { padding:200px 0 150px; position:relative; overflow:hidden; }
+        .hero-section::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle at 30% 30%, rgba(212,175,55,0.2) 0%, transparent 50%); animation:rotate 30s linear infinite; z-index:-1; }
+        @keyframes rotate { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
+        .hero-content { max-width:900px; margin:0 auto; text-align:center; position:relative; z-index:2; }
+        .hero-title { font-family:'Playfair Display', serif; font-size:50px; font-weight:800; margin-bottom:35px; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.1; text-shadow:0 5px 30px rgba(212,175,55,0.3); letter-spacing:-1px; }
+        .hero-subtitle { font-size:24px; color:var(--light-gold); margin-bottom:60px; max-width:750px; margin-left:auto; margin-right:auto; font-weight:300; line-height:1.6; opacity:0.9; }
+        .hero-stats { display:flex; justify-content:center; gap:60px; margin-top:80px; flex-wrap:wrap; }
+        .stat-item { text-align:center; }
+        .stat-number { font-size:48px; font-weight:800; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1; margin-bottom:10px; }
+        .stat-label { font-size:16px; color:var(--light-gold); font-weight:500; opacity:0.8; }
+
+        /* Services Section */
+        .services-section { padding:120px 0; background:rgba(10,26,58,0.7); position:relative; }
+        .services-section::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(135deg, rgba(212,175,55,0.05) 0%, transparent 100%); z-index:-1; }
+        .section-title { text-align:center; font-family:'Playfair Display', serif; font-size:52px; margin-bottom:80px; color:var(--primary-gold); position:relative; display:inline-block; left:50%; transform:translateX(-50%); }
+        .section-title::after { content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:100px; height:4px; background:var(--gradient-gold); border-radius:2px; }
+        .services-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:40px; margin-top:50px; }
+        .service-card { background:rgba(255,255,255,0.03); border-radius:25px; padding:50px 30px; text-align:center; border:1px solid rgba(212,175,55,0.1); transition:var(--transition); position:relative; overflow:hidden; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+        .service-card:hover { transform:translateY(-20px); background:rgba(255,255,255,0.05); border-color:var(--primary-gold); box-shadow:var(--shadow-gold); }
+        .service-icon { font-size:56px; color:var(--primary-gold); margin-bottom:25px; filter:drop-shadow(0 5px 15px rgba(212,175,55,0.3)); }
+        .service-name { font-size:28px; font-weight:700; color:var(--white); margin-bottom:15px; }
+        .service-price { font-size:42px; font-weight:800; color:var(--primary-gold); margin-bottom:15px; }
+        .service-edits { font-size:18px; color:var(--light-gold); margin-bottom:25px; }
+        .service-edits span { color:var(--primary-gold); font-weight:700; }
+        .service-btn { background:transparent; border:2px solid var(--primary-gold); color:var(--cream); padding:15px 30px; border-radius:30px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:10px; }
+        .service-btn:hover { background:var(--primary-gold); color:var(--deep-navy); transform:scale(1.05); box-shadow:var(--shadow-gold); }
+
+        /* Engagement Section */
+        .engagement-section { padding:60px 0 80px; background:rgba(10,26,58,0.5); text-align:center; }
+        .engagement-buttons { display:flex; justify-content:center; gap:40px; flex-wrap:wrap; }
+        .engagement-btn { background:transparent; border:2px solid var(--primary-gold); color:var(--cream); padding:15px 30px; border-radius:50px; font-size:24px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:10px; }
+        .engagement-btn i { font-size:28px; }
+        .engagement-btn:hover { background:var(--primary-gold); color:var(--deep-navy); transform:scale(1.1); box-shadow:var(--shadow-gold); }
+        .engagement-count { font-size:18px; color:var(--light-gold); margin-left:5px; }
+
+        /* Login & Document Section */
+        .login-section { padding:120px 0; background:rgba(10,26,58,0.7); position:relative; }
+        .split-panel { display:flex; gap:50px; flex-wrap:wrap; }
+        .panel { flex:1 1 300px; background:rgba(255,255,255,0.03); border-radius:25px; padding:50px 40px; border:1px solid rgba(212,175,55,0.1); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); transition:var(--transition); }
+        .panel:hover { border-color:var(--primary-gold); box-shadow:var(--shadow-gold); transform:translateY(-10px); }
+        .panel h3 { font-size:32px; color:var(--primary-gold); margin-bottom:30px; font-family:'Playfair Display', serif; }
+        .form-group { margin-bottom:25px; }
+        .form-label { display:block; margin-bottom:12px; font-weight:600; color:var(--light-gold); font-size:17px; }
+        .form-input { width:100%; padding:18px 25px; border:2px solid rgba(212,175,55,0.3); background:rgba(255,255,255,0.05); border-radius:15px; color:var(--cream); font-size:17px; transition:var(--transition); font-family:'Montserrat', sans-serif; }
+        .form-input:focus { outline:none; border-color:var(--primary-gold); box-shadow:0 0 0 4px rgba(212,175,55,0.2); background:rgba(255,255,255,0.08); }
+        .btn-block { width:100%; justify-content:center; margin-top:20px; }
+        .register-btn { background:transparent; border:2px solid var(--primary-gold); color:var(--cream); padding:18px 40px; border-radius:35px; font-weight:700; font-size:16px; cursor:pointer; transition:var(--transition); display:flex; align-items:center; gap:12px; width:100%; justify-content:center; margin-top:20px; }
+        .register-btn:hover { background:var(--primary-gold); color:var(--deep-navy); transform:translateY(-5px); box-shadow:var(--shadow-gold); }
+        .forgot-password { text-align:right; margin-top:10px; }
+        .forgot-password button { background:none; border:none; color:var(--light-gold); text-decoration:underline; cursor:pointer; font-size:14px; transition:var(--transition); }
+        .forgot-password button:hover { color:var(--primary-gold); }
+        .document-buttons { display:flex; flex-direction:column; gap:20px; margin-top:30px; }
+        .doc-btn { background:transparent; border:2px solid var(--primary-gold); color:var(--cream); padding:20px; border-radius:20px; font-size:18px; font-weight:600; cursor:pointer; transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:15px; width:100%; }
+        .doc-btn:hover { background:var(--primary-gold); color:var(--deep-navy); transform:scale(1.05); box-shadow:var(--shadow-gold); }
+        .doc-btn i { font-size:24px; }
+        .file-list { margin-top:20px; max-height:200px; overflow-y:auto; background:rgba(0,0,0,0.2); border-radius:10px; padding:10px; }
+        .file-item { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-bottom:1px solid rgba(212,175,55,0.2); color:var(--light-gold); font-size:14px; }
+        .file-item:last-child { border-bottom:none; }
+        .file-item .remove-single { color:#ff6b6b; cursor:pointer; font-size:16px; transition:var(--transition); }
+        .file-item .remove-single:hover { transform:scale(1.2); color:#ff4444; }
+        .file-info { margin-top:20px; color:var(--light-gold); font-size:14px; text-align:center; background:rgba(212,175,55,0.1); padding:10px; border-radius:10px; border:1px dashed var(--primary-gold); }
+        .action-buttons { display:flex; gap:15px; margin-top:20px; flex-wrap:wrap; justify-content:center; }
+        .remove-btn { background:transparent; border:2px solid #ff6b6b; color:#ff6b6b; padding:12px 20px; border-radius:15px; font-size:16px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:10px; flex:1; justify-content:center; }
+        .remove-btn:hover { background:#ff6b6b; color:var(--deep-navy); transform:scale(1.05); }
+        .done-btn { background:var(--gradient-gold); color:var(--deep-navy); border:none; padding:12px 20px; border-radius:15px; font-size:16px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:10px; flex:1; justify-content:center; box-shadow:var(--shadow-gold); }
+        .done-btn:hover { transform:translateY(-5px); box-shadow:0 15px 35px rgba(212,175,55,0.4); }
+        .cancel-refund-btn { background:transparent; border:2px solid #ffaa00; color:#ffaa00; padding:12px 20px; border-radius:15px; font-size:16px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:10px; width:100%; justify-content:center; margin-top:20px; }
+        .cancel-refund-btn:hover:not(:disabled) { background:#ffaa00; color:var(--deep-navy); transform:scale(1.05); }
+        .cancel-refund-btn:disabled { opacity:0.4; cursor:not-allowed; border-color:#666; color:#666; }
+
+        /* Modal Styles */
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:20000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:all 0.3s ease; }
+        .modal-overlay.active { opacity:1; visibility:visible; }
+        .modal-content { background:var(--deep-navy); border:2px solid var(--primary-gold); border-radius:30px; padding:40px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-gold); color:var(--cream); }
+        .modal-content h2 { color:var(--primary-gold); font-family:'Playfair Display', serif; font-size:32px; margin-bottom:20px; }
+        .modal-content p { margin-bottom:15px; line-height:1.6; }
+        .modal-content ul { margin-left:20px; margin-bottom:15px; }
+        .modal-close { position:absolute; top:20px; right:20px; background:transparent; border:none; color:var(--primary-gold); font-size:28px; cursor:pointer; transition:var(--transition); }
+        .modal-close:hover { transform:scale(1.2); color:var(--dark-gold); }
+
+        /* Footer */
+        .luxury-footer { background:rgba(10,26,58,0.97); padding:80px 0 40px; border-top:2px solid var(--primary-gold); position:relative; }
+        .footer-content { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:60px; margin-bottom:60px; }
+        .footer-section h4 { color:var(--primary-gold); font-size:22px; margin-bottom:30px; font-family:'Playfair Display', serif; font-weight:700; }
+        .footer-links { list-style:none; }
+        .footer-links li { margin-bottom:18px; }
+        .footer-links a, .footer-links button { color:var(--cream); text-decoration:none; transition:var(--transition); display:inline-flex; align-items:center; gap:12px; font-weight:500; background:none; border:none; cursor:pointer; font-size:16px; padding:0; }
+        .footer-links a:hover, .footer-links button:hover { color:var(--primary-gold); transform:translateX(10px); }
+        .social-icons { display:flex; gap:20px; margin-top:20px; }
+        .social-icons a { color:var(--cream); font-size:24px; transition:var(--transition); }
+        .social-icons a:hover { color:var(--primary-gold); transform:translateY(-5px); }
+        .copyright { text-align:center; padding-top:40px; border-top:1px solid rgba(212,175,55,0.2); color:var(--light-gold); font-size:15px; opacity:0.8; }
+        .footer-btn { background:none; border:none; color:inherit; font-size:inherit; cursor:pointer; text-align:left; padding:0; display:flex; align-items:center; gap:12px; font-family:inherit; font-weight:500; transition:var(--transition); }
+        .footer-btn:hover { color:var(--primary-gold); transform:translateX(10px); }
+
+        /* Responsive Design */
+        @media (max-width:1200px) { .hero-title { font-size:42px; } .section-title { font-size:46px; } }
+        @media (max-width:992px) { .hero-title { font-size:36px; } .nav-links { gap:30px; } .section-title { font-size:42px; } }
+        @media (max-width:768px) {
+            .hero-title { font-size:32px; } .hero-subtitle { font-size:20px; }
+            .nav-links { position:fixed; top:100%; left:0; right:0; background:var(--deep-navy); flex-direction:column; padding:30px; gap:20px; border-top:2px solid var(--primary-gold); box-shadow:0 20px 40px rgba(0,0,0,0.3); transform:translateY(-100%); transition:transform 0.4s ease; z-index:9999; }
+            .nav-links.active { transform:translateY(-100%); top:100%; }
+            .mobile-menu-btn { display:block; }
+            .cta-button, .copy-button { padding:16px 30px; }
+            .action-buttons { flex-direction:column; }
+        }
+        @media (max-width:480px) { .hero-title { font-size:28px; } .hero-subtitle { font-size:18px; } .section-title { font-size:36px; } }
+
+        /* Active States */
+        .cta-button:hover, .cta-button:focus, .lang-btn:hover, .lang-btn:focus, .nav-link:hover, .nav-link:focus,
+        .footer-btn:hover, .footer-btn:focus, .doc-btn:hover, .doc-btn:focus, .service-btn:hover, .service-btn:focus,
+        .engagement-btn:hover, .engagement-btn:focus, .remove-btn:hover, .remove-btn:focus, .done-btn:hover, .done-btn:focus,
+        .register-btn:hover, .register-btn:focus, .cancel-refund-btn:hover:not(:disabled), .cancel-refund-btn:focus:not(:disabled) {
+            outline:4px solid rgba(212,175,55,0.3); outline-offset:4px;
+        }
+        .cta-button:active, .lang-btn:active, .nav-link:active, .footer-btn:active, .doc-btn:active, .service-btn:active,
+        .engagement-btn:active, .remove-btn:active, .done-btn:active, .register-btn:active, .cancel-refund-btn:active:not(:disabled) {
+            transform:scale(0.96);
+        }
+        .toast { position:fixed; bottom:30px; right:30px; background:var(--gradient-gold); color:var(--deep-navy); padding:20px 30px; border-radius:15px; box-shadow:var(--shadow-gold); z-index:10001; transform:translateX(150%); transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275); display:flex; align-items:center; gap:15px; font-weight:600; max-width:400px; }
+        .toast.show { transform:translateX(0); }
+        .toast i { font-size:22px; }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Operation completed successfully!</span></div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay"><div class="modal-content" id="modalContent"><button class="modal-close" id="modalClose">&times;</button><div id="modalBody"></div></div></div>
+
+    <!-- Luxury Header -->
+    <header class="luxury-header">
+        <div class="container nav-container">
+            <a href="#home" class="logo">
+                <img src="resumora-logo.png" alt="Resumora">
+                <span class="logo-text">Resumora</span>
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="#home" class="nav-link active"><i class="fas fa-home"></i><span data-en="Home" data-fr="Accueil">Home</span></a>
+                <button class="nav-link" id="toggleAuthMode"><i class="fas fa-user-plus"></i><span data-en="Register" data-fr="S'inscrire" id="authToggleText">Register</span></button>
+                <div class="language-toggle">
+                    <button class="lang-btn active" id="enBtn"><i class="fas fa-flag-usa"></i> EN</button>
+                    <button class="lang-btn" id="frBtn"><i class="fas fa-flag"></i> FR</button>
+                </div>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-en="Elevate Your Career with Resumora Excellence" data-fr="Élevez Votre Carrière avec l'Excellence Resumora">Elevate Your Career with Resumora Excellence</h1>
+                <p class="hero-subtitle" data-en="Transform your resume into a masterpiece with our advanced technology. Used by top professionals in 50+ countries." data-fr="Transformez votre CV en chef-d'œuvre avec notre technologie avancée. Utilisé par les meilleurs professionnels dans 50+ pays.">Transform your resume into a masterpiece with our advanced technology. Used by top professionals in 50+ countries.</p>
+                <div class="hero-stats">
+                    <div class="stat-item"><div class="stat-number">98%</div><div class="stat-label" data-en="Success Rate" data-fr="Taux de Réussite">Success Rate</div></div>
+                    <div class="stat-item"><div class="stat-number">24h</div><div class="stat-label" data-en="Response Time" data-fr="Temps de Réponse">Response Time</div></div>
+                    <div class="stat-item"><div class="stat-number">50+</div><div class="stat-label" data-en="Countries" data-fr="Pays">Countries</div></div>
+                    <div class="stat-item"><div class="stat-number">10K+</div><div class="stat-label" data-en="Professionals" data-fr="Professionnels">Professionals</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section with language attributes -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <h2 class="section-title" data-en="Our Premium Services" data-fr="Nos Services Premium">Our Premium Services</h2>
+            <div class="services-grid">
+                <!-- Resume Edit -->
+                <div class="service-card">
+                    <i class="fas fa-file-alt service-icon"></i>
+                    <div class="service-name" data-en="Resume Edit" data-fr="Édition de CV">Resume Edit</div>
+                    <div class="service-price" data-en="$89" data-fr="$89">$89</div>
+                    <div class="service-edits">
+                        <span data-en="1 Free Edit" data-fr="1 Modification Gratuite">1 Free Edit</span>
+                        <span data-en="(up to 2 pages)" data-fr="(jusqu'à 2 pages)" class="edits-detail">(up to 2 pages)</span>
+                    </div>
+                    <button class="service-btn"><span data-en="Choose Plan" data-fr="Choisir">Choose Plan</span> <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <!-- Cover Letter Edit -->
+                <div class="service-card">
+                    <i class="fas fa-envelope service-icon"></i>
+                    <div class="service-name" data-en="Cover Letter Edit" data-fr="Édition de Lettre">Cover Letter Edit</div>
+                    <div class="service-price" data-en="$29" data-fr="$29">$29</div>
+                    <div class="service-edits">
+                        <span data-en="1 Free Edit" data-fr="1 Modification Gratuite">1 Free Edit</span>
+                    </div>
+                    <button class="service-btn"><span data-en="Choose Plan" data-fr="Choisir">Choose Plan</span> <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <!-- Package -->
+                <div class="service-card">
+                    <i class="fas fa-gem service-icon"></i>
+                    <div class="service-name" data-en="Package" data-fr="Forfait">Package</div>
+                    <div class="service-price" data-en="$110" data-fr="$110">$110</div>
+                    <div class="service-edits">
+                        <span data-en="3 Free Edits" data-fr="3 Modifications Gratuites">3 Free Edits</span>
+                    </div>
+                    <button class="service-btn"><span data-en="Choose Plan" data-fr="Choisir">Choose Plan</span> <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engagement Section -->
+    <section class="engagement-section">
+        <div class="container">
+            <div class="engagement-buttons">
+                <button class="engagement-btn" id="likeBtn"><i class="fas fa-thumbs-up"></i><span class="engagement-count" id="likeCount">124</span></button>
+                <button class="engagement-btn" id="unlikeBtn"><i class="fas fa-thumbs-down"></i><span class="engagement-count" id="unlikeCount">12</span></button>
+                <button class="engagement-btn" id="shareBtn"><i class="fas fa-share-alt"></i><span class="engagement-count" id="shareCount">45</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login & Document Section -->
+    <section class="login-section" id="login">
+        <div class="container">
+            <h2 class="section-title" data-en="Get Started with Resumora" data-fr="Commencez avec Resumora">Get Started with Resumora</h2>
+            <div class="split-panel">
+                <!-- Login Panel -->
+                <div class="panel">
+                    <h3 data-en="Login / Register" data-fr="Connexion / Inscription">Login / Register</h3>
+                    <div class="form-group"><label class="form-label" data-en="Email" data-fr="Email">Email</label><input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" data-en-placeholder="you@example.com" data-fr-placeholder="vous@exemple.com"></div>
+                    <div class="form-group"><label class="form-label" data-en="Password" data-fr="Mot de passe">Password</label><input type="password" class="form-input" id="loginPassword" placeholder="••••••••" data-en-placeholder="••••••••" data-fr-placeholder="••••••••"></div>
+                    <div class="form-group" id="confirmPasswordGroup" style="display:none;"><label class="form-label" data-en="Confirm Password" data-fr="Confirmer le mot de passe">Confirm Password</label><input type="password" class="form-input" id="confirmPassword" placeholder="••••••••" data-en-placeholder="••••••••" data-fr-placeholder="••••••••"></div>
+                    <div class="forgot-password"><button id="forgotPasswordBtn" data-en="Forgot Password?" data-fr="Mot de passe oublié ?">Forgot Password?</button></div>
+                    <button class="cta-button btn-block" id="loginBtn"><i class="fas fa-sign-in-alt"></i><span data-en="Login" data-fr="Connexion">Login</span></button>
+                    <button class="register-btn" id="registerBtn"><i class="fas fa-user-plus"></i><span data-en="Register" data-fr="S'inscrire">Register</span></button>
+                </div>
+                <!-- Upload Documents Panel -->
+                <div class="panel">
+                    <h3 data-en="Upload Documents" data-fr="Télécharger Documents">Upload Documents</h3>
+                    <input type="file" id="fileUpload" multiple style="display:none;" accept=".pdf,.doc,.docx,.txt,.jpg,.png">
+                    <div class="document-buttons"><button class="doc-btn" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i><span data-en="Upload Documents" data-fr="Télécharger Documents">Upload Documents</span></button></div>
+                    <div id="fileListContainer" class="file-list" style="display:none;"></div>
+                    <div class="file-info" id="fileInfo"><span data-en="No files selected. Max 100 MB per file." data-fr="Aucun fichier sélectionné. Max 100 Mo par fichier.">No files selected. Max 100 MB per file.</span></div>
+                    <div class="action-buttons"><button class="remove-btn" id="removeFilesBtn"><i class="fas fa-trash-alt"></i><span data-en="Remove All" data-fr="Tout supprimer">Remove All</span></button><button class="done-btn" id="doneBtn"><i class="fas fa-check-circle"></i><span data-en="Done" data-fr="Terminé">Done</span></button></div>
+                    <button class="cancel-refund-btn" id="cancelRefundBtn" disabled><i class="fas fa-undo-alt"></i><span data-en="Cancel / Refund" data-fr="Annuler / Remboursement">Cancel / Refund</span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="luxury-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h4 data-en="Resumora" data-fr="Resumora">Resumora</h4><p data-en="World's leading career elevation platform trusted by professionals in 50+ countries" data-fr="Plateforme d'élévation de carrière leader mondiale, approuvée par des professionnels dans 50+ pays">World's leading career elevation platform trusted by professionals in 50+ countries</p><div class="social-icons"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin-in"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div></div>
+                <div class="footer-section"><h4 data-en="Navigation" data-fr="Navigation">Navigation</h4><ul class="footer-links"><li><a href="#home"><i class="fas fa-chevron-right"></i> <span data-en="Home" data-fr="Accueil">Home</span></a></li><li><a href="#login"><i class="fas fa-chevron-right"></i> <span data-en="Login/Register" data-fr="Connexion/Inscription">Login/Register</span></a></li></ul></div>
+                <div class="footer-section"><h4 data-en="Support" data-fr="Support">Support</h4><ul class="footer-links"><li><button class="footer-btn" id="chatBtn"><i class="fas fa-comment-dots"></i> <span data-en="Chat with us" data-fr="Discutez avec nous">Chat</span></button></li><li><a href="mailto:info@resumora.net"><i class="fas fa-envelope"></i> info@resumora.net</a></li></ul></div>
+                <div class="footer-section"><h4 data-en="Company" data-fr="Entreprise">Company</h4><ul class="footer-links"><li><button class="footer-btn" id="aboutBtn"><i class="fas fa-heart"></i> <span data-en="About Resumora" data-fr="À propos de Resumora">About</span></button></li><li><button class="footer-btn" id="legalPolicyBtn"><i class="fas fa-gavel"></i> <span data-en="Legal Policy" data-fr="Politique légale">Legal Policy</span></button></li></ul></div>
+            </div>
+            <div class="copyright"><p>© 2024 Resumora Global. <span data-en="All rights reserved. No phone or email contact - online assistance only." data-fr="Tous droits réservés. Pas de contact téléphonique ou email - assistance en ligne uniquement.">All rights reserved. No phone or email contact - online assistance only.</span></p></div>
+        </div>
+    </footer>
+
+    <script>
+        // ================== TOAST SYSTEM ==================
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.style.background = isError ? 'linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #F4E8C1 100%)' : 'var(--gradient-gold)';
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        // ================== MODAL SYSTEM ==================
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalBody = document.getElementById('modalBody');
+        const modalClose = document.getElementById('modalClose');
+
+        function openModal(title, contentEn, contentFr) {
+            const lang = document.documentElement.lang;
+            const titleText = lang === 'fr' ? (title.fr || title.en) : title.en;
+            const content = lang === 'fr' ? contentFr : contentEn;
+            modalBody.innerHTML = `<h2>${titleText}</h2>${content}`;
+            modalOverlay.classList.add('active');
+        }
+
+        modalClose.addEventListener('click', () => { modalOverlay.classList.remove('active'); });
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
+
+        // Modal content
+        const aboutTitle = { en: 'About Resumora', fr: 'À propos de Resumora' };
+        const aboutContentEn = '<p>Resumora is a premier career elevation platform trusted by professionals in over 50 countries...</p><ul><li>ATS‑optimized formatting</li><li>Professional writers...</li></ul>';
+        const aboutContentFr = '<p>Resumora est une plateforme d\'élévation de carrière de premier plan...</p>';
+        const legalTitle = { en: 'Legal Policy', fr: 'Politique légale' };
+        const legalContentEn = '<h3>1. Refund Policy</h3><p>You may cancel your order for a full refund at any time before the editing process has begun...</p>';
+        const legalContentFr = '<h3>1. Politique de remboursement</h3><p>Vous pouvez annuler votre commande pour un remboursement intégral...</p>';
+
+        // ================== LANGUAGE TOGGLE ==================
+        const enBtn = document.getElementById('enBtn');
+        const frBtn = document.getElementById('frBtn');
+        const languageElements = document.querySelectorAll('[data-en], [data-en-placeholder], [data-fr], [data-fr-placeholder]');
+
+        function switchLanguage(lang) {
+            languageElements.forEach(element => {
+                if (element.hasAttribute(`data-${lang}`)) {
+                    if (element.hasAttribute(`data-${lang}-placeholder`)) {
+                        element.placeholder = element.getAttribute(`data-${lang}-placeholder`);
+                    } else {
+                        element.textContent = element.getAttribute(`data-${lang}`);
+                    }
+                }
+            });
+            if (lang === 'en') {
+                enBtn.classList.add('active'); frBtn.classList.remove('active');
+                document.documentElement.lang = 'en';
+                showToast('Language switched to English');
+            } else {
+                frBtn.classList.add('active'); enBtn.classList.remove('active');
+                document.documentElement.lang = 'fr';
+                showToast('Langue changée en Français');
+            }
+            const authSpan = document.getElementById('authToggleText');
+            authSpan.textContent = lang === 'en' ? 'Register' : 'S\'inscrire';
+        }
+
+        enBtn.addEventListener('click', () => { switchLanguage('en'); });
+        frBtn.addEventListener('click', () => { switchLanguage('fr'); });
+
+        // ================== MOBILE MENU ==================
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        mobileMenuBtn.addEventListener('click', () => { navLinks.classList.toggle('active'); });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => { navLinks.classList.remove('active'); });
+        });
+
+        // ================== TOGGLE AUTH MODE ==================
+        const toggleAuthBtn = document.getElementById('toggleAuthMode');
+        const authToggleText = document.getElementById('authToggleText');
+        const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+
+        let isRegisterMode = false;
+        let registeredUsers = {};
+        let currentUser = null;
+
+        function setAuthMode(mode) {
+            isRegisterMode = mode;
+            if (mode) {
+                confirmPasswordGroup.style.display = 'block';
+                authToggleText.setAttribute('data-en', 'Login');
+                authToggleText.setAttribute('data-fr', 'Connexion');
+                authToggleText.textContent = document.documentElement.lang === 'fr' ? 'Connexion' : 'Login';
+            } else {
+                confirmPasswordGroup.style.display = 'none';
+                authToggleText.setAttribute('data-en', 'Register');
+                authToggleText.setAttribute('data-fr', 'S\'inscrire');
+                authToggleText.textContent = document.documentElement.lang === 'fr' ? 'S\'inscrire' : 'Register';
+            }
+        }
+        toggleAuthBtn.addEventListener('click', () => { setAuthMode(!isRegisterMode); });
+        registerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!isRegisterMode) setAuthMode(true);
+            else performRegistration();
+        });
+        loginBtn.addEventListener('click', () => {
+            if (isRegisterMode) setAuthMode(false);
+            else performLogin();
+        });
+
+        function performRegistration() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const confirm = document.getElementById('confirmPassword').value.trim();
+            if (!email || !pass || !confirm) { showToast('Please fill all fields', true); return; }
+            if (!email.includes('@')) { showToast('Invalid email', true); return; }
+            if (pass !== confirm) { showToast('Passwords do not match', true); return; }
+            registeredUsers[email] = pass;
+            showToast('Registration successful!');
+            setAuthMode(false);
+        }
+
+        function performLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+            if (!email || !pass) { showToast('Please fill all fields', true); return; }
+            if (registeredUsers[email] && registeredUsers[email] === pass) {
+                currentUser = email;
+                showToast('Login successful!');
+            } else {
+                showToast('Invalid email or password', true);
+            }
+        }
+
+        forgotPasswordBtn.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) { showToast('Please enter your email', true); return; }
+            showToast(`A reset link has been sent to ${email} (simulation)`);
+        });
+
+        // ================== UPLOAD / REMOVE / DONE / CANCEL ==================
+        const fileUpload = document.getElementById('fileUpload');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const removeFilesBtn = document.getElementById('removeFilesBtn');
+        const doneBtn = document.getElementById('doneBtn');
+        const cancelRefundBtn = document.getElementById('cancelRefundBtn');
+        let selectedFiles = [];
+        let serviceStarted = false;
+        let serviceCompleted = false;
+
+        uploadBtn.addEventListener('click', () => { fileUpload.click(); });
+        fileUpload.addEventListener('change', (e) => {
+            selectedFiles = [...selectedFiles, ...Array.from(e.target.files)];
+            updateFileList();
+            fileUpload.value = '';
+        });
+
+        function removeFile(index) { selectedFiles.splice(index,1); updateFileList(); }
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileListContainer.style.display = 'none';
+                fileInfo.innerHTML = 'No files selected. Max 100 MB per file.';
+                return;
+            }
+            fileListContainer.style.display = 'block';
+            let html = '';
+            selectedFiles.forEach((file, index) => {
+                const sizeMB = (file.size/(1024*1024)).toFixed(2);
+                html += `<div class="file-item"><span>${file.name} (${sizeMB} MB)</span><i class="fas fa-times remove-single" data-index="${index}"></i></div>`;
+            });
+            fileListContainer.innerHTML = html;
+            document.querySelectorAll('.remove-single').forEach(icon => {
+                icon.addEventListener('click', (e) => { removeFile(parseInt(e.target.dataset.index)); });
+            });
+            const totalSizeMB = selectedFiles.reduce((acc,f)=>acc+f.size,0)/(1024*1024);
+            fileInfo.innerHTML = `<strong>${selectedFiles.length}</strong> file(s) selected. Total size: ${totalSizeMB.toFixed(2)} MB`;
+        }
+
+        removeFilesBtn.addEventListener('click', () => {
+            if (selectedFiles.length===0) { showToast('No files to remove', true); return; }
+            selectedFiles = [];
+            updateFileList();
+            showToast('All files removed');
+        });
+
+        doneBtn.addEventListener('click', () => {
+            if (!currentUser) { showToast('Please log in first', true); return; }
+            if (selectedFiles.length===0) { showToast('Please upload files first', true); return; }
+            serviceCompleted = true;
+            cancelRefundBtn.disabled = true;
+            showToast(`An email has been sent to ${currentUser} with the download link (simulation)`);
+        });
+
+        cancelRefundBtn.addEventListener('click', () => {
+            if (serviceCompleted) { showToast('Service already completed, refund not possible', true); return; }
+            if (!serviceStarted) { showToast('No service in progress', true); return; }
+            showToast('Refund processed to the same payment method (simulation)');
+            serviceStarted = false;
+            cancelRefundBtn.disabled = true;
+        });
+
+        document.querySelectorAll('.service-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!currentUser) { showToast('Please log in first', true); return; }
+                serviceStarted = true;
+                cancelRefundBtn.disabled = false;
+                showToast('Payment methods: Credit Card, PayPal (simulation). Service started.');
+            });
+        });
+
+        // Engagement buttons
+        let likeCount=124, unlikeCount=12, shareCount=45, liked=false, unliked=false;
+        document.getElementById('likeBtn').addEventListener('click',()=>{
+            if(!liked){ likeCount++; liked=true; if(unliked){ unlikeCount--; unliked=false; } }
+            else{ likeCount--; liked=false; }
+            document.getElementById('likeCount').textContent=likeCount;
+            document.getElementById('unlikeCount').textContent=unlikeCount;
+            showToast('Thank you for your support!');
+        });
+        document.getElementById('unlikeBtn').addEventListener('click',()=>{
+            if(!unliked){ unlikeCount++; unliked=true; if(liked){ likeCount--; liked=false; } }
+            else{ unlikeCount--; unliked=false; }
+            document.getElementById('likeCount').textContent=likeCount;
+            document.getElementById('unlikeCount').textContent=unlikeCount;
+            showToast('Thank you for your feedback!');
+        });
+        document.getElementById('shareBtn').addEventListener('click',()=>{
+            shareCount++;
+            document.getElementById('shareCount').textContent=shareCount;
+            if (navigator.share) {
+                navigator.share({ title:'Resumora', text:'Elevate your career with Resumora!', url:window.location.href })
+                .catch(()=>{ navigator.clipboard.writeText(window.location.href); showToast('Link copied to clipboard'); });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Link copied to clipboard');
+            }
+        });
+
+        // Footer modals
+        document.getElementById('chatBtn').addEventListener('click', ()=>{
+            const chatTitle = { en:'Chat with us', fr:'Discutez avec nous' };
+            const chatContentEn = '<p>Hello! How can we help you today? This is an automated response. For immediate assistance, please email info@resumora.net.</p>';
+            const chatContentFr = '<p>Bonjour ! Comment pouvons-nous vous aider aujourd’hui ? Ceci est une réponse automatique. Pour une assistance immédiate, veuillez envoyer un email à info@resumora.net.</p>';
+            openModal(chatTitle, chatContentEn, chatContentFr);
+        });
+        document.getElementById('aboutBtn').addEventListener('click', ()=>{ openModal(aboutTitle, aboutContentEn, aboutContentFr); });
+        document.getElementById('legalPolicyBtn').addEventListener('click', ()=>{ openModal(legalTitle, legalContentEn, legalContentFr); });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e){
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) targetElement.scrollIntoView({ behavior:'smooth' });
+            });
+        });
+
+        // Active nav highlight
+        window.addEventListener('scroll', ()=>{
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 100)) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) link.classList.add('active');
+            });
+        });
+
+        // Initialize
+        switchLanguage('en');
+        setAuthMode(false);
+    </script>
+</body>
 </html>
