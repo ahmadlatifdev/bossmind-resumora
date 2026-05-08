@@ -1,58 +1,90 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumora | Luxury Resume Services</title>
+    <title>Resumora: Luxury Resume Service</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #0a0a0f;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: #ededed;
-            line-height: 1.5;
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50; /* Dark theme */
+            color: #fff;
+            margin: 0;
+            padding: 0;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        .hero { text-align: center; padding: 80px 20px; }
-        .hero h1 { font-size: 48px; background: linear-gradient(135deg, #f5af19, #f12711); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 20px; }
-        .hero p { font-size: 20px; color: #a0a0b0; max-width: 700px; margin: 0 auto; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 60px 0; }
-        .feature-card { background: #13111c; border-radius: 20px; padding: 28px; border: 1px solid #2a2a35; transition: transform 0.2s; }
-        .feature-card:hover { transform: translateY(-5px); border-color: #f5af19; }
-        .feature-card h3 { font-size: 22px; margin-bottom: 12px; color: #f5af19; }
-        .feature-card p { color: #a0a0b0; }
-        .pricing { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 60px 0; }
-        .plan { background: #13111c; border-radius: 24px; padding: 32px; width: 280px; text-align: center; border: 1px solid #2a2a35; transition: all 0.2s; }
-        .plan.popular { border-color: #f5af19; box-shadow: 0 0 20px rgba(245,175,25,0.2); position: relative; }
-        .plan.popular::before { content: "⭐ POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #f5af19; color: #0a0a0f; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .plan h3 { font-size: 28px; margin-bottom: 16px; }
-        .price { font-size: 36px; font-weight: bold; color: #f5af19; margin: 16px 0; }
-        .btn-plan { background: #f5af19; color: #0a0a0f; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; width: 100%; }
-        .btn-plan:hover { background: #ffc64a; transform: scale(1.02); }
-        footer { text-align: center; padding: 40px 0; margin-top: 40px; border-top: 1px solid #2a2a35; color: #6a6a7a; }
-        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .plan { width: 100%; } }
+        header {
+            background-color: #19284a;
+            color: #f1f1f1;
+            text-align: center;
+            padding: 30px 0;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .pricing-plans {
+            background-color: #fff;
+            padding: 50px;
+            text-align: center;
+        }
+        .pricing-plans h3 {
+            color: #19284a;
+        }
+        .pricing-plans p {
+            color: #6c757d;
+        }
+        .btn {
+            background-color: #19284a;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="hero">
-            <h1>Resumora — Luxury Resume Services</h1>
-            <p>AI‑powered ATS optimization, LinkedIn branding, bilingual EN/FR, and interview preparation trusted by Fortune 500 candidates.</p>
-        </div>
-        <div class="features">
-            <div class="feature-card"><h3>📄 ATS Optimized Resume</h3><p>Pass any automated screener with keyword‑rich, recruiter‑approved templates.</p></div>
-            <div class="feature-card"><h3>✉️ Cover Letter Generator</h3><p>Personalized, high‑impact cover letters that get you noticed.</p></div>
-            <div class="feature-card"><h3>🔗 LinkedIn Optimization</h3><p>Profile rewrites that attract recruiters and highlight your brand.</p></div>
-            <div class="feature-card"><h3>🎤 Interview Preparation</h3><p>Mock interviews and feedback from industry experts.</p></div>
-            <div class="feature-card"><h3>🌐 Bilingual EN/FR</h3><p>Perfectly translated resumes and LinkedIn profiles for Canadian and global roles.</p></div>
-            <div class="feature-card"><h3>⚡ Priority Support</h3><p>Dedicated account manager and 24/7 chat assistance.</p></div>
-        </div>
-        <div class="pricing">
-            <div class="plan"><h3>Basic</h3><div class="price">$19</div><button class="btn-plan">Choose Plan</button></div>
-            <div class="plan popular"><h3>Professional</h3><div class="price">$49</div><button class="btn-plan">Choose Plan</button></div>
-            <div class="plan"><h3>Elite</h3><div class="price">$99</div><button class="btn-plan">Choose Plan</button></div>
-        </div>
-        <footer>© 2026 Resumora — Luxury Career Services. All rights reserved.</footer>
+    <header>
+        <h1>Resumora: Luxury Resume Service</h1>
+        <nav>
+            <ul>
+                <li><a href="#ats">ATS Optimized Resume</a></li>
+                <li><a href="#cover-letter">Cover Letter Generator</a></li>[18D[K
+Generator</a></li>
+                <li><a href="#linkedin">LinkedIn Optimiza[8D[K
+Optimization</a></li>
+                <li><a href="#interview-preparation">Interview Preparation<[12D[K
+Preparation</a></li>
+                <li><a href="#bilingual">Bilingual EN/FR</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="pricing-plans">
+        <h3>Basic Plan ($25/month)</h3>
+        <p>ATS Optimized Resume, Cover Letter Generator, LinkedIn Optimizat[9D[K
+Optimization</p>
+        <button class="btn">Get Started</button>
+
+        <h3>Professional Plan ($49/month)</h3>
+        <p>ATS Optimized Resume, Cover Letter Generator, LinkedIn Optimizat[9D[K
+Optimization, Interview Preparation</p>
+        <button class="btn">Get Started</button>
+
+        <h3>Elite Plan ($79/month)</h3>
+        <p>ATS Optimized Resume, Cover Letter Generator, LinkedIn Optimizat[9D[K
+Optimization, Interview Preparation, Bilingual EN/FR</p>
+        <button class="btn">Get Started</button>
     </div>
+
+    <footer>
+        <p>&copy; 2023 Resumora. All rights reserved.</p>
+    </footer>
 </body>
 </html>
+```
+
