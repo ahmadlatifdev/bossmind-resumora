@@ -1,104 +1,80 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumora - Luxury Resume Service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Resumora | Luxury Resume Services</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #333; /* Dark theme */
-            color: #fff; /* Gold accents */
+            background: #0a0a0f;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #ededed;
+            line-height: 1.5;
         }
-        header {
-            background-color: #555; /* Deep gold theme */
-            color: #fff; /* White text */
-            text-align: center;
-            padding: 20px;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-        }
-        nav li {
-            flex-grow: 1;
-            color: #fff; /* White text */
-            text-align: center;
-        }
-        nav a:hover {
-            background-color: #777; /* Dark gold theme on hover */
-        }
-        .pricing {
-            padding: 20px;
-            background-color: #4CAF50; /* Green background color for Profes[6D[K
-Professional Plan */
-            color: #fff; /* White text */
-        }
-        .pricing button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #333; /* Dark gold theme */
-            color: #fff; /* White text */
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .pricing button:hover {
-            background-color: #555; /* Dark gold theme on hover */
-        }
-        footer {
-            background-color: #555; /* Deep gold theme */
-            color: #fff; /* White text */
-            text-align: center;
-            padding: 20px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-        .footer a {
-            color: #fff; /* White text */
-        }
-        .footer a:hover {
-            color: #777; /* Dark gold theme on hover */
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        /* Header with logo */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #2a2a35; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #f5af19, #f12711); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #0a0a0f; }
+        .logo-text { font-size: 24px; font-weight: bold; background: linear-gradient(135deg, #f5af19, #f12711); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        /* Hero */
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h1 { font-size: 48px; background: linear-gradient(135deg, #f5af19, #f12711); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 20px; }
+        .hero p { font-size: 20px; color: #a0a0b0; max-width: 700px; margin: 0 auto; }
+        /* Features grid */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 60px 0; }
+        .feature-card { background: #13111c; border-radius: 20px; padding: 28px; border: 1px solid #2a2a35; transition: transform 0.2s; }
+        .feature-card:hover { transform: translateY(-5px); border-color: #f5af19; }
+        .feature-card h3 { font-size: 22px; margin-bottom: 12px; color: #f5af19; }
+        .feature-card p { color: #a0a0b0; }
+        /* Pricing */
+        .pricing { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 60px 0; }
+        .plan { background: #13111c; border-radius: 24px; padding: 32px; width: 280px; text-align: center; border: 1px solid #2a2a35; transition: all 0.2s; }
+        .plan.popular { border-color: #f5af19; box-shadow: 0 0 20px rgba(245,175,25,0.2); position: relative; }
+        .plan.popular::before { content: "⭐ POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #f5af19; color: #0a0a0f; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .plan h3 { font-size: 28px; margin-bottom: 16px; }
+        .price { font-size: 36px; font-weight: bold; color: #f5af19; margin: 16px 0; }
+        .btn-plan { background: #f5af19; color: #0a0a0f; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: all 0.2s; width: 100%; }
+        .btn-plan:hover { background: #ffc64a; transform: scale(1.02); }
+        /* Footer */
+        footer { text-align: center; padding: 40px 0; margin-top: 40px; border-top: 1px solid #2a2a35; color: #6a6a7a; }
+        footer a { color: #f5af19; text-decoration: none; margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+        /* Responsive */
+        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .plan { width: 100%; } .header { flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
-    <header>
-        <a href="#"><img src="your-logo.png" alt="Resumora Logo"></a>
-    </header>
-    <nav>
-        <ul>
-            <li><a href="#">ATS Optimized Resume</a></li>
-            <li><a href="#">Cover Letter Generator</a></li>
-            <li><a href="#">LinkedIn Optimization</a></li>
-            <li><a href="#">Interview Preparation</a></li>
-            <li><a href="#">Bilingual EN/FR</a></li>
-        </ul>
-    </nav>
-    <div class="pricing">
-        <h2>Our Pricing Plans</h2>
-        <button class="professional">Professional Plan - $99</button>
-        <button class="elite">Elite Plan - $199</button>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">R</div>
+                <div class="logo-text">Resumora</div>
+            </div>
+            <div>Luxury Career Services</div>
+        </div>
+        <div class="hero">
+            <h1>Resumora — Luxury Resume Services</h1>
+            <p>AI‑powered ATS optimization, LinkedIn branding, bilingual EN/FR, and interview preparation trusted by Fortune 500 candidates.</p>
+        </div>
+        <div class="features">
+            <div class="feature-card"><h3>📄 ATS Optimized Resume</h3><p>Pass any automated screener with keyword‑rich, recruiter‑approved templates.</p></div>
+            <div class="feature-card"><h3>✉️ Cover Letter Generator</h3><p>Personalized, high‑impact cover letters that get you noticed.</p></div>
+            <div class="feature-card"><h3>🔗 LinkedIn Optimization</h3><p>Profile rewrites that attract recruiters and highlight your brand.</p></div>
+            <div class="feature-card"><h3>🎤 Interview Preparation</h3><p>Mock interviews and feedback from industry experts.</p></div>
+            <div class="feature-card"><h3>🌐 Bilingual EN/FR</h3><p>Perfectly translated resumes and LinkedIn profiles for Canadian and global roles.</p></div>
+            <div class="feature-card"><h3>⚡ Priority Support</h3><p>Dedicated account manager and 24/7 chat assistance.</p></div>
+        </div>
+        <div class="pricing">
+            <div class="plan"><h3>Basic</h3><div class="price">$19</div><button class="btn-plan">Choose Plan</button></div>
+            <div class="plan popular"><h3>Professional</h3><div class="price">$49</div><button class="btn-plan">Choose Plan</button></div>
+            <div class="plan"><h3>Elite</h3><div class="price">$99</div><button class="btn-plan">Choose Plan</button></div>
+        </div>
+        <footer>
+            <p>© 2026 Resumora — Luxury Career Services. All rights reserved.</p>
+            <p><a href="#">Contact</a> | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
+        </footer>
     </div>
-    <footer>
-        <p>&copy; 2023 Resumora. All rights reserved.</p>
-        <ul>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-        </ul>
-    </footer>
 </body>
 </html>
-```
-
-Replace `your-logo.png` with the actual path to your logo file. This HTML p[1D[K
-page includes a header, navigation bar, pricing plans with hover effects, a[1D[K
-and a footer with copyright information and links. The design is in a dark [K
-theme with gold accents for a luxurious feel.
-
