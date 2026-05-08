@@ -76,5 +76,17 @@
             <p><a href="#">Contact</a> | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
         </footer>
     </div>
-</body>
+<script>
+async function handleCheckout(priceId) {
+  const res = await fetch('/api/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ priceId })
+  });
+  const session = await res.json();
+  if (session.id) window.location.href = https://checkout.stripe.com/pay/ + session.id;
+  else alert('Error starting checkout');
+}
+</script></body>
 </html>
+
