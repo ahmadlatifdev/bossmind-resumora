@@ -2,20 +2,18 @@ import Link from "next/link";
 
 export default function SupportPage() {
   return (
-    <main style={styles.page}>
-      <section style={styles.card}>
-        <h1>Support</h1>
-        <p>Priority support is included in Elite plans.</p>
-        <p>Submit requests at support@resumora.net with your account email and order ID.</p>
-        <p>Average first response time: under 2 hours for premium clients.</p>
-        <Link href="/" style={styles.link}>Back to home</Link>
-      </section>
-    </main>
+    <div className="rs-app-shell">
+      <main>
+        <section className="rs-simple-card rs-simple-card--wide">
+          <h1>Support</h1>
+          <p>Priority support is included on Elite plans.</p>
+          <p>Submit requests at support@resumora.net with your account email and order ID.</p>
+          <p>Average first response time: under two hours for premium clients.</p>
+          <Link href="/" className="rs-link-muted">
+            Back to home
+          </Link>
+        </section>
+      </main>
+    </div>
   );
 }
-
-const styles = {
-  page: { minHeight: "100vh", background: "#090f23", color: "#f8f5ee", padding: "20px", fontFamily: "Inter, Segoe UI, Arial, sans-serif" },
-  card: { maxWidth: "840px", margin: "0 auto", border: "1px solid rgba(212,175,55,.35)", borderRadius: "16px", padding: "24px", background: "rgba(8,17,41,.8)" },
-  link: { color: "#f4ddb0", display: "inline-block", marginTop: "12px" },
-};

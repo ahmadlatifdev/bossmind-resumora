@@ -1,12 +1,12 @@
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function SuccessPage() {
   const router = useRouter();
-
   const { session_id } = router.query;
 
-  const [status, setStatus] = useState('loading');
+  const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     if (session_id) {
@@ -14,82 +14,58 @@ export default function SuccessPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.valid) {
-            setStatus('success');
+            setStatus("success");
           } else {
-            setStatus('invalid');
+            setStatus("invalid");
           }
         })
         .catch(() => {
-          setStatus('error');
+          setStatus("error");
         });
     }
   }, [session_id]);
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#0b1120',
-        color: '#ffffff',
-        padding: '20px',
-        fontFamily: 'Arial',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '600px',
-          width: '100%',
-          background: '#111827',
-          borderRadius: '20px',
-          padding: '40px',
-          textAlign: 'center',
-          border: '1px solid #1f2937',
-        }}
-      >
-        {status === 'loading' && (
+    <div className="rs-app-shell">
+      <main className="rs-simple-card" style={{ textAlign: "center" }}>
+        {status === "loading" && (
           <>
-            <h1>Verifying Payment...</h1>
+            <h1>Verifying payment</h1>
             <p>Please wait while we confirm your payment session.</p>
           </>
         )}
 
-        {status === 'success' && (
+        {status === "success" && (
           <>
-            <h1>Payment Successful</h1>
-
-            <p>
-              Thank you for choosing Resumora.
-            </p>
-
-            <p>
-              Your payment has been verified successfully.
-            </p>
+            <h1>Payment successful</h1>
+            <p>Thank you for choosing Resumora.</p>
+            <p>Your payment has been verified successfully.</p>
+            <Link href="/" className="rs-link-muted">
+              Return home
+            </Link>
           </>
         )}
 
-        {status === 'invalid' && (
+        {status === "invalid" && (
           <>
-            <h1>Invalid Session</h1>
-
-            <p>
-              We could not verify this payment session.
-            </p>
+            <h1>Invalid session</h1>
+            <p>We could not verify this payment session.</p>
+            <Link href="/" className="rs-link-muted">
+              Return home
+            </Link>
           </>
         )}
 
-        {status === 'error' && (
+        {status === "error" && (
           <>
-            <h1>Verification Error</h1>
-
-            <p>
-              Something went wrong while verifying your payment.
-            </p>
+            <h1>Verification error</h1>
+            <p>Something went wrong while verifying your payment.</p>
+            <Link href="/" className="rs-link-muted">
+              Return home
+            </Link>
           </>
         )}
-      </div>
+      </main>
     </div>
   );
 }
