@@ -43,8 +43,8 @@ export default function MarketingArchivePage() {
             <h2 className="rs-h2">{lang === "en" ? "Organic growth stack" : "Stack croissance organique"}</h2>
             <p className="rs-subtitle">
               {lang === "en"
-                ? "Daily social drafts and SEO landing pages are generated offline via repo scripts; wire platform API keys in CI to publish."
-                : "Brouillons sociaux quotidiens et pages SEO générés hors-ligne via scripts ; branchez les clés API en CI pour publier."}
+                ? "Short-form content ships only on official YouTube and TikTok channels (nothing embedded here). SEO landing pages and UTMs drive traffic back to resumora.net; scripts run offline—wire API keys in CI to publish."
+                : "Les formats courts sont publiés uniquement sur les chaînes YouTube et TikTok officielles (rien d’intégré ici). Les pages SEO et les UTM ramènent le trafic vers resumora.net ; scripts hors-ligne—branchez les clés API en CI pour publier."}
             </p>
             <ul className="rs-footer-links" style={{ marginTop: "1rem" }}>
               <li>

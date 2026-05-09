@@ -4,13 +4,11 @@ import { useEffect } from "react";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWeeklyBundle } from "@/lib/marketing/weekly-content";
-import { getWeeklyVideoAutomationBundle } from "@/lib/marketing/weekly-video-automation";
 
-/** Homepage: ISO-week marketing — narrative, featured, visuals, video, automation pipeline, CTA. */
+/** Homepage: ISO-week marketing — narrative, featured lanes, weekly visuals, CTA (no embedded video). */
 export default function WeeklyHomePage() {
   const { lang } = useLanguage();
   const bundle = getWeeklyBundle(lang);
-  const pipeline = getWeeklyVideoAutomationBundle(lang, bundle.weekId);
   const L = bundle.labels;
 
   useEffect(() => {
@@ -72,53 +70,6 @@ export default function WeeklyHomePage() {
                   <span className="rs-week-photo-cap">{p.alt}</span>
                 </Link>
               ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="rs-section rs-section-muted">
-          <div className="rs-container">
-            <p className="rs-eyebrow">{L.insight}</p>
-            <div className="rs-week-video-shell">
-              {bundle.video.embedUrl ? (
-                <div className="rs-week-video-frame">
-                  <iframe title={bundle.video.title} src={bundle.video.embedUrl} allowFullScreen loading="lazy" />
-                </div>
-              ) : (
-                <div className="rs-week-video-placeholder">
-                  <p className="rs-week-video-title">{bundle.video.title}</p>
-                  <p className="rs-week-video-desc">{bundle.video.description}</p>
-                  <a href={bundle.video.fallbackHref} className="rs-btn-accent" target="_blank" rel="noopener noreferrer">
-                    {L.watchLabel}
-                  </a>
-                </div>
-              )}
-            </div>
-
-            <div className="rs-week-pipeline">
-              <p className="rs-eyebrow">{L.pipelineEyebrow}</p>
-              <h2 className="rs-h3-compact">{L.pipelineTitle}</h2>
-              <p className="rs-subtitle rs-subtitle-tight">{L.pipelineIntro}</p>
-              <ul className="rs-pipeline-list">
-                {pipeline.contentPillars.map((pillar) => (
-                  <li key={pillar.id}>{pillar.label}</li>
-                ))}
-              </ul>
-              <div className="rs-pipeline-meta">
-                <span>{lang === "fr" ? "Durée cible" : "Target duration"}: {pipeline.durationTargetSec}s · {pipeline.aspectRatio}</span>
-                <span>
-                  {lang === "fr" ? "Files d’attente" : "Queues"}: <code>{pipeline.automationHooks.queueKey}</code>
-                </span>
-              </div>
-              <div className="rs-pipeline-links">
-                <a href={pipeline.youtube.channelUrl} className="rs-btn-ghost" target="_blank" rel="noopener noreferrer">
-                  YouTube Shorts
-                </a>
-                <a href={pipeline.tiktok.profileUrl} className="rs-btn-ghost" target="_blank" rel="noopener noreferrer">
-                  TikTok
-                </a>
-              </div>
-              <p className="rs-pipeline-placeholder">{pipeline.placeholders.voiceoverScript}</p>
             </div>
           </div>
         </section>

@@ -10,13 +10,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { priceId } = req.body;
+    const {
+      priceId,
+      planId,
+      planName,
+      planPrice,
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+    } = req.body || {};
 
     if (!priceId) {
       return res.status(400).json({
         error: 'Missing priceId',
       });
     }
+
+    const metaSlice = (v) => String(v ?? '').slice(0, 500);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -33,6 +43,15 @@ export default async function handler(req, res) {
       success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
 
       cancel_url: `${req.headers.origin}/cancel`,
+
+      metadata: {
+        plan_id: metaSlice(planId),
+        plan_name: metaSlice(planName),
+        plan_price: metaSlice(planPrice),
+        utm_source: metaSlice(utmSource),
+        utm_medium: metaSlice(utmMedium),
+        utm_campaign: metaSlice(utmCampaign),
+      },
     });
 
     return res.status(200).json({
