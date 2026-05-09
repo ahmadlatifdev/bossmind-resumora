@@ -1,7 +1,19 @@
-<svg width="220" height="52" viewBox="0 0 220 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="1" y="1" width="50" height="50" rx="12" fill="#0B1633" stroke="#D4AF37" stroke-width="2"/>
-  <path d="M14 34V14H27.5C33.8513 14 39 19.1487 39 25.5C39 31.8513 33.8513 37 27.5 37H20.5V34H27.5C32.1944 34 36 30.1944 36 25.5C36 20.8056 32.1944 17 27.5 17H17V34H14Z" fill="#D4AF37"/>
-  <path d="M20.5 30.5V20.5H26.5C29.2614 20.5 31.5 22.7386 31.5 25.5C31.5 28.2614 29.2614 30.5 26.5 30.5H20.5Z" fill="#F1D68A"/>
-  <text x="62" y="22" fill="#F8F5EE" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">RESUMORA</text>
-  <text x="62" y="38" fill="#D4AF37" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="1.4">PREMIUM CAREER STUDIO</text>
+<svg width="340" height="72" viewBox="0 0 340 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Resumora Premium Career Studio">
+  <defs>
+    <linearGradient id="resumoraGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#AA8A2E"/>
+      <stop offset="45%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F4D98C"/>
+    </linearGradient>
+    <linearGradient id="resumoraGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="58" height="58" rx="14" fill="#08122C" stroke="url(#resumoraGold)" stroke-width="2"/>
+  <path d="M16 42V14H27.75C37.0875 14 44.5 20.9625 44.5 28.25C44.5 34.0875 40.8375 38.9625 35.775 41.0875L45 58H39.725L31.0875 42H21.25V38.75H28.875C34.0875 38.75 38.4375 34.0875 38.4375 28.5625C38.4375 22.9625 33.9625 18.25 27.8875 18.25H22.25V42H16Z" fill="url(#resumoraGold)"/>
+  <path d="M44 54H40L35 43H41L44 54Z" fill="#F8F5EE" fill-opacity="0.06"/>
+  <rect x="1" y="1" width="58" height="28" rx="14" fill="url(#resumoraGlow)" />
+  <text x="72" y="30" fill="#F8F5EE" font-family="Georgia, Times New Roman, serif" font-size="22" font-weight="700" letter-spacing="0.06em">RESUMORA</text>
+  <text x="73" y="50" fill="url(#resumoraGold)" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="11" font-weight="600" letter-spacing="0.18em">PREMIUM CAREER STUDIO</text>
 </svg>
