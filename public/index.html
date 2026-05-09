@@ -2,91 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Resumora | Luxury Resume Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumora | AI Resume Studio</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #0a0a0f;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: #ededed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0c10 0%, #1a1f2e 100%);
+            color: #f0f3fa;
             line-height: 1.5;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        /* Header with logo */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #2a2a35; }
-        .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #f5af19, #f12711); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #0a0a0f; }
-        .logo-text { font-size: 24px; font-weight: bold; background: linear-gradient(135deg, #f5af19, #f12711); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        /* Hero */
-        .hero { text-align: center; padding: 60px 20px; }
-        .hero h1 { font-size: 48px; background: linear-gradient(135deg, #f5af19, #f12711); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 20px; }
-        .hero p { font-size: 20px; color: #a0a0b0; max-width: 700px; margin: 0 auto; }
-        /* Features grid */
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 60px 0; }
-        .feature-card { background: #13111c; border-radius: 20px; padding: 28px; border: 1px solid #2a2a35; transition: transform 0.2s; }
-        .feature-card:hover { transform: translateY(-5px); border-color: #f5af19; }
-        .feature-card h3 { font-size: 22px; margin-bottom: 12px; color: #f5af19; }
-        .feature-card p { color: #a0a0b0; }
-        /* Pricing */
-        .pricing { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin: 60px 0; }
-        .plan { background: #13111c; border-radius: 24px; padding: 32px; width: 280px; text-align: center; border: 1px solid #2a2a35; transition: all 0.2s; }
-        .plan.popular { border-color: #f5af19; box-shadow: 0 0 20px rgba(245,175,25,0.2); position: relative; }
-        .plan.popular::before { content: "⭐ POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #f5af19; color: #0a0a0f; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .plan h3 { font-size: 28px; margin-bottom: 16px; }
-        .price { font-size: 36px; font-weight: bold; color: #f5af19; margin: 16px 0; }
-        .btn-plan { background: #f5af19; color: #0a0a0f; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: all 0.2s; width: 100%; }
-        .btn-plan:hover { background: #ffc64a; transform: scale(1.02); }
-        /* Footer */
-        footer { text-align: center; padding: 40px 0; margin-top: 40px; border-top: 1px solid #2a2a35; color: #6a6a7a; }
-        footer a { color: #f5af19; text-decoration: none; margin: 0 10px; }
-        footer a:hover { text-decoration: underline; }
-        /* Responsive */
-        @media (max-width: 768px) { .hero h1 { font-size: 32px; } .plan { width: 100%; } .header { flex-direction: column; gap: 10px; } }
+        .container { max-width: 1280px; margin: 0 auto; padding: 2rem; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 3rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: #8b5cf6;
+            border-color: #a78bfa;
+            box-shadow: 0 4px 14px rgba(139,92,246,0.3);
+        }
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #a0aec0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(15, 20, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .pricing-grid {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 3rem 0;
+        }
+        .pricing-card {
+            background: rgba(10, 14, 23, 0.8);
+            border-radius: 32px;
+            padding: 2rem;
+            width: 300px;
+            text-align: center;
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+        .price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 1rem 0;
+        }
+        .price span { font-size: 1rem; font-weight: 400; color: #94a3b8; }
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feature-list li::before {
+            content: "✓";
+            color: #8b5cf6;
+            font-weight: bold;
+        }
+        .status-badge {
+            background: #10b98120;
+            color: #34d399;
+            padding: 0.25rem 0.75rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: #5a6e8a;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">R</div>
-                <div class="logo-text">Resumora</div>
-            </div>
-            <div>Luxury Career Services</div>
+<div class="container">
+    <header>
+        <div class="logo">RESUMORA<span style="color:#8b5cf6;">✨</span></div>
+        <div>
+            <span class="status-badge" id="subscriptionStatus">Checking...</span>
+            <button class="btn" id="logoutBtn" style="margin-left:1rem;">Account</button>
         </div>
-        <div class="hero">
-            <h1>Resumora — Luxury Resume Services</h1>
-            <p>AI‑powered ATS optimization, LinkedIn branding, bilingual EN/FR, and interview preparation trusted by Fortune 500 candidates.</p>
-        </div>
-        <div class="features">
-            <div class="feature-card"><h3>📄 ATS Optimized Resume</h3><p>Pass any automated screener with keyword‑rich, recruiter‑approved templates.</p></div>
-            <div class="feature-card"><h3>✉️ Cover Letter Generator</h3><p>Personalized, high‑impact cover letters that get you noticed.</p></div>
-            <div class="feature-card"><h3>🔗 LinkedIn Optimization</h3><p>Profile rewrites that attract recruiters and highlight your brand.</p></div>
-            <div class="feature-card"><h3>🎤 Interview Preparation</h3><p>Mock interviews and feedback from industry experts.</p></div>
-            <div class="feature-card"><h3>🌐 Bilingual EN/FR</h3><p>Perfectly translated resumes and LinkedIn profiles for Canadian and global roles.</p></div>
-            <div class="feature-card"><h3>⚡ Priority Support</h3><p>Dedicated account manager and 24/7 chat assistance.</p></div>
-        </div>
-        <div class="pricing">
-            <div class="plan"><h3>Basic</h3><div class="price">$19</div><button class="btn-plan">Choose Plan</button></div>
-            <div class="plan popular"><h3>Professional</h3><div class="price">$49</div><button class="btn-plan">Choose Plan</button></div>
-            <div class="plan"><h3>Elite</h3><div class="price">$99</div><button class="btn-plan">Choose Plan</button></div>
-        </div>
-        <footer>
-            <p>© 2026 Resumora — Luxury Career Services. All rights reserved.</p>
-            <p><a href="#">Contact</a> | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
-        </footer>
-    </div>
-<script>
-async function handleCheckout(priceId) {
-  const res = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ priceId })
-  });
-  const session = await res.json();
-  if (session.id) window.location.href = https://checkout.stripe.com/pay/ + session.id;
-  else alert('Error starting checkout');
-}
-</script></body>
-</html>
+    </header>
 
+    <div class="hero">
+        <h1>AI-crafted resumes<br>that land luxury roles</h1>
+        <p>Resumora uses advanced AI to tailor your resume for top-tier positions. Join executives and creatives who never settle.</p>
+    </div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <h3>Pro</h3>
+            <div class="price">$10<span>/month</span></div>
+            <ul class="feature-list">
+                <li>Unlimited AI generations</li>
+                <li>Luxury templates</li>
+                <li>Priority support</li>
+                <li>Cancel anytime</li>
+            </ul>
+            <button class="btn btn-primary" id="subscribeBtn">Get Started →</button>
+        </div>
+        <div class="pricing-card">
+            <h3>Enterprise</h3>
+            <div class="price">Custom</div>
+            <ul class="feature-list">
+                <li>Dedicated account manager</li>
+                <li>White-glove onboarding</li>
+                <li>API access</li>
+                <li>SLA guarantee</li>
+            </ul>
+            <button class="btn">Contact sales</button>
+        </div>
+    </div>
+
+    <div class="card" style="text-align:center">
+        <h3>✨ Your recent resumes</h3>
+        <p style="margin:1rem 0">No resumes yet. Upgrade to Pro to start generating luxury-ready CVs.</p>
+    </div>
+    <footer>
+        © 2026 Resumora — AI for the discerning professional.
+    </footer>
+</div>
+
+<script>
+    async function checkStatus() {
+        try {
+            const res = await fetch('/subscription-status');
+            const data = await res.json();
+            const badge = document.getElementById('subscriptionStatus');
+            if (data.active) {
+                badge.textContent = '✓ Pro Active';
+                badge.style.background = '#10b98120';
+                badge.style.color = '#34d399';
+            } else {
+                badge.textContent = 'Free Tier';
+                badge.style.background = '#f59e0b20';
+                badge.style.color = '#fbbf24';
+            }
+        } catch(e) { console.log(e); }
+    }
+
+    document.getElementById('subscribeBtn').onclick = async () => {
+        const response = await fetch('/create-checkout-session', { method: 'POST' });
+        const session = await response.json();
+        window.location.href = session.url;
+    };
+
+    checkStatus();
+</script>
+</body>
+</html>

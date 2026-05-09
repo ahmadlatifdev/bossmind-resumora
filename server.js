@@ -1,45 +1,85 @@
-It looks like you have your server set up correctly to serve the index.html[10D[K
-index.html file from `/public` directory and handle all routes. However, th[2D[K
-there are a few minor improvements that can be made for better practice and[3D[K
-and security. Here's the corrected version of your code:
-
-```javascript
 const express = require('express');
-const path = require('path');
+const Stripe = require('stripe');
 
-// Create the Express application
 const app = express();
+const port = 3000;
 
-// Serve static files from the 'public' directory
+// Stripe initialization (uses environment variable STRIPE_SECRET_KEY)
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Define a route that serves the index.html file for all requests
-app.get('*', (req, res) => {
-  // Use path.join to ensure the correct file path is used
-  const filePath = path.join(__dirname, 'public', 'index.html');
-  
-  // Check if the file exists before sending it
-  if (!path.exists(filePath)) {
-    res.status(404).send('File not found');
-  } else {
-    res.sendFile(filePath);
+// Home route
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>Resumora</h1>
+    <button id="checkoutBtn">Subscribe $10/month</button>
+    <script>
+      document.getElementById('checkoutBtn').onclick = async () => {
+        const response = await fetch('/create-checkout-session', { method: 'POST' });
+        const session = await response.json();
+        window.location.href = session.url;
+      };
+    </script>
+  `);
+});
+
+// Create Stripe Checkout session
+app.post('/create-checkout-session', async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'Resumora Pro' },
+          unit_amount: 1000, // $10.00
+        },
+        quantity: 1,
+      }],
+      mode: 'subscription',
+      success_url: `http://localhost:${port}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:${port}/cancel`,
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Start the server on port 8080
-app.listen(8080, () => {
-  console.log('Server is running on http://localhost:8080');
+// Success page
+app.get('/success', async (req, res) => {
+  const sessionId = req.query.session_id;
+  if (!sessionId) return res.send('Missing session ID.');
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status === 'paid') {
+      // Here you would update your database: e.g., set user subscription active
+      res.send(`
+        <h1>✅ Payment successful!</h1>
+        <p>Your subscription is active. Session ID: ${sessionId}</p>
+        <a href="/">Go home</a>
+      `);
+    } else {
+      res.redirect('/cancel');
+    }
+  } catch (err) {
+    res.send(`Error verifying payment: ${err.message}`);
+  }
 });
-```
 
-### Key Improvements:
-1. **Path Handling**: Using `path.join(__dirname, 'public', 'index.html')` [K
-ensures that the file path is constructed correctly even if your project st[2D[K
-structure changes.
-2. **Error Handling**: Added a check to ensure the file exists before sendi[5D[K
-sending it. This prevents an error when the requested file does not exist.
-3. **Logging**: Added a simple console log to indicate that the server is r[1D[K
-running.
+// Cancel page
+app.get('/cancel', (req, res) => {
+  res.send(`
+    <h1>❌ Payment cancelled</h1>
+    <p>No charge was made. You can try again.</p>
+    <a href="/">Back to home</a>
+  `);
+});
 
-These changes should make your server more robust and easier to manage.
-
+app.listen(port, () => {
+  console.log(`Resumora running at http://localhost:${port}`);
+});
