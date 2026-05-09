@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^7.6.1",
     "express": "^5.2.1",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",
