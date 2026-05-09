@@ -88,7 +88,7 @@ const translations = {
       "Velocity and delight metrics anchored to real fulfilment—not vanity dashboards.",
     countriesTitle: "Global Reach",
     countriesSubtitle:
-      "Market-aware positioning for multinational employers and cross-border mobility scenarios.",
+      "Executive-grade resume and collateral positioning calibrated for recruiting norms, ATS conventions, and board-level tone in major international markets.",
     ctaTitle: "Ready when you are.",
     ctaSubtitle: "Reserve your strategist and secure same-week delivery windows on Professional and Elite tiers.",
     ctaPrimary: "Select a Plan",
@@ -170,7 +170,7 @@ const translations = {
       "Vitesses et satisfaction ancrées sur la livraison réelle, pas sur des tableaux cosmétiques.",
     countriesTitle: "Portée mondiale",
     countriesSubtitle:
-      "Positionnement adapté aux employeurs internationaux et aux parcours de mobilité transfrontière.",
+      "Positionnement de CV et dossiers élaboré selon les normes de recrutement locales, conventions ATS et exigences de narration dans les grandes places internationales.",
     ctaTitle: "Prêt lorsque vous l’êtes.",
     ctaSubtitle:
       "Réservez votre stratège et sécurisez des créneaux de livraison sous la même semaine sur Professionnel et Élite.",
@@ -436,24 +436,72 @@ const performanceStats = {
 
 const countries = {
   en: [
-    { country: "Canada", line: "Bilingual federal + provincial nuance packs." },
-    { country: "United States", line: "Revenue narrative clarity for hyperscale hiring pods." },
-    { country: "United Kingdom", line: "Competency-aligned structures for regulated industries." },
-    { country: "France", line: "Sophisticated FR tone with Anglo cross-over fluency." },
-    { country: "UAE", line: "Luxury-sector vocabulary for regional leadership searches." },
-    { country: "Germany", line: "Precision KPI storytelling for Mittelstand + DAX hybrids." },
-    { country: "Singapore", line: "APAC finance & tech recruiter expectations baked in." },
-    { country: "Australia", line: "Straightforward proof stacks for pragmatic hiring cultures." },
+    {
+      country: "Canada",
+      line: "Federal and bilingual hiring corridors, ATS layouts tuned for bilingual screening, and leadership tone calibrated for Toronto, Vancouver, and national mandates.",
+    },
+    {
+      country: "United States",
+      line: "Outcome-heavy narratives for hyperscale tech, finance, and consulting pipelines with keyword depth that survives Greenhouse-, Lever-, and Workday-heavy workflows.",
+    },
+    {
+      country: "United Kingdom",
+      line: "Competency-first CV scaffolding for regulated professions, succinct proof stacks that align with recruiter skim patterns across London and regional hubs.",
+    },
+    {
+      country: "France",
+      line: "French executive tone with Anglo crossover fluency—ideal for CAC-listed groups, boutiques, and cross-border rotations between Paris and global HQs.",
+    },
+    {
+      country: "UAE",
+      line: "Board-adjacent narratives for sovereign wealth-backed initiatives, aviation, logistics, finance, and luxury sectors across Dubai and Abu Dhabi hiring lanes.",
+    },
+    {
+      country: "Germany",
+      line: "Precision KPI layering for Mittelstand champions and DAX-level organisations with clarity for engineering-led interview panels.",
+    },
+    {
+      country: "Singapore",
+      line: "APAC finance and technology benchmarks with crisp quantification for regional HQs bridging Southeast Asia liquidity centres.",
+    },
+    {
+      country: "Australia",
+      line: "Direct proof architecture for pragmatic hiring cultures in Sydney and Melbourne—with emphasis on scope, EBITDA impact, and team scale.",
+    },
   ],
   fr: [
-    { country: "Canada", line: "Variantes bilingues fédérales et provinciales." },
-    { country: "États-Unis", line: "Narratif chiffres pour recruteurs hyperscale." },
-    { country: "Royaume-Uni", line: "Structures compétences pour secteurs réglementés." },
-    { country: "France", line: "FR sophistiqué avec bascules anglo fluides." },
-    { country: "EAU", line: "Vocabulaire luxe pour recherche régionale de cadres." },
-    { country: "Allemagne", line: "Storytelling KPI pour Mittelstand et groupes cotés." },
-    { country: "Singapour", line: "Attentes recruteur finance et tech APAC." },
-    { country: "Australie", line: "Preuves directes pour cultures d’embauche pragmatiques." },
+    {
+      country: "Canada",
+      line: "Cadres de recrutement fédéral et bilingue, mise en page ATS harmonisée, et ton de leadership adapté aux grands hubs montréalite, ontariens et autres marchés stratégiques.",
+    },
+    {
+      country: "États-Unis",
+      line: "Narratives axées résultats pour pipelines tech et finance hyperscale compatibles ATS type Greenhouse, Lever et Workday.",
+    },
+    {
+      country: "Royaume-Uni",
+      line: "CV structurés par compétences pour secteurs réglementés avec preuves concises lisibles en quelques secondes par les équipes londoniennes.",
+    },
+    {
+      country: "France",
+      line: "Rédaction française de haut niveau avec bascule anglaise fluide pour grands groupes cotés Paris et rotations internationales.",
+    },
+    {
+      country: "EAU",
+      line: "Narratif direction pour infrastructures souveraines, aviation, finance et luxe sur les corridors de recrutement Abu Dhabi/Dubai.",
+    },
+    {
+      country: "Allemagne",
+      line: "Structuration KPI pour Mittelstand et grands ensembles industriels allemands lisible par panels techniques.",
+    },
+    {
+      country: "Singapour",
+      line: "Standards APAC finance & tech avec chiffres clairs pour quartiers généraux régionaux.",
+    },
+    {
+      country: "Australie",
+      line: "Preuves linéaires pour cultures d’embauche directes avec impact EBITDA, périmètre équipe et mise à l’échelle.",
+    },
   ],
 };
 
@@ -570,7 +618,13 @@ export default function HomePage() {
       <header className="siteHeader">
         <div className="headerInner">
           <Link href="/" className="brand" aria-label="Resumora home">
-            <img src="/resumora-logo.svg" alt="" width={280} height={60} className="logoImg" />
+            <img
+              src="/resumora-logo.png"
+              alt="Resumora Premium Career Studio"
+              width={400}
+              height={90}
+              className="logoImg"
+            />
             <div className="brandLockup">
               <span className="brandWord">RESUMORA</span>
               <span className="brandSub">{t.logoTagline}</span>
@@ -841,19 +895,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="countries" className="panel">
+        <section id="countries" className="panel countriesPanel">
           <div className="panelHead">
             <h2>{t.countriesTitle}</h2>
-            <p className="sectionSubtitle">{t.countriesSubtitle}</p>
+            <p className="sectionSubtitle countriesLead">{t.countriesSubtitle}</p>
           </div>
-          <div className="countriesGrid">
+          <div className="countriesMegaGrid">
             {countries[lang].map(({ country, line }) => (
-              <article className="card countryCard" key={country}>
-                <Globe2 size={20} color={GOLD} strokeWidth={1.4} aria-hidden />
-                <div>
-                  <h3>{country}</h3>
-                  <p>{line}</p>
+              <article className="countryMegaCard" key={country}>
+                <div className="countryMegaTop">
+                  <span className="countryIconWrap">
+                    <Globe2 size={34} color={GOLD} strokeWidth={1.35} aria-hidden />
+                  </span>
+                  <h3 className="countryName">{country}</h3>
                 </div>
+                <p className="countryDetail">{line}</p>
               </article>
             ))}
           </div>
@@ -878,7 +934,13 @@ export default function HomePage() {
       <footer className="siteFooter">
         <div className="footerGrid">
           <div className="footerBrandCol">
-            <img src="/resumora-logo.svg" alt="" className="footerLogo" width={220} height={48} />
+            <img
+              src="/resumora-logo.png"
+              alt="Resumora"
+              className="footerLogo"
+              width={280}
+              height={64}
+            />
             <div className="footerLockup">
               <strong>RESUMORA</strong>
               <span>{t.logoTagline}</span>
@@ -999,9 +1061,11 @@ export default function HomePage() {
         }
 
         .logoImg {
-          width: min(290px, 34vw);
+          width: min(400px, 46vw);
           height: auto;
           flex-shrink: 0;
+          object-fit: contain;
+          image-rendering: -webkit-optimize-contrast;
         }
 
         .brandLockup {
@@ -1016,13 +1080,13 @@ export default function HomePage() {
         .brandWord {
           font-weight: 800;
           letter-spacing: 0.18em;
-          font-size: 0.92rem;
+          font-size: 1rem;
         }
 
         .brandSub {
           color: #d4af37;
           letter-spacing: 0.08em;
-          font-size: 0.74rem;
+          font-size: 0.82rem;
           text-transform: uppercase;
         }
 
@@ -1038,8 +1102,8 @@ export default function HomePage() {
         .navDesktop a {
           color: rgba(248, 245, 238, 0.86);
           text-decoration: none;
-          font-weight: 650;
-          font-size: 0.92rem;
+          font-weight: 700;
+          font-size: 1.03rem;
         }
 
         .navDesktop :global(a):hover,
@@ -1080,8 +1144,9 @@ export default function HomePage() {
         .navMobile :global(a),
         .navMobile a {
           color: #f8f5ee;
-          font-weight: 650;
+          font-weight: 700;
           text-decoration: none;
+          font-size: 1.08rem;
         }
 
         .mobileAuth {
@@ -1111,7 +1176,7 @@ export default function HomePage() {
           align-items: center;
           gap: 8px;
           margin: 0 0 12px;
-          font-size: 0.82rem;
+          font-size: 0.9rem;
           letter-spacing: 0.09em;
           text-transform: uppercase;
           color: #e7d099;
@@ -1120,17 +1185,17 @@ export default function HomePage() {
 
         .heroCopy h1 {
           margin: 0;
-          font-size: clamp(2.55rem, 5.8vw, 4.95rem);
-          line-height: 1.03;
-          letter-spacing: -0.03em;
-          max-width: 18ch;
+          font-size: clamp(3.05rem, 7.4vw, 6rem);
+          line-height: 1.015;
+          letter-spacing: -0.035em;
+          max-width: 22ch;
         }
 
         .heroLead {
           margin-top: clamp(14px, 2vw, 22px);
           max-width: 52ch;
-          font-size: clamp(1.05rem, 1.42vw, 1.34rem);
-          line-height: 1.74;
+          font-size: clamp(1.12rem, 1.72vw, 1.42rem);
+          line-height: 1.76;
           color: #e4dbca;
         }
 
@@ -1142,8 +1207,8 @@ export default function HomePage() {
         }
 
         .heroBtn {
-          padding: 14px 24px;
-          font-size: 1rem;
+          padding: 16px 30px;
+          font-size: 1.085rem;
         }
 
         .trustBadges {
@@ -1156,9 +1221,9 @@ export default function HomePage() {
         .trustBadges span {
           border-radius: 999px;
           border: 1px solid rgba(212, 175, 55, 0.38);
-          padding: 8px 15px;
-          font-size: 0.82rem;
-          font-weight: 650;
+          padding: 9px 16px;
+          font-size: 0.915rem;
+          font-weight: 700;
           background: rgba(8, 16, 40, 0.78);
           color: #f2dfbb;
         }
@@ -1290,9 +1355,9 @@ export default function HomePage() {
         }
 
         .marqueeTrack span {
-          font-weight: 650;
-          color: rgba(248, 245, 238, 0.9);
-          font-size: 0.9rem;
+          font-weight: 700;
+          color: rgba(248, 245, 238, 0.92);
+          font-size: 1rem;
         }
 
         @keyframes marquee {
@@ -1310,7 +1375,7 @@ export default function HomePage() {
           border-radius: 24px;
           border: 1px solid rgba(212, 175, 55, 0.28);
           background: rgba(10, 18, 46, 0.58);
-          padding: clamp(24px, 3vw, 44px);
+          padding: clamp(26px, 3.25vw, 48px);
           box-shadow:
             inset 0 1px rgba(255, 255, 255, 0.03),
             0 25px 60px rgba(0, 0, 0, 0.3);
@@ -1323,17 +1388,17 @@ export default function HomePage() {
 
         .panelHead h2 {
           margin: 0;
-          font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+          font-size: clamp(2.05rem, 2.95vw, 2.85rem);
           color: #f5e9c9;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.028em;
         }
 
         .sectionSubtitle {
-          margin: 10px 0 0;
+          margin: 14px 0 0;
           max-width: 68ch;
-          line-height: 1.73;
-          color: #dbd1ba;
-          font-size: 1rem;
+          line-height: 1.78;
+          color: #dfd4bf;
+          font-size: clamp(1.05rem, 1.35vw, 1.16rem);
         }
 
         .whyGrid {
@@ -1347,20 +1412,22 @@ export default function HomePage() {
           border-radius: 18px;
           border: 1px solid rgba(212, 175, 55, 0.28);
           background: rgba(8, 14, 36, 0.68);
-          padding: 18px;
+          padding: clamp(18px, 2vw, 22px);
         }
 
         .card h3 {
           margin: 0;
-          color: #f3e4c2;
-          font-size: 1.05rem;
+          color: #f9edd2;
+          font-size: clamp(1.12rem, 1.42vw, 1.26rem);
+          font-weight: 800;
+          letter-spacing: -0.015em;
         }
 
         .card p {
           margin: 10px 0 0;
-          color: #e8dfca;
-          line-height: 1.62;
-          font-size: 0.95rem;
+          color: #ebe3d4;
+          line-height: 1.74;
+          font-size: clamp(0.98rem, 1.12vw, 1.065rem);
         }
 
         .whyCard {
@@ -1385,9 +1452,24 @@ export default function HomePage() {
           border-radius: 18px;
           border: 1px solid rgba(212, 175, 55, 0.28);
           background: rgba(6, 12, 32, 0.65);
-          padding: 18px;
+          padding: clamp(18px, 2.2vw, 24px);
           display: grid;
           gap: 10px;
+        }
+
+        .processCard h3 {
+          margin: 0;
+          font-size: clamp(1.1rem, 1.38vw, 1.22rem);
+          font-weight: 800;
+          color: #f3e9d4;
+          letter-spacing: -0.02em;
+        }
+
+        .processCard p {
+          margin: 0;
+          font-size: clamp(1rem, 1.15vw, 1.05rem);
+          line-height: 1.73;
+          color: #dfd4bf;
         }
 
         .stepBadge {
@@ -1436,8 +1518,8 @@ export default function HomePage() {
         .uploadPanel small {
           display: inline-block;
           margin-top: 10px;
-          color: #c9b082;
-          font-size: 0.9rem;
+          color: #d5c698;
+          font-size: 1.02rem;
         }
 
         .uploadShell {
@@ -1519,7 +1601,8 @@ export default function HomePage() {
 
         .serviceCard h3 {
           margin: 0;
-          font-size: 1.1rem;
+          font-size: clamp(1.14rem, 1.42vw, 1.26rem);
+          font-weight: 800;
         }
 
         .serviceCard p {
@@ -1570,7 +1653,7 @@ export default function HomePage() {
         .price {
           margin: 0;
           color: #d4af37;
-          font-size: 2.15rem;
+          font-size: clamp(2.25rem, 3.2vw, 2.6rem);
           font-weight: 900;
           letter-spacing: -0.02em;
         }
@@ -1578,10 +1661,11 @@ export default function HomePage() {
         .pricingCard ul {
           margin: 0;
           padding-left: 18px;
-          color: #e9e0cf;
-          line-height: 1.62;
+          color: #ebe4d5;
+          line-height: 1.74;
           display: grid;
-          gap: 6px;
+          gap: 8px;
+          font-size: clamp(1.01rem, 1.22vw, 1.065rem);
         }
 
         .statsGrid {
@@ -1606,37 +1690,79 @@ export default function HomePage() {
         .statCard h4 {
           margin: 6px 0 8px;
           font-weight: 800;
-          color: #efe3c4;
-          font-size: 1rem;
+          color: #f2e9d8;
+          font-size: clamp(1.05rem, 1.35vw, 1.125rem);
         }
 
         .statCard p {
           margin: 0;
-          color: #dbd0b4;
-          font-size: 0.9rem;
+          color: #e8ddc9;
+          font-size: clamp(0.96rem, 1.08vw, 1.035rem);
+          line-height: 1.7;
         }
 
-        .countriesGrid {
-          margin-top: 22px;
+        .countriesPanel {
+          padding: clamp(28px, 4vw, 52px);
+        }
+
+        .countriesLead {
+          max-width: 80ch;
+        }
+
+        .countriesMegaGrid {
+          margin-top: 28px;
           display: grid;
-          gap: 14px;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: clamp(18px, 2.75vw, 28px);
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
         }
 
-        .countryCard {
+        .countryMegaCard {
+          border-radius: 22px;
+          border: 1px solid rgba(212, 175, 55, 0.38);
+          background:
+            radial-gradient(circle at 12% -20%, rgba(212, 175, 55, 0.14), transparent 58%),
+            rgba(6, 13, 36, 0.88);
+          padding: clamp(24px, 3vw, 38px);
+          box-shadow:
+            inset 0 1px rgba(255, 255, 255, 0.04),
+            0 24px 50px rgba(0, 0, 0, 0.3);
+          display: grid;
+          gap: 16px;
+          min-height: 220px;
+        }
+
+        .countryMegaTop {
           display: flex;
-          gap: 12px;
-          align-items: flex-start;
+          align-items: center;
+          gap: 14px;
         }
 
-        .countryCard h3 {
+        .countryIconWrap {
+          flex-shrink: 0;
+          display: grid;
+          place-items: center;
+          width: 58px;
+          height: 58px;
+          border-radius: 16px;
+          border: 1px solid rgba(212, 175, 55, 0.4);
+          background: rgba(8, 16, 40, 0.82);
+        }
+
+        .countryName {
           margin: 0;
+          font-size: clamp(1.38rem, 2.05vw, 1.68rem);
+          font-weight: 900;
+          letter-spacing: -0.024em;
+          color: #f8eed8;
+          line-height: 1.15;
         }
 
-        .countryCard p {
-          margin-top: 4px;
-          color: #ded4bc;
-          font-size: 0.9rem;
+        .countryDetail {
+          margin: 0;
+          font-size: clamp(1.02rem, 1.42vw, 1.15rem);
+          line-height: 1.76;
+          color: #dfd4bf;
+          font-weight: 400;
         }
 
         .ctaBand {
@@ -1653,13 +1779,14 @@ export default function HomePage() {
 
         .ctaBand h2 {
           margin: 0;
-          font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+          font-size: clamp(1.92rem, 2.95vw, 2.72rem);
         }
 
         .ctaBand p {
           margin: 8px 0 0;
           color: #f2ebe0;
-          line-height: 1.65;
+          line-height: 1.75;
+          font-size: clamp(1.06rem, 1.42vw, 1.22rem);
         }
 
         .ctaActions {
@@ -1688,13 +1815,15 @@ export default function HomePage() {
         .footerBrandCol > p {
           margin: 12px 0 0;
           max-width: 44ch;
-          color: #c8bc9d;
-          line-height: 1.65;
+          color: #d8ccb0;
+          line-height: 1.73;
+          font-size: clamp(1.03rem, 1.35vw, 1.115rem);
+          font-weight: 400;
         }
 
         .footerLogo {
           display: block;
-          width: clamp(200px, 28vw, 260px);
+          width: clamp(220px, 32vw, 300px);
           height: auto;
         }
 
@@ -1707,22 +1836,22 @@ export default function HomePage() {
 
         .footerLockup strong {
           letter-spacing: 0.2em;
-          font-size: 0.76rem;
+          font-size: 0.86rem;
         }
 
         .footerLockup span {
           color: #d4af37;
           letter-spacing: 0.06em;
-          font-size: 0.74rem;
+          font-size: 0.825rem;
         }
 
         .footerHeading {
-          margin: 0 0 10px;
+          margin: 0 0 12px;
           font-weight: 800;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.075em;
           text-transform: uppercase;
-          font-size: 0.76rem;
-          color: #e5cf96;
+          font-size: 0.86rem;
+          color: #f0dfb2;
         }
 
         .footerList {
@@ -1735,10 +1864,10 @@ export default function HomePage() {
 
         .footerList :global(a),
         .footerList a {
-          color: rgba(248, 245, 238, 0.9);
+          color: rgba(248, 245, 238, 0.95);
           text-decoration: none;
-          font-weight: 630;
-          font-size: 0.95rem;
+          font-weight: 600;
+          font-size: clamp(1.02rem, 1.35vw, 1.065rem);
         }
 
         .footerList :global(a):hover,
@@ -1755,20 +1884,21 @@ export default function HomePage() {
 
         .footerBar p {
           margin: 0;
-          font-size: 0.82rem;
-          color: #a89b7b;
+          font-size: clamp(0.96rem, 1.35vw, 1.035rem);
+          color: #c9baa0;
           text-align: center;
+          letter-spacing: 0.025em;
         }
 
         .goldBtn,
         .ghostBtn {
-          border-radius: 11px;
+          border-radius: 12px;
           border: 1px solid transparent;
-          padding: 10px 16px;
+          padding: 13px 22px;
           cursor: pointer;
           text-decoration: none;
           font-weight: 800;
-          font-size: 0.92rem;
+          font-size: clamp(1.01rem, 1.38vw, 1.065rem);
           transition:
             transform 150ms ease,
             box-shadow 150ms ease;
@@ -1792,13 +1922,14 @@ export default function HomePage() {
         }
 
         .langBtn {
-          border-radius: 9px;
+          border-radius: 10px;
           border: 1px solid rgba(212, 175, 55, 0.45);
           background: rgba(6, 12, 34, 0.55);
           color: #f8f5ee;
           cursor: pointer;
           font-weight: 800;
-          padding: 7px 10px;
+          padding: 8px 12px;
+          font-size: 0.955rem;
         }
 
         .langBtn.active {
