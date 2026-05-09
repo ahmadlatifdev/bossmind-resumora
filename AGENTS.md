@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Deployment
 
 Assume **production runs only on Railway** with Neon for Postgres. Do not add or preserve Render deployment configuration unless the user explicitly asks. See `docs/RAILWAY_DEPLOY.md`.
+
+## Local preview (development)
+
+`npm run dev` runs `scripts/dev-with-browser.mjs` (opens the browser when Next is ready). The **Preview Manager** (`components/dev/PreviewManager.jsx`) mounts only in development and shows the live URL in fixed top/bottom chrome plus a floating **Open Live Preview** control. Reuse it in other BossMind Next apps by copying `PreviewManager.jsx`, `styles/dev-preview.css`, `lib/dev/preview-config.js`, and `pages/api/health.js`, then mirror the `_app.js` dynamic import pattern.

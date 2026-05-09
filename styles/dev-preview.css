@@ -1,0 +1,198 @@
+/* Development-only preview chrome — extreme z-index so it stays above page UI */
+
+html.rs-dev-preview-shell body {
+  padding-top: 46px;
+  padding-bottom: 48px;
+}
+
+@media (max-width: 640px) {
+  html.rs-dev-preview-shell body {
+    padding-bottom: 52px;
+  }
+}
+
+.rs-dev-preview-root {
+  --rs-dev-z: 2147483000;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+}
+
+.rs-dev-preview-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: calc(var(--rs-dev-z) + 2);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(180deg, rgba(6, 12, 28, 0.98), rgba(8, 18, 38, 0.96));
+  border-bottom: 1px solid rgba(34, 197, 94, 0.35);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+.rs-dev-preview-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: calc(var(--rs-dev-z) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.35rem 0.75rem;
+  background: rgba(4, 10, 24, 0.97);
+  border-top: 1px solid rgba(59, 130, 246, 0.28);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.rs-dev-preview-float {
+  position: fixed;
+  right: 12px;
+  bottom: 104px;
+  top: auto;
+  z-index: calc(var(--rs-dev-z) + 3);
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  .rs-dev-preview-float {
+    bottom: 112px;
+    right: 8px;
+  }
+}
+
+.rs-dev-preview-float-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.95), rgba(21, 128, 61, 0.92));
+  color: #ecfdf5;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.rs-dev-preview-float-btn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.06);
+}
+
+.rs-dev-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
+.rs-dev-dot--live {
+  background: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.65);
+}
+
+.rs-dev-dot--dead {
+  background: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.55);
+}
+
+.rs-dev-dot--busy {
+  background: #eab308;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.55);
+  animation: rs-dev-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes rs-dev-pulse {
+  50% {
+    opacity: 0.65;
+  }
+}
+
+.rs-dev-url {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a7f3d0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+
+.rs-dev-url:hover {
+  color: #ecfdf5;
+}
+
+.rs-dev-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.rs-dev-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.rs-dev-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.85);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.rs-dev-btn:hover {
+  border-color: rgba(52, 211, 153, 0.55);
+  background: rgba(30, 41, 59, 0.95);
+}
+
+.rs-dev-status-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.rs-dev-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 56px;
+  transform: translateX(-50%);
+  z-index: calc(var(--rs-dev-z) + 4);
+  padding: 0.45rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #ecfdf5;
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.rs-dev-toast[data-visible="true"] {
+  opacity: 1;
+}
