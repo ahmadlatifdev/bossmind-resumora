@@ -10,7 +10,8 @@
     "validate:runtime": "node scripts/runtime-validation.js",
     "validate:deps": "npm ls --depth=0",
     "validate:all": "npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
-    "marketing:social-drafts": "node scripts/marketing/generate-social-drafts.mjs"
+    "marketing:social-drafts": "node scripts/marketing/generate-social-drafts.mjs",
+    "hub:index": "node scripts/bossmind-hub-index.mjs"
   },
   "dependencies": {
     "@langchain/langgraph": "^1.3.0",

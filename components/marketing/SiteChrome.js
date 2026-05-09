@@ -1,196 +1,259 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { ChevronDown, Menu, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 
+function NavGroup({ title, open, onToggle, children }) {
+  return (
+    <div className="rs-nav-group">
+      <button type="button" className="rs-nav-group-trigger" onClick={onToggle} aria-expanded={open}>
+        <span>{title}</span>
+        <ChevronDown className="rs-nav-group-chevron" data-open={open ? "true" : "false"} size={18} strokeWidth={1.75} aria-hidden />
+      </button>
+      {open ? <div className="rs-nav-group-panel">{children}</div> : null}
+    </div>
+  );
+}
+
 export default function SiteChrome({ children }) {
   const { lang, setLang } = useLanguage();
   const t = translations[lang];
-  const [menuOpen, setMenuOpen] = useState(false);
-  const closeMenu = () => setMenuOpen(false);
+  const router = useRouter();
+  const pathname = router.pathname || "";
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sections, setSections] = useState({
+    overview: true,
+    product: true,
+    experience: false,
+    support: true,
+  });
 
-  const navLinks = (
-    <>
-      <Link href="/" onClick={closeMenu}>
-        {t.navHome}
-      </Link>
-      <Link href="/services" onClick={closeMenu}>
-        {t.navServices}
-      </Link>
-      <Link href="/pricing" onClick={closeMenu}>
-        {t.navPricing}
-      </Link>
-      <Link href="/global-reach" onClick={closeMenu}>
-        {t.navCountries}
-      </Link>
-      <Link href="/capabilities" onClick={closeMenu}>
-        {t.navCapabilities}
-      </Link>
-      <Link href="/delivery-protocols" onClick={closeMenu}>
-        {t.navDelivery}
-      </Link>
-      <Link href="/client-engagement" onClick={closeMenu}>
-        {t.navEngagement}
-      </Link>
-      <Link href="/testimonials" onClick={closeMenu}>
-        {t.navTestimonials}
-      </Link>
-      <Link href="/marketing" onClick={closeMenu}>
-        {t.navWeekly}
-      </Link>
-      <Link href="/contact" onClick={closeMenu}>
-        {t.navContact}
-      </Link>
-    </>
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  const navGroups = useMemo(
+    () => [
+      {
+        id: "overview",
+        title: t.navGroupOverview,
+        items: [{ href: "/", label: t.navHome }],
+      },
+      {
+        id: "product",
+        title: t.navGroupProduct,
+        items: [
+          { href: "/services", label: t.navServices },
+          { href: "/capabilities", label: t.navCapabilities },
+          { href: "/pricing", label: t.navPricing },
+          { href: "/global-reach", label: t.navCountries },
+          { href: "/delivery-protocols", label: t.navDelivery },
+        ],
+      },
+      {
+        id: "experience",
+        title: t.navGroupExperience,
+        items: [
+          { href: "/client-engagement", label: t.navEngagement },
+          { href: "/testimonials", label: t.navTestimonials },
+          { href: "/marketing", label: t.navWeekly },
+        ],
+      },
+      {
+        id: "support",
+        title: t.navGroupSupport,
+        items: [
+          { href: "/about", label: t.footerAbout },
+          { href: "/contact", label: t.navContact },
+          { href: "/support", label: t.footerSupport },
+          { href: "/chat", label: t.footerLiveChat },
+        ],
+      },
+    ],
+    [t]
   );
 
+  const socialEntries = [
+    { href: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN, label: "LinkedIn", icon: "in" },
+    { href: process.env.NEXT_PUBLIC_SOCIAL_X, label: "X", icon: "x" },
+    { href: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE, label: "YouTube", icon: "yt" },
+    { href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM, label: "Instagram", icon: "ig" },
+  ].filter((s) => typeof s.href === "string" && s.href.startsWith("http"));
+
   return (
-    <div className="rs-page">
+    <div className="rs-page rs-app-layout">
       <div className="rs-bg" aria-hidden />
 
-      <header className="rs-header">
-        <div className="rs-header-inner">
-          <Link href="/" className="rs-brand" aria-label="Resumora home">
+      <div className={`rs-sidebar-backdrop ${sidebarOpen ? "rs-sidebar-backdrop--open" : ""}`} onClick={() => setSidebarOpen(false)} aria-hidden />
+
+      <aside className={`rs-sidebar ${sidebarOpen ? "rs-sidebar--open" : ""}`} aria-label={t.sidebarNavLabel}>
+        <div className="rs-sidebar-brand">
+          <Link href="/" className="rs-brand rs-brand-sidebar" onClick={() => setSidebarOpen(false)}>
             <Image
               src="/resumora-logo.png"
               alt="Resumora"
-              width={210}
-              height={48}
+              width={315}
+              height={72}
               priority
-              className="rs-logo"
-              sizes="210px"
+              className="rs-logo rs-logo-sidebar"
+              sizes="(max-width: 1024px) 240px, 315px"
             />
           </Link>
+        </div>
 
-          <nav className="rs-nav-desktop rs-nav-wide" aria-label="Primary">
-            {navLinks}
-          </nav>
-
-          <div className="rs-header-actions">
-            <button
-              type="button"
-              className="rs-lang"
-              data-active={lang === "en"}
-              onClick={() => setLang("en")}
-              aria-pressed={lang === "en"}
+        <nav className="rs-sidebar-nav">
+          {navGroups.map((group) => (
+            <NavGroup
+              key={group.id}
+              title={group.title}
+              open={sections[group.id]}
+              onToggle={() => setSections((s) => ({ ...s, [group.id]: !s[group.id] }))}
             >
+              <ul className="rs-sidebar-links">
+                {group.items.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="rs-sidebar-link"
+                      data-active={pathname === item.href ? "true" : "false"}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </NavGroup>
+          ))}
+        </nav>
+
+        <div className="rs-sidebar-footer">
+          <Link href="/login" className="rs-sidebar-auth rs-sidebar-auth--ghost" onClick={() => setSidebarOpen(false)}>
+            {t.navLogin}
+          </Link>
+          <Link href="/register" className="rs-sidebar-auth rs-sidebar-auth--accent" onClick={() => setSidebarOpen(false)}>
+            {t.navRegister}
+          </Link>
+        </div>
+      </aside>
+
+      <div className="rs-main-column">
+        <header className="rs-topbar">
+          <button
+            type="button"
+            className="rs-sidebar-toggle hide-desktop-flex"
+            onClick={() => setSidebarOpen((v) => !v)}
+            aria-expanded={sidebarOpen}
+            aria-label={sidebarOpen ? t.closeMenu : t.openMenu}
+          >
+            {sidebarOpen ? <X className="rs-icon-gold" size={22} strokeWidth={1.5} /> : <Menu className="rs-icon-gold" size={22} strokeWidth={1.5} />}
+          </button>
+
+          <Link href="/" className="rs-topbar-brand hide-desktop-flex" aria-label="Resumora home">
+            <Image src="/resumora-logo.png" alt="" width={200} height={46} className="rs-logo rs-logo-topbar" sizes="200px" />
+          </Link>
+
+          <div className="rs-topbar-actions">
+            <button type="button" className="rs-lang" data-active={lang === "en"} onClick={() => setLang("en")} aria-pressed={lang === "en"}>
               EN
             </button>
-            <button
-              type="button"
-              className="rs-lang"
-              data-active={lang === "fr"}
-              onClick={() => setLang("fr")}
-              aria-pressed={lang === "fr"}
-            >
+            <button type="button" className="rs-lang" data-active={lang === "fr"} onClick={() => setLang("fr")} aria-pressed={lang === "fr"}>
               FR
             </button>
-            <Link href="/login" className="rs-btn-ghost rs-hide-tablet-auth">
+            <Link href="/login" className="rs-btn-ghost rs-hide-mobile-inline">
               {t.navLogin}
             </Link>
-            <Link href="/register" className="rs-btn-accent rs-hide-tablet-auth">
-              {t.navRegister}
-            </Link>
-            <button
-              type="button"
-              className="rs-menu-toggle hide-lg"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-expanded={menuOpen}
-              aria-label={menuOpen ? t.closeMenu : t.openMenu}
-            >
-              {menuOpen ? <X className="rs-icon-gold" size={22} strokeWidth={1.5} /> : <Menu className="rs-icon-gold" size={22} strokeWidth={1.5} />}
-            </button>
-          </div>
-        </div>
-
-        <div className="rs-mobile-panel" data-open={menuOpen ? "true" : "false"}>
-          <nav aria-label="Mobile primary">{navLinks}</nav>
-          <div className="rs-mobile-actions">
-            <Link href="/login" className="rs-btn-ghost" onClick={closeMenu}>
-              {t.navLogin}
-            </Link>
-            <Link href="/register" className="rs-btn-accent" onClick={closeMenu}>
+            <Link href="/register" className="rs-btn-accent rs-hide-mobile-inline">
               {t.navRegister}
             </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {children}
+        {children}
 
-      <InstallPrompt />
+        <InstallPrompt />
 
-      <footer className="rs-footer">
-        <div className="rs-footer-grid">
-          <div className="rs-footer-col">
-            <div style={{ marginBottom: "0.75rem" }}>
-              <Image src="/resumora-logo.png" alt="" width={160} height={36} className="rs-logo" sizes="160px" />
+        <footer className="rs-footer rs-footer-enterprise">
+          <div className="rs-footer-enterprise-grid">
+            <div className="rs-footer-block">
+              <Image src="/resumora-logo.png" alt="" width={240} height={54} className="rs-logo rs-logo-footer" sizes="240px" />
+              <p className="rs-footer-about">{t.footerAboutLuxury}</p>
             </div>
-            <p style={{ margin: 0, fontSize: "0.9rem", lineHeight: 1.65, color: "var(--rs-text-secondary)", maxWidth: "32ch" }}>{t.footerTagline}</p>
+
+            <div className="rs-footer-block">
+              <h4 className="rs-footer-heading">{t.footerColReach}</h4>
+              <p className="rs-footer-line">
+                <a href={`mailto:${t.footerEmail}`} className="rs-footer-link">
+                  {t.footerEmail}
+                </a>
+              </p>
+              <p className="rs-footer-line">
+                <Link href="/chat" className="rs-footer-link">
+                  {t.footerLiveChat}
+                </Link>
+                <span className="rs-footer-sub"> · {t.footerAutomated247}</span>
+              </p>
+              <p className="rs-footer-line">
+                <Link href="/support" className="rs-footer-link">
+                  {t.footerSupport}
+                </Link>
+              </p>
+            </div>
+
+            <div className="rs-footer-block">
+              <h4 className="rs-footer-heading">{t.footerColLegal}</h4>
+              <ul className="rs-footer-link-list">
+                <li>
+                  <Link href="/terms">{t.footerTerms}</Link>
+                </li>
+                <li>
+                  <Link href="/privacy">{t.footerPrivacy}</Link>
+                </li>
+                <li>
+                  <Link href="/refund">{t.footerRefund}</Link>
+                </li>
+                <li>
+                  <Link href="/system-policy">{t.footerSystemPolicy}</Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="rs-footer-block">
+              <h4 className="rs-footer-heading">{t.footerSocial}</h4>
+              {socialEntries.length ? (
+                <ul className="rs-footer-social">
+                  {socialEntries.map((s) => (
+                    <li key={s.label}>
+                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="rs-social-link">
+                        {s.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="rs-footer-sub">{t.footerSocialPlaceholder}</p>
+              )}
+            </div>
           </div>
-          <div className="rs-footer-col">
-            <h4>{t.footerColProduct}</h4>
-            <ul className="rs-footer-links">
-              <li>
-                <Link href="/services">{t.footerServices}</Link>
-              </li>
-              <li>
-                <Link href="/pricing">{t.footerPricing}</Link>
-              </li>
-              <li>
-                <Link href="/capabilities">{t.footerCapabilities}</Link>
-              </li>
-              <li>
-                <Link href="/global-reach">{t.footerRegions}</Link>
-              </li>
-              <li>
-                <Link href="/delivery-protocols">{t.footerDelivery}</Link>
-              </li>
-              <li>
-                <Link href="/client-engagement">{t.footerEngagement}</Link>
-              </li>
-              <li>
-                <Link href="/testimonials">{t.footerStories}</Link>
-              </li>
-              <li>
-                <Link href="/marketing">{t.footerWeekly}</Link>
-              </li>
-            </ul>
+
+          <div className="rs-footer-product-row">
+            <span className="rs-footer-product-label">{t.footerColProduct}</span>
+            <Link href="/services">{t.footerServices}</Link>
+            <span className="rs-footer-dot">·</span>
+            <Link href="/pricing">{t.footerPricing}</Link>
+            <span className="rs-footer-dot">·</span>
+            <Link href="/capabilities">{t.footerCapabilities}</Link>
+            <span className="rs-footer-dot">·</span>
+            <Link href="/global-reach">{t.footerRegions}</Link>
           </div>
-          <div className="rs-footer-col">
-            <h4>{t.footerColCompany}</h4>
-            <ul className="rs-footer-links">
-              <li>
-                <Link href="/about">{t.footerAbout}</Link>
-              </li>
-              <li>
-                <Link href="/contact">{t.footerContact}</Link>
-              </li>
-              <li>
-                <Link href="/support">{t.footerSupport}</Link>
-              </li>
-              <li>
-                <Link href="/dashboard">{lang === "en" ? "Dashboard" : "Tableau"}</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="rs-footer-col">
-            <h4>{t.footerColLegal}</h4>
-            <ul className="rs-footer-links">
-              <li>
-                <Link href="/terms">{t.footerTerms}</Link>
-              </li>
-              <li>
-                <Link href="/privacy">{t.footerPrivacy}</Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="rs-footer-meta">{t.footerCopy}</div>
-      </footer>
+
+          <div className="rs-footer-meta">{t.footerCopy}</div>
+        </footer>
+      </div>
     </div>
   );
 }

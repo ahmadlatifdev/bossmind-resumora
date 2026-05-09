@@ -6,6 +6,7 @@ import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWeeklyBundle } from "@/lib/marketing/weekly-content";
 
+/** Homepage: ISO-week marketing only — narrative, featured lanes, weekly visuals, video, CTA. */
 export default function WeeklyHomePage() {
   const { lang } = useLanguage();
   const bundle = getWeeklyBundle(lang);
@@ -23,7 +24,7 @@ export default function WeeklyHomePage() {
 
   return (
     <SiteChrome>
-      <main className="rs-week-main">
+      <main className="rs-week-main rs-week-main--minimal">
         <section id="top" className="rs-section rs-week-hero">
           <div className="rs-container">
             <p className="rs-eyebrow" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
@@ -96,37 +97,6 @@ export default function WeeklyHomePage() {
                 </div>
               )}
             </div>
-          </div>
-        </section>
-
-        <section className="rs-section">
-          <div className="rs-container">
-            <p className="rs-eyebrow">{L.trust}</p>
-            <blockquote className="rs-week-quote">
-              <p>&ldquo;{bundle.trust.quote}&rdquo;</p>
-              <footer>— {bundle.trust.author}</footer>
-            </blockquote>
-          </div>
-        </section>
-
-        <section className="rs-section rs-section-muted">
-          <div className="rs-container">
-            <p className="rs-eyebrow">{L.tipTitle}</p>
-            <Link href={`/geo/${bundle.countryTip.slug}`} className="rs-week-tip-card">
-              <span className="rs-week-tip-country">{bundle.countryTip.title}</span>
-              <p>{bundle.countryTip.tip}</p>
-              <span className="rs-card-cta">
-                {lang === "en" ? "Open country SEO page" : "Page pays SEO"}
-                <ArrowRight size={14} aria-hidden />
-              </span>
-            </Link>
-          </div>
-        </section>
-
-        <section className="rs-section">
-          <div className="rs-container">
-            <p className="rs-eyebrow">Hashtags</p>
-            <div className="rs-week-tags">{bundle.hashtags.map((h) => <span key={h} className="rs-chip">{h}</span>)}</div>
           </div>
         </section>
 
