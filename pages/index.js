@@ -618,13 +618,7 @@ export default function HomePage() {
       <header className="siteHeader">
         <div className="headerInner">
           <Link href="/" className="brand" aria-label="Resumora home">
-            <img
-              src="/resumora-logo.png"
-              alt="Resumora Premium Career Studio"
-              width={400}
-              height={90}
-              className="logoImg"
-            />
+            <img src="/resumora-logo.png" alt="Resumora" width={400} height={90} className="logoImg" />
             <div className="brandLockup">
               <span className="brandWord">RESUMORA</span>
               <span className="brandSub">{t.logoTagline}</span>
