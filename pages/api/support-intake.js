@@ -15,6 +15,7 @@ export default async function handler(req, res) {
 
   const email = typeof body.email === "string" ? body.email.trim().slice(0, 320) : "";
   const message = typeof body.message === "string" ? body.message.trim().slice(0, 8000) : "";
+  const lang = body.lang === "fr" ? "fr" : "en";
 
   if (!email || !message) {
     return res.status(400).json({ error: "Email and message required" });
@@ -29,12 +30,19 @@ export default async function handler(req, res) {
       payload: {
         emailLen: email.length,
         messageLen: message.length,
-        lang: body.lang === "fr" ? "fr" : "en",
+        lang,
       },
     });
   } catch {
     /* optional neon */
   }
 
-  return res.status(200).json({ ok: true, automated: true });
+  return res.status(200).json({
+    ok: true,
+    automated: true,
+    confirmation:
+      lang === "fr"
+        ? "Accusé de réception automatisé — configurez la réponse serveur pour support@resumora.net."
+        : "Automated acknowledgment flow — configure mail-server auto-reply for support@resumora.net.",
+  });
 }

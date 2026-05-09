@@ -77,13 +77,6 @@ export default function SiteChrome({ children }) {
     [t]
   );
 
-  const socialEntries = [
-    { href: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN, label: "LinkedIn", icon: "in" },
-    { href: process.env.NEXT_PUBLIC_SOCIAL_X, label: "X", icon: "x" },
-    { href: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE, label: "YouTube", icon: "yt" },
-    { href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM, label: "Instagram", icon: "ig" },
-  ].filter((s) => typeof s.href === "string" && s.href.startsWith("http"));
-
   return (
     <div className="rs-page rs-app-layout">
       <div className="rs-bg" aria-hidden />
@@ -177,10 +170,10 @@ export default function SiteChrome({ children }) {
 
         <InstallPrompt />
 
-        <footer className="rs-footer rs-footer-enterprise">
-          <div className="rs-footer-enterprise-grid">
+        <footer className="rs-footer rs-footer-enterprise rs-footer-minimal">
+          <div className="rs-footer-enterprise-grid rs-footer-enterprise-grid--tight">
             <div className="rs-footer-block">
-              <Image src="/resumora-logo.png" alt="" width={240} height={54} className="rs-logo rs-logo-footer" sizes="240px" />
+              <p className="rs-footer-wordmark">Resumora</p>
               <p className="rs-footer-about">{t.footerAboutLuxury}</p>
             </div>
 
@@ -191,15 +184,10 @@ export default function SiteChrome({ children }) {
                   {t.footerEmail}
                 </a>
               </p>
+              <p className="rs-footer-hours">{t.contactHours247}</p>
               <p className="rs-footer-line">
                 <Link href="/chat" className="rs-footer-link">
                   {t.footerLiveChat}
-                </Link>
-                <span className="rs-footer-sub"> · {t.footerAutomated247}</span>
-              </p>
-              <p className="rs-footer-line">
-                <Link href="/support" className="rs-footer-link">
-                  {t.footerSupport}
                 </Link>
               </p>
             </div>
@@ -221,34 +209,6 @@ export default function SiteChrome({ children }) {
                 </li>
               </ul>
             </div>
-
-            <div className="rs-footer-block">
-              <h4 className="rs-footer-heading">{t.footerSocial}</h4>
-              {socialEntries.length ? (
-                <ul className="rs-footer-social">
-                  {socialEntries.map((s) => (
-                    <li key={s.label}>
-                      <a href={s.href} target="_blank" rel="noopener noreferrer" className="rs-social-link">
-                        {s.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="rs-footer-sub">{t.footerSocialPlaceholder}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="rs-footer-product-row">
-            <span className="rs-footer-product-label">{t.footerColProduct}</span>
-            <Link href="/services">{t.footerServices}</Link>
-            <span className="rs-footer-dot">·</span>
-            <Link href="/pricing">{t.footerPricing}</Link>
-            <span className="rs-footer-dot">·</span>
-            <Link href="/capabilities">{t.footerCapabilities}</Link>
-            <span className="rs-footer-dot">·</span>
-            <Link href="/global-reach">{t.footerRegions}</Link>
           </div>
 
           <div className="rs-footer-meta">{t.footerCopy}</div>

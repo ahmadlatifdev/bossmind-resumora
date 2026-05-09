@@ -1,15 +1,17 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWeeklyBundle } from "@/lib/marketing/weekly-content";
+import { getWeeklyVideoAutomationBundle } from "@/lib/marketing/weekly-video-automation";
 
-/** Homepage: ISO-week marketing only — narrative, featured lanes, weekly visuals, video, CTA. */
+/** Homepage: ISO-week marketing — narrative, featured, visuals, video, automation pipeline, CTA. */
 export default function WeeklyHomePage() {
   const { lang } = useLanguage();
   const bundle = getWeeklyBundle(lang);
+  const pipeline = getWeeklyVideoAutomationBundle(lang, bundle.weekId);
+  const L = bundle.labels;
 
   useEffect(() => {
     fetch("/api/marketing/week-log", {
@@ -20,17 +22,12 @@ export default function WeeklyHomePage() {
     }).catch(() => {});
   }, [bundle.weekId, lang]);
 
-  const L = bundle.labels;
-
   return (
     <SiteChrome>
       <main className="rs-week-main rs-week-main--minimal">
         <section id="top" className="rs-section rs-week-hero">
           <div className="rs-container">
-            <p className="rs-eyebrow" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <Crown size={14} strokeWidth={1.5} className="rs-icon-gold" aria-hidden />
-              {bundle.theme.kicker}
-            </p>
+            <p className="rs-eyebrow">{bundle.theme.kicker}</p>
             <h1 className="rs-h1 rs-week-headline">{bundle.theme.headline}</h1>
             <p className="rs-lead">{bundle.theme.lead}</p>
             <div className="rs-hero-ctas">
@@ -71,7 +68,7 @@ export default function WeeklyHomePage() {
             <div className="rs-week-photo-grid">
               {bundle.photos.map((p) => (
                 <Link key={p.alt} href={p.href} className="rs-week-photo-card">
-                  <Image src={p.src} alt={p.alt} width={320} height={160} className="rs-week-photo-img" sizes="(max-width:768px) 100vw, 360px" />
+                  <div className="rs-week-photo-placeholder" role="img" aria-label={p.alt} />
                   <span className="rs-week-photo-cap">{p.alt}</span>
                 </Link>
               ))}
@@ -97,21 +94,43 @@ export default function WeeklyHomePage() {
                 </div>
               )}
             </div>
+
+            <div className="rs-week-pipeline">
+              <p className="rs-eyebrow">{L.pipelineEyebrow}</p>
+              <h2 className="rs-h3-compact">{L.pipelineTitle}</h2>
+              <p className="rs-subtitle rs-subtitle-tight">{L.pipelineIntro}</p>
+              <ul className="rs-pipeline-list">
+                {pipeline.contentPillars.map((pillar) => (
+                  <li key={pillar.id}>{pillar.label}</li>
+                ))}
+              </ul>
+              <div className="rs-pipeline-meta">
+                <span>{lang === "fr" ? "Durée cible" : "Target duration"}: {pipeline.durationTargetSec}s · {pipeline.aspectRatio}</span>
+                <span>
+                  {lang === "fr" ? "Files d’attente" : "Queues"}: <code>{pipeline.automationHooks.queueKey}</code>
+                </span>
+              </div>
+              <div className="rs-pipeline-links">
+                <a href={pipeline.youtube.channelUrl} className="rs-btn-ghost" target="_blank" rel="noopener noreferrer">
+                  YouTube Shorts
+                </a>
+                <a href={pipeline.tiktok.profileUrl} className="rs-btn-ghost" target="_blank" rel="noopener noreferrer">
+                  TikTok
+                </a>
+              </div>
+              <p className="rs-pipeline-placeholder">{pipeline.placeholders.voiceoverScript}</p>
+            </div>
           </div>
         </section>
 
         <section className="rs-section">
           <div className="rs-container">
-            <div className="rs-cta-strip">
+            <div className="rs-cta-strip rs-cta-strip--compact">
               <div>
-                <h2 className="rs-h2" style={{ fontSize: "clamp(1.45rem, 2.5vw, 1.85rem)" }}>
-                  {bundle.cta.title}
-                </h2>
-                <p className="rs-subtitle" style={{ marginTop: "0.65rem" }}>
-                  {bundle.cta.subtitle}
-                </p>
+                <h2 className="rs-h2 rs-h2-compact">{bundle.cta.title}</h2>
+                <p className="rs-subtitle rs-subtitle-tight">{bundle.cta.subtitle}</p>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.65rem", justifyContent: "flex-end" }}>
+              <div className="rs-cta-strip-actions">
                 <Link href={bundle.cta.primaryHref} className="rs-btn-accent">
                   {bundle.cta.primaryLabel}
                 </Link>

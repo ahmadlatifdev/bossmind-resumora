@@ -1,24 +1,20 @@
-import dynamic from "next/dynamic";
-import { Inter } from "next/font/google";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 import { LanguageProvider } from "@/context/LanguageContext";
 
 import "@/styles/resumora-global.css";
-import "@/styles/dev-preview.css";
 
-const DevPreviewManager =
-  process.env.NODE_ENV === "development"
-    ? dynamic(() => import("@/components/dev/PreviewManager"), { ssr: false })
-    : function DevPreviewStub() {
-        return null;
-      };
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
+export default function App({ Component, pageProps }) {
+  return (
+    <LanguageProvider>
+      <div>
+        <PwaAndAnalytics />
+        <Component {...pageProps} />
+      </div>
+    </LanguageProvider>
+  );
+}
 
 function PwaAndAnalytics() {
   const router = useRouter();
@@ -62,16 +58,4 @@ function PwaAndAnalytics() {
   }, []);
 
   return null;
-}
-
-export default function App({ Component, pageProps }) {
-  return (
-    <LanguageProvider>
-      <div className={inter.className}>
-        <PwaAndAnalytics />
-        <DevPreviewManager />
-        <Component {...pageProps} />
-      </div>
-    </LanguageProvider>
-  );
 }
