@@ -15,6 +15,7 @@ Tables created automatically:
 - `deployment_history`
 - `rollback_snapshots`
 - `screenshot_analysis_log`
+- Resumora engagement: `engagement_profiles`, `engagement_sessions`, `engagement_visitors`, `engagement_likes`, `engagement_saves`, `engagement_requests`, `engagement_follows`, `engagement_reviews`, `engagement_activity`
 
 ## Activated Components
 
@@ -65,4 +66,24 @@ Behavior:
 - `npm run build`
 - `npm run validate:runtime`
 - `npm run validate:all`
+
+## Deployment stack note
+
+Production targets **Railway + Neon + GitHub**. **Render is not used** in this architecture; keep workflows and docs aligned to `docs/ARCHITECTURE.md`.
+
+## Anti-leak checklist (multi-agent)
+
+1. Branch per initiative; avoid two agents on one branch.
+2. Call **file-guard** `snapshot` before large edits; `unlock` after validation.
+3. Run `npm run build` before merge to catch route/API collisions.
+4. Keep `NEON_DATABASE_URL` set so shared memory and engagement dedupe stay authoritative.
+
+## IDE automation performance
+
+- Scope indexing to the repo root; exclude `.next`, `node_modules`, large binaries.
+- Prefer orchestration APIs over ad-hoc duplicate UI dumps.
+- Run `validate:all` before long-running agent batches to stabilise checkpoints.
+
+See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
+
 

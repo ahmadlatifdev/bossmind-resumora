@@ -1,21 +1,29 @@
-import { useId, useMemo, useState } from "react";
+import { useId, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Bookmark,
+  BriefcaseBusiness,
+  Building2,
   CheckCircle2,
+  ChevronDown,
   ClipboardPenLine,
   Crown,
   FileText,
+  Globe2,
   Headphones,
+  Heart,
   Languages,
+  MapPin,
   Menu,
   Mic2,
   PenLine,
   Shield,
+  Sparkles,
   X,
-  BriefcaseBusiness,
 } from "lucide-react";
+import { regionGroups } from "../lib/data/regions-marketing";
 
 const translations = {
   en: {
@@ -24,6 +32,9 @@ const translations = {
     navPricing: "Pricing",
     navProcess: "Process",
     navCountries: "Regions",
+    navCapabilities: "Capabilities",
+    navDelivery: "Delivery",
+    navEngagement: "Engagement",
     navTestimonials: "Stories",
     navContact: "Contact",
     navLogin: "Login",
@@ -68,6 +79,24 @@ const translations = {
     countriesTitle: "Regional resume conventions",
     countriesSubtitle:
       "Page norms and tonal registers tuned per jurisdiction. Plans and checkout remain USD-consistent worldwide.",
+    regionsToggleHint: "Expand a macro-region to review country-level norms.",
+    deliveryProtocolsTitle: "Delivery protocols",
+    deliveryProtocolsSubtitle:
+      "Governed milestones from encrypted intake to ATS-safe export—repeatable for audit and scale.",
+    engagementTitle: "Live engagement & momentum",
+    engagementSubtitle:
+      "Authenticated metrics from Neon-backed interactions—no vanity counters. Follow Resumora for release cadence.",
+    engagementFollow: "Follow Resumora",
+    engagementFollowing: "Following",
+    engagementLike: "Like",
+    engagementSave: "Save",
+    engagementRequest: "Intent signal",
+    engagementTrending: "Trending services",
+    engagementMostLiked: "Most liked",
+    engagementMostSaved: "Most saved",
+    engagementMostRequested: "Most requested",
+    engagementRegional: "Regional interest",
+    engagementDisabled: "Engagement requires database connection (Neon).",
     testimonialsTitle: "Client outcomes",
     testimonialsSubtitle:
       "Selected feedback from executives and senior ICs after repositioning engagements.",
@@ -86,7 +115,9 @@ const translations = {
     footerPricing: "Pricing",
     footerUpload: "Upload",
     footerTrust: "Trust metrics",
-    footerProcess: "Process",
+    footerCapabilities: "Capabilities",
+    footerDelivery: "Delivery",
+    footerEngagement: "Engagement",
     footerRegions: "Regions",
     footerStories: "Stories",
     footerTerms: "Terms",
@@ -101,6 +132,9 @@ const translations = {
     navPricing: "Tarifs",
     navProcess: "Processus",
     navCountries: "Régions",
+    navCapabilities: "Capacités",
+    navDelivery: "Livraison",
+    navEngagement: "Engagement",
     navTestimonials: "Récits",
     navContact: "Contact",
     navLogin: "Connexion",
@@ -147,6 +181,24 @@ const translations = {
     countriesTitle: "Conventions par pays",
     countriesSubtitle:
       "Longueurs de page et registres de ton par juridiction. Tarification et passage en caisse inchangés mondialement.",
+    regionsToggleHint: "Déployez une macro-région pour voir les normes par pays.",
+    deliveryProtocolsTitle: "Protocoles de livraison",
+    deliveryProtocolsSubtitle:
+      "Jalons gouvernés—de l’intake chiffré à l’export compatible ATS, reproductibles pour audit et montée en charge.",
+    engagementTitle: "Engagement en direct",
+    engagementSubtitle:
+      "Indicateurs issus d’interactions stockées sur Neon—pas de faux compteurs. Suivez Resumora pour la cadence produit.",
+    engagementFollow: "Suivre Resumora",
+    engagementFollowing: "Abonné",
+    engagementLike: "J’aime",
+    engagementSave: "Enregistrer",
+    engagementRequest: "Signal d’intention",
+    engagementTrending: "Services tendance",
+    engagementMostLiked: "Plus aimés",
+    engagementMostSaved: "Plus sauvegardés",
+    engagementMostRequested: "Plus demandés",
+    engagementRegional: "Intérêt régional",
+    engagementDisabled: "L’engagement nécessite Neon (base de données).",
     testimonialsTitle: "Résultats clients",
     testimonialsSubtitle:
       "Retours d’exécutifs et profils seniors après missions de repositionnement.",
@@ -165,7 +217,9 @@ const translations = {
     footerPricing: "Tarifs",
     footerUpload: "Téléversement",
     footerTrust: "Indicateurs",
-    footerProcess: "Processus",
+    footerCapabilities: "Capacités",
+    footerDelivery: "Livraison",
+    footerEngagement: "Engagement",
     footerRegions: "Régions",
     footerStories: "Récits",
     footerTerms: "Conditions",
@@ -272,9 +326,29 @@ function testimonials(lang) {
       ];
 }
 
+const SERVICE_LABELS = {
+  en: {
+    svc_ats: "ATS optimisation",
+    svc_letter: "Strategic letter",
+    svc_linkedin: "LinkedIn relaunch",
+    svc_interview: "Interview prep",
+    svc_tls: "Translation / TLS",
+    svc_support: "Priority support",
+  },
+  fr: {
+    svc_ats: "Optimisation ATS",
+    svc_letter: "Lettre stratégique",
+    svc_linkedin: "Relance LinkedIn",
+    svc_interview: "Préparation entretien",
+    svc_tls: "Traduction / TLS",
+    svc_support: "Support prioritaire",
+  },
+};
+
 const services = {
   en: [
     {
+      resourceKey: "svc_ats",
       category: "Resume strategy",
       title: "ATS resume optimisation",
       description:
@@ -284,6 +358,7 @@ const services = {
       Icon: FileText,
     },
     {
+      resourceKey: "svc_letter",
       category: "Application assets",
       title: "Strategic cover letter",
       description:
@@ -293,6 +368,7 @@ const services = {
       Icon: PenLine,
     },
     {
+      resourceKey: "svc_linkedin",
       category: "Personal brand",
       title: "LinkedIn repositioning",
       description:
@@ -302,6 +378,7 @@ const services = {
       Icon: BriefcaseBusiness,
     },
     {
+      resourceKey: "svc_interview",
       category: "Interview readiness",
       title: "Interview preparation",
       description:
@@ -311,6 +388,7 @@ const services = {
       Icon: Mic2,
     },
     {
+      resourceKey: "svc_tls",
       category: "Localisation",
       title: "Translation / TLS",
       description:
@@ -320,6 +398,7 @@ const services = {
       Icon: Languages,
     },
     {
+      resourceKey: "svc_support",
       category: "Concierge",
       title: "Priority support",
       description:
@@ -331,6 +410,7 @@ const services = {
   ],
   fr: [
     {
+      resourceKey: "svc_ats",
       category: "Stratégie CV",
       title: "Optimisation CV ATS",
       description:
@@ -340,6 +420,7 @@ const services = {
       Icon: FileText,
     },
     {
+      resourceKey: "svc_letter",
       category: "Dossiers candidature",
       title: "Lettre stratégique",
       description:
@@ -349,6 +430,7 @@ const services = {
       Icon: PenLine,
     },
     {
+      resourceKey: "svc_linkedin",
       category: "Marque personnelle",
       title: "Relance LinkedIn",
       description:
@@ -358,6 +440,7 @@ const services = {
       Icon: BriefcaseBusiness,
     },
     {
+      resourceKey: "svc_interview",
       category: "Entretien",
       title: "Préparation entretien",
       description:
@@ -367,6 +450,7 @@ const services = {
       Icon: Mic2,
     },
     {
+      resourceKey: "svc_tls",
       category: "Localisation",
       title: "Traduction / TLS",
       description:
@@ -376,6 +460,7 @@ const services = {
       Icon: Languages,
     },
     {
+      resourceKey: "svc_support",
       category: "Conciergerie",
       title: "Support prioritaire",
       description:
@@ -474,91 +559,14 @@ const performanceStats = {
   ],
 };
 
-const countries = {
-  en: [
-    {
-      country: "Canada",
-      standard: "1–2 pages standard",
-      line: "Federal and bilingual hiring corridors; ATS layouts tuned for bilingual screening; tone for Toronto, Vancouver, and pan-Canadian mandates.",
-    },
-    {
-      country: "United States",
-      standard: "1 page preferred · 2 for senior operators",
-      line: "Outcome-heavy narratives for hyperscale tech, finance, and consulting—keyword depth for Greenhouse, Lever, and Workday-heavy stacks.",
-    },
-    {
-      country: "United Kingdom",
-      standard: "2 pages standard",
-      line: "Competency scaffolding for regulated professions—proof stacks aligned to recruiter skim rhythms across London and regional hubs.",
-    },
-    {
-      country: "France",
-      standard: "1–2 pages standard",
-      line: "Executive French register with Anglo crossover fluency—for CAC groups, boutiques, and Paris ↔ global HQ mobility.",
-    },
-    {
-      country: "UAE",
-      standard: "2 pages standard",
-      line: "Board-adjacent narratives across sovereign-backed initiatives, aviation, logistics, finance, and luxury in Dubai and Abu Dhabi lanes.",
-    },
-    {
-      country: "Germany",
-      standard: "1–2 pages standard",
-      line: "Precision KPI layering for Mittelstand and DAX narratives—readable for deeply technical hiring panels.",
-    },
-    {
-      country: "Singapore",
-      standard: "1–2 pages standard",
-      line: "APAC finance and technology benchmarks with crisp quantification for regional HQs anchoring ASEAN liquidity centres.",
-    },
-    {
-      country: "Australia",
-      standard: "2 pages standard",
-      line: "Direct proof architecture tuned to pragmatic hiring cultures—scope, EBITDA impact, and team scale foregrounded.",
-    },
-  ],
-  fr: [
-    {
-      country: "Canada",
-      standard: "Norme 1–2 pages",
-      line: "Viviers fédéraux et bilingues; mise en page ATS adaptée au filtrage bilingue; ton direction pour hubs stratégiques nationaux.",
-    },
-    {
-      country: "États-Unis",
-      standard: "1 page visée · 2 pour profils seniors",
-      line: "Narratifs résultats pour tech hyperscale et finance—profondeur mots-clés compatible stacks Greenhouse, Lever et Workday.",
-    },
-    {
-      country: "Royaume-Uni",
-      standard: "Norme 2 pages",
-      line: "Structuration par compétences pour secteurs réglementés—preuves concises lisibles pour recruteurs londoniens.",
-    },
-    {
-      country: "France",
-      standard: "Norme 1–2 pages",
-      line: "Registre exécutif français avec pivot anglais fluide—groupes cotés Paris et mobilités internationales.",
-    },
-    {
-      country: "EAU",
-      standard: "Norme 2 pages",
-      line: "Récits niveau CODIR pour finance souveraine, aviation, supply chain et luxe sur corridors Dubaï / Abou Dabi.",
-    },
-    {
-      country: "Allemagne",
-      standard: "Norme 1–2 pages",
-      line: "Couches KPI précises Mittelstand / DAX—claires pour jurys techniques exigeants.",
-    },
-    {
-      country: "Singapour",
-      standard: "Norme 1–2 pages",
-      line: "Standards finance & tech APAC avec quantification nette pour sièges régionnels ASEAN.",
-    },
-    {
-      country: "Australie",
-      standard: "Norme 2 pages",
-      line: "Architectures de preuve directes pour marchés où la franchise opérationnelle prime.",
-    },
-  ],
+const REGION_ICONS = {
+  "north-america": Globe2,
+  europe: Building2,
+  "middle-east": MapPin,
+  gulf: Sparkles,
+  africa: Globe2,
+  "asia-pacific": Globe2,
+  "international-executive": BriefcaseBusiness,
 };
 
 export default function HomePage() {
@@ -566,7 +574,27 @@ export default function HomePage() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [busyPlan, setBusyPlan] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openRegionId, setOpenRegionId] = useState(regionGroups.en[0]?.id ?? "");
+  const [engStats, setEngStats] = useState(null);
+  const [engBusy, setEngBusy] = useState(false);
   const uploadFieldId = useId();
+
+  const regions = regionGroups[lang];
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/engagement/stats")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setEngStats(data);
+      })
+      .catch(() => {
+        if (!cancelled) setEngStats({ enabled: false });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const t = translations[lang];
   const steps = processSteps(lang);
@@ -641,6 +669,33 @@ export default function HomePage() {
     }
   };
 
+  const regionHint = () =>
+    typeof navigator !== "undefined"
+      ? `${navigator.language || ""}|${Intl.DateTimeFormat().resolvedOptions().timeZone || ""}`
+      : "";
+
+  const refreshEngagement = async () => {
+    const r = await fetch("/api/engagement/stats", { credentials: "same-origin" });
+    if (r.ok) setEngStats(await r.json());
+  };
+
+  const runEngagementAction = async (payload) => {
+    if (engBusy) return;
+    setEngBusy(true);
+    try {
+      const res = await fetch("/api/engagement/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ ...payload, regionHint: regionHint() }),
+      });
+      if (res.ok) await refreshEngagement();
+      else if (res.status === 503) window.alert(t.engagementDisabled);
+    } finally {
+      setEngBusy(false);
+    }
+  };
+
   const closeMenu = () => setMenuOpen(false);
 
   const navLinks = (
@@ -648,17 +703,20 @@ export default function HomePage() {
       <a href="#trust" onClick={closeMenu}>
         {t.navTrust}
       </a>
-      <a href="#services" onClick={closeMenu}>
-        {t.navServices}
+      <a href="#capabilities" onClick={closeMenu}>
+        {t.navCapabilities}
       </a>
       <a href="#pricing" onClick={closeMenu}>
         {t.navPricing}
       </a>
-      <a href="#process" onClick={closeMenu}>
-        {t.navProcess}
+      <a href="#delivery-protocols" onClick={closeMenu}>
+        {t.navDelivery}
       </a>
       <a href="#countries" onClick={closeMenu}>
         {t.navCountries}
+      </a>
+      <a href="#engagement" onClick={closeMenu}>
+        {t.navEngagement}
       </a>
       <a href="#testimonials" onClick={closeMenu}>
         {t.navTestimonials}
@@ -668,6 +726,21 @@ export default function HomePage() {
       </Link>
     </>
   );
+
+  const labels = SERVICE_LABELS[lang];
+  const trendingMerged = useMemo(() => {
+    const likes = engStats?.likesByResource || [];
+    const reqs = engStats?.requestsByResource || [];
+    const map = {};
+    for (const r of likes) map[r.key] = (map[r.key] || 0) + Number(r.count || 0);
+    for (const r of reqs) map[r.key] = (map[r.key] || 0) + Number(r.count || 0) * 2;
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([key, count]) => ({ key, count }));
+  }, [engStats]);
+  const mostSaved = engStats?.savesByResource?.slice(0, 6) ?? [];
+  const mostRequested = engStats?.requestsByResource?.slice(0, 6) ?? [];
 
   return (
     <div className="rs-page">
@@ -801,16 +874,18 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="services" className="rs-section">
+        <section id="capabilities" className="rs-section">
           <div className="rs-container">
-            <p className="rs-eyebrow">{t.navServices}</p>
+            <p className="rs-eyebrow">{t.navCapabilities}</p>
             <h2 className="rs-h2">{t.servicesTitle}</h2>
             <p className="rs-subtitle">{t.servicesSubtitle}</p>
             <div className="rs-card-grid">
               {services[lang].map((item) => {
                 const I = item.Icon;
+                const liked = engStats?.myLikes?.includes(item.resourceKey);
+                const saved = engStats?.mySaves?.includes(item.resourceKey);
                 return (
-                  <article key={item.title} className="rs-service-card">
+                  <article key={item.resourceKey} className="rs-service-card">
                     <span className="rs-cat-pill">
                       {t.serviceCategory}: {item.category}
                     </span>
@@ -819,6 +894,37 @@ export default function HomePage() {
                       <h3>{item.title}</h3>
                     </div>
                     <p>{item.description}</p>
+                    <div className="rs-engage-row" aria-label="Engagement">
+                      <button
+                        type="button"
+                        className="rs-engage-pill"
+                        data-active={liked ? "true" : "false"}
+                        disabled={engBusy}
+                        onClick={() => runEngagementAction({ type: "like", resourceKey: item.resourceKey })}
+                      >
+                        <Heart size={16} strokeWidth={1.5} className="rs-icon-gold" fill={liked ? "currentColor" : "none"} aria-hidden />
+                        {t.engagementLike}
+                      </button>
+                      <button
+                        type="button"
+                        className="rs-engage-pill"
+                        data-active={saved ? "true" : "false"}
+                        disabled={engBusy}
+                        onClick={() => runEngagementAction({ type: "save", resourceKey: item.resourceKey })}
+                      >
+                        <Bookmark size={16} strokeWidth={1.5} className="rs-icon-gold" fill={saved ? "currentColor" : "none"} aria-hidden />
+                        {t.engagementSave}
+                      </button>
+                      <button
+                        type="button"
+                        className="rs-engage-pill"
+                        data-active="false"
+                        disabled={engBusy}
+                        onClick={() => runEngagementAction({ type: "request", resourceKey: item.resourceKey })}
+                      >
+                        {t.engagementRequest}
+                      </button>
+                    </div>
                     <Link href={item.ctaHref} className="rs-card-cta">
                       {item.ctaLabel}
                       <ArrowRight size={14} aria-hidden />
@@ -905,22 +1011,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="process" className="rs-section rs-section-muted">
+        <section id="delivery-protocols" className="rs-section rs-section-muted">
           <div className="rs-container">
-            <p className="rs-eyebrow">{t.navProcess}</p>
-            <h2 className="rs-h2">{t.processTitle}</h2>
-            <p className="rs-subtitle">{t.processSubtitle}</p>
-            <div className="rs-process-steps">
+            <p className="rs-eyebrow">{t.navDelivery}</p>
+            <h2 className="rs-h2">{t.deliveryProtocolsTitle}</h2>
+            <p className="rs-subtitle">{t.deliveryProtocolsSubtitle}</p>
+            <div className="rs-delivery-grid">
               {steps.map((s) => {
                 const I = s.Icon;
                 return (
-                  <article key={s.step} className="rs-step">
-                    <div className="rs-step-num">{s.step}</div>
+                  <article key={s.step} className="rs-delivery-card">
+                    <div className="rs-delivery-step">{s.step}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginTop: "0.5rem" }}>
-                      <I size={20} strokeWidth={1.45} className="rs-icon-gold" aria-hidden />
-                      <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800 }}>{s.title}</h3>
+                      <I size={22} strokeWidth={1.45} className="rs-icon-gold" aria-hidden />
+                      <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>{s.title}</h3>
                     </div>
-                    <p style={{ margin: "0.55rem 0 0", fontSize: "0.875rem", lineHeight: 1.65, color: "var(--rs-text-secondary)" }}>{s.detail}</p>
+                    <p className="rs-delivery-desc">{s.detail}</p>
                   </article>
                 );
               })}
@@ -933,19 +1039,144 @@ export default function HomePage() {
             <p className="rs-eyebrow">{t.navCountries}</p>
             <h2 className="rs-h2">{t.countriesTitle}</h2>
             <p className="rs-subtitle">{t.countriesSubtitle}</p>
-            <div className="rs-region-grid">
-              {countries[lang].map((c) => (
-                <article key={c.country} className="rs-region-card">
-                  <div className="rs-region-name">{c.country}</div>
-                  <div className="rs-region-standard">{c.standard}</div>
-                  <p className="rs-region-desc">{c.line}</p>
-                </article>
-              ))}
+            <p className="rs-regions-hint">{t.regionsToggleHint}</p>
+            <div className="rs-region-groups">
+              {regions.map((region) => {
+                const Icon = REGION_ICONS[region.id] || Globe2;
+                const open = openRegionId === region.id;
+                return (
+                  <div key={region.id} className="rs-region-shell">
+                    <button
+                      type="button"
+                      className="rs-region-trigger"
+                      aria-expanded={open}
+                      onClick={() => setOpenRegionId((cur) => (cur === region.id ? "" : region.id))}
+                    >
+                      <span className="rs-region-trigger-main">
+                        <Icon className="rs-icon-gold" size={22} strokeWidth={1.45} aria-hidden />
+                        <span className="rs-region-title">{region.title}</span>
+                      </span>
+                      <span className="rs-region-summary">{region.summary}</span>
+                      <ChevronDown
+                        size={22}
+                        className="rs-region-chevron"
+                        data-open={open ? "true" : "false"}
+                        aria-hidden
+                      />
+                    </button>
+                    {open ? (
+                      <div className="rs-region-panel">
+                        <div className="rs-region-grid">
+                          {region.countries.map((c) => (
+                            <article key={`${region.id}-${c.country}`} className="rs-region-card">
+                              <div className="rs-region-name">{c.country}</div>
+                              <div className="rs-region-standard">{c.standard}</div>
+                              <p className="rs-region-desc">{c.line}</p>
+                            </article>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        <section id="testimonials" className="rs-section rs-section-muted">
+        <section id="engagement" className="rs-section rs-section-muted">
+          <div className="rs-container">
+            <p className="rs-eyebrow">{t.navEngagement}</p>
+            <h2 className="rs-h2">{t.engagementTitle}</h2>
+            <p className="rs-subtitle">{t.engagementSubtitle}</p>
+            <div className="rs-engage-hero">
+              <div className="rs-engage-metrics">
+                <div className="rs-engage-metric">
+                  <span className="rs-engage-metric-value">{engStats?.followers ?? "—"}</span>
+                  <span className="rs-engage-metric-label">{lang === "en" ? "Followers" : "Abonnés"}</span>
+                </div>
+                <div className="rs-engage-metric">
+                  <span className="rs-engage-metric-value">{engStats?.registrations ?? "—"}</span>
+                  <span className="rs-engage-metric-label">{lang === "en" ? "Registered clients" : "Clients inscrits"}</span>
+                </div>
+                <div className="rs-engage-metric">
+                  <span className="rs-engage-metric-value">{engStats?.enabled === false ? "—" : "Live"}</span>
+                  <span className="rs-engage-metric-label">{lang === "en" ? "Neon sync" : "Sync Neon"}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="rs-btn-accent"
+                disabled={engBusy}
+                onClick={() => runEngagementAction({ type: engStats?.followingBrand ? "unfollow" : "follow" })}
+              >
+                {engStats?.followingBrand ? t.engagementFollowing : t.engagementFollow}
+              </button>
+              <Link href="/dashboard" className="rs-btn-ghost">
+                {lang === "en" ? "Analytics dashboard" : "Tableau analytics"}
+              </Link>
+            </div>
+            <div className="rs-engage-quad">
+              <div className="rs-engage-quad-col">
+                <h3 className="rs-engage-quad-title">{t.engagementTrending}</h3>
+                <ul className="rs-engage-list">
+                  {trendingMerged.map((row) => (
+                    <li key={row.key}>
+                      <span>{labels[row.key] || row.key}</span>
+                      <span className="rs-engage-count">{row.count}</span>
+                    </li>
+                  ))}
+                  {!trendingMerged.length ? <li className="rs-engage-empty">{lang === "en" ? "Awaiting first signals" : "En attente de signaux"}</li> : null}
+                </ul>
+              </div>
+              <div className="rs-engage-quad-col">
+                <h3 className="rs-engage-quad-title">{t.engagementMostLiked}</h3>
+                <ul className="rs-engage-list">
+                  {(engStats?.likesByResource || []).slice(0, 6).map((row) => (
+                    <li key={`like-${row.key}`}>
+                      <span>{labels[row.key] || row.key}</span>
+                      <span className="rs-engage-count">{row.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rs-engage-quad-col">
+                <h3 className="rs-engage-quad-title">{t.engagementMostSaved}</h3>
+                <ul className="rs-engage-list">
+                  {mostSaved.map((row) => (
+                    <li key={`save-${row.key}`}>
+                      <span>{labels[row.key] || row.key}</span>
+                      <span className="rs-engage-count">{row.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rs-engage-quad-col">
+                <h3 className="rs-engage-quad-title">{t.engagementMostRequested}</h3>
+                <ul className="rs-engage-list">
+                  {mostRequested.map((row) => (
+                    <li key={`req-${row.key}`}>
+                      <span>{labels[row.key] || row.key}</span>
+                      <span className="rs-engage-count">{row.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="rs-engage-regional">
+              <h3 className="rs-engage-quad-title">{t.engagementRegional}</h3>
+              <div className="rs-engage-region-chips">
+                {(engStats?.regional || []).map((r) => (
+                  <span key={r.region} className="rs-chip">
+                    {r.region}: {r.count}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonials" className="rs-section">
           <div className="rs-container">
             <p className="rs-eyebrow">{t.navTestimonials}</p>
             <h2 className="rs-h2">{t.testimonialsTitle}</h2>
@@ -1000,7 +1231,7 @@ export default function HomePage() {
             <h4>{t.footerColProduct}</h4>
             <ul className="rs-footer-links">
               <li>
-                <a href="#services">{t.footerServices}</a>
+                <a href="#capabilities">{t.footerCapabilities}</a>
               </li>
               <li>
                 <a href="#pricing">{t.footerPricing}</a>
@@ -1012,10 +1243,13 @@ export default function HomePage() {
                 <a href="#trust">{t.footerTrust}</a>
               </li>
               <li>
-                <a href="#process">{t.footerProcess}</a>
+                <a href="#delivery-protocols">{t.footerDelivery}</a>
               </li>
               <li>
                 <a href="#countries">{t.footerRegions}</a>
+              </li>
+              <li>
+                <a href="#engagement">{t.footerEngagement}</a>
               </li>
               <li>
                 <a href="#testimonials">{t.footerStories}</a>
@@ -1033,6 +1267,9 @@ export default function HomePage() {
               </li>
               <li>
                 <Link href="/support">{t.footerSupport}</Link>
+              </li>
+              <li>
+                <Link href="/dashboard">{lang === "en" ? "Dashboard" : "Tableau"}</Link>
               </li>
             </ul>
           </div>
