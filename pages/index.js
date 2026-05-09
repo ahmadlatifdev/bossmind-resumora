@@ -78,10 +78,12 @@ const translations = {
     servicesSubtitle:
       "Every deliverable blends narrative sophistication with machine-parseable excellence.",
     serviceAction: "Start with Upload",
+    serviceCategory: "Category",
     pricingTitle: "Transparent Plans",
     pricingSubtitle: "Straightforward tiers with escalating depth, speed priority, and senior oversight.",
     popular: "Most popular",
     choosePlan: "Choose Plan",
+    selectPlan: "Select Plan",
     processing: "Processing...",
     performanceTitle: "Performance Metrics",
     performanceSubtitle:
@@ -159,11 +161,13 @@ const translations = {
     servicesSubtitle:
       "Chaque livrable marie narration sophistiquée et excellence lisible par les machines.",
     serviceAction: "Commencer par le téléversement",
+    serviceCategory: "Catégorie",
     pricingTitle: "Plans transparents",
     pricingSubtitle:
       "Des paliers nets avec davantage de profondeur, de priorité délai et de supervision senior.",
     popular: "Le plus demandé",
     choosePlan: "Choisir le plan",
+    selectPlan: "Sélectionner le plan",
     processing: "Traitement…",
     performanceTitle: "Indicateurs clés",
     performanceSubtitle:
@@ -277,77 +281,113 @@ function securityItems(lang) {
 const services = {
   en: [
     {
+      category: "Resume Strategy",
       title: "ATS Resume Optimization",
       description:
         "Full spectrum rewrite with lexical precision, ATS-safe layout, and section sequencing proven across leading ATS vendors.",
+      ctaHref: "#upload",
+      ctaLabel: "Upload for Review",
       Icon: FileText,
     },
     {
+      category: "Application Assets",
       title: "Cover Letter Generator",
       description:
         "Narratives tied to mandate, culture signals, and quantified accomplishments so responses feel bespoke at scale.",
+      ctaHref: "#upload",
+      ctaLabel: "Build My Letter",
       Icon: PenLine,
     },
     {
+      category: "Personal Branding",
       title: "LinkedIn Optimization",
       description:
         "Authority-led positioning for headline, featured media, storyline, and discoverability cues recruiters actually search.",
+      ctaHref: "#pricing",
+      ctaLabel: "Choose a Plan",
       Icon: BriefcaseBusiness,
     },
     {
+      category: "Interview Readiness",
       title: "Interview Preparation",
       description:
         "Scenario drills, behavioural pivots, and executive presence coaching aligned to your reconstructed resume.",
+      ctaHref: "#pricing",
+      ctaLabel: "Book Preparation",
       Icon: Mic2,
     },
     {
+      category: "Localization",
       title: "Translation / TLS",
       description:
         "Native-grade EN/FR pairs with tonal harmonisation across resume, outreach, and follow-up artefacts.",
+      ctaHref: "#countries",
+      ctaLabel: "See Global Standards",
       Icon: Languages,
     },
     {
+      category: "Concierge Support",
       title: "Priority Support",
       description:
         "Concierge pacing, SLA-backed responses, and direct escalation when speed is non-negotiable.",
+      ctaHref: "#pricing",
+      ctaLabel: "Upgrade to Priority",
       Icon: Headphones,
     },
   ],
   fr: [
     {
+      category: "Stratégie CV",
       title: "Optimisation CV ATS",
       description:
         "Réécriture complète avec précision lexicale, gabarits parseur-safe et enchaînement de sections éprouvé chez les grands ATS.",
+      ctaHref: "#upload",
+      ctaLabel: "Téléverser pour audit",
       Icon: FileText,
     },
     {
+      category: "Dossiers de candidature",
       title: "Lettre stratégique",
       description:
         "Narratifs reliés au mandat, indices de culture et preuves chiffrées pour un rendu sur-mesure industriel.",
+      ctaHref: "#upload",
+      ctaLabel: "Créer ma lettre",
       Icon: PenLine,
     },
     {
+      category: "Marque personnelle",
       title: "Optimisation LinkedIn",
       description:
         "Positionnement autorité : titre, médias vedettes, story et découvrabilité comme les flux recruteur.",
+      ctaHref: "#pricing",
+      ctaLabel: "Choisir un plan",
       Icon: BriefcaseBusiness,
     },
     {
+      category: "Préparation entretien",
       title: "Préparation entretien",
       description:
         "Drills situationnels, angles comportementaux et coaching présence cadre synchronisés sur votre nouveau CV.",
+      ctaHref: "#pricing",
+      ctaLabel: "Réserver la préparation",
       Icon: Mic2,
     },
     {
+      category: "Localisation",
       title: "Traduction / TLS",
       description:
         "Paires EN/FR niveau native avec harmonisation rédactionnelle sur tous les artefacts de poursuite.",
+      ctaHref: "#countries",
+      ctaLabel: "Voir standards pays",
       Icon: Languages,
     },
     {
+      category: "Conciergerie",
       title: "Support prioritaire",
       description:
         "Rythme concierge, SLA explicites et escalation directe quand la vitesse est critique.",
+      ctaHref: "#pricing",
+      ctaLabel: "Passer en prioritaire",
       Icon: Headphones,
     },
   ],
@@ -365,12 +405,14 @@ const pricingPlans = [
         "Deep ATS remediation pass",
         "Typography + hierarchy upgrade",
         "Industry keyword scaffolding",
+        "1 free edit included",
         "One structured revision sprint",
       ],
       fr: [
         "Remédiation ATS approfondie",
         "Hiérarchie typographique premium",
         "Échafaudage mots-clés secteur",
+        "1 modification gratuite incluse",
         "Une sprint révision guidée",
       ],
     },
@@ -386,12 +428,14 @@ const pricingPlans = [
         "Everything inside Basic",
         "Full chronological or hybrid rebuild",
         "Role-specific accomplishment mining",
+        "2 free edits included",
         "Cover letter authored to spec",
       ],
       fr: [
         "Toutes les garanties Basic",
         "Rebuild chronologique ou hybride",
         "Mining de réalisations cible métier",
+        "2 modifications gratuites incluses",
         "Lettre sur-mesure signée strategist",
       ],
     },
@@ -407,12 +451,14 @@ const pricingPlans = [
         "Professional depth + LinkedIn relaunch",
         "Executive storyline workshop",
         "Recorded interview rehearsals",
+        "3 free edits included",
         "Dedicated concierge strategist",
       ],
       fr: [
         "Profondeur Professionnel + LinkedIn relancé",
         "Atelier storyline direction",
         "Répétitions entretien enregistrées",
+        "3 modifications gratuites incluses",
         "Stratège concierge attitré",
       ],
     },
@@ -438,68 +484,84 @@ const countries = {
   en: [
     {
       country: "Canada",
+      standard: "1-2 pages standard",
       line: "Federal and bilingual hiring corridors, ATS layouts tuned for bilingual screening, and leadership tone calibrated for Toronto, Vancouver, and national mandates.",
     },
     {
       country: "United States",
+      standard: "1 page preferred, 2 pages for senior roles",
       line: "Outcome-heavy narratives for hyperscale tech, finance, and consulting pipelines with keyword depth that survives Greenhouse-, Lever-, and Workday-heavy workflows.",
     },
     {
       country: "United Kingdom",
+      standard: "2 pages standard",
       line: "Competency-first CV scaffolding for regulated professions, succinct proof stacks that align with recruiter skim patterns across London and regional hubs.",
     },
     {
       country: "France",
+      standard: "1-2 pages standard",
       line: "French executive tone with Anglo crossover fluency—ideal for CAC-listed groups, boutiques, and cross-border rotations between Paris and global HQs.",
     },
     {
       country: "UAE",
+      standard: "2 pages standard",
       line: "Board-adjacent narratives for sovereign wealth-backed initiatives, aviation, logistics, finance, and luxury sectors across Dubai and Abu Dhabi hiring lanes.",
     },
     {
       country: "Germany",
+      standard: "1-2 pages standard",
       line: "Precision KPI layering for Mittelstand champions and DAX-level organisations with clarity for engineering-led interview panels.",
     },
     {
       country: "Singapore",
+      standard: "1-2 pages standard",
       line: "APAC finance and technology benchmarks with crisp quantification for regional HQs bridging Southeast Asia liquidity centres.",
     },
     {
       country: "Australia",
+      standard: "2 pages standard",
       line: "Direct proof architecture for pragmatic hiring cultures in Sydney and Melbourne—with emphasis on scope, EBITDA impact, and team scale.",
     },
   ],
   fr: [
     {
       country: "Canada",
+      standard: "Norme 1-2 pages",
       line: "Cadres de recrutement fédéral et bilingue, mise en page ATS harmonisée, et ton de leadership adapté aux grands hubs montréalite, ontariens et autres marchés stratégiques.",
     },
     {
       country: "États-Unis",
+      standard: "1 page recommandée, 2 pages pour profils seniors",
       line: "Narratives axées résultats pour pipelines tech et finance hyperscale compatibles ATS type Greenhouse, Lever et Workday.",
     },
     {
       country: "Royaume-Uni",
+      standard: "Norme 2 pages",
       line: "CV structurés par compétences pour secteurs réglementés avec preuves concises lisibles en quelques secondes par les équipes londoniennes.",
     },
     {
       country: "France",
+      standard: "Norme 1-2 pages",
       line: "Rédaction française de haut niveau avec bascule anglaise fluide pour grands groupes cotés Paris et rotations internationales.",
     },
     {
       country: "EAU",
+      standard: "Norme 2 pages",
       line: "Narratif direction pour infrastructures souveraines, aviation, finance et luxe sur les corridors de recrutement Abu Dhabi/Dubai.",
     },
     {
       country: "Allemagne",
+      standard: "Norme 1-2 pages",
       line: "Structuration KPI pour Mittelstand et grands ensembles industriels allemands lisible par panels techniques.",
     },
     {
       country: "Singapour",
+      standard: "Norme 1-2 pages",
       line: "Standards APAC finance & tech avec chiffres clairs pour quartiers généraux régionaux.",
     },
     {
       country: "Australie",
+      standard: "Norme 2 pages",
       line: "Preuves linéaires pour cultures d’embauche directes avec impact EBITDA, périmètre équipe et mise à l’échelle.",
     },
   ],
@@ -525,7 +587,7 @@ export default function HomePage() {
     []
   );
 
-  const handleCheckout = async (priceId, planId) => {
+  const handleCheckout = async (priceId, planId, planName, planPrice) => {
     if (!priceId) {
       alert("Missing Stripe price ID configuration for this plan.");
       return;
@@ -535,7 +597,7 @@ export default function HomePage() {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
+        body: JSON.stringify({ priceId, planId, planName, planPrice }),
       });
       const data = await response.json();
       if (!response.ok || !data.id) {
@@ -821,17 +883,20 @@ export default function HomePage() {
             <p className="sectionSubtitle">{t.servicesSubtitle}</p>
           </div>
           <div className="grid serviceGrid">
-            {services[lang].map(({ title, description, Icon }) => (
+            {services[lang].map(({ title, description, category, ctaHref, ctaLabel, Icon }) => (
               <article className="card serviceCard hoverLift" key={title}>
                 <div className="serviceTop">
                   <span className="iconBubble">
                     <Icon {...ICON_WRAP} />
                   </span>
-                  <h3>{title}</h3>
+                  <div>
+                    <span className="categoryTag">{t.serviceCategory}: {category}</span>
+                    <h3>{title}</h3>
+                  </div>
                 </div>
                 <p>{description}</p>
-                <a href="#upload" className="ghostBtn">
-                  {t.serviceAction}
+                <a href={ctaHref} className="ghostBtn">
+                  {ctaLabel || t.serviceAction}
                 </a>
               </article>
             ))}
@@ -862,10 +927,10 @@ export default function HomePage() {
                 <button
                   type="button"
                   className="goldBtn stretch"
-                  onClick={() => handleCheckout(plan.priceId, plan.id)}
+                  onClick={() => handleCheckout(plan.priceId, plan.id, plan.name[lang], plan.price)}
                   disabled={busyPlan === plan.id}
                 >
-                  {busyPlan === plan.id ? t.processing : t.choosePlan}
+                  {busyPlan === plan.id ? t.processing : t.selectPlan}
                 </button>
               </article>
             ))}
@@ -895,7 +960,7 @@ export default function HomePage() {
             <p className="sectionSubtitle countriesLead">{t.countriesSubtitle}</p>
           </div>
           <div className="countriesMegaGrid">
-            {countries[lang].map(({ country, line }) => (
+            {countries[lang].map(({ country, standard, line }) => (
               <article className="countryMegaCard" key={country}>
                 <div className="countryMegaTop">
                   <span className="countryIconWrap">
@@ -903,6 +968,7 @@ export default function HomePage() {
                   </span>
                   <h3 className="countryName">{country}</h3>
                 </div>
+                <p className="countryStandard">{standard}</p>
                 <p className="countryDetail">{line}</p>
               </article>
             ))}
@@ -1594,9 +1660,22 @@ export default function HomePage() {
         }
 
         .serviceCard h3 {
-          margin: 0;
+          margin: 4px 0 0;
           font-size: clamp(1.14rem, 1.42vw, 1.26rem);
           font-weight: 800;
+        }
+
+        .categoryTag {
+          display: inline-flex;
+          border: 1px solid rgba(212, 175, 55, 0.42);
+          border-radius: 999px;
+          padding: 4px 10px;
+          font-size: 0.74rem;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: #e8d6aa;
+          background: rgba(8, 16, 40, 0.72);
+          font-weight: 700;
         }
 
         .serviceCard p {
@@ -1757,6 +1836,16 @@ export default function HomePage() {
           line-height: 1.76;
           color: #dfd4bf;
           font-weight: 400;
+        }
+
+        .countryStandard {
+          margin: 0;
+          font-size: 0.92rem;
+          color: #f1dcaa;
+          border-left: 3px solid rgba(212, 175, 55, 0.62);
+          padding-left: 10px;
+          line-height: 1.5;
+          font-weight: 700;
         }
 
         .ctaBand {
