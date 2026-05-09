@@ -1,0 +1,165 @@
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
+import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
+
+export default function EngagementPanel() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const labels = SERVICE_LABELS[lang];
+  const [engStats, setEngStats] = useState(null);
+  const [engBusy, setEngBusy] = useState(false);
+
+  useEffect(() => {
+    let c = false;
+    fetch("/api/engagement/stats", { credentials: "same-origin" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!c) setEngStats(d);
+      })
+      .catch(() => {
+        if (!c) setEngStats({ enabled: false });
+      });
+    return () => {
+      c = true;
+    };
+  }, []);
+
+  const regionHint = () =>
+    typeof navigator !== "undefined"
+      ? `${navigator.language || ""}|${Intl.DateTimeFormat().resolvedOptions().timeZone || ""}`
+      : "";
+
+  const refreshEngagement = async () => {
+    const r = await fetch("/api/engagement/stats", { credentials: "same-origin" });
+    if (r.ok) setEngStats(await r.json());
+  };
+
+  const runEngagementAction = async (payload) => {
+    if (engBusy) return;
+    setEngBusy(true);
+    try {
+      const res = await fetch("/api/engagement/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ ...payload, regionHint: regionHint() }),
+      });
+      if (res.ok) await refreshEngagement();
+      else if (res.status === 503) window.alert(t.engagementDisabled);
+    } finally {
+      setEngBusy(false);
+    }
+  };
+
+  const trendingMerged = useMemo(() => {
+    const likes = engStats?.likesByResource || [];
+    const reqs = engStats?.requestsByResource || [];
+    const map = {};
+    for (const r of likes) map[r.key] = (map[r.key] || 0) + Number(r.count || 0);
+    for (const r of reqs) map[r.key] = (map[r.key] || 0) + Number(r.count || 0) * 2;
+    return Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([key, count]) => ({ key, count }));
+  }, [engStats]);
+
+  const mostSaved = engStats?.savesByResource?.slice(0, 6) ?? [];
+  const mostRequested = engStats?.requestsByResource?.slice(0, 6) ?? [];
+
+  return (
+    <section id="engagement" className="rs-section">
+      <div className="rs-container">
+        <p className="rs-eyebrow">{t.navEngagement}</p>
+        <h2 className="rs-h2">{t.engagementTitle}</h2>
+        <p className="rs-subtitle">{t.engagementSubtitle}</p>
+        <div className="rs-engage-hero">
+          <div className="rs-engage-metrics">
+            <div className="rs-engage-metric">
+              <span className="rs-engage-metric-value">{engStats?.followers ?? "—"}</span>
+              <span className="rs-engage-metric-label">{lang === "en" ? "Followers" : "Abonnés"}</span>
+            </div>
+            <div className="rs-engage-metric">
+              <span className="rs-engage-metric-value">{engStats?.registrations ?? "—"}</span>
+              <span className="rs-engage-metric-label">{lang === "en" ? "Registered clients" : "Clients inscrits"}</span>
+            </div>
+            <div className="rs-engage-metric">
+              <span className="rs-engage-metric-value">{engStats?.enabled === false ? "—" : "Live"}</span>
+              <span className="rs-engage-metric-label">{lang === "en" ? "Neon sync" : "Sync Neon"}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="rs-btn-accent"
+            disabled={engBusy}
+            onClick={() => runEngagementAction({ type: engStats?.followingBrand ? "unfollow" : "follow" })}
+          >
+            {engStats?.followingBrand ? t.engagementFollowing : t.engagementFollow}
+          </button>
+          <Link href="/dashboard" className="rs-btn-ghost">
+            {lang === "en" ? "Analytics dashboard" : "Tableau analytics"}
+          </Link>
+        </div>
+        <div className="rs-engage-quad">
+          <div className="rs-engage-quad-col">
+            <h3 className="rs-engage-quad-title">{t.engagementTrending}</h3>
+            <ul className="rs-engage-list">
+              {trendingMerged.map((row) => (
+                <li key={row.key}>
+                  <span>{labels[row.key] || row.key}</span>
+                  <span className="rs-engage-count">{row.count}</span>
+                </li>
+              ))}
+              {!trendingMerged.length ? (
+                <li className="rs-engage-empty">{lang === "en" ? "Awaiting first signals" : "En attente de signaux"}</li>
+              ) : null}
+            </ul>
+          </div>
+          <div className="rs-engage-quad-col">
+            <h3 className="rs-engage-quad-title">{t.engagementMostLiked}</h3>
+            <ul className="rs-engage-list">
+              {(engStats?.likesByResource || []).slice(0, 6).map((row) => (
+                <li key={`like-${row.key}`}>
+                  <span>{labels[row.key] || row.key}</span>
+                  <span className="rs-engage-count">{row.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rs-engage-quad-col">
+            <h3 className="rs-engage-quad-title">{t.engagementMostSaved}</h3>
+            <ul className="rs-engage-list">
+              {mostSaved.map((row) => (
+                <li key={`save-${row.key}`}>
+                  <span>{labels[row.key] || row.key}</span>
+                  <span className="rs-engage-count">{row.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rs-engage-quad-col">
+            <h3 className="rs-engage-quad-title">{t.engagementMostRequested}</h3>
+            <ul className="rs-engage-list">
+              {mostRequested.map((row) => (
+                <li key={`req-${row.key}`}>
+                  <span>{labels[row.key] || row.key}</span>
+                  <span className="rs-engage-count">{row.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="rs-engage-regional">
+          <h3 className="rs-engage-quad-title">{t.engagementRegional}</h3>
+          <div className="rs-engage-region-chips">
+            {(engStats?.regional || []).map((r) => (
+              <span key={r.region} className="rs-chip">
+                {r.region}: {r.count}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

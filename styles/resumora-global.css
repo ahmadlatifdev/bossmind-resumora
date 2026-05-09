@@ -1238,3 +1238,290 @@ body {
   width: min(900px, 100%);
   margin-inline: auto;
 }
+
+/* —— Wide nav (marketing chrome) —— */
+.rs-nav-wide {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(0.45rem, 1.2vw, 0.85rem);
+}
+
+.rs-nav-wide a {
+  font-size: clamp(0.78rem, 1vw, 0.875rem);
+  white-space: nowrap;
+}
+
+/* —— SEO article titles —— */
+.rs-page-title {
+  margin: 0.75rem 0 0;
+  font-size: clamp(1.85rem, 4vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: var(--rs-tracking-tight);
+  line-height: 1.12;
+  max-width: 22ch;
+}
+
+@media (max-width: 1024px) {
+  .rs-page-title {
+    max-width: none;
+  }
+}
+
+/* —— Service card title link —— */
+.rs-card-interactive {
+  cursor: default;
+}
+
+.rs-card-title-link {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease;
+}
+
+.rs-card-title-link:hover {
+  color: var(--rs-gold-soft);
+}
+
+.rs-card-title-link h3 {
+  margin: 0;
+}
+
+/* —— Weekly homepage —— */
+.rs-week-main {
+  position: relative;
+  z-index: 1;
+}
+
+.rs-week-hero {
+  padding-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.rs-week-headline {
+  max-width: 20ch;
+}
+
+.rs-week-edition {
+  margin: 1.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--rs-text-muted);
+}
+
+.rs-week-highlight-grid {
+  margin-top: 1.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.15rem;
+}
+
+.rs-week-highlight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.35rem 1.25rem;
+  border-radius: var(--rs-radius-lg);
+  border: 1px solid var(--rs-border);
+  background: rgba(10, 18, 40, 0.55);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--rs-shadow-sm);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rs-week-highlight-card:hover {
+  border-color: rgba(201, 162, 39, 0.42);
+  transform: translateY(-3px);
+  box-shadow: var(--rs-shadow-card);
+}
+
+.rs-week-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.rs-week-card-body {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--rs-text-secondary);
+}
+
+.rs-week-photo-grid {
+  margin-top: 1.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.rs-week-photo-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: var(--rs-radius-lg);
+  border: 1px solid var(--rs-border);
+  background: rgba(8, 15, 32, 0.45);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.rs-week-photo-card:hover {
+  border-color: rgba(201, 162, 39, 0.35);
+  transform: translateY(-2px);
+}
+
+.rs-week-photo-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--rs-radius-md);
+  object-fit: contain;
+  background: rgba(4, 8, 20, 0.65);
+}
+
+.rs-week-photo-cap {
+  font-size: 0.8125rem;
+  color: var(--rs-text-muted);
+}
+
+.rs-week-video-shell {
+  margin-top: 1.25rem;
+  border-radius: var(--rs-radius-xl);
+  border: 1px solid var(--rs-border-strong);
+  overflow: hidden;
+  background: rgba(5, 10, 24, 0.65);
+}
+
+.rs-week-video-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+.rs-week-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.rs-week-video-placeholder {
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  display: grid;
+  gap: 0.85rem;
+  justify-items: start;
+}
+
+.rs-week-video-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.rs-week-video-desc {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--rs-text-secondary);
+  line-height: 1.65;
+  max-width: 52ch;
+}
+
+.rs-week-quote {
+  margin: 1.25rem 0 0;
+  padding: clamp(1.5rem, 3vw, 2rem);
+  border-radius: var(--rs-radius-xl);
+  border-left: 4px solid var(--rs-gold-mid);
+  background: rgba(10, 18, 40, 0.55);
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--rs-text-secondary);
+}
+
+.rs-week-quote footer {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--rs-gold-mid);
+}
+
+.rs-week-tip-card {
+  margin-top: 1rem;
+  display: block;
+  padding: 1.5rem 1.35rem;
+  border-radius: var(--rs-radius-lg);
+  border: 1px solid var(--rs-border);
+  background: rgba(8, 15, 32, 0.5);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.rs-week-tip-card:hover {
+  border-color: rgba(201, 162, 39, 0.38);
+  transform: translateY(-2px);
+}
+
+.rs-week-tip-country {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rs-gold-mid);
+  margin-bottom: 0.5rem;
+}
+
+.rs-week-tags {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* —— PWA install banner —— */
+.rs-install-banner {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 2rem));
+  padding: 1rem 1.15rem;
+  border-radius: var(--rs-radius-lg);
+  border: 1px solid var(--rs-border-strong);
+  background: rgba(4, 8, 20, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--rs-shadow-card);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rs-install-banner-text {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rs-text);
+  flex: 1;
+  min-width: 12rem;
+}
+
+.rs-install-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.rs-install-btn {
+  padding: 0.55rem 0.85rem !important;
+  font-size: 0.8125rem !important;
+}
