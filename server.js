@@ -1,14 +1,46 @@
 const express = require("express");
 const next = require("next");
+const {
+  initializeSharedMemory,
+  saveEvent,
+} = require("./lib/shared/neon-memory");
+const { indexScreenshots } = require("./lib/shared/screenshot-indexer");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const port = parseInt(process.env.PORT || "3000", 10);
+const PROJECT_KEY = process.env.BOSSMIND_PROJECT_KEY || "resumora";
+const REFERENCE_IMAGES_FOLDER =
+  process.env.BOSSMIND_REFERENCE_IMAGES_FOLDER ||
+  "D:\\Shakhsy11\\bossmind-resumora-base\\reference-images";
 
 app
   .prepare()
-  .then(() => {
+  .then(async () => {
+    const memoryInit = await initializeSharedMemory();
+    if (memoryInit.enabled) {
+      await saveEvent({
+        projectKey: PROJECT_KEY,
+        source: "server.start",
+        eventType: "shared.memory.ready",
+        payload: { port, dev },
+      });
+      const screenshotResult = await indexScreenshots({
+        projectKey: PROJECT_KEY,
+        sourceFolder: REFERENCE_IMAGES_FOLDER,
+      });
+      await saveEvent({
+        projectKey: PROJECT_KEY,
+        source: "server.start",
+        eventType: "screenshot.indexing.completed",
+        payload: screenshotResult,
+      });
+      console.log("Shared Neon memory active.");
+    } else {
+      console.warn(`Shared memory disabled: ${memoryInit.reason}`);
+    }
+
     const server = express();
 
     server.use(express.json({ limit: "10mb" }));
