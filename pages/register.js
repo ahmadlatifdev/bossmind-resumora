@@ -1,9 +1,15 @@
 import { useState } from "react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/marketing/site-copy";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -25,33 +31,38 @@ export default function RegisterPage() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(data.error === "email_in_use" ? "That email is already registered." : data.error || "Registration failed.");
+      if (data.error === "email_in_use") setError(t.errEmailInUse);
+      else setError(typeof data.error === "string" ? data.error : t.errRegisterGeneric);
       return;
     }
-    setMessage("Account created.");
+    setMessage(t.registerCreated);
     router.push("/dashboard");
   }
 
   return (
-    <div className="rs-app-shell">
-      <main>
+    <MinimalAppChrome>
+      <Head>
+        <title>{t.registerTitle} · Resumora</title>
+        <meta name="description" content={t.registerSubtitle} />
+      </Head>
+      <main className="rs-app-shell rs-app-shell--minimal-main">
         <section className="rs-simple-card">
-          <h1>Register</h1>
-          <p>Create an account to sync likes, saves, and follows across sessions.</p>
+          <h1>{t.registerTitle}</h1>
+          <p>{t.registerSubtitle}</p>
           <form className="rs-form-grid" onSubmit={onSubmit}>
-            <input className="rs-input" name="displayName" type="text" placeholder="Full name" autoComplete="name" />
-            <input className="rs-input" name="email" type="email" placeholder="Email" autoComplete="email" required />
+            <input className="rs-input" name="displayName" type="text" placeholder={t.registerName} autoComplete="name" />
+            <input className="rs-input" name="email" type="email" placeholder={t.loginEmail} autoComplete="email" required />
             <input
               className="rs-input"
               name="password"
               type="password"
-              placeholder="Password"
+              placeholder={t.loginPassword}
               autoComplete="new-password"
               required
               minLength={8}
             />
             <button className="rs-btn-primary" type="submit">
-              Create account
+              {t.registerSubmit}
             </button>
           </form>
           {error ? (
@@ -65,10 +76,10 @@ export default function RegisterPage() {
             </p>
           ) : null}
           <Link href="/" className="rs-link-muted">
-            Back to home
+            {t.backHome}
           </Link>
         </section>
       </main>
-    </div>
+    </MinimalAppChrome>
   );
 }

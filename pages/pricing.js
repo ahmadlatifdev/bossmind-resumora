@@ -26,10 +26,10 @@ export default function PricingPage() {
             <div className="rs-cta-strip">
               <div>
                 <h2 className="rs-h2" style={{ fontSize: "clamp(1.45rem, 2.5vw, 1.85rem)" }}>
-                  {lang === "en" ? "Questions before checkout?" : "Questions avant paiement ?"}
+                  {t.pricingQuestionsTitle}
                 </h2>
                 <p className="rs-subtitle" style={{ marginTop: "0.65rem" }}>
-                  {lang === "en" ? "Concierge routing for enterprise lanes." : "Routage concierge pour voies entreprise."}
+                  {t.pricingQuestionsSubtitle}
                 </p>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.65rem", justifyContent: "flex-end" }}>

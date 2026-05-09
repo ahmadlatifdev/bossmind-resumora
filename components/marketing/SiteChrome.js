@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
+import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
 
 function NavGroup({ title, open, onToggle, children }) {
   return (
@@ -20,7 +21,7 @@ function NavGroup({ title, open, onToggle, children }) {
 }
 
 export default function SiteChrome({ children }) {
-  const { lang, setLang } = useLanguage();
+  const { lang } = useLanguage();
   const t = translations[lang];
   const router = useRouter();
   const pathname = router.pathname || "";
@@ -151,12 +152,7 @@ export default function SiteChrome({ children }) {
           </Link>
 
           <div className="rs-topbar-actions">
-            <button type="button" className="rs-lang" data-active={lang === "en"} onClick={() => setLang("en")} aria-pressed={lang === "en"}>
-              EN
-            </button>
-            <button type="button" className="rs-lang" data-active={lang === "fr"} onClick={() => setLang("fr")} aria-pressed={lang === "fr"}>
-              FR
-            </button>
+            <LanguageSwitcher />
             <Link href="/login" className="rs-btn-ghost rs-hide-mobile-inline">
               {t.navLogin}
             </Link>
@@ -208,9 +204,12 @@ export default function SiteChrome({ children }) {
                   <Link href="/system-policy">{t.footerSystemPolicy}</Link>
                 </li>
               </ul>
-            </div>
           </div>
+        </div>
 
+          <div className="rs-footer-lang-row">
+            <LanguageSwitcher variant="compact" />
+          </div>
           <div className="rs-footer-meta">{t.footerCopy}</div>
         </footer>
       </div>

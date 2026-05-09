@@ -33,7 +33,7 @@ export default function WeeklyHomePage() {
                 {L.primaryCta}
               </Link>
               <Link href="/services#intake" className="rs-btn-ghost">
-                {lang === "en" ? "Secure upload" : "Téléversement sécurisé"}
+                {L.heroSecureUpload}
               </Link>
             </div>
             <p className="rs-week-edition">

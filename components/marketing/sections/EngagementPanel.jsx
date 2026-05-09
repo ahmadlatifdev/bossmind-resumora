@@ -77,15 +77,15 @@ export default function EngagementPanel() {
           <div className="rs-engage-metrics">
             <div className="rs-engage-metric">
               <span className="rs-engage-metric-value">{engStats?.followers ?? "—"}</span>
-              <span className="rs-engage-metric-label">{lang === "en" ? "Followers" : "Abonnés"}</span>
+              <span className="rs-engage-metric-label">{t.engagementMetricFollowers}</span>
             </div>
             <div className="rs-engage-metric">
               <span className="rs-engage-metric-value">{engStats?.registrations ?? "—"}</span>
-              <span className="rs-engage-metric-label">{lang === "en" ? "Registered clients" : "Clients inscrits"}</span>
+              <span className="rs-engage-metric-label">{t.engagementMetricRegistrations}</span>
             </div>
             <div className="rs-engage-metric">
-              <span className="rs-engage-metric-value">{engStats?.enabled === false ? "—" : "Live"}</span>
-              <span className="rs-engage-metric-label">{lang === "en" ? "Neon sync" : "Sync Neon"}</span>
+              <span className="rs-engage-metric-value">{engStats?.enabled === false ? "—" : t.engagementNeonLive}</span>
+              <span className="rs-engage-metric-label">{t.engagementMetricNeon}</span>
             </div>
           </div>
           <button
@@ -97,7 +97,7 @@ export default function EngagementPanel() {
             {engStats?.followingBrand ? t.engagementFollowing : t.engagementFollow}
           </button>
           <Link href="/dashboard" className="rs-btn-ghost">
-            {lang === "en" ? "Analytics dashboard" : "Tableau analytics"}
+            {t.engagementAnalyticsLink}
           </Link>
         </div>
         <div className="rs-engage-quad">
@@ -111,7 +111,7 @@ export default function EngagementPanel() {
                 </li>
               ))}
               {!trendingMerged.length ? (
-                <li className="rs-engage-empty">{lang === "en" ? "Awaiting first signals" : "En attente de signaux"}</li>
+                <li className="rs-engage-empty">{t.engagementEmptySignals}</li>
               ) : null}
             </ul>
           </div>

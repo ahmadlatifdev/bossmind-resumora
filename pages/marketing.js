@@ -20,16 +20,16 @@ export default function MarketingArchivePage() {
             <h1 className="rs-page-title">{t.marketingArchiveTitle}</h1>
             <p className="rs-lead">{t.marketingArchiveSubtitle}</p>
             <p style={{ color: "var(--rs-text-secondary)", lineHeight: 1.7, marginTop: "1rem" }}>
-              {lang === "en" ? "Current ISO week:" : "Semaine ISO actuelle:"}{" "}
+              {t.marketingIsoWeekLabel}{" "}
               <strong>
                 {year}-W{String(week).padStart(2, "0")}
               </strong>
-              . {lang === "en" ? "Live homepage edition:" : "Édition page d’accueil :"}{" "}
+              . {t.marketingLiveEditionLabel}{" "}
               <strong>{bundle.weekId}</strong>.
             </p>
             <div className="rs-hero-ctas">
               <Link href="/" className="rs-btn-accent">
-                resumora.net
+                {t.footerHomeCta}
               </Link>
               <Link href="/pricing" className="rs-btn-ghost">
                 {t.navPricing}
@@ -40,18 +40,14 @@ export default function MarketingArchivePage() {
         <TrustMetricsPanel />
         <section className="rs-section rs-section-muted">
           <div className="rs-container">
-            <h2 className="rs-h2">{lang === "en" ? "Organic growth stack" : "Stack croissance organique"}</h2>
-            <p className="rs-subtitle">
-              {lang === "en"
-                ? "Short-form content ships only on official YouTube and TikTok channels (nothing embedded here). SEO landing pages and UTMs drive traffic back to resumora.net; scripts run offline—wire API keys in CI to publish."
-                : "Les formats courts sont publiés uniquement sur les chaînes YouTube et TikTok officielles (rien d’intégré ici). Les pages SEO et les UTM ramènent le trafic vers resumora.net ; scripts hors-ligne—branchez les clés API en CI pour publier."}
-            </p>
+            <h2 className="rs-h2">{t.marketingOrganicTitle}</h2>
+            <p className="rs-subtitle">{t.marketingOrganicSubtitle}</p>
             <ul className="rs-footer-links" style={{ marginTop: "1rem" }}>
               <li>
-                <Link href="/solutions/ats-resume">SEO · ATS resume</Link>
+                <Link href="/solutions/ats-resume">{t.marketingSeoLinkAts}</Link>
               </li>
               <li>
-                <Link href="/geo/canada">SEO · Canada</Link>
+                <Link href="/geo/canada">{t.marketingSeoLinkCanada}</Link>
               </li>
             </ul>
           </div>

@@ -66,7 +66,7 @@ export default function ChatPage() {
             ) : null}
             {status === "err" ? (
               <p className="rs-upload-status" data-state="err" role="alert">
-                {lang === "en" ? "Could not send. Email support@resumora.net directly." : "Envoi impossible. Écrivez à support@resumora.net."}
+                {t.chatSendError}
               </p>
             ) : null}
           </form>

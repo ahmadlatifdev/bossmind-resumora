@@ -23,7 +23,7 @@ export default function PricingPanel() {
                   {plan.price}
                   <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--rs-text-muted)" }}>
                     {" "}
-                    · {lang === "en" ? "one-time" : "paiement unique"}
+                    · {t.pricingOneTimeNote}
                   </span>
                 </div>
               </div>

@@ -1,9 +1,15 @@
 import { useState } from "react";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/marketing/site-copy";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -24,31 +30,36 @@ export default function LoginPage() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setError(data.error === "invalid_credentials" ? "Invalid email or password." : data.error || "Login failed.");
+      if (data.error === "invalid_credentials") setError(t.errInvalidCredentials);
+      else setError(typeof data.error === "string" ? data.error : t.errLoginGeneric);
       return;
     }
-    setMessage("Signed in successfully.");
+    setMessage(t.loginSignedIn);
     router.push("/dashboard");
   }
 
   return (
-    <div className="rs-app-shell">
-      <main>
+    <MinimalAppChrome>
+      <Head>
+        <title>{t.loginTitle} · Resumora</title>
+        <meta name="description" content={t.loginSubtitle} />
+      </Head>
+      <main className="rs-app-shell rs-app-shell--minimal-main">
         <section className="rs-simple-card">
-          <h1>Login</h1>
-          <p>Access your Resumora workspace and engagement-aware analytics.</p>
+          <h1>{t.loginTitle}</h1>
+          <p>{t.loginSubtitle}</p>
           <form className="rs-form-grid" onSubmit={onSubmit}>
-            <input className="rs-input" name="email" type="email" placeholder="Email" autoComplete="email" required />
+            <input className="rs-input" name="email" type="email" placeholder={t.loginEmail} autoComplete="email" required />
             <input
               className="rs-input"
               name="password"
               type="password"
-              placeholder="Password"
+              placeholder={t.loginPassword}
               autoComplete="current-password"
               required
             />
             <button className="rs-btn-primary" type="submit">
-              Continue
+              {t.loginSubmit}
             </button>
           </form>
           {error ? (
@@ -62,10 +73,10 @@ export default function LoginPage() {
             </p>
           ) : null}
           <Link href="/" className="rs-link-muted">
-            Back to home
+            {t.backHome}
           </Link>
         </section>
       </main>
-    </div>
+    </MinimalAppChrome>
   );
 }

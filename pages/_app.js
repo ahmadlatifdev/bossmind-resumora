@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-import { LanguageProvider } from "@/context/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 
 import "@/styles/resumora-global.css";
 
@@ -18,6 +18,7 @@ export default function App({ Component, pageProps }) {
 
 function PwaAndAnalytics() {
   const router = useRouter();
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
@@ -34,7 +35,7 @@ function PwaAndAnalytics() {
         body: JSON.stringify({
           path,
           referrer: typeof document !== "undefined" ? document.referrer : "",
-          lang: typeof navigator !== "undefined" ? navigator.language : "",
+          lang: lang === "fr" ? "fr" : "en",
           source: "route",
         }),
       }).catch(() => {});
@@ -43,7 +44,7 @@ function PwaAndAnalytics() {
     const onChange = (url) => send(url);
     router.events.on("routeChangeComplete", onChange);
     return () => router.events.off("routeChangeComplete", onChange);
-  }, [router]);
+  }, [router, lang]);
 
   useEffect(() => {
     const handler = (e) => {

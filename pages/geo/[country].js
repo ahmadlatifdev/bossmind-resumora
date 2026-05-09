@@ -4,11 +4,13 @@ import { useRouter } from "next/router";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { geoCopy, geoSlugs } from "@/lib/marketing/seo-data";
+import { translations } from "@/lib/marketing/site-copy";
 
 export default function GeoLandingPage() {
   const router = useRouter();
   const { country } = router.query;
   const { lang } = useLanguage();
+  const t = translations[lang];
   const key = typeof country === "string" && geoCopy[country] ? country : "canada";
   const copy = geoCopy[key][lang];
   const canonical = `https://resumora.net/geo/${key}`;
@@ -47,10 +49,10 @@ export default function GeoLandingPage() {
             </ul>
             <div className="rs-hero-ctas" style={{ marginTop: "1.75rem" }}>
               <Link href="/global-reach" className="rs-btn-accent">
-                {lang === "en" ? "Global reach" : "Portée mondiale"}
+                {t.navGlobalReach}
               </Link>
               <Link href="/pricing" className="rs-btn-ghost">
-                resumora.net/pricing
+                {t.ctaPricingUrl}
               </Link>
             </div>
           </div>

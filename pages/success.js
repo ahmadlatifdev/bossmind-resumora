@@ -1,9 +1,15 @@
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
+import { useLanguage } from "@/context/LanguageContext";
+import { translations } from "@/lib/marketing/site-copy";
 
 export default function SuccessPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const { session_id } = router.query;
 
   const [status, setStatus] = useState("loading");
@@ -26,46 +32,52 @@ export default function SuccessPage() {
   }, [session_id]);
 
   return (
-    <div className="rs-app-shell">
-      <main className="rs-simple-card" style={{ textAlign: "center" }}>
-        {status === "loading" && (
-          <>
-            <h1>Verifying payment</h1>
-            <p>Please wait while we confirm your payment session.</p>
-          </>
-        )}
+    <MinimalAppChrome>
+      <Head>
+        <title>{t.successVerifying} · Resumora</title>
+        <meta name="description" content={t.successWait} />
+      </Head>
+      <main className="rs-app-shell rs-app-shell--minimal-main">
+        <section className="rs-simple-card" style={{ textAlign: "center" }}>
+          {status === "loading" && (
+            <>
+              <h1>{t.successVerifying}</h1>
+              <p>{t.successWait}</p>
+            </>
+          )}
 
-        {status === "success" && (
-          <>
-            <h1>Payment successful</h1>
-            <p>Thank you for choosing Resumora.</p>
-            <p>Your payment has been verified successfully.</p>
-            <Link href="/" className="rs-link-muted">
-              Return home
-            </Link>
-          </>
-        )}
+          {status === "success" && (
+            <>
+              <h1>{t.successPaymentTitle}</h1>
+              <p>{t.successThanks}</p>
+              <p>{t.successVerified}</p>
+              <Link href="/" className="rs-link-muted">
+                {t.returnHome}
+              </Link>
+            </>
+          )}
 
-        {status === "invalid" && (
-          <>
-            <h1>Invalid session</h1>
-            <p>We could not verify this payment session.</p>
-            <Link href="/" className="rs-link-muted">
-              Return home
-            </Link>
-          </>
-        )}
+          {status === "invalid" && (
+            <>
+              <h1>{t.successInvalidTitle}</h1>
+              <p>{t.successInvalidLead}</p>
+              <Link href="/" className="rs-link-muted">
+                {t.returnHome}
+              </Link>
+            </>
+          )}
 
-        {status === "error" && (
-          <>
-            <h1>Verification error</h1>
-            <p>Something went wrong while verifying your payment.</p>
-            <Link href="/" className="rs-link-muted">
-              Return home
-            </Link>
-          </>
-        )}
+          {status === "error" && (
+            <>
+              <h1>{t.successErrorTitle}</h1>
+              <p>{t.successErrorLead}</p>
+              <Link href="/" className="rs-link-muted">
+                {t.returnHome}
+              </Link>
+            </>
+          )}
+        </section>
       </main>
-    </div>
+    </MinimalAppChrome>
   );
 }
