@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { LanguageProvider } from "@/context/LanguageContext";
 
 import "@/styles/resumora-global.css";
+import "@/styles/dev-preview.css";
 
 const DevPreviewManager =
   process.env.NODE_ENV === "development"

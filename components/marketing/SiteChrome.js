@@ -33,7 +33,7 @@ export default function SiteChrome({ children }) {
   });
 
   useEffect(() => {
-    setSidebarOpen(false);
+    queueMicrotask(() => setSidebarOpen(false));
   }, [pathname]);
 
   const navGroups = useMemo(

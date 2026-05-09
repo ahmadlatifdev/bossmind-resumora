@@ -2,11 +2,10 @@
 
 /**
  * BossMind Preview Manager — mount from `_app.js` only when NODE_ENV === 'development'.
- * Copy `PreviewManager.jsx`, `styles/dev-preview.css`, and `pages/api/health.js` into other Next.js apps.
+ * Import `styles/dev-preview.css` only from `_app.js` (Next.js global CSS rule).
+ * Copy `PreviewManager.jsx`, `dev-preview.css`, `pages/api/health.js`, and the `_app.js` import into other apps.
  * IDE panels (Cursor/Windsurf) are outside the DOM; this stays on top within the browser preview only.
  */
-
-import "@/styles/dev-preview.css";
 
 import { Copy, ExternalLink, RefreshCw } from "lucide-react";
 import Link from "next/link";
@@ -73,7 +72,9 @@ export default function PreviewManager() {
   }, []);
 
   useEffect(() => {
-    setOrigin(typeof window !== "undefined" ? window.location.origin : "");
+    queueMicrotask(() => {
+      setOrigin(typeof window !== "undefined" ? window.location.origin : "");
+    });
   }, [router.asPath]);
 
   useEffect(() => {
@@ -144,7 +145,6 @@ export default function PreviewManager() {
   const restartHint = useCallback(() => {
     showToast("Restart: Ctrl+C in terminal, then npm run dev");
     if (typeof window === "undefined") return;
-    // eslint-disable-next-line no-alert -- dev-only
     window.alert(
       "Restart dev server:\n1. Focus the terminal running Next.js\n2. Press Ctrl+C\n3. Run: npm run dev\n\n(Browsers cannot safely restart Node from the page.)"
     );
