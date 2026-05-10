@@ -7,7 +7,7 @@ import { useStripeCheckout } from "@/lib/marketing/client-hooks";
 export default function PricingPanel() {
   const { lang } = useLanguage();
   const t = translations[lang];
-  const { busyPlan, handleCheckout, dynamicPlans } = useStripeCheckout();
+  const { busyPlan, handleCheckout, dynamicPlans, checkoutError } = useStripeCheckout();
   const labels = SERVICE_LABELS[lang];
   const [savedQuote, setSavedQuote] = useState(null);
 

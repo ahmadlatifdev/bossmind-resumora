@@ -2660,6 +2660,17 @@ body {
   color: var(--rs-text-muted);
 }
 
+.rs-pricing-checkout-msg {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  background: rgba(8, 14, 28, 0.75);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--rs-text-secondary);
+}
+
 .rs-price-card[data-quote-match="true"] {
   border-color: rgba(201, 162, 39, 0.45);
   box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.12);
