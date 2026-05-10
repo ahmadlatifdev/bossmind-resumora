@@ -119,6 +119,15 @@ See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
 
 **Note:** IDE automation (Cursor/Copilot/Windsurf applying patches) remains external; this repo exposes APIs and Neon persistence so workers can follow a consistent sequence.
 
+## Social growth automation layer
+
+- Unified cross-platform growth engine: **`lib/marketing/social-growth-engine.js`**
+- CLI runner + publish dispatch: **`npm run marketing:growth-engine`**, **`npm run marketing:growth-engine:publish`**, **`npm run marketing:growth-engine:dry-run`**
+- Performance rollup: **`npm run marketing:growth-report`**
+- Secure orchestration endpoint: **`POST /api/integrations/social-growth-orchestrate`** (Bearer `BOSSMIND_ORCHESTRATION_SECRET` or `SOCIAL_AUTOMATION_SECRET`)
+- Metrics ingest endpoint: **`POST /api/integrations/social-ingest`** (Bearer `SOCIAL_INGEST_SECRET`)
+- Full setup and env map: **`docs/SOCIAL_GROWTH_AUTOMATION.md`**
+
 ## Safe review workflow & checkpoints
 
 - **Policy:** Agents default to **review / fix-only** changes; see **`docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md`** and **`.cursor/rules/bossmind-resumora.mdc`**.

@@ -15,6 +15,10 @@
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",
     "marketing:social-drafts": "node scripts/marketing/generate-social-drafts.mjs",
     "marketing:weekly": "node scripts/marketing/weekly-organic-pipeline.js",
+    "marketing:growth-engine": "node scripts/marketing/run-social-growth-engine.mjs --persist-neon",
+    "marketing:growth-engine:publish": "node scripts/marketing/run-social-growth-engine.mjs --persist-neon --autopublish",
+    "marketing:growth-engine:dry-run": "node scripts/marketing/run-social-growth-engine.mjs --persist-neon --autopublish --dry-run",
+    "marketing:growth-report": "node scripts/marketing/social-growth-report.mjs",
     "bossmind:checkpoint": "node scripts/bossmind-checkpoint.mjs",
     "hub:index": "node scripts/bossmind-hub-index.mjs"
   },
