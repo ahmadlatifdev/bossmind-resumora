@@ -7,7 +7,7 @@
 | **Route / API file deletion** | `npm run bossmind:protect:verify` — fails if a path in `config/bossmind-protected-surface.json` is missing. |
 | **Edits to locked paths** | `npm run bossmind:antileak` — blocks diffs touching registry + `surfaceLockPaths` unless `BOSSMIND_PROTECTED_EDIT_OK=1`. |
 | **Large CSS tear-outs** | Anti-Leak deletion threshold on `styles/resumora-global.css`. |
-| **Merge conflict markers** | Anti-Leak fails build if `<<<<<<<` / `>>>>>>>` appear. |
+| **Merge conflict markers** | Anti-Leak fails the gate if unresolved Git conflict marker lines appear in source files. |
 | **Snapshots / rollback** | Scripts (`bossmind:snapshot`, `bossmind-restore-rollback`) + Neon when configured — **not** automatic on every deploy unless you wire CI. |
 
 ## What is **not** automatically enforced anywhere
