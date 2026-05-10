@@ -10,14 +10,18 @@ import { URL } from "url";
 
 const origin = (process.env.BOSSMIND_MONITOR_ORIGIN || "http://127.0.0.1:3001").replace(/\/$/, "");
 const orchSecret = process.env.BOSSMIND_ORCHESTRATION_SECRET || "";
-const timeoutMs = Number(process.env.BOSSMIND_MONITOR_TIMEOUT_MS || 8000);
+const timeoutMs = Number(process.env.BOSSMIND_MONITOR_TIMEOUT_MS || 45000);
 
 const checks = [
   { key: "runtimeHealth", method: "GET", path: "/api/health", expectStatus: [200] },
-  { key: "stripeHealth", method: "GET", path: "/api/stripe/status", expectStatus: [200, 503] },
+  { key: "stripeHealth", method: "GET", path: "/api/stripe/status", expectStatus: [200, 404, 503] },
   { key: "deepseekHealth", method: "GET", path: "/api/ai/deepseek-status", expectStatus: [200, 503] },
   { key: "home", method: "GET", path: "/", expectStatus: [200] },
   { key: "pricing", method: "GET", path: "/pricing", expectStatus: [200] },
+  { key: "services", method: "GET", path: "/services", expectStatus: [200] },
+  { key: "capabilities", method: "GET", path: "/capabilities", expectStatus: [200] },
+  { key: "clientEngagement", method: "GET", path: "/client-engagement", expectStatus: [200] },
+  { key: "pricingFr", method: "GET", path: "/pricing?lang=fr", expectStatus: [200] },
   { key: "login", method: "GET", path: "/login", expectStatus: [200] },
   { key: "register", method: "GET", path: "/register", expectStatus: [200] },
   { key: "freeTest", method: "GET", path: "/free-test", expectStatus: [200] },

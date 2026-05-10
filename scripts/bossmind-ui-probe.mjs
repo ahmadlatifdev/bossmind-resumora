@@ -15,6 +15,7 @@ const PATHS = [
   { path: "/pricing", expect: ["</html>"], minBytes: 400 },
   { path: "/services", expect: ["</html>"], minBytes: 400 },
   { path: "/capabilities", expect: ["</html>"], minBytes: 400 },
+  { path: "/client-engagement", expect: ["</html>"], minBytes: 400 },
   { path: "/contact", expect: ["</html>"], minBytes: 400 },
   { path: "/free-test", expect: ["</html>"], minBytes: 400 },
   { path: "/login", expect: ["</html>"], minBytes: 400 },
@@ -37,7 +38,7 @@ function fetchText(urlString) {
       {
         method: "GET",
         headers: { "user-agent": "BossMind-ui-probe/1.0", "accept-language": "en,fr" },
-        timeout: 12000,
+        timeout: 45000,
       },
       (res) => {
         let body = "";

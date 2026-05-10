@@ -25,7 +25,7 @@ function openBrowser(url) {
 
 function tryOpenFromPorts() {
   if (opened) return;
-  const ports = [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
+  const ports = [3001, 3000, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010];
 
   for (const port of ports) {
     const req = http.get(`http://127.0.0.1:${port}/api/health`, { timeout: 400 }, (res) => {
@@ -45,7 +45,7 @@ function tryOpenFromPorts() {
 const child = spawn("npx", ["next", "dev", "--webpack"], {
   stdio: ["inherit", "pipe", "pipe"],
   shell: true,
-  env: { ...process.env },
+  env: { ...process.env, PORT: process.env.PORT || "3001" },
 });
 
 child.stdout?.on("data", (chunk) => {
