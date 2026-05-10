@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  clearPendingCheckoutPlan,
+  getPendingCheckoutPlan,
+} from "@/lib/marketing/checkout-plan-persistence";
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
 import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
 
 export default function PricingPanel() {
+  const router = useRouter();
+  const resumeCheckoutOnce = useRef(false);
   const { lang } = useLanguage();
   const t = translations[lang];
   const { busyPlan, handleCheckout, dynamicPlans, checkoutError } = useStripeCheckout();
@@ -22,6 +29,56 @@ export default function PricingPanel() {
     }, 0);
     return () => window.clearTimeout(id);
   }, []);
+
+  /* After Register/Login with ?continueCheckout=1 — resume Stripe Checkout for pending tier. */
+  useEffect(() => {
+    if (!router.isReady || router.query.continueCheckout !== "1") return;
+    if (resumeCheckoutOnce.current) return;
+
+    const planId = getPendingCheckoutPlan();
+    if (!planId) {
+      router.replace({ pathname: "/pricing" }, undefined, { shallow: true });
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const r = await fetch("/api/engagement/stats", { credentials: "same-origin" });
+        const d = await r.json();
+        if (cancelled) return;
+        if (!d?.signedIn) {
+          await router.replace({ pathname: "/pricing" }, undefined, { shallow: true });
+          return;
+        }
+
+        const planMeta = dynamicPlans.find((p) => p.id === planId);
+        if (!planMeta) {
+          clearPendingCheckoutPlan();
+          await router.replace({ pathname: "/pricing" }, undefined, { shallow: true });
+          return;
+        }
+
+        resumeCheckoutOnce.current = true;
+        await router.replace({ pathname: "/pricing" }, undefined, { shallow: true });
+        handleCheckout(planId, planMeta.name[lang], planMeta.price.replace(/[^\d]/g, ""));
+      } catch {
+        /* ignore */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    router.isReady,
+    router.query.continueCheckout,
+    router,
+    dynamicPlans,
+    lang,
+    handleCheckout,
+  ]);
 
   const clearSaved = () => {
     try {

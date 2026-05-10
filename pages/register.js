@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
+import { getPostAuthRedirectPath } from "@/lib/marketing/checkout-plan-persistence";
 import { translations } from "@/lib/marketing/site-copy";
 
 export default function RegisterPage() {
@@ -36,7 +37,7 @@ export default function RegisterPage() {
       return;
     }
     setMessage(t.registerCreated);
-    router.push("/dashboard");
+    await router.push(getPostAuthRedirectPath(router));
   }
 
   return (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
+import { getPostAuthRedirectPath } from "@/lib/marketing/checkout-plan-persistence";
 import { translations } from "@/lib/marketing/site-copy";
 
 export default function LoginPage() {
@@ -35,7 +36,7 @@ export default function LoginPage() {
       return;
     }
     setMessage(t.loginSignedIn);
-    router.push("/dashboard");
+    await router.push(getPostAuthRedirectPath(router));
   }
 
   return (
