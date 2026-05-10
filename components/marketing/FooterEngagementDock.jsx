@@ -74,40 +74,57 @@ export default function FooterEngagementDock({ variant = "default" }) {
   const neonReady = stats?.enabled === true;
   const liked = stats?.myLikes?.includes(FOOTER_SITE_RESOURCE_KEY);
   const disliked = stats?.myDislikes?.includes(FOOTER_SITE_RESOURCE_KEY);
+  const likeCount =
+    stats?.likesByResource?.find((x) => x.key === FOOTER_SITE_RESOURCE_KEY)?.count ?? 0;
+  const dislikeCount =
+    stats?.dislikesByResource?.find((x) => x.key === FOOTER_SITE_RESOURCE_KEY)?.count ?? 0;
 
   return (
     <div className={`rs-footer-engage-dock ${variant === "minimal" ? "rs-footer-engage-dock--minimal" : ""}`}>
-      <p className="rs-footer-dock-label rs-footer-dock-label--subtle">{t.footerDockEngage}</p>
-      <div className="rs-footer-engage-actions rs-footer-engage-actions--bare">
+      <div className="rs-footer-engage-head">
+        <span className="rs-footer-engage-title">{t.footerDockEngage}</span>
+        <span className="rs-footer-engage-sub">{t.footerEngageBarLead}</span>
+      </div>
+      <div
+        className="rs-footer-engage-toolbar"
+        role="group"
+        aria-label={`${t.footerDockEngage}. ${t.footerEngageBarLead}`}
+      >
         <button
           type="button"
-          className={`rs-foot-engage ${liked ? "rs-foot-engage--active" : ""}`}
+          className={`rs-foot-engage-v2 ${liked ? "rs-foot-engage-v2--active" : ""}`}
           disabled={busy || !neonReady}
           title={!neonReady ? t.engagementDisabled : undefined}
           aria-pressed={liked ? "true" : "false"}
           onClick={() => runAction({ type: "like", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
-          <ThumbsUp size={17} strokeWidth={1.75} aria-hidden />
-          <span>{t.footerEngageLike}</span>
+          <ThumbsUp className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{t.footerEngageLike}</span>
+          <span className="rs-foot-engage-v2__badge" aria-label="Likes">
+            {likeCount}
+          </span>
         </button>
         <button
           type="button"
-          className={`rs-foot-engage ${disliked ? "rs-foot-engage--active" : ""}`}
+          className={`rs-foot-engage-v2 ${disliked ? "rs-foot-engage-v2--active-dislike" : ""}`}
           disabled={busy || !neonReady}
           title={!neonReady ? t.engagementDisabled : undefined}
           aria-pressed={disliked ? "true" : "false"}
           onClick={() => runAction({ type: "dislike", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
-          <ThumbsDown size={17} strokeWidth={1.75} aria-hidden />
-          <span>{t.footerEngageDislike}</span>
+          <ThumbsDown className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{t.footerEngageDislike}</span>
+          <span className="rs-foot-engage-v2__badge" aria-label="Dislikes">
+            {dislikeCount}
+          </span>
         </button>
-        <button type="button" className="rs-foot-engage" disabled={busy} onClick={onShare}>
-          <Share2 size={17} strokeWidth={1.75} aria-hidden />
-          <span>{t.footerEngageShare}</span>
+        <button type="button" className="rs-foot-engage-v2" disabled={busy} onClick={onShare}>
+          <Share2 className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{t.footerEngageShare}</span>
         </button>
-        <Link href="/register" className="rs-foot-engage rs-foot-engage--link">
-          <UserPlus size={17} strokeWidth={1.75} aria-hidden />
-          <span>{t.footerEngageRegister}</span>
+        <Link href="/register" className="rs-foot-engage-v2 rs-foot-engage-v2--link">
+          <UserPlus className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{t.footerEngageRegister}</span>
         </Link>
       </div>
     </div>

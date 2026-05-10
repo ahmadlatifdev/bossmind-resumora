@@ -23,6 +23,9 @@
 # BossMind local automation outputs
 /.bossmind/
 
+# local uploads (free-test / resume upload)
+/tmp/
+
 # misc
 .DS_Store
 *.pem

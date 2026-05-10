@@ -222,6 +222,11 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
                     ))}
                   </select>
                 </div>
+                <div className="rs-svc-free-row">
+                  <Link href={`/free-test?service=${item.resourceKey}`} className="rs-btn-ghost rs-svc-free-test">
+                    {t.freeTestStartCta}
+                  </Link>
+                </div>
                 <div className="rs-engage-row" aria-label="Engagement">
                   <button
                     type="button"

@@ -41,7 +41,8 @@ function tryOpenFromPorts() {
   }
 }
 
-const child = spawn("npx", ["next", "dev"], {
+/* Webpack dev avoids intermittent Turbopack chunk/HMR issues ("No link element for chunk"). */
+const child = spawn("npx", ["next", "dev", "--webpack"], {
   stdio: ["inherit", "pipe", "pipe"],
   shell: true,
   env: { ...process.env },
