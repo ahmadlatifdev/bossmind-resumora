@@ -37,6 +37,10 @@ html {
   scroll-behavior: smooth;
 }
 
+.rs-root-font {
+  font-family: var(--rs-font);
+}
+
 body {
   margin: 0;
   font-family: var(--rs-font);

@@ -9,13 +9,10 @@ export default function LanguageSwitcher({ variant = "segmented" }) {
   const { lang, setLang } = useLanguage();
   const t = translations[lang];
   const compact = variant === "compact";
+  const rootClass = ["rs-lang-switcher", compact ? "rs-lang-switcher--compact" : ""].filter(Boolean).join(" ");
 
   return (
-    <div
-      className={`rs-lang-switcher ${compact ? "rs-lang-switcher--compact" : ""}`}
-      role="group"
-      aria-label={t.langSwitcherAria}
-    >
+    <div className={rootClass} role="group" aria-label={t.langSwitcherAria}>
       <button
         type="button"
         className="rs-lang-switcher__btn"

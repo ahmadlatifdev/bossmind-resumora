@@ -29,24 +29,25 @@ const LanguageContext = createContext({
 });
 
 export function LanguageProvider({ children }) {
+  /** Always "en" on server + first client paint — matches SSR. Prefer FR only after client effect reads storage. */
   const [lang, setLangState] = useState("en");
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      try {
-        const stored = window.localStorage.getItem(STORAGE_KEY);
-        if (stored === "en" || stored === "fr") {
-          setLangState(stored);
-        } else {
-          const c = readCookieLang();
-          if (c === "en" || c === "fr") setLangState(c);
-        }
-      } catch {
-        /* ignore */
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored === "en" || stored === "fr") {
+        setLangState(stored);
+        document.documentElement.lang = stored === "fr" ? "fr" : "en";
+        return;
       }
-      setReady(true);
-    });
+      const c = readCookieLang();
+      if (c === "en" || c === "fr") {
+        setLangState(c);
+        document.documentElement.lang = c === "fr" ? "fr" : "en";
+      }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const setLang = useCallback((next) => {
@@ -57,14 +58,12 @@ export function LanguageProvider({ children }) {
       /* ignore */
     }
     writeLangCookie(next);
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = next === "fr" ? "fr" : "en";
+    }
   }, []);
 
-  const value = useMemo(() => ({ lang, setLang, ready }), [lang, setLang, ready]);
-
-  useEffect(() => {
-    if (!ready || typeof document === "undefined") return;
-    document.documentElement.lang = lang === "fr" ? "fr" : "en";
-  }, [lang, ready]);
+  const value = useMemo(() => ({ lang, setLang }), [lang, setLang]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

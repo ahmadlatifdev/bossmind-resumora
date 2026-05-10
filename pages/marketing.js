@@ -5,11 +5,21 @@ import { useLanguage } from "@/context/LanguageContext";
 import { getIsoWeekYear, getWeeklyBundle } from "@/lib/marketing/weekly-content";
 import { translations } from "@/lib/marketing/site-copy";
 
-export default function MarketingArchivePage() {
+export async function getStaticProps() {
+  return {
+    props: {
+      weekAnchor: new Date().toISOString(),
+    },
+    revalidate: 3600,
+  };
+}
+
+export default function MarketingArchivePage({ weekAnchor }) {
   const { lang } = useLanguage();
   const t = translations[lang];
-  const bundle = getWeeklyBundle(lang);
-  const { year, week } = getIsoWeekYear();
+  const anchorDate = weekAnchor ? new Date(weekAnchor) : undefined;
+  const bundle = getWeeklyBundle(lang, anchorDate);
+  const { year, week } = getIsoWeekYear(anchorDate);
 
   return (
     <SiteChrome>

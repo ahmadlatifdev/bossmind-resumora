@@ -6,9 +6,10 @@ import { useLanguage } from "@/context/LanguageContext";
 import { getWeeklyBundle } from "@/lib/marketing/weekly-content";
 
 /** Homepage: ISO-week marketing — narrative, featured lanes, weekly visuals, CTA (no embedded video). */
-export default function WeeklyHomePage() {
+export default function WeeklyHomePage({ weekAnchor }) {
   const { lang } = useLanguage();
-  const bundle = getWeeklyBundle(lang);
+  const anchorDate = weekAnchor ? new Date(weekAnchor) : undefined;
+  const bundle = getWeeklyBundle(lang, anchorDate);
   const L = bundle.labels;
 
   useEffect(() => {

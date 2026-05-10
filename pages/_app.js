@@ -8,7 +8,7 @@ import "@/styles/resumora-global.css";
 export default function App({ Component, pageProps }) {
   return (
     <LanguageProvider>
-      <div>
+      <div className="rs-root-font">
         <PwaAndAnalytics />
         <Component {...pageProps} />
       </div>
