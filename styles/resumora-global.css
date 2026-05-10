@@ -713,6 +713,9 @@ body {
 }
 
 .rs-pricing-grid {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.85rem;
@@ -754,6 +757,7 @@ body {
 }
 
 .rs-price-flag {
+  pointer-events: none;
   position: absolute;
   top: -0.65rem;
   right: 1.25rem;
@@ -784,7 +788,9 @@ body {
 
 .rs-price-btn {
   position: relative;
-  z-index: 2;
+  z-index: 6;
+  pointer-events: auto;
+  touch-action: manipulation;
   margin-top: auto;
   padding: 0.75rem 1rem;
   border-radius: var(--rs-radius-sm);
@@ -1677,6 +1683,13 @@ body {
   flex-direction: column;
   padding: 0.72rem 0.65rem 0.95rem;
   overflow-y: auto;
+}
+
+/* Desktop: sidebar sits in normal flex flow — lower stacking so main column always receives clicks if layouts overlap. */
+@media (min-width: 1025px) {
+  .rs-sidebar {
+    z-index: 0;
+  }
 }
 
 .rs-sidebar-brand {
