@@ -12,6 +12,9 @@ windows-heal/
     WindowsHeal.Core.ps1
     WindowsHeal.Runner.ps1
     WindowsHeal.Orchestrator.ps1
+    WindowsHeal.Screenshot.Core.ps1
+    WindowsHeal.Screenshot.Runner.ps1
+    WindowsHeal.Screenshot.Install.ps1
     WindowsHeal.Install.ps1
     WindowsHeal.SafeDriverRecovery.ps1
   logs/
@@ -78,6 +81,28 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\Wind
 - `WindowsHeal-Monitor`: every 5 minutes (`Detect`)
 - `WindowsHeal-AutoHeal`: every 20 minutes (`AutoHeal`)
 - `WindowsHeal-RepairOnDisplayTDR`: every 30 minutes (`Repair`)
+
+### Screenshot subsystem
+
+Handles instability for:
+- `PrtSc`, `Shift + PrtSc`, `Win + Shift + S`
+- Snipping Tool / Screen Sketch glitches
+- clipboard integration failures
+- overlay frame/transparent render conflicts
+- GPU/display conflicts affecting capture pipeline
+
+Run manually:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\WindowsHeal.Screenshot.Runner.ps1" -Mode Diagnose
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\WindowsHeal.Screenshot.Runner.ps1" -Mode AutoHeal
+```
+
+Install screenshot monitoring tasks (Admin shell):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\WindowsHeal.Screenshot.Install.ps1" -RunNow
+```
 
 ## Dashboard and logs
 
