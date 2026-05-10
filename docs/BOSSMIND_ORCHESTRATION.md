@@ -119,4 +119,10 @@ See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
 
 **Note:** IDE automation (Cursor/Copilot/Windsurf applying patches) remains external; this repo exposes APIs and Neon persistence so workers can follow a consistent sequence.
 
+## Safe review workflow & checkpoints
+
+- **Policy:** Agents default to **review / fix-only** changes; see **`docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md`** and **`.cursor/rules/bossmind-resumora.mdc`**.
+- **Protected paths:** **`docs/PROTECTED_COMPONENTS_REGISTRY.md`**
+- **Git checkpoint before risky edits:** `npm run bossmind:checkpoint` (logs + instructions; **`--stash`** creates a stash). Logs **`bossmind.git.checkpoint`** to **`event_log`** when Neon is configured.
+- **Enterprise readiness (code-level audit):** **`docs/MONETIZATION_ENTERPRISE_READINESS_REPORT.md`** — external dashboards are still **manual**.
 

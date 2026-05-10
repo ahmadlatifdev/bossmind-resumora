@@ -1,14 +1,42 @@
 ---
-description: BossMind + Resumora automation defaults for this repo
+description: BossMind + Resumora — safe review mode, protected paths, checkpoints
 globs:
-  - "**/*.{js,ts,tsx,mjs,cjs}"
+  - "**/*"
 ---
 
-# BossMind / Resumora
+# BossMind / Resumora — **Safe review / fix-only mode**
 
-- Prefer **orchestration APIs** (`pages/api/orchestration/*`) and **Neon shared memory** over duplicating UI fragments across chats.
-- Before risky edits: consider **file-guard snapshot** workflow documented in `docs/BOSSMIND_ORCHESTRATION.md`.
-- Deployment stack: **Railway + Neon + GitHub** — do not introduce Render flows.
-- Engagement and analytics persist via **`NEON_DATABASE_URL`** (`/api/engagement/*`).
-- After substantive UI/API changes: **`npm run lint`**, **`npm run build`**, **`npm run validate:runtime`**.
-- Keep **Stripe** checkout payload shape stable (`priceId`, `planId`, `planName`, `planPrice`).
+Applies to Cursor agents and any compatible assistant (e.g. Windsurf when repo rules are loaded).
+
+## Default posture
+
+- **Do not** fully regenerate, redesign, or replace approved layouts, navigation, footer, homepage structure, or pricing flows unless the user **explicitly** requests a redesign.
+- **Do** review, validate, minimally refine, fix bugs, fix build/lint/runtime, improve spacing/alignment/responsiveness with **small diffs**.
+- **Do not** mass-rewrite components “for cleanup.” Prefer the smallest change that satisfies the request.
+
+## Protected areas (do not rewrite casually)
+
+See **`docs/PROTECTED_COMPONENTS_REGISTRY.md`**. In particular:
+
+- `SiteChrome`, `MinimalAppChrome`, footer/social/engagement docks, `LanguageContext` / **EN–FR** copy in `lib/marketing/site-copy.js` + `legal-copy.js`
+- **Stripe:** `lib/marketing/stripe-plan-map.js`, `pages/api/checkout.js`, `pages/api/webhooks/stripe.js`, `lib/marketing/client-hooks.js`
+- **Shared memory / orchestration:** `lib/shared/neon-memory.js`, `lib/shared/file-guard.js`, `lib/orchestration/langgraph-repair-flow.js`, `pages/api/orchestration/*`
+- **Home / services / pricing UX:** `HomePage.jsx`, `ServiceOfferingsGrid.jsx`, `PricingPanel.jsx`
+
+## Before risky or wide edits
+
+1. Run **`npm run bossmind:checkpoint`**; use **`npm run bossmind:checkpoint -- --stash`** only when intentionally stashing WIP (logs `event_log` when Neon is set).  
+2. Prefer **file-guard** pre-edit snapshots for individual files (`docs/BOSSMIND_ORCHESTRATION.md`).
+
+## After substantive changes
+
+Run **`npm run lint`**, **`npm run build`**, and ideally **`npm run validate:runtime`**.
+
+## Truthfulness
+
+Do **not** claim live Stripe verification, social monetization eligibility, or channel ownership unless the user has provided dashboard evidence in-thread.
+
+## Stack reminders
+
+- Deployment: **Railway + Neon + GitHub** (`docs/RAILWAY_DEPLOY.md`).  
+- Next.js: read `node_modules/next/dist/docs/` for this version’s conventions (`AGENTS.md`).

@@ -11,3 +11,9 @@ Assume **production runs only on Railway** with Neon for Postgres. Do not add or
 ## Local preview (development)
 
 `npm run dev` runs `scripts/dev-with-browser.mjs` (spawns `next dev` and opens the browser when ready; polls `/api/health` as a fallback). Use `npm run dev:plain` for `next dev` only. Do not ship client-visible debug preview chrome in production builds.
+
+## BossMind safe review mode
+
+- Follow **`.cursor/rules/bossmind-resumora.mdc`** and **`docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md`** (fix-only unless the user explicitly approves redesign).
+- Before wide edits: **`npm run bossmind:checkpoint`** (use **`npm run bossmind:checkpoint -- --stash`** only when intentionally stashing WIP)
+- Protected surfaces: **`docs/PROTECTED_COMPONENTS_REGISTRY.md`**
