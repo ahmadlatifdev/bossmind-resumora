@@ -20,6 +20,13 @@
     "marketing:growth-engine:dry-run": "node scripts/marketing/run-social-growth-engine.mjs --persist-neon --autopublish --dry-run",
     "marketing:growth-report": "node scripts/marketing/social-growth-report.mjs",
     "bossmind:checkpoint": "node scripts/bossmind-checkpoint.mjs",
+    "bossmind:watch:dev": "node scripts/bossmind-dev-watchdog.mjs",
+    "bossmind:antileak": "node scripts/bossmind-antileak-guard.mjs",
+    "bossmind:self-heal": "node scripts/bossmind-self-heal.mjs",
+    "bossmind:snapshot": "node scripts/bossmind-snapshot-save.mjs",
+    "bossmind:perf-scan": "node scripts/bossmind-performance-scan.mjs",
+    "bossmind:ui-probe": "node scripts/bossmind-ui-probe.mjs",
+    "bossmind:e2e-gate": "node scripts/bossmind-antileak-guard.mjs && node scripts/bossmind-performance-scan.mjs",
     "hub:index": "node scripts/bossmind-hub-index.mjs"
   },
   "dependencies": {
