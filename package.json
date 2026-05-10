@@ -26,6 +26,9 @@
     "bossmind:snapshot": "node scripts/bossmind-snapshot-save.mjs",
     "bossmind:perf-scan": "node scripts/bossmind-performance-scan.mjs",
     "bossmind:ui-probe": "node scripts/bossmind-ui-probe.mjs",
+    "bossmind:audit": "node scripts/bossmind-orchestration-audit.mjs",
+    "bossmind:monitor": "node scripts/bossmind-monitor-health.mjs",
+    "bossmind:autonomous-check": "npm run bossmind:antileak && npm run bossmind:audit && npm run bossmind:perf-scan",
     "bossmind:e2e-gate": "node scripts/bossmind-antileak-guard.mjs && node scripts/bossmind-performance-scan.mjs",
     "hub:index": "node scripts/bossmind-hub-index.mjs"
   },

@@ -21,6 +21,17 @@ if (process.env.BOSSMIND_SKIP_ANTILEAK !== "1") {
   }
 }
 
+if (process.env.BOSSMIND_ENFORCE_AUDIT === "1") {
+  const audit = spawnSync("node scripts/bossmind-orchestration-audit.mjs", {
+    cwd: root,
+    shell: true,
+    stdio: "inherit",
+  });
+  if ((audit.status ?? 1) !== 0) {
+    process.exit(audit.status ?? 1);
+  }
+}
+
 const cmd = isWin ? "npm run validate:all" : "npm run validate:all";
 
 const result = spawnSync(cmd, {

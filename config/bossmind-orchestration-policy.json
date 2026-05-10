@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "project": "resumora",
+  "enforcement": {
+    "primaryExecutionEngine": "cursor",
+    "strategyArchitect": "claude",
+    "reviewOnlyEngine": "windsurf"
+  },
+  "roles": {
+    "cursor": {
+      "allowed": [
+        "code_editing",
+        "runtime_repair",
+        "deployment_execution",
+        "dependency_fixing",
+        "build_validation",
+        "localhost_recovery",
+        "performance_optimization"
+      ],
+      "restricted": []
+    },
+    "claude": {
+      "allowed": [
+        "architecture_analysis",
+        "long_context_reasoning",
+        "system_planning",
+        "validation_design"
+      ],
+      "restricted": [
+        "direct_production_ui_overwrite_without_explicit_approval"
+      ]
+    },
+    "windsurf": {
+      "mode": "review_fix_only",
+      "allowed": [
+        "review_cursor_changes",
+        "detect_regressions",
+        "propose_fixes"
+      ],
+      "restricted": [
+        "autonomous_layout_rewrite",
+        "replace_stable_production_files",
+        "unsafe_merge_without_snapshot_or_antileak"
+      ]
+    }
+  },
+  "requiredProtectionLayers": [
+    "bossmind:antileak",
+    "bossmind:snapshot",
+    "rollback_snapshots",
+    "protected_components_registry",
+    "bossmind:validate"
+  ],
+  "requiredSharedMemoryTables": [
+    "task_state",
+    "event_log",
+    "error_memory",
+    "missing_updates_log",
+    "rollback_snapshots",
+    "deployment_history"
+  ],
+  "orchestrationFlow": [
+    "sentry_issue",
+    "bossmind_ingest",
+    "langgraph_task",
+    "deepseek_root_cause",
+    "cursor_execution",
+    "windsurf_review",
+    "build_validation",
+    "deployment_verification",
+    "snapshot_lock",
+    "shared_memory_persist"
+  ]
+}

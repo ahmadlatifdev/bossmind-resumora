@@ -8,6 +8,7 @@
 const { runRepairFlow } = require("../../../lib/orchestration/langgraph-repair-flow");
 const {
   initializeSharedMemory,
+  listRecentTaskStates,
   saveEvent,
   upsertTaskState,
 } = require("../../../lib/shared/neon-memory");
@@ -17,6 +18,8 @@ const {
 } = require("../../../lib/orchestration/bossmind-runtime-status");
 
 const PROJECT_KEY = process.env.BOSSMIND_PROJECT_KEY || "resumora";
+const MAX_PENDING_QUEUE = Number(process.env.BOSSMIND_QUEUE_MAX_PENDING || 24);
+const MAX_HEAP_MB = Number(process.env.BOSSMIND_HEAP_MB_LIMIT || 900);
 
 function authorize(req) {
   const secret = process.env.BOSSMIND_ORCHESTRATION_SECRET;
@@ -51,6 +54,15 @@ export default async function handler(req, res) {
     const action = body.action || "noop";
 
     try {
+      const heapUsedMb = Math.round(process.memoryUsage().heapUsed / (1024 * 1024));
+      if (heapUsedMb > MAX_HEAP_MB) {
+        return res.status(503).json({
+          error: "Resource guard active: heap limit exceeded",
+          heapUsedMb,
+          heapLimitMb: MAX_HEAP_MB,
+        });
+      }
+
       if (action === "heartbeat" && !neonOk) {
         return res.status(200).json({ ok: true, action: "heartbeat", neonPersisted: false });
       }
@@ -81,6 +93,23 @@ export default async function handler(req, res) {
       }
 
       if (action === "enqueue") {
+        const queue = await listRecentTaskStates({ projectKey: PROJECT_KEY, limit: 200 });
+        const pendingCount = queue.filter((q) => q.status === "pending" || q.status === "in_progress").length;
+        if (pendingCount >= MAX_PENDING_QUEUE) {
+          await saveEvent({
+            projectKey: PROJECT_KEY,
+            eventType: "orchestration.enqueue.throttled",
+            severity: "warning",
+            source: "bossmind-control",
+            payload: { pendingCount, maxPending: MAX_PENDING_QUEUE },
+          });
+          return res.status(429).json({
+            error: "Queue throttled",
+            pendingCount,
+            maxPending: MAX_PENDING_QUEUE,
+          });
+        }
+
         const taskKey = body.taskKey || `orch:${Date.now()}`;
         await upsertTaskState({
           projectKey: PROJECT_KEY,

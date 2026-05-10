@@ -1,23 +1,28 @@
 #!/usr/bin/env node
 /**
  * HTTP probes for marketing routes (layout sanity without Playwright screenshots).
- * Requires a running dev/preview server — default http://127.0.0.1:3000
+ * Requires a running dev/preview server — default http://127.0.0.1:3001
  */
 import http from "http";
 import https from "https";
 import { URL } from "url";
 
 const origin =
-  process.env.BOSSMIND_PROBE_ORIGIN?.replace(/\/$/, "") || "http://127.0.0.1:3000";
+  process.env.BOSSMIND_PROBE_ORIGIN?.replace(/\/$/, "") || "http://127.0.0.1:3001";
 
 const PATHS = [
-  { path: "/", expect: ["Resumora", "</html>"] },
-  { path: "/pricing", expect: ["</html>"] },
-  { path: "/services", expect: ["</html>"] },
-  { path: "/capabilities", expect: ["</html>"] },
-  { path: "/contact", expect: ["</html>"] },
-  { path: "/free-test", expect: ["</html>"] },
-  { path: "/?lang=fr", expect: ["</html>"] },
+  { path: "/", expect: ["Resumora", "</html>"], minBytes: 400 },
+  { path: "/pricing", expect: ["</html>"], minBytes: 400 },
+  { path: "/services", expect: ["</html>"], minBytes: 400 },
+  { path: "/capabilities", expect: ["</html>"], minBytes: 400 },
+  { path: "/contact", expect: ["</html>"], minBytes: 400 },
+  { path: "/free-test", expect: ["</html>"], minBytes: 400 },
+  { path: "/login", expect: ["</html>"], minBytes: 400 },
+  { path: "/register", expect: ["</html>"], minBytes: 400 },
+  { path: "/testimonials", expect: ["</html>"], minBytes: 400 },
+  { path: "/api/engagement/stats", expect: ["{"], minBytes: 20 },
+  { path: "/api/health", expect: ["\"ok\":true"], minBytes: 20 },
+  { path: "/?lang=fr", expect: ["</html>"], minBytes: 400 },
 ];
 
 function fetchText(urlString) {
@@ -64,7 +69,7 @@ async function main() {
       const ok =
         r.status === 200 &&
         probe.expect.every((s) => r.body.includes(s)) &&
-        r.body.length > 400;
+        r.body.length > (probe.minBytes || 400);
       results.push({ url, ok, status: r.status, bytes: r.body.length });
     } catch (e) {
       results.push({ url, ok: false, error: e.message });
