@@ -1,30 +1,17 @@
-const Stripe = require("stripe");
 const {
   isPlanId,
   isValidPriceId,
   resolveStripePriceId,
 } = require("../../lib/marketing/stripe-plan-map");
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
-
-function getStripeClient() {
-  const trimmed = String(process.env.STRIPE_SECRET_KEY ?? "").trim();
-  if (!trimmed) return { stripe: null, reason: "missing_secret" };
-  if (!/^sk_(test|live)_[A-Za-z0-9]+$/.test(trimmed)) {
-    return { stripe: null, reason: "invalid_secret_format" };
-  }
-  try {
-    return { stripe: new Stripe(trimmed), reason: "" };
-  } catch {
-    return { stripe: null, reason: "stripe_init_failed" };
-  }
-}
+const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { stripe, reason } = getStripeClient();
+  const { stripe, reason } = createStripeServerClient();
   if (!stripe) {
     const audit = auditStripeEnv();
     const hints =

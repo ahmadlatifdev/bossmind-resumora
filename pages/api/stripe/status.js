@@ -22,6 +22,8 @@ export default function handler(req, res) {
   return res.status(200).json({
     project: "resumora",
     checkoutReady: audit.checkoutReady,
+    webhookSigningReady: audit.webhookSigningReady,
+    financialPipelineReady: audit.financialPipelineReady,
     keys: {
       secretKey: { configured: audit.secretKey.present, formatOk: audit.secretKey.formatOk },
       publishableKey: {

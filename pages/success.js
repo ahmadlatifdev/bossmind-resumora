@@ -15,21 +15,24 @@ export default function SuccessPage() {
   const [status, setStatus] = useState("loading");
 
   useEffect(() => {
-    if (session_id) {
-      fetch(`/api/verify-session?session_id=${session_id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.valid) {
-            setStatus("success");
-          } else {
-            setStatus("invalid");
-          }
-        })
-        .catch(() => {
-          setStatus("error");
-        });
+    if (!router.isReady) return;
+    if (!session_id) {
+      setStatus("invalid");
+      return;
     }
-  }, [session_id]);
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(session_id)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.valid) {
+          setStatus("success");
+        } else {
+          setStatus("invalid");
+        }
+      })
+      .catch(() => {
+        setStatus("error");
+      });
+  }, [router.isReady, session_id]);
 
   return (
     <MinimalAppChrome>

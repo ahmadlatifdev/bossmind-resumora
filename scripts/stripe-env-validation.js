@@ -25,7 +25,12 @@ async function main() {
   const audit = auditStripeEnv();
   console.log(
     JSON.stringify(
-      { checkoutReady: audit.checkoutReady, priceIds: audit.priceIds },
+      {
+        checkoutReady: audit.checkoutReady,
+        webhookSigningReady: audit.webhookSigningReady,
+        financialPipelineReady: audit.financialPipelineReady,
+        priceIds: audit.priceIds,
+      },
       null,
       2
     )

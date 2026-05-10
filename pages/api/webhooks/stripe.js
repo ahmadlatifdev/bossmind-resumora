@@ -2,10 +2,8 @@
  * Stripe webhook — verifies signature, logs financial events to Neon event_log (BossMind centralized tracking).
  * Configure endpoint in Stripe Dashboard + STRIPE_WEBHOOK_SECRET.
  */
-const Stripe = require("stripe");
+const { createStripeServerClient } = require("../../../lib/marketing/stripe-server");
 const { saveEvent } = require("../../../lib/shared/neon-memory");
-
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
 export const config = {
   api: {
@@ -13,7 +11,7 @@ export const config = {
   },
 };
 
-function projectKey() {
+function bossmindProjectKey() {
   return process.env.BOSSMIND_PROJECT_KEY || "resumora";
 }
 
@@ -31,8 +29,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!stripe || !secret) {
+  const { stripe } = createStripeServerClient();
+  const secret = String(process.env.STRIPE_WEBHOOK_SECRET ?? "").trim();
+  if (
+    !stripe ||
+    !secret ||
+    !/^whsec_[A-Za-z0-9]+$/.test(secret)
+  ) {
     return res.status(503).json({ error: "Stripe webhook is not configured" });
   }
 
@@ -52,7 +55,7 @@ export default async function handler(req, res) {
 
   try {
     await saveEvent({
-      projectKey: projectKey(),
+      projectKey: bossmindProjectKey(),
       eventType: `stripe_webhook.${event.type}`,
       severity: event.type.includes("failed") ? "error" : "info",
       source: "stripe",

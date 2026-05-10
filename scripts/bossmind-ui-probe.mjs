@@ -22,7 +22,10 @@ const PATHS = [
   { path: "/testimonials", expect: ["</html>"], minBytes: 400 },
   { path: "/api/engagement/stats", expect: ["{"], minBytes: 20 },
   { path: "/api/health", expect: ["\"ok\":true"], minBytes: 20 },
+  { path: "/success", expect: ["</html>"], minBytes: 400 },
+  { path: "/cancel", expect: ["</html>"], minBytes: 400 },
   { path: "/?lang=fr", expect: ["</html>"], minBytes: 400 },
+  { path: "/pricing?lang=fr", expect: ["</html>"], minBytes: 400 },
 ];
 
 function fetchText(urlString) {
