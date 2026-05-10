@@ -46,3 +46,6 @@
 {"ts":"2026-05-10T12:15:20.0573631-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["thermal_protection","service_repair"]}}
 {"ts":"2026-05-10T12:20:02.1316054-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-10T12:25:02.0487343-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T13:19:35.8621179-04:00","level":"info","message":"Screenshot runner start","data":{"mode":"Diagnose"}}
+{"ts":"2026-05-10T13:20:03.0145546-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T13:25:02.3181048-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}

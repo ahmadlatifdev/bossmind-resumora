@@ -1,0 +1,49 @@
+﻿{
+    "phase":  "pre",
+    "diagnostics":  {
+                        "lookbackMinutes":  10,
+                        "snippingEventCount":  0,
+                        "clipboardEventCount":  0,
+                        "displayConflictCount":  0,
+                        "snippingProcesses":  [
+                                                  {
+                                                      "Name":  "SnippingTool",
+                                                      "Id":  14084,
+                                                      "Responding":  true
+                                                  },
+                                                  {
+                                                      "Name":  "TextInputHost",
+                                                      "Id":  17016,
+                                                      "Responding":  true
+                                                  }
+                                              ],
+                        "shellExperienceHostRunning":  true,
+                        "explorerRunning":  true,
+                        "transparencyEffectsEnabled":  0,
+                        "accessibilityAnimationEffects":  null,
+                        "gameDvrAppCaptureEnabled":  0,
+                        "gameDvrGloballyEnabled":  null,
+                        "memoryPressurePercent":  75.59,
+                        "gpu":  {
+                                    "Name":  "AMD Radeon(TM) RX Vega 10 Graphics",
+                                    "DriverVersion":  "27.20.11044.5003",
+                                    "DriverDate":  "\/Date(1605744000000)\/",
+                                    "CurrentRefreshRate":  60,
+                                    "AdapterRAM":  2147483648
+                                },
+                        "clipboardHistoryEnabled":  null,
+                        "snippingHotkeyEnabled":  1,
+                        "hdrSignalPresent":  false,
+                        "recentSnipEvents":  {
+
+                                             },
+                        "recentDisplayEvents":  {
+
+                                                }
+                    },
+    "subsystem":  "screenshot",
+    "actions":  [
+                    "repair_overlay_visibility"
+                ],
+    "mode":  "Diagnose"
+}
