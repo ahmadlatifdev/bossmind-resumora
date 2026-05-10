@@ -86,4 +86,37 @@ Production targets **Railway + Neon + GitHub**. **Render is not used** in this a
 
 See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
 
+## Sentry (runtime + hydration)
+
+- Install: `@sentry/nextjs` with `instrumentation.ts`, `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and `next.config.ts` wrapped via `withSentryConfig`.
+- Set **`NEXT_PUBLIC_SENTRY_DSN`** (and optionally **`SENTRY_DSN`** for server-only) before enabling reporting. Without DSN, Sentry does not initialize (safe for local dev).
+- Client captures hydration/React errors when DSN is present. Tune **`NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE`** / **`SENTRY_TRACES_SAMPLE_RATE`** (default `0.1`).
+
+## Stripe → Neon financial audit
+
+- **`POST /api/webhooks/stripe`** — Stripe-signed webhooks; requires **`STRIPE_WEBHOOK_SECRET`** + **`STRIPE_SECRET_KEY`**. Writes `stripe_webhook.*` rows into `event_log` for centralized BossMind tracking (refunds, checkout completion, etc.).
+- Checkout sessions already attach plan + **UTM metadata** (`pages/api/checkout.js`); **`verify-session`** logs paid sessions once (`stripe_checkout_paid`).
+- Other BossMind apps (ElegancyArt, AI Video Generator, TikTok AI, Global Stock): reuse the same Stripe + webhook pattern with **`BOSSMIND_PROJECT_KEY`** set per deployment.
+
+## Orchestration ingress (multi-project)
+
+| Env | Purpose |
+|-----|---------|
+| `BOSSMIND_PROJECT_KEY` | Neon partition (`resumora`, `elegancyart`, …). |
+| `BOSSMIND_ORCHESTRATION_SECRET` | Bearer for `/api/orchestration/sentry-ingest`, `/api/orchestration/deployment-report`. |
+| `NEON_DATABASE_URL` | Required for repair flow + logs. |
+
+| Route | Role |
+|-------|------|
+| `POST /api/orchestration/run-repair` | LangGraph repair (manual or CI). |
+| `POST /api/orchestration/sentry-ingest` | Same repair pipeline; bearer auth; body `{ sentryEvent, validationResult?, deployResult? }`. |
+| `POST /api/orchestration/deployment-report` | Record deploy verification → `deployment_history`. |
+| `POST /api/webhooks/stripe` | Stripe → `event_log`. |
+
+## Validation pipeline (local / CI)
+
+- **`npm run bossmind:validate`** — runs `validate:all` (deps, lint, build, runtime). Pair with git push + **`deployment-report`** after Railway/production verification.
+
+**Note:** IDE automation (Cursor/Copilot/Windsurf applying patches) remains external; this repo exposes APIs and Neon persistence so workers can follow a consistent sequence.
+
 

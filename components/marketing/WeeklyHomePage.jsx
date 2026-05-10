@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWeeklyBundle } from "@/lib/marketing/weekly-content";
 
-/** Homepage: ISO-week marketing — narrative, featured lanes, weekly visuals, CTA (no embedded video). */
+/** Homepage: ISO-week hero + CTA only — luxury enterprise minimal (no weekly cards/visual blocks). */
 export default function WeeklyHomePage({ weekAnchor }) {
   const { lang } = useLanguage();
   const anchorDate = weekAnchor ? new Date(weekAnchor) : undefined;
@@ -44,38 +43,6 @@ export default function WeeklyHomePage({ weekAnchor }) {
         </section>
 
         <section className="rs-section rs-section-muted">
-          <div className="rs-container">
-            <p className="rs-eyebrow">{L.featured}</p>
-            <div className="rs-week-highlight-grid">
-              {bundle.highlights.map((h) => (
-                <Link key={h.title} href={h.href} className="rs-week-highlight-card">
-                  <h2 className="rs-week-card-title">{h.title}</h2>
-                  <p className="rs-week-card-body">{h.body}</p>
-                  <span className="rs-card-cta">
-                    {h.cta}
-                    <ArrowRight size={14} aria-hidden />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="rs-section">
-          <div className="rs-container">
-            <p className="rs-eyebrow">{L.visuals}</p>
-            <div className="rs-week-photo-grid">
-              {bundle.photos.map((p) => (
-                <Link key={p.alt} href={p.href} className="rs-week-photo-card">
-                  <div className="rs-week-photo-placeholder" role="img" aria-label={p.alt} />
-                  <span className="rs-week-photo-cap">{p.alt}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="rs-section">
           <div className="rs-container">
             <div className="rs-cta-strip rs-cta-strip--compact">
               <div>
