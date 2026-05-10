@@ -1,7 +1,8 @@
 param(
   [ValidateSet("Detect","Diagnose","Repair","AutoHeal")]
   [string]$Mode = "AutoHeal",
-  [switch]$DeepIntegrityRepair
+  [switch]$DeepIntegrityRepair,
+  [switch]$ForceOverlayRepair
 )
 
 Set-StrictMode -Version Latest
@@ -16,7 +17,11 @@ Ensure-HealPaths -Settings $settings
 
 Write-HealLog -Settings $settings -Level "info" -Message "Screenshot runner start" -Data @{ mode = $Mode }
 $diag = Get-ScreenshotDiagnostics -Settings $settings
-$actions = Test-ScreenshotTriggers -Diag $diag
+$actions = @((Test-ScreenshotTriggers -Diag $diag))
+if ($ForceOverlayRepair -and ($actions -notcontains "repair_overlay_visibility")) {
+  $actions += "repair_overlay_visibility"
+}
+$actions = @($actions | Select-Object -Unique)
 
 Save-HealSnapshot -Settings $settings -Snapshot @{
   subsystem = "screenshot"
