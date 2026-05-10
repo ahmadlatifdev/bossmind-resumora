@@ -87,6 +87,23 @@ export default async function handler(req, res) {
 
     const metaSlice = (v) => String(v ?? "").slice(0, 500);
 
+    function quoteMetaFromSummary(summaryStr) {
+      const extra = {};
+      if (typeof summaryStr !== "string" || summaryStr.length < 3) return extra;
+      try {
+        const o = JSON.parse(summaryStr);
+        if (typeof o.p === "number") extra.quote_page_count = metaSlice(Math.min(99, o.p));
+        if (typeof o.svc === "string") extra.quote_service_key = metaSlice(o.svc);
+        if (typeof o.t === "string") extra.quote_tier_hint = metaSlice(o.t);
+        if (typeof o.est === "number") extra.quote_est_usd = metaSlice(Math.min(999999, o.est));
+      } catch {
+        /* non-JSON intake note */
+      }
+      return extra;
+    }
+
+    const summaryStr =
+      typeof serviceDraftSummary === "string" ? serviceDraftSummary : "";
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
@@ -100,7 +117,8 @@ export default async function handler(req, res) {
         utm_source: metaSlice(utmSource),
         utm_medium: metaSlice(utmMedium),
         utm_campaign: metaSlice(utmCampaign),
-        service_scope: metaSlice(typeof serviceDraftSummary === "string" ? serviceDraftSummary : ""),
+        service_scope: metaSlice(summaryStr),
+        ...quoteMetaFromSummary(summaryStr),
       },
     });
 

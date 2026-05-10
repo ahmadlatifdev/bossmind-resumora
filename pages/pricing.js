@@ -28,7 +28,7 @@ export default function PricingPage() {
                 <h2 className="rs-h2" style={{ fontSize: "clamp(1.45rem, 2.5vw, 1.85rem)" }}>
                   {t.pricingQuestionsTitle}
                 </h2>
-                <p className="rs-subtitle" style={{ marginTop: "0.65rem" }}>
+                <p className="rs-subtitle" style={{ marginTop: "0.42rem" }}>
                   {t.pricingQuestionsSubtitle}
                 </p>
               </div>

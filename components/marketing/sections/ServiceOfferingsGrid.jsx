@@ -132,6 +132,31 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
     router.push("/pricing");
   };
 
+  const persistStoredQuote = (resourceKey, pageCount) => {
+    if (typeof window === "undefined") return;
+    try {
+      const cg = mergeServiceConfig({ ...getConfig(resourceKey), pageCount });
+      const quote = computeServiceQuote({ ...cg, serviceKey: resourceKey });
+      sessionStorage.setItem(
+        QUOTE_STORAGE_KEY,
+        JSON.stringify({
+          serviceKey: resourceKey,
+          lang,
+          config: cg,
+          quote,
+          metaCompact: compactQuoteForMetadata({
+            serviceKey: resourceKey,
+            lang,
+            config: cg,
+            quote,
+          }),
+        })
+      );
+    } catch {
+      /* ignore */
+    }
+  };
+
   const title = variant === "services" ? t.servicesTitle : t.capabilitiesTitle;
   const subtitle = variant === "services" ? t.servicesSubtitle : t.capabilitiesSubtitle;
   const eyebrow = variant === "services" ? t.navServices : t.navCapabilities;
@@ -176,6 +201,27 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
                   </div>
                   <p>{item.description}</p>
                 </Link>
+                <div className="rs-svc-pages-row">
+                  <label className="rs-svc-pages-label" htmlFor={`rs-pages-${item.resourceKey}`}>
+                    {t.svcQuotePages}
+                  </label>
+                  <select
+                    id={`rs-pages-${item.resourceKey}`}
+                    className="rs-svc-select rs-svc-select--inline"
+                    value={cg.pageCount}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setConfigField(item.resourceKey, { pageCount: v });
+                      persistStoredQuote(item.resourceKey, v);
+                    }}
+                  >
+                    {pageOptions.map((o) => (
+                      <option key={o.v} value={o.v}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="rs-engage-row" aria-label="Engagement">
                   <button
                     type="button"
