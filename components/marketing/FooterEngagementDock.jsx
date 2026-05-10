@@ -25,7 +25,13 @@ export default function FooterEngagementDock({ variant = "default" }) {
     const id = window.setTimeout(() => {
       void refresh();
     }, 0);
-    return () => window.clearTimeout(id);
+    const poll = window.setInterval(() => {
+      void refresh();
+    }, 20000);
+    return () => {
+      window.clearTimeout(id);
+      window.clearInterval(poll);
+    };
   }, [refresh]);
 
   const regionHint = () =>

@@ -5,9 +5,11 @@ const {
   toggleSave,
   recordRequest,
   recordShare,
+  recordSocialClick,
   toggleFollowBrand,
 } = require("../../../lib/engagement/store");
 const { getSqlClient } = require("../../../lib/shared/neon-memory");
+const { checkRateLimit } = require("../../../lib/engagement/rate-limit");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -31,6 +33,15 @@ export default async function handler(req, res) {
     if (!profileId && !visitorId) {
       return res.status(400).json({ error: "No actor context" });
     }
+    const limiter = checkRateLimit({
+      scope: profileId ? `p:${profileId}` : `v:${visitorId}`,
+      limit: 30,
+      windowMs: 60_000,
+    });
+    if (!limiter.ok) {
+      res.setHeader("Retry-After", String(Math.ceil(limiter.retryAfterMs / 1000)));
+      return res.status(429).json({ error: "Rate limit exceeded. Try again shortly." });
+    }
 
     if (type === "like" || type === "unlike") {
       if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
@@ -46,6 +57,17 @@ export default async function handler(req, res) {
       const r = await recordShare(profileId, visitorId, resourceKey, regionHint);
       return res.status(200).json(r);
     }
+    if (type === "social_click") {
+      const r = await recordSocialClick(
+        profileId,
+        visitorId,
+        req.body?.platform,
+        req.body?.href,
+        regionHint,
+        req.body?.source
+      );
+      return res.status(200).json(r);
+    }
     if (type === "save" || type === "unsave") {
       if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
       const r = await toggleSave(profileId, visitorId, resourceKey, regionHint);
@@ -55,6 +77,11 @@ export default async function handler(req, res) {
       if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
       const r = await recordRequest(profileId, visitorId, resourceKey, regionHint);
       return res.status(200).json(r);
+    }
+    if (type === "configure") {
+      if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
+      const r = await recordRequest(profileId, visitorId, resourceKey, regionHint);
+      return res.status(200).json({ ok: true, configureLogged: true, requestRecorded: r.ok });
     }
     if (type === "follow" || type === "unfollow") {
       const r = await toggleFollowBrand(profileId, visitorId, regionHint);

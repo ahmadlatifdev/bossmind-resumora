@@ -261,7 +261,12 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
                     type="button"
                     className="rs-engage-pill rs-engage-pill--accent"
                     data-active={open ? "true" : "false"}
-                    onClick={() => toggleExpand(item.resourceKey)}
+                    onClick={() => {
+                      toggleExpand(item.resourceKey);
+                      if (!open) {
+                        void runEngagementAction({ type: "configure", resourceKey: item.resourceKey });
+                      }
+                    }}
                   >
                     <SlidersHorizontal size={15} aria-hidden />
                     {open ? t.svcQuoteHide : t.svcQuoteCustomize}

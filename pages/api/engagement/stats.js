@@ -15,6 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    res.setHeader("Cache-Control", "private, max-age=0, s-maxage=0, must-revalidate");
     const actor = await readEngagementActor(req, res);
     const stats = await getAggregateStats();
     const engagement = await userEngagementState(actor.profileId, actor.visitorId, STATE_KEYS);

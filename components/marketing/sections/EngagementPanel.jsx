@@ -20,8 +20,17 @@ export default function EngagementPanel() {
       .catch(() => {
         if (!c) setEngStats({ enabled: false });
       });
+    const pollId = window.setInterval(() => {
+      void fetch("/api/engagement/stats", { credentials: "same-origin" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!c && d) setEngStats(d);
+        })
+        .catch(() => {});
+    }, 30000);
     return () => {
       c = true;
+      window.clearInterval(pollId);
     };
   }, []);
 

@@ -101,6 +101,36 @@ export default function FooterSocialStrip({ variant = "default" }) {
   ];
 
   const displayHost = clientSiteUrl.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  const regionHint =
+    typeof navigator !== "undefined"
+      ? `${navigator.language || ""}|${Intl.DateTimeFormat().resolvedOptions().timeZone || ""}`
+      : "";
+
+  const trackSocialClick = (platform, href) => {
+    const payload = JSON.stringify({
+      type: "social_click",
+      platform,
+      href,
+      source: "footer_social_strip",
+      regionHint,
+      resourceKey: "resumora_footer_site",
+    });
+    try {
+      if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/api/engagement/action", blob);
+        return;
+      }
+    } catch {
+      /* fallback */
+    }
+    fetch("/api/engagement/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: payload,
+    }).catch(() => {});
+  };
 
   return (
     <div className={`rs-footer-social-dock rs-footer-social-dock--bare ${variant === "minimal" ? "rs-footer-social-dock--minimal" : ""}`}>
@@ -113,6 +143,7 @@ export default function FooterSocialStrip({ variant = "default" }) {
               rel="noopener noreferrer"
               className="rs-social-icon-link"
               aria-label={`${label} (${displayHost})`}
+              onClick={() => trackSocialClick(key, href)}
             >
               <Icon />
             </a>

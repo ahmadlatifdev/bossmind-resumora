@@ -1,0 +1,34 @@
+{
+  "monitor": {
+    "lookbackMinutes": 10,
+    "flickerLoopThreshold": 3,
+    "gpuCrashThreshold": 2,
+    "memoryPressurePercent": 88,
+    "highTemperatureCelsius": 88
+  },
+  "healing": {
+    "enableExplorerRepair": true,
+    "enableDismSfc": true,
+    "enableCleanup": true,
+    "createRestorePointBeforeMajorFixes": true,
+    "allowAutomaticDriverRollback": true,
+    "allowAutomaticDriverReinstall": false
+  },
+  "optimization": {
+    "disableStartupApps": false,
+    "trimTempFiles": true,
+    "optimizePowerPlan": true,
+    "preferBalancedPlan": true
+  },
+  "driver": {
+    "dduPath": "C:\\Tools\\DDU\\Display Driver Uninstaller.exe",
+    "nvidiaInstallerPath": "",
+    "amdInstallerPath": "",
+    "intelInstallerPath": ""
+  },
+  "logging": {
+    "logRoot": "d:\\BossMind\\resumora-fresh\\windows-heal\\logs",
+    "reportRoot": "d:\\BossMind\\resumora-fresh\\windows-heal\\reports",
+    "stateRoot": "d:\\BossMind\\resumora-fresh\\windows-heal\\state"
+  }
+}
