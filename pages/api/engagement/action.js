@@ -1,8 +1,10 @@
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const {
   toggleLike,
+  toggleDislike,
   toggleSave,
   recordRequest,
+  recordShare,
   toggleFollowBrand,
 } = require("../../../lib/engagement/store");
 const { getSqlClient } = require("../../../lib/shared/neon-memory");
@@ -33,6 +35,15 @@ export default async function handler(req, res) {
     if (type === "like" || type === "unlike") {
       if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
       const r = await toggleLike(profileId, visitorId, resourceKey, regionHint);
+      return res.status(200).json(r);
+    }
+    if (type === "dislike" || type === "undislike") {
+      if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
+      const r = await toggleDislike(profileId, visitorId, resourceKey, regionHint);
+      return res.status(200).json(r);
+    }
+    if (type === "share") {
+      const r = await recordShare(profileId, visitorId, resourceKey, regionHint);
       return res.status(200).json(r);
     }
     if (type === "save" || type === "unsave") {

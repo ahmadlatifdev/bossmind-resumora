@@ -13,6 +13,7 @@
     "validate:all": "npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",
     "marketing:social-drafts": "node scripts/marketing/generate-social-drafts.mjs",
+    "marketing:weekly": "node scripts/marketing/weekly-organic-pipeline.js",
     "hub:index": "node scripts/bossmind-hub-index.mjs"
   },
   "dependencies": {

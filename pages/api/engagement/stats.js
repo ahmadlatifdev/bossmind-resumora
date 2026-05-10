@@ -4,7 +4,9 @@ const {
   userEngagementState,
   listApprovedReviews,
 } = require("../../../lib/engagement/store");
-const { SERVICE_RESOURCE_KEYS } = require("../../../lib/engagement/service-ids");
+const { FOOTER_SITE_RESOURCE_KEY, SERVICE_RESOURCE_KEYS } = require("../../../lib/engagement/service-ids");
+
+const STATE_KEYS = [...SERVICE_RESOURCE_KEYS, FOOTER_SITE_RESOURCE_KEY];
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -15,12 +17,13 @@ export default async function handler(req, res) {
   try {
     const actor = await readEngagementActor(req, res);
     const stats = await getAggregateStats();
-    const engagement = await userEngagementState(actor.profileId, actor.visitorId, SERVICE_RESOURCE_KEYS);
+    const engagement = await userEngagementState(actor.profileId, actor.visitorId, STATE_KEYS);
     const reviews = await listApprovedReviews(12);
 
     return res.status(200).json({
       ...stats,
       myLikes: Array.from(engagement.likes),
+      myDislikes: Array.from(engagement.dislikes),
       mySaves: Array.from(engagement.saves),
       followingBrand: engagement.following,
       signedIn: Boolean(actor.profileId),

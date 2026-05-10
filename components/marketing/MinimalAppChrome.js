@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
@@ -24,11 +25,14 @@ export default function MinimalAppChrome({ children }) {
 
       {children}
 
-      <footer className="rs-minimal-footer">
-        <LanguageSwitcher variant="compact" />
-        <Link href="/" className="rs-link-muted rs-minimal-footer-home">
-          {t.backHome}
-        </Link>
+      <footer className="rs-minimal-footer rs-minimal-footer--stack">
+        <div className="rs-minimal-footer-row">
+          <LanguageSwitcher variant="compact" />
+          <Link href="/" className="rs-link-muted rs-minimal-footer-home">
+            {t.backHome}
+          </Link>
+        </div>
+        <FooterUniversalDock variant="minimal" />
       </footer>
     </div>
   );

@@ -20,6 +20,9 @@
 # production
 /build
 
+# BossMind local automation outputs
+/.bossmind/
+
 # misc
 .DS_Store
 *.pem

@@ -5,6 +5,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
+import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
 
@@ -206,6 +207,8 @@ export default function SiteChrome({ children }) {
               </ul>
             </div>
           </div>
+
+          <FooterUniversalDock />
 
           <div className="rs-footer-lang-row">
             <LanguageSwitcher variant="compact" />
