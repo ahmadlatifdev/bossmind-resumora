@@ -59,6 +59,10 @@ export default async function handler(req, res) {
     }
 
     if (!priceId) {
+      console.error("[Resumora Stripe][checkout] STRIPE_PRICE_ID_MISSING:", {
+        planId,
+        code: "STRIPE_PRICE_ID_MISSING",
+      });
       return res.status(400).json({
         error: `No Stripe Price ID configured for plan "${planId}".`,
         hint: pricingSetupHintForPlan(planId),
@@ -70,6 +74,35 @@ export default async function handler(req, res) {
       return res.status(400).json({
         error: "Invalid Stripe price id",
         hint: "Price IDs must look like price_xxxxxxxx",
+      });
+    }
+
+    let stripePrice;
+    try {
+      stripePrice = await stripe.prices.retrieve(priceId);
+    } catch (e) {
+      console.error("[Resumora Stripe][checkout] STRIPE_PRICE_RETRIEVE_FAILED:", {
+        planId,
+        message: e?.message || String(e),
+      });
+      return res.status(400).json({
+        error: "Unable to validate Stripe Price ID (not found or inaccessible).",
+        hint: pricingSetupHintForPlan(planId),
+        planId,
+      });
+    }
+
+    if (stripePrice.type !== "one_time") {
+      console.error("[Resumora Stripe][checkout] STRIPE_PRICE_NOT_ONE_TIME:", {
+        planId,
+        priceId,
+        stripePriceType: stripePrice.type,
+      });
+      return res.status(400).json({
+        error:
+          "This Stripe Price is recurring/subscription; Resumora checkout requires one-time prices only.",
+        hint: pricingSetupHintForPlan(planId),
+        planId,
       });
     }
 
@@ -92,6 +125,7 @@ export default async function handler(req, res) {
 
     const summaryStr =
       typeof serviceDraftSummary === "string" ? serviceDraftSummary : "";
+    /* One-time payment only — never subscription mode. */
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
@@ -99,6 +133,7 @@ export default async function handler(req, res) {
       success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/cancel`,
       metadata: {
+        billing_mode: metaSlice("payment_one_time"),
         plan_id: metaSlice(planId),
         plan_name: metaSlice(planName),
         plan_price: metaSlice(planPrice),
