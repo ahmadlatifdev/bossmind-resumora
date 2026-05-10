@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  async redirects() {
+    return [
+      { source: "/global-reach", destination: "/", permanent: true },
+      { source: "/marketing", destination: "/", permanent: true },
+      { source: "/geo/:country", destination: "/", permanent: true },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {

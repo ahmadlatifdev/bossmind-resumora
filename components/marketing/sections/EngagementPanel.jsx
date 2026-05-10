@@ -149,16 +149,6 @@ export default function EngagementPanel() {
             </ul>
           </div>
         </div>
-        <div className="rs-engage-regional">
-          <h3 className="rs-engage-quad-title">{t.engagementRegional}</h3>
-          <div className="rs-engage-region-chips">
-            {(engStats?.regional || []).map((r) => (
-              <span key={r.region} className="rs-chip">
-                {r.region}: {r.count}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );

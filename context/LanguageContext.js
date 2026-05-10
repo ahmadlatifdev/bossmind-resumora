@@ -33,21 +33,24 @@ export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState("en");
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored === "en" || stored === "fr") {
-        setLangState(stored);
-        document.documentElement.lang = stored === "fr" ? "fr" : "en";
-        return;
+    const id = window.setTimeout(() => {
+      try {
+        const stored = window.localStorage.getItem(STORAGE_KEY);
+        if (stored === "en" || stored === "fr") {
+          setLangState(stored);
+          document.documentElement.lang = stored === "fr" ? "fr" : "en";
+          return;
+        }
+        const c = readCookieLang();
+        if (c === "en" || c === "fr") {
+          setLangState(c);
+          document.documentElement.lang = c === "fr" ? "fr" : "en";
+        }
+      } catch {
+        /* ignore */
       }
-      const c = readCookieLang();
-      if (c === "en" || c === "fr") {
-        setLangState(c);
-        document.documentElement.lang = c === "fr" ? "fr" : "en";
-      }
-    } catch {
-      /* ignore */
-    }
+    }, 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   const setLang = useCallback((next) => {

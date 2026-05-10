@@ -34,8 +34,10 @@ export default function SiteChrome({ children }) {
   });
 
   useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
+    const closeSidebar = () => setSidebarOpen(false);
+    router.events.on("routeChangeComplete", closeSidebar);
+    return () => router.events.off("routeChangeComplete", closeSidebar);
+  }, [router]);
 
   const navGroups = useMemo(
     () => [
@@ -51,7 +53,6 @@ export default function SiteChrome({ children }) {
           { href: "/services", label: t.navServices },
           { href: "/capabilities", label: t.navCapabilities },
           { href: "/pricing", label: t.navPricing },
-          { href: "/global-reach", label: t.navCountries },
           { href: "/delivery-protocols", label: t.navDelivery },
         ],
       },
@@ -61,7 +62,6 @@ export default function SiteChrome({ children }) {
         items: [
           { href: "/client-engagement", label: t.navEngagement },
           { href: "/testimonials", label: t.navTestimonials },
-          { href: "/marketing", label: t.navWeekly },
         ],
       },
       {
@@ -204,8 +204,8 @@ export default function SiteChrome({ children }) {
                   <Link href="/system-policy">{t.footerSystemPolicy}</Link>
                 </li>
               </ul>
+            </div>
           </div>
-        </div>
 
           <div className="rs-footer-lang-row">
             <LanguageSwitcher variant="compact" />

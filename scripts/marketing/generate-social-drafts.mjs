@@ -1,16 +1,38 @@
 /**
- * Daily organic social drafts from the same weekly bundle as the homepage.
- * Outputs JSON to stdout — wire to cron + platform APIs with secrets in CI only.
+ * Organic social draft JSON for cron / platform APIs (secrets in CI only).
+ * Static messaging aligned with the enterprise homepage — no rotating weekly bundle.
  *
  * Usage: node scripts/marketing/generate-social-drafts.mjs [--lang=en|fr]
  */
-import { getWeeklyBundle } from "../../lib/marketing/weekly-content.js";
 
 const langArg = process.argv.find((a) => a.startsWith("--lang="));
 const lang = langArg?.split("=")[1] === "fr" ? "fr" : "en";
 
-const bundle = getWeeklyBundle(lang);
-const url = bundle.siteUrl || "https://resumora.net";
+const bundles = {
+  en: {
+    weekId: "static",
+    siteUrl: "https://resumora.net",
+    theme: {
+      headline: "Institutional-grade career collateral for leaders operating under scrutiny.",
+      kicker: "Executive resume studio",
+      lead: "ATS-safe dossiers, bilingual EN/FR delivery, and concierge pacing.",
+    },
+    hashtags: ["#Resumora", "#ExecutiveResume", "#ATS", "#Career"],
+  },
+  fr: {
+    weekId: "static",
+    siteUrl: "https://resumora.net",
+    theme: {
+      headline: "Dossiers carrière de niveau institutionnel pour cadres sous contrainte.",
+      kicker: "Studio CV direction",
+      lead: "Livrables compatibles ATS, livraison bilingue EN/FR et cadence concierge.",
+    },
+    hashtags: ["#Resumora", "#CVExecutif", "#ATS", "#Carrière"],
+  },
+};
+
+const bundle = bundles[lang];
+const url = bundle.siteUrl;
 const variation = `${bundle.weekId}-${lang}`;
 
 const platforms = ["facebook", "instagram", "tiktok", "youtube_shorts", "linkedin", "pinterest", "twitter"];
