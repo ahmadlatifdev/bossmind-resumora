@@ -33,3 +33,5 @@
 {"ts":"2026-05-10T11:35:17.2029251-04:00","level":"warn","message":"Thermal pressure detected; applying balanced power mode","data":{"tempC":93.1}}
 {"ts":"2026-05-10T11:35:24.1540360-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["thermal_protection","service_repair"]}}
 {"ts":"2026-05-10T11:40:03.0481844-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T11:45:04.6383383-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T11:50:03.0670066-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
