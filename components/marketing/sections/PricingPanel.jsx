@@ -36,7 +36,7 @@ export default function PricingPanel() {
                 type="button"
                 className="rs-price-btn"
                 disabled={busyPlan === plan.id}
-                onClick={() => handleCheckout(plan.priceId, plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
+                onClick={() => handleCheckout(plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
               >
                 {busyPlan === plan.id ? t.processing : t.selectPlan}
               </button>

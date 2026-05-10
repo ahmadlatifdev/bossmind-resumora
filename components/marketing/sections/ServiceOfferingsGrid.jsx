@@ -63,7 +63,7 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
         <p className="rs-eyebrow">{eyebrow}</p>
         <h2 className="rs-h2">{title}</h2>
         <p className="rs-subtitle">{subtitle}</p>
-        <div className="rs-card-grid">
+        <div className={`rs-card-grid${variant === "capabilities" ? " rs-card-grid--compact" : ""}`}>
           {items.map((item) => {
             const I = item.Icon;
             const liked = engStats?.myLikes?.includes(item.resourceKey);
