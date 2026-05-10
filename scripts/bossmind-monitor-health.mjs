@@ -14,6 +14,12 @@ const timeoutMs = Number(process.env.BOSSMIND_MONITOR_TIMEOUT_MS || 45000);
 
 const checks = [
   { key: "runtimeHealth", method: "GET", path: "/api/health", expectStatus: [200] },
+  {
+    key: "bossmindHealth",
+    method: "GET",
+    path: "/api/orchestration/bossmind-health",
+    expectStatus: [200, 401],
+  },
   { key: "stripeHealth", method: "GET", path: "/api/stripe/status", expectStatus: [200, 404, 503] },
   { key: "deepseekHealth", method: "GET", path: "/api/ai/deepseek-status", expectStatus: [200, 503] },
   { key: "home", method: "GET", path: "/", expectStatus: [200] },
