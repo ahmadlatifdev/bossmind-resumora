@@ -39,6 +39,12 @@ export default function PricingPanel() {
         <h2 className="rs-h2">{t.pricingTitle}</h2>
         <p className="rs-subtitle">{t.pricingSubtitle}</p>
 
+        {checkoutError ? (
+          <p className="rs-pricing-checkout-msg" role="status">
+            {checkoutError}
+          </p>
+        ) : null}
+
         {savedQuote?.quote ? (
           <aside className="rs-pricing-saved-quote" aria-live="polite">
             <div className="rs-pricing-saved-quote-inner">
