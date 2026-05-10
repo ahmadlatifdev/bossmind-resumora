@@ -10,6 +10,15 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const isWin = process.platform === "win32";
 
+const surface = spawnSync("node scripts/bossmind-protected-surface-verify.mjs", {
+  cwd: root,
+  shell: true,
+  stdio: "inherit",
+});
+if ((surface.status ?? 1) !== 0) {
+  process.exit(surface.status ?? 1);
+}
+
 if (process.env.BOSSMIND_SKIP_ANTILEAK !== "1") {
   const anti = spawnSync("node scripts/bossmind-antileak-guard.mjs", {
     cwd: root,

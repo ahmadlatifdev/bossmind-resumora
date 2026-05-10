@@ -34,6 +34,7 @@
     "bossmind:ui-probe": "node scripts/bossmind-ui-probe.mjs",
     "bossmind:audit": "node scripts/bossmind-orchestration-audit.mjs",
     "bossmind:activation-audit": "node scripts/bossmind-activation-audit.mjs",
+    "bossmind:protect:verify": "node scripts/bossmind-protected-surface-verify.mjs",
     "bossmind:monitor": "node scripts/bossmind-monitor-health.mjs",
     "bossmind:engagement:summary": "node scripts/bossmind-engagement-summary.mjs",
     "bossmind:autonomous-check": "npm run bossmind:antileak && npm run bossmind:audit && npm run bossmind:perf-scan",

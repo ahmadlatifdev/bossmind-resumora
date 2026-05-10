@@ -45,6 +45,7 @@
     }
   },
   "requiredProtectionLayers": [
+    "bossmind:protect:verify",
     "bossmind:antileak",
     "bossmind:snapshot",
     "rollback_snapshots",

@@ -43,6 +43,18 @@ function resolveBaseRef() {
   return "HEAD~1";
 }
 
+function loadSurfaceManifestPaths() {
+  const manifestPath = join(root, "config", "bossmind-protected-surface.json");
+  if (!existsSync(manifestPath)) return [];
+  try {
+    const j = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const arr = j.surfaceLockPaths || [];
+    return arr.map((x) => posixPath(String(x).replace(/\\/g, "/")));
+  } catch {
+    return [];
+  }
+}
+
 function loadProtectedPaths() {
   const text = readFileSync(registryPath, "utf8");
   const set = new Set();
@@ -57,6 +69,7 @@ function loadProtectedPaths() {
     .map((s) => s.trim())
     .filter(Boolean);
   for (const p of extra) set.add(posixPath(p));
+  for (const p of loadSurfaceManifestPaths()) set.add(p);
   return set;
 }
 
