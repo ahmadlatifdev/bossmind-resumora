@@ -33,6 +33,7 @@ export default async function handler(req, res) {
       utm_source: utmSource,
       utm_medium: utmMedium,
       utm_campaign: utmCampaign,
+      serviceDraftSummary,
     } = req.body || {};
 
     if (!isPlanId(planId)) {
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
         utm_source: metaSlice(utmSource),
         utm_medium: metaSlice(utmMedium),
         utm_campaign: metaSlice(utmCampaign),
+        service_scope: metaSlice(typeof serviceDraftSummary === "string" ? serviceDraftSummary : ""),
       },
     });
 

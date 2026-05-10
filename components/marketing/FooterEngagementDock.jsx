@@ -77,34 +77,34 @@ export default function FooterEngagementDock({ variant = "default" }) {
 
   return (
     <div className={`rs-footer-engage-dock ${variant === "minimal" ? "rs-footer-engage-dock--minimal" : ""}`}>
-      <p className="rs-footer-dock-label">{t.footerDockEngage}</p>
-      <div className="rs-footer-engage-actions">
+      <p className="rs-footer-dock-label rs-footer-dock-label--subtle">{t.footerDockEngage}</p>
+      <div className="rs-footer-engage-actions rs-footer-engage-actions--bare">
         <button
           type="button"
-          className={`rs-foot-cta rs-foot-cta--ghost ${liked ? "rs-foot-cta--active" : ""}`}
+          className={`rs-foot-engage ${liked ? "rs-foot-engage--active" : ""}`}
           disabled={busy || !neonReady}
           aria-pressed={liked ? "true" : "false"}
           onClick={() => runAction({ type: "like", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
-          <ThumbsUp size={18} strokeWidth={1.75} aria-hidden />
+          <ThumbsUp size={17} strokeWidth={1.75} aria-hidden />
           <span>{t.footerEngageLike}</span>
         </button>
         <button
           type="button"
-          className={`rs-foot-cta rs-foot-cta--ghost ${disliked ? "rs-foot-cta--active" : ""}`}
+          className={`rs-foot-engage ${disliked ? "rs-foot-engage--active" : ""}`}
           disabled={busy || !neonReady}
           aria-pressed={disliked ? "true" : "false"}
           onClick={() => runAction({ type: "dislike", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
-          <ThumbsDown size={18} strokeWidth={1.75} aria-hidden />
+          <ThumbsDown size={17} strokeWidth={1.75} aria-hidden />
           <span>{t.footerEngageDislike}</span>
         </button>
-        <button type="button" className="rs-foot-cta rs-foot-cta--accent" disabled={busy} onClick={onShare}>
-          <Share2 size={18} strokeWidth={1.75} aria-hidden />
+        <button type="button" className="rs-foot-engage" disabled={busy} onClick={onShare}>
+          <Share2 size={17} strokeWidth={1.75} aria-hidden />
           <span>{t.footerEngageShare}</span>
         </button>
-        <Link href="/register" className="rs-foot-cta rs-foot-cta--outline">
-          <UserPlus size={18} strokeWidth={1.75} aria-hidden />
+        <Link href="/register" className="rs-foot-engage rs-foot-engage--link">
+          <UserPlus size={17} strokeWidth={1.75} aria-hidden />
           <span>{t.footerEngageRegister}</span>
         </Link>
       </div>

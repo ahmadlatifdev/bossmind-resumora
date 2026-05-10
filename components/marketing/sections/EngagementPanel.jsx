@@ -90,13 +90,20 @@ export default function EngagementPanel() {
           </div>
           <button
             type="button"
-            className="rs-btn-accent"
+            className="rs-engage-inline-text"
             disabled={engBusy}
+            data-active={engStats?.followingBrand ? "true" : "false"}
             onClick={() => runEngagementAction({ type: engStats?.followingBrand ? "unfollow" : "follow" })}
           >
-            {engStats?.followingBrand ? t.engagementFollowing : t.engagementFollow}
+            <span>{engStats?.followingBrand ? t.engagementFollowing : t.engagementFollow}</span>
+            {!engStats?.followingBrand ? (
+              <>
+                <span className="rs-engage-sep">·</span>
+                <span>{t.engagementSubscribeShort}</span>
+              </>
+            ) : null}
           </button>
-          <Link href="/dashboard" className="rs-btn-ghost">
+          <Link href="/dashboard" className="rs-engage-inline-link">
             {t.engagementAnalyticsLink}
           </Link>
         </div>

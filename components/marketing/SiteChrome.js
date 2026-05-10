@@ -125,15 +125,6 @@ export default function SiteChrome({ children }) {
             </NavGroup>
           ))}
         </nav>
-
-        <div className="rs-sidebar-footer">
-          <Link href="/login" className="rs-sidebar-auth rs-sidebar-auth--ghost" onClick={() => setSidebarOpen(false)}>
-            {t.navLogin}
-          </Link>
-          <Link href="/register" className="rs-sidebar-auth rs-sidebar-auth--accent" onClick={() => setSidebarOpen(false)}>
-            {t.navRegister}
-          </Link>
-        </div>
       </aside>
 
       <div className="rs-main-column">
