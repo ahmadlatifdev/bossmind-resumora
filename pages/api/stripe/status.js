@@ -37,6 +37,7 @@ export default function handler(req, res) {
       },
     },
     priceIdsOk: audit.priceIds,
+    pricingResolution: audit.pricingResolution,
     blockers,
   });
 }

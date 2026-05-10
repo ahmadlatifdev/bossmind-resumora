@@ -3,6 +3,7 @@ const {
   isValidPriceId,
   resolveStripePriceId,
 } = require("../../lib/marketing/stripe-plan-map");
+const { pricingSetupHintForPlan } = require("../../lib/marketing/stripe-pricing-guard");
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 
@@ -60,7 +61,7 @@ export default async function handler(req, res) {
     if (!priceId) {
       return res.status(400).json({
         error: `No Stripe Price ID configured for plan "${planId}".`,
-        hint: "Set STRIPE_PRICE_BASIC / STRIPE_PRICE_PROFESSIONAL / STRIPE_PRICE_ELITE or NEXT_PUBLIC_STRIPE_PRICE_* in .env.local, then restart.",
+        hint: pricingSetupHintForPlan(planId),
         planId,
       });
     }

@@ -11,6 +11,7 @@
     "validate:runtime": "node scripts/runtime-validation.js",
     "validate:stripe": "node scripts/stripe-env-validation.js",
     "stripe:diagnose": "node scripts/stripe-env-diagnose.mjs",
+    "stripe:pricing:check": "node scripts/stripe-pricing-anti-regression.mjs",
     "validate:deps": "npm ls --depth=0",
     "validate:all": "npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",

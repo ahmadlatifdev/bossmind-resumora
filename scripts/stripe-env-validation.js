@@ -60,8 +60,16 @@ async function main() {
   }
 
   const strict = process.env.STRIPE_CI_STRICT === "1";
+  const pricingStrict = process.env.STRIPE_PRICING_STRICT === "1";
   if (strict && !audit.checkoutReady) {
     process.exit(1);
+  }
+  if (pricingStrict) {
+    const { allPlansHaveValidPriceIds } = require("../lib/marketing/stripe-pricing-guard");
+    if (!allPlansHaveValidPriceIds()) {
+      console.error("STRIPE_PRICING_STRICT: missing or invalid Stripe Price ID for one or more tiers.");
+      process.exit(1);
+    }
   }
 }
 
