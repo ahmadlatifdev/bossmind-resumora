@@ -4,7 +4,9 @@
     "flickerLoopThreshold": 3,
     "gpuCrashThreshold": 2,
     "memoryPressurePercent": 88,
-    "highTemperatureCelsius": 88
+    "highTemperatureCelsius": 88,
+    "cpuSpikePercent": 90,
+    "diskQueueThreshold": 3
   },
   "healing": {
     "enableExplorerRepair": true,
@@ -19,6 +21,17 @@
     "trimTempFiles": true,
     "optimizePowerPlan": true,
     "preferBalancedPlan": true
+  },
+  "protection": {
+    "enableStateSnapshots": true,
+    "enableDriverAudit": true,
+    "safeModeRecoveryScript": "d:\\BossMind\\resumora-fresh\\windows-heal\\scripts\\WindowsHeal.SafeDriverRecovery.ps1"
+  },
+  "integration": {
+    "sentryWebhookUrl": "",
+    "langGraphWebhookUrl": "",
+    "cursorInstructionPath": "d:\\BossMind\\resumora-fresh\\windows-heal\\state\\cursor-heal-instruction.json",
+    "sendEscalations": false
   },
   "driver": {
     "dduPath": "C:\\Tools\\DDU\\Display Driver Uninstaller.exe",

@@ -16,10 +16,24 @@ Ensure-HealPaths -Settings $settings
 Write-HealLog -Settings $settings -Level "info" -Message "Runner start" -Data @{ mode = $Mode }
 $diag = Get-DisplayDiagnostics -Settings $settings
 $actions = Test-HealTriggers -Settings $settings -Diagnostics $diag
+$warnings = Get-PredictiveWarnings -Settings $settings -Diagnostics $diag
+$driverAudit = Invoke-DriverAudit -Settings $settings
+
+Save-HealSnapshot -Settings $settings -Snapshot @{
+  phase = "pre-repair"
+  mode = $Mode
+  diagnostics = $diag
+  warnings = $warnings
+  driverAudit = $driverAudit
+}
 
 if ($Mode -eq "Detect" -or $Mode -eq "Diagnose") {
-  Write-HealDashboard -Settings $settings -Diagnostics $diag -Actions $actions -Mode $Mode
-  $diag | ConvertTo-Json -Depth 6
+  Write-HealDashboard -Settings $settings -Diagnostics $diag -Actions $actions -Warnings $warnings -Mode $Mode
+  [ordered]@{
+    diagnostics = $diag
+    warnings = $warnings
+    driverAudit = $driverAudit
+  } | ConvertTo-Json -Depth 7
   exit 0
 }
 
@@ -34,6 +48,12 @@ if ($Mode -eq "Repair" -or $Mode -eq "AutoHeal") {
   }
   if ($actions -contains "memory_cleanup") {
     Invoke-SafeOptimization -Settings $settings
+  }
+  if ($actions -contains "startup_optimization" -or $actions -contains "disk_pressure_cleanup") {
+    Invoke-SafeOptimization -Settings $settings
+  }
+  if ($actions -contains "service_repair") {
+    Invoke-ServiceRepair -Settings $settings
   }
   if ($actions -contains "thermal_protection") {
     Write-HealLog -Settings $settings -Level "warn" -Message "Thermal pressure detected; applying balanced power mode" -Data @{ tempC = $diag.cpuTemperatureC }
@@ -51,7 +71,23 @@ if ($Mode -eq "Repair" -or $Mode -eq "AutoHeal") {
   Start-Sleep -Seconds 3
   $verify = Get-DisplayDiagnostics -Settings $settings
   $verifyActions = Test-HealTriggers -Settings $settings -Diagnostics $verify
-  Write-HealDashboard -Settings $settings -Diagnostics $verify -Actions $verifyActions -Mode "$Mode-Verify"
+  $verifyWarnings = Get-PredictiveWarnings -Settings $settings -Diagnostics $verify
+  Write-HealDashboard -Settings $settings -Diagnostics $verify -Actions $verifyActions -Warnings $verifyWarnings -Mode "$Mode-Verify"
+  $incident = [ordered]@{
+    ts = (Get-Date).ToString("o")
+    mode = $Mode
+    initial = $diag
+    repairedActions = $actions
+    verify = $verify
+    remainingTriggers = $verifyActions
+    warnings = $verifyWarnings
+  }
+  Save-HealSnapshot -Settings $settings -Snapshot @{
+    phase = "post-repair"
+    mode = $Mode
+    incident = $incident
+  }
+  Invoke-EscalationHooks -Settings $settings -Incident $incident
   Write-HealLog -Settings $settings -Level "info" -Message "Runner completed" -Data @{
     mode = $Mode
     initialActions = $actions
@@ -65,6 +101,8 @@ if ($Mode -eq "Repair" -or $Mode -eq "AutoHeal") {
     repairedActions = $actions
     verify = $verify
     remainingTriggers = $verifyActions
+    warnings = $verifyWarnings
+    driverAudit = $driverAudit
   } | ConvertTo-Json -Depth 7
   exit 0
 }

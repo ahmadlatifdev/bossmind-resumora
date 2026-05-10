@@ -11,6 +11,7 @@ windows-heal/
   scripts/
     WindowsHeal.Core.ps1
     WindowsHeal.Runner.ps1
+    WindowsHeal.Orchestrator.ps1
     WindowsHeal.Install.ps1
     WindowsHeal.SafeDriverRecovery.ps1
   logs/
@@ -24,13 +25,18 @@ windows-heal/
 ## What it implements
 
 - **Detect -> Diagnose -> Repair -> Verify -> Log -> Protect** flow.
-- GPU/display instability detection from Event Viewer (`Display`, `nvlddmkm`, `amdkmdag`, `igfx`, explorer faults).
+- GPU/display instability detection from Event Viewer (`Display`, `nvlddmkm`, `amdkmdag`, `igfx`, explorer faults, Kernel-PnP display churn).
 - Explorer loop repair.
 - Display stack reset (PnP restart path).
+- Service auto-repair for selected critical desktop services.
+- Predictive warnings (GPU timeout trend, handshake churn, CPU/disk pressure, low disk space).
+- Driver audit (display driver version/signature snapshot).
 - DISM/SFC integrity repairs (Repair mode).
 - Safe optimization (temp cleanup + balanced power tuning).
 - Driver safety runbook with **DDU integration path** and vendor-specific installer slots.
 - Restore point creation before major fixes.
+- State snapshots before/after repair in `state/`.
+- Optional escalation hooks (Sentry/LangGraph/Cursor instruction artifact).
 - Scheduled autonomous monitoring/healing tasks.
 - JSONL logs + HTML dashboard + stability score.
 
@@ -62,23 +68,40 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\Wind
 
 # Automated healing pass
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\WindowsHeal.Runner.ps1" -Mode AutoHeal
+
+# Orchestrated monitor/repair wrapper
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\windows-heal\scripts\WindowsHeal.Orchestrator.ps1" -Mode Monitor
 ```
 
 ## Scheduled automation
 
 - `WindowsHeal-Monitor`: every 5 minutes (`Detect`)
 - `WindowsHeal-AutoHeal`: every 20 minutes (`AutoHeal`)
+- `WindowsHeal-RepairOnDisplayTDR`: every 30 minutes (`Repair`)
 
 ## Dashboard and logs
 
 - Dashboard: `windows-heal/reports/dashboard.html`
 - Event log stream: `windows-heal/logs/healing-log.jsonl`
+- State snapshots + orchestrator outputs: `windows-heal/state/`
 
 ## Safety and rollback
 
 - Restore point attempt before major repair actions.
 - Driver rollback/restart guarded by thresholds.
 - No unsafe registry cleaners, RAM boosters, overclocking, or aggressive tweaks.
+- Driver clean reinstall remains runbook-controlled unless explicitly enabled.
+
+## Advanced integration stack
+
+Set in `config/settings.json`:
+
+- `integration.sentryWebhookUrl`
+- `integration.langGraphWebhookUrl`
+- `integration.cursorInstructionPath`
+- `integration.sendEscalations = true`
+
+When enabled, post-repair incidents are exported to these hooks and to a local Cursor instruction JSON.
 
 ## DDU and clean reinstall workflow
 

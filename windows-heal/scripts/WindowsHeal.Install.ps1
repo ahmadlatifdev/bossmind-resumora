@@ -27,6 +27,7 @@ if (-not (Test-Path $runner)) {
 
 Register-HealTask -TaskName "WindowsHeal-Monitor" -Mode "Detect" -RunnerPath $runner -MinutesInterval 5
 Register-HealTask -TaskName "WindowsHeal-AutoHeal" -Mode "AutoHeal" -RunnerPath $runner -MinutesInterval 20
+Register-HealTask -TaskName "WindowsHeal-RepairOnDisplayTDR" -Mode "Repair" -RunnerPath $runner -MinutesInterval 30
 
 if ($RunNow) {
   Start-ScheduledTask -TaskName "WindowsHeal-Monitor"
@@ -36,4 +37,5 @@ if ($RunNow) {
 Write-Host "Installed scheduled tasks:"
 Write-Host " - WindowsHeal-Monitor (every 5 minutes)"
 Write-Host " - WindowsHeal-AutoHeal (every 20 minutes)"
+Write-Host " - WindowsHeal-RepairOnDisplayTDR (every 30 minutes, repair bias)"
 Write-Host "Dashboard location: $root\reports\dashboard.html"

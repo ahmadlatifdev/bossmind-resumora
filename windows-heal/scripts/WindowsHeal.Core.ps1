@@ -41,6 +41,14 @@ function Write-HealLog {
   Add-Content -Path $logFile -Value $entry
 }
 
+function Save-HealSnapshot {
+  param($Settings, [hashtable]$Snapshot)
+  if (-not $Settings.protection.enableStateSnapshots) { return }
+  $ts = Get-Date -Format "yyyyMMdd-HHmmss"
+  $out = Join-Path $Settings.logging.stateRoot "snapshot-$ts.json"
+  $Snapshot | ConvertTo-Json -Depth 8 | Set-Content -Path $out -Encoding UTF8
+}
+
 function Get-GpuVendor {
   $controllers = Get-CimInstance Win32_VideoController
   if (-not $controllers) { return "unknown" }
@@ -62,6 +70,12 @@ function Get-DisplayDiagnostics {
     Level = 1,2
   } -ErrorAction SilentlyContinue
 
+  $appCritical = Get-WinEvent -FilterHashtable @{
+    LogName = "Application"
+    StartTime = $startTime
+    Level = 1,2
+  } -ErrorAction SilentlyContinue
+
   $displayEvents = $critical | Where-Object {
     $_.ProviderName -in @("Display","nvlddmkm","amdkmdag","igfx","Application Error")
   }
@@ -71,6 +85,14 @@ function Get-DisplayDiagnostics {
   $displayTimeouts = $critical | Where-Object {
     $_.Message -match "display driver stopped responding|TDR|LiveKernelEvent" -or $_.Id -in 4101
   }
+  $kernelPnpDisplay = $critical | Where-Object {
+    $_.ProviderName -eq "Kernel-PnP" -and $_.Message -match "DISPLAY|monitor|video"
+  }
+  $blackScreenIndicators = ($critical + $appCritical) | ForEach-Object {
+    $msg = ""
+    try { $msg = $_.Message } catch { $msg = "" }
+    if ($msg -match "black screen|Display driver|dwm.exe|Desktop Window Manager|explorer.exe stopped") { $_ }
+  }
 
   $refreshRate = $null
   try {
@@ -79,6 +101,21 @@ function Get-DisplayDiagnostics {
 
   $memory = Get-CimInstance Win32_OperatingSystem
   $usedPct = [math]::Round((1 - ($memory.FreePhysicalMemory / $memory.TotalVisibleMemorySize)) * 100, 2)
+  $cpuPct = [math]::Round((Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue, 2)
+  $diskQueue = [math]::Round((Get-Counter '\PhysicalDisk(_Total)\Avg. Disk Queue Length').CounterSamples.CookedValue, 2)
+
+  $disk = Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" |
+    Select-Object DeviceID, VolumeName, Size, FreeSpace
+  $diskHealth = @()
+  foreach ($d in $disk) {
+    if (-not $d.Size) { continue }
+    $freePct = [math]::Round(($d.FreeSpace / $d.Size) * 100, 2)
+    $diskHealth += [ordered]@{
+      drive = $d.DeviceID
+      freePct = $freePct
+      lowSpace = ($freePct -lt 12)
+    }
+  }
 
   $cpuTemp = $null
   try {
@@ -89,18 +126,64 @@ function Get-DisplayDiagnostics {
     }
   } catch { }
 
+  $adaptiveBrightness = $null
+  try {
+    $adaptiveBrightness = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes" -ErrorAction SilentlyContinue) -ne $null
+  } catch { }
+
+  $startupItems = @(Get-CimInstance Win32_StartupCommand -ErrorAction SilentlyContinue)
+  $startupHeavy = $startupItems | Where-Object {
+    $_.Command -match "updater|helper|launcher|overlay|telemetry"
+  }
+
+  $serviceIssues = @(Get-Service | Where-Object { $_.Status -eq "Stopped" -and $_.StartType -eq "Automatic" } | Select-Object -First 15 Name, DisplayName, Status)
+
   return [ordered]@{
     lookbackMinutes = $minutes
     gpuVendor = Get-GpuVendor
     criticalCount = @($critical).Count
     displayEventCount = @($displayEvents).Count
+    kernelPnpDisplayCount = @($kernelPnpDisplay).Count
+    blackScreenIndicatorCount = @($blackScreenIndicators).Count
     explorerCrashCount = @($explorerCrashes).Count
     displayTimeoutCount = @($displayTimeouts).Count
     currentRefreshRate = $refreshRate
     memoryPressurePercent = $usedPct
+    cpuSpikePercent = $cpuPct
+    diskQueueLength = $diskQueue
+    diskHealth = $diskHealth
     cpuTemperatureC = $cpuTemp
+    adaptiveBrightnessSignalPresent = $adaptiveBrightness
+    startupHeavyCount = @($startupHeavy).Count
+    startupConflictCandidates = ($startupHeavy | Select-Object Name, Command, Location)
+    serviceIssueCount = @($serviceIssues).Count
+    serviceIssueCandidates = $serviceIssues
     events = ($displayEvents | Select-Object -First 12 TimeCreated, Id, ProviderName, LevelDisplayName, Message)
   }
+}
+
+function Get-PredictiveWarnings {
+  param($Settings, $Diagnostics)
+  $warnings = @()
+  if ($Diagnostics.displayTimeoutCount -ge [int]$Settings.monitor.gpuCrashThreshold) {
+    $warnings += "GPU timeout trend indicates possible future flicker recurrence."
+  }
+  if ($Diagnostics.kernelPnpDisplayCount -ge 2) {
+    $warnings += "Monitor handshake churn detected (Kernel-PnP display events)."
+  }
+  if ($Diagnostics.currentRefreshRate -and $Diagnostics.currentRefreshRate -gt 120) {
+    $warnings += "High refresh rate may amplify unstable cable/driver combinations."
+  }
+  if ($Diagnostics.cpuSpikePercent -ge [double]$Settings.monitor.cpuSpikePercent) {
+    $warnings += "CPU spike risk detected; startup/service contention may destabilize desktop rendering."
+  }
+  if ($Diagnostics.diskQueueLength -ge [double]$Settings.monitor.diskQueueThreshold) {
+    $warnings += "Disk queue pressure may cause UI stall and explorer instability."
+  }
+  if (@($Diagnostics.diskHealth | Where-Object { $_.lowSpace }).Count -gt 0) {
+    $warnings += "Low disk free space detected; maintenance cleanup recommended."
+  }
+  return $warnings
 }
 
 function Test-HealTriggers {
@@ -112,11 +195,23 @@ function Test-HealTriggers {
   if ($Diagnostics.displayTimeoutCount -ge [int]$Settings.monitor.gpuCrashThreshold) {
     $actions += "repair_display_stack"
   }
+  if ($Diagnostics.blackScreenIndicatorCount -ge 1) {
+    $actions += "repair_display_stack"
+  }
   if ($Diagnostics.memoryPressurePercent -ge [double]$Settings.monitor.memoryPressurePercent) {
     $actions += "memory_cleanup"
   }
+  if ($Diagnostics.cpuSpikePercent -ge [double]$Settings.monitor.cpuSpikePercent) {
+    $actions += "startup_optimization"
+  }
+  if ($Diagnostics.diskQueueLength -ge [double]$Settings.monitor.diskQueueThreshold) {
+    $actions += "disk_pressure_cleanup"
+  }
   if ($Diagnostics.cpuTemperatureC -and $Diagnostics.cpuTemperatureC -ge [double]$Settings.monitor.highTemperatureCelsius) {
     $actions += "thermal_protection"
+  }
+  if ($Diagnostics.serviceIssueCount -gt 0) {
+    $actions += "service_repair"
   }
   return $actions
 }
@@ -186,6 +281,63 @@ function Invoke-SafeOptimization {
       Write-HealLog -Settings $Settings -Level "warn" -Message "Power profile update failed" -Data @{ error = $_.Exception.Message }
     }
   }
+  if ($Settings.optimization.disableStartupApps) {
+    Write-HealLog -Settings $Settings -Level "info" -Message "Startup optimization enabled; review in Task Manager Startup Apps" -Data @{}
+  }
+}
+
+function Invoke-ServiceRepair {
+  param($Settings)
+  $targets = @("Themes","Dwm","WpnService","SysMain")
+  foreach ($svc in $targets) {
+    try {
+      $s = Get-Service -Name $svc -ErrorAction SilentlyContinue
+      if ($s -and $s.Status -ne "Running") {
+        Start-Service -Name $svc -ErrorAction SilentlyContinue
+      }
+    } catch {
+      Write-HealLog -Settings $Settings -Level "warn" -Message "Service repair issue" -Data @{ service = $svc; error = $_.Exception.Message }
+    }
+  }
+}
+
+function Invoke-DriverAudit {
+  param($Settings)
+  if (-not $Settings.protection.enableDriverAudit) { return @() }
+  $drivers = Get-CimInstance Win32_PnPSignedDriver -ErrorAction SilentlyContinue |
+    Where-Object { $_.DeviceClass -eq "DISPLAY" } |
+    Select-Object DeviceName, DriverVersion, DriverDate, Manufacturer, IsSigned
+  $out = @()
+  foreach ($d in $drivers) {
+    $signed = $true
+    if ($null -ne $d.IsSigned) { $signed = [bool]$d.IsSigned }
+    $out += [ordered]@{
+      device = $d.DeviceName
+      version = $d.DriverVersion
+      date = $d.DriverDate
+      manufacturer = $d.Manufacturer
+      signed = $signed
+    }
+  }
+  return $out
+}
+
+function Invoke-EscalationHooks {
+  param($Settings, [hashtable]$Incident)
+  if (-not $Settings.integration.sendEscalations) { return }
+  $json = $Incident | ConvertTo-Json -Depth 8
+  if ($Settings.integration.cursorInstructionPath) {
+    $json | Set-Content -Path $Settings.integration.cursorInstructionPath -Encoding UTF8
+  }
+  foreach ($url in @($Settings.integration.sentryWebhookUrl, $Settings.integration.langGraphWebhookUrl)) {
+    if (-not [string]::IsNullOrWhiteSpace($url)) {
+      try {
+        Invoke-RestMethod -Uri $url -Method POST -ContentType "application/json" -Body $json | Out-Null
+      } catch {
+        Write-HealLog -Settings $Settings -Level "warn" -Message "Escalation hook failed" -Data @{ url = $url; error = $_.Exception.Message }
+      }
+    }
+  }
 }
 
 function Invoke-DriverRollbackIfNeeded {
@@ -211,7 +363,7 @@ function Invoke-DDUSafeModeRunbook {
 }
 
 function Write-HealDashboard {
-  param($Settings, $Diagnostics, [string[]]$Actions, [string]$Mode)
+  param($Settings, $Diagnostics, [string[]]$Actions, [string[]]$Warnings, [string]$Mode)
   $reportPath = Join-Path $Settings.logging.reportRoot "dashboard.html"
   $score = 100
   $score -= [math]::Min(35, $Diagnostics.displayTimeoutCount * 12)
@@ -231,7 +383,10 @@ function Write-HealDashboard {
 <div class='kpi'>Display Timeouts: <b>$($Diagnostics.displayTimeoutCount)</b></div>
 <div class='kpi'>Explorer Crashes: <b>$($Diagnostics.explorerCrashCount)</b></div>
 <div class='kpi'>Memory Pressure: <b>$($Diagnostics.memoryPressurePercent)%</b></div>
+<div class='kpi'>CPU Spike: <b>$($Diagnostics.cpuSpikePercent)%</b></div>
+<div class='kpi'>Disk Queue: <b>$($Diagnostics.diskQueueLength)</b></div>
 <h2>Triggered Actions</h2><pre>$($Actions -join "`n")</pre>
+<h2>Predictive Warnings</h2><pre>$($Warnings -join "`n")</pre>
 <h2>Recent Display/Crash Events</h2><pre>$eventsJson</pre>
 </body></html>
 "@
