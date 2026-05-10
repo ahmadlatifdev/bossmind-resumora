@@ -22,6 +22,7 @@ export default function handler(req, res) {
   return res.status(200).json({
     project: "resumora",
     checkoutReady: audit.checkoutReady,
+    sandboxLiveConsistent: audit.sandboxLiveConsistent,
     webhookSigningReady: audit.webhookSigningReady,
     financialPipelineReady: audit.financialPipelineReady,
     keys: {

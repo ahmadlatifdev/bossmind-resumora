@@ -27,6 +27,7 @@ async function main() {
     JSON.stringify(
       {
         checkoutReady: audit.checkoutReady,
+        sandboxLiveConsistent: audit.sandboxLiveConsistent,
         webhookSigningReady: audit.webhookSigningReady,
         financialPipelineReady: audit.financialPipelineReady,
         priceIds: audit.priceIds,
