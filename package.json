@@ -20,6 +20,8 @@
     "marketing:growth-engine:dry-run": "node scripts/marketing/run-social-growth-engine.mjs --persist-neon --autopublish --dry-run",
     "marketing:growth-report": "node scripts/marketing/social-growth-report.mjs",
     "bossmind:checkpoint": "node scripts/bossmind-checkpoint.mjs",
+    "bossmind:supervisor": "node scripts/bossmind-supervisor-worker.mjs",
+    "bossmind:supervisor:once": "node scripts/bossmind-supervisor-worker.mjs --once",
     "bossmind:watch:dev": "node scripts/bossmind-dev-watchdog.mjs",
     "bossmind:watchdog:stop": "node scripts/bossmind-watchdog-stop.mjs",
     "bossmind:watch:report": "node scripts/bossmind-watchdog-report.mjs",

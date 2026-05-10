@@ -109,9 +109,30 @@ See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
 | Route | Role |
 |-------|------|
 | `POST /api/orchestration/run-repair` | LangGraph repair (manual or CI). |
-| `POST /api/orchestration/sentry-ingest` | Same repair pipeline; bearer auth; body `{ sentryEvent, validationResult?, deployResult? }`. |
+| `POST /api/orchestration/sentry-ingest` | Same repair pipeline; bearer auth; body `{ sentryEvent, validationResult?, deployResult? }`. When **`BOSSMIND_SENTRY_ENQUEUE_ONLY=1`**, inserts a **`pending`** row in `task_state` and returns **202** (`run_repair` job) instead of executing inline — **`npm run bossmind:supervisor`** consumes the queue. |
 | `POST /api/orchestration/deployment-report` | Record deploy verification → `deployment_history`. |
 | `POST /api/webhooks/stripe` | Stripe → `event_log`. |
+
+### Persistent supervisor worker (queue runner)
+
+Runs outside the Next.js request cycle: **`npm run bossmind:supervisor`**.
+
+Requirements: **`NEON_DATABASE_URL`**, **`DEEPSEEK_API_KEY`** or Ollama (for `run_repair` jobs), orchestration-safe env as needed.
+
+Behavior:
+
+1. Loads `.env.local` / `.env` then **`claimNextPendingTask`** on `task_state` (`pending`/`queued`) with Postgres **`SKIP LOCKED`** for safe multi-consumer starts.
+2. **`job`:** **`run_repair`** → **`runRepairFlow`** (existing LangGraph / fallback path).
+3. **`job`:** **`health_probe`** → `GET {origin}/api/health`; marks **`completed`** / **`failed`**.
+4. **`job`:** **`noop`** → audit event only.
+
+**Cron / one-shot:** `npm run bossmind:supervisor:once` (runs one drain burst).
+
+**Enqueue from control plane:** `POST /api/orchestration/bossmind-control` **`action":"enqueue"`** with `payload: { job: "health_probe", origin: "https://your-app.up.railway.app" }` (needs bearer secret).
+
+**Railway:** add a second service (same repo) with **`Start Command`**: `npm run bossmind:supervisor` — no HTTP port required. Keep **`NEON_DATABASE_URL`** aligned with production.
+
+Pair with **`npm run bossmind:watch:dev`** on a dev VM for localhost auto-recovery; the supervisor fills the “reasoning/action queue,” not webpack restarts.
 
 ## Validation pipeline (local / CI)
 

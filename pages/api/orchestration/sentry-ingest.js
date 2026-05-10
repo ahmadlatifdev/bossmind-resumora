@@ -3,7 +3,11 @@
  * Point Sentry “Webhook” or external relay here with BOSSMIND_ORCHESTRATION_SECRET.
  */
 const { runRepairFlow } = require("../../../lib/orchestration/langgraph-repair-flow");
-const { initializeSharedMemory, saveEvent } = require("../../../lib/shared/neon-memory");
+const {
+  initializeSharedMemory,
+  saveEvent,
+  upsertTaskState,
+} = require("../../../lib/shared/neon-memory");
 
 const PROJECT_KEY = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 
@@ -43,6 +47,46 @@ export default async function handler(req, res) {
 
   const validationResult = body.validationResult || { ok: false, details: "Awaiting CI validation" };
   const deployResult = body.deployResult || { ok: false, details: "Deploy external to Railway" };
+
+  if (process.env.BOSSMIND_SENTRY_ENQUEUE_ONLY === "1") {
+    try {
+      const taskKey =
+        typeof body.taskKey === "string" && body.taskKey.trim()
+          ? body.taskKey.trim()
+          : `sentry:${sentryEvent.eventId || Date.now()}`;
+      await upsertTaskState({
+        projectKey: PROJECT_KEY,
+        taskKey,
+        status: "pending",
+        assignedAgent: "sentry-ingest-queue",
+        payload: {
+          job: "run_repair",
+          sentryEvent,
+          validationResult,
+          deployResult,
+          source: "sentry.ingest",
+        },
+      });
+      await saveEvent({
+        projectKey: PROJECT_KEY,
+        eventType: "sentry.repair.queued",
+        severity: "info",
+        source: "api.sentry-ingest",
+        eventKey: taskKey,
+        payload: { sentryEventId: sentryEvent.eventId },
+      });
+      return res.status(202).json({ ok: true, queued: true, taskKey });
+    } catch (error) {
+      await saveEvent({
+        projectKey: PROJECT_KEY,
+        eventType: "sentry.queue.failed",
+        severity: "error",
+        source: "api.sentry-ingest",
+        payload: { message: error.message },
+      });
+      return res.status(500).json({ error: error.message || "Queue enqueue failed" });
+    }
+  }
 
   try {
     const result = await runRepairFlow({
