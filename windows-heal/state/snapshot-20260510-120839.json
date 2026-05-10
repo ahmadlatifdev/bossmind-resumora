@@ -1,0 +1,37 @@
+﻿{
+    "phase":  "pre",
+    "diagnostics":  {
+                        "lookbackMinutes":  10,
+                        "snippingEventCount":  0,
+                        "clipboardEventCount":  0,
+                        "displayConflictCount":  0,
+                        "snippingProcesses":  {
+                                                  "Name":  "TextInputHost",
+                                                  "Id":  17016,
+                                                  "Responding":  true
+                                              },
+                        "explorerRunning":  true,
+                        "memoryPressurePercent":  81.76,
+                        "gpu":  {
+                                    "Name":  "AMD Radeon(TM) RX Vega 10 Graphics",
+                                    "DriverVersion":  "27.20.11044.5003",
+                                    "DriverDate":  "\/Date(1605744000000)\/",
+                                    "CurrentRefreshRate":  60,
+                                    "AdapterRAM":  2147483648
+                                },
+                        "clipboardHistoryEnabled":  null,
+                        "snippingHotkeyEnabled":  1,
+                        "hdrSignalPresent":  false,
+                        "recentSnipEvents":  {
+
+                                             },
+                        "recentDisplayEvents":  {
+
+                                                }
+                    },
+    "subsystem":  "screenshot",
+    "actions":  {
+
+                },
+    "mode":  "Diagnose"
+}
