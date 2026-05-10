@@ -4,11 +4,19 @@ const {
   isValidPriceId,
   resolveStripePriceId,
 } = require("../../lib/marketing/stripe-plan-map");
+const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return null;
-  return new Stripe(key);
+function getStripeClient() {
+  const trimmed = String(process.env.STRIPE_SECRET_KEY ?? "").trim();
+  if (!trimmed) return { stripe: null, reason: "missing_secret" };
+  if (!/^sk_(test|live)_[A-Za-z0-9]+$/.test(trimmed)) {
+    return { stripe: null, reason: "invalid_secret_format" };
+  }
+  try {
+    return { stripe: new Stripe(trimmed), reason: "" };
+  } catch {
+    return { stripe: null, reason: "stripe_init_failed" };
+  }
 }
 
 export default async function handler(req, res) {
@@ -16,11 +24,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const stripe = getStripe();
+  const { stripe, reason } = getStripeClient();
   if (!stripe) {
+    const audit = auditStripeEnv();
+    const hints =
+      reason === "invalid_secret_format"
+        ? ["STRIPE_SECRET_KEY must match sk_test_… or sk_live_… from the Stripe Dashboard (API keys)."]
+        : reason === "stripe_init_failed"
+          ? ["Stripe client failed to initialize; confirm the secret key copy has no stray spaces."]
+          : [
+              "Create .env.local in the repo root with STRIPE_SECRET_KEY (see .env.example).",
+              "If using `npm run start`, the custom server loads .env.local automatically; restart after edits.",
+              `Publishable + price readiness: checkoutReady=${audit.checkoutReady}`,
+            ];
     return res.status(503).json({
-      error: "Stripe is not configured. Set STRIPE_SECRET_KEY in your environment.",
-      hint: "See .env.example for Resumora Stripe variables.",
+      error:
+        reason === "invalid_secret_format"
+          ? "Stripe secret key format is invalid. Use sk_test_… or sk_live_…."
+          : "Stripe is not configured. Set STRIPE_SECRET_KEY in your environment.",
+      hint: hints.join(" "),
     });
   }
 

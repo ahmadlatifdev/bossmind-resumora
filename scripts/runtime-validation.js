@@ -1,5 +1,10 @@
 const fs = require("fs");
 const path = require("path");
+const { loadProjectEnv } = require("../lib/shared/load-project-env");
+const { auditStripeEnv, describeStripeBlockers } = require("../lib/marketing/stripe-env-audit");
+
+loadProjectEnv();
+
 const ollama = require("ollama");
 const {
   getSqlClient,
@@ -34,6 +39,14 @@ async function main() {
     console.log(`Ollama model configured: ${process.env.OLLAMA_MODEL}`);
   } else {
     console.log("Ollama package available. Set OLLAMA_MODEL for active model routing.");
+  }
+
+  const stripeAudit = auditStripeEnv();
+  console.log(
+    `Stripe checkoutReady=${stripeAudit.checkoutReady} (see npm run validate:stripe)`
+  );
+  if (!stripeAudit.checkoutReady && stripeAudit.secretKey.present) {
+    console.warn(describeStripeBlockers(stripeAudit).slice(0, 5).join(" | "));
   }
 
   // Smoke check API shape only (no mandatory daemon requirement).

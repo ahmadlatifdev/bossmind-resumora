@@ -1,11 +1,24 @@
 const Stripe = require("stripe");
 const { getSqlClient, saveEvent } = require("../../lib/shared/neon-memory");
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+function getStripeOrNull() {
+  const k = String(process.env.STRIPE_SECRET_KEY ?? "").trim();
+  if (!/^sk_(test|live)_[A-Za-z0-9]+$/.test(k)) return null;
+  try {
+    return new Stripe(k);
+  } catch {
+    return null;
+  }
+}
 
 module.exports = async function handler(req, res) {
   const { session_id } = req.query;
   if (!session_id) return res.status(400).json({ valid: false });
+
+  const stripe = getStripeOrNull();
+  if (!stripe) {
+    return res.status(503).json({ valid: false, error: "stripe_unconfigured" });
+  }
 
   try {
     const session = await stripe.checkout.sessions.retrieve(String(session_id));

@@ -1,3 +1,6 @@
+const { loadProjectEnv } = require("./lib/shared/load-project-env");
+loadProjectEnv();
+
 const express = require("express");
 const next = require("next");
 const {

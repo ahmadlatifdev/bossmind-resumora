@@ -83,6 +83,7 @@ export default function FooterEngagementDock({ variant = "default" }) {
           type="button"
           className={`rs-foot-engage ${liked ? "rs-foot-engage--active" : ""}`}
           disabled={busy || !neonReady}
+          title={!neonReady ? t.engagementDisabled : undefined}
           aria-pressed={liked ? "true" : "false"}
           onClick={() => runAction({ type: "like", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
@@ -93,6 +94,7 @@ export default function FooterEngagementDock({ variant = "default" }) {
           type="button"
           className={`rs-foot-engage ${disliked ? "rs-foot-engage--active" : ""}`}
           disabled={busy || !neonReady}
+          title={!neonReady ? t.engagementDisabled : undefined}
           aria-pressed={disliked ? "true" : "false"}
           onClick={() => runAction({ type: "dislike", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
         >
