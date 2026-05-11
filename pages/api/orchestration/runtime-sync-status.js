@@ -3,6 +3,7 @@ const path = require("path");
 const {
   initializeSharedMemory,
   getRuntimeAuthority,
+  getLastConfirmedCheckpoint,
   listRecentEvents,
   listRecentTaskStates,
 } = require("../../../lib/shared/neon-memory");
@@ -10,6 +11,9 @@ const {
   structuralAuthorityReport,
   computeAutonomyScores,
 } = require("../../../lib/orchestration/bossmind-interface-authority");
+const {
+  loadContinuePoint,
+} = require("../../../lib/orchestration/bossmind-last-confirmed-point");
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -51,6 +55,7 @@ export default async function handler(req, res) {
 
   const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
   const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
+  const checkpointKey = process.env.BOSSMIND_CONTINUITY_KEY || "global_continuity";
   const local = readLocalStatus();
   const autonomous = readAutonomousStatus();
   const structural = structuralAuthorityReport(process.cwd());
@@ -61,6 +66,11 @@ export default async function handler(req, res) {
     const authority = neonEnabled
       ? await getRuntimeAuthority({ projectKey, authorityKey })
       : null;
+    const continuePoint = await loadContinuePoint({
+      neon: { getLastConfirmedCheckpoint },
+      projectKey,
+      checkpointKey,
+    });
 
     const cachedScores = local?.scores || null;
     const authMatch =
@@ -93,6 +103,8 @@ export default async function handler(req, res) {
       structural,
       scores,
       rollbacksReady: Boolean(authority?.baseline_hash),
+      continuePoint: continuePoint?.checkpoint || null,
+      continuePointSource: continuePoint?.source || "none",
       localStatus: local,
       autonomousRuntime: autonomous,
       recentEvents: events,

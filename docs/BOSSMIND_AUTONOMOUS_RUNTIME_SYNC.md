@@ -113,6 +113,33 @@ Control env:
 - `BOSSMIND_DEPLOY_GATE_EVERY_CYCLES` (default `20`)
 - `BOSSMIND_AUTONOMOUS_RUN_DEPLOY_GATE` (`1`/`0`)
 
+## Continue From Last Confirmed Update Point (permanent strategy)
+
+BossMind now persists a locked continuity checkpoint and loads it before runtime/deploy cycles:
+
+- Neon authority table: `last_confirmed_checkpoint` (`checkpoint_key=global_continuity`)
+- Local fallback: `.bossmind/continuity/last-confirmed-point.json`
+
+Load flow:
+
+1. Load latest confirmed checkpoint (Neon first, local fallback)
+2. Validate against active runtime/baseline authority
+3. Continue execution from that point (no context rebuild loops)
+
+Save flow:
+
+- After healthy runtime cycles, checkpoint is updated and relocked with:
+  - latest `gitHead`
+  - latest protected baseline hash
+  - latest sync/heal metrics
+
+Commands:
+
+```bash
+npm run bossmind:continuity:status
+npm run bossmind:autonomous:runtime
+```
+
 ## Safety
 
 - No destructive git commands

@@ -38,6 +38,7 @@ export default function RuntimeSyncPage() {
 
   const local = data?.localStatus;
   const autonomous = data?.autonomousRuntime;
+  const continuePoint = data?.continuePoint;
   const drift = local?.drift || {};
   const hasDrift = Boolean(local?.hasDrift);
   const s = data?.scores || {};
@@ -79,6 +80,12 @@ export default function RuntimeSyncPage() {
             </div>
             <div>
               <strong>Neon shared memory:</strong> {data ? (data.neonEnabled ? "connected" : "offline") : "…"}
+            </div>
+            <div>
+              <strong>Continue-from-last checkpoint:</strong>{" "}
+              {continuePoint
+                ? `${data?.continuePointSource || "unknown"} @ ${continuePoint.commit_hash || continuePoint.commitHash || "n/a"}`
+                : "none"}
             </div>
             <div>
               <strong>Autonomous controller loop:</strong>{" "}

@@ -31,6 +31,12 @@ const intervalMs = Number(process.env.BOSSMIND_AUTONOMOUS_LOOP_MS || 60000);
 const deployGateEvery = Number(process.env.BOSSMIND_DEPLOY_GATE_EVERY_CYCLES || 20);
 const runDeployGate = process.env.BOSSMIND_AUTONOMOUS_RUN_DEPLOY_GATE !== "0";
 const runOnce = process.argv.includes("--once");
+const checkpointKey = process.env.BOSSMIND_CONTINUITY_KEY || "global_continuity";
+
+const {
+  loadContinuePoint,
+  saveContinuePoint,
+} = require(path.join(root, "lib/orchestration/bossmind-last-confirmed-point.js"));
 
 let stopping = false;
 let cycle = 0;
@@ -123,9 +129,18 @@ async function runCycle(neonApi) {
   cycle += 1;
   const startedAt = new Date().toISOString();
 
-  const sync = runNodeScript("scripts/bossmind-runtime-sync.mjs", ["--once"]);
-  const supervisor = runNodeScript("scripts/bossmind-supervisor-worker.mjs", ["--once"]);
-  const monitor = runNodeScript("scripts/bossmind-monitor-health.mjs");
+  const continuePoint = await loadContinuePoint({
+    neon: neonApi,
+    projectKey,
+    checkpointKey,
+  });
+  const continueEnv = continuePoint?.checkpoint?.commit_hash
+    ? { BOSSMIND_CONTINUE_FROM_COMMIT: String(continuePoint.checkpoint.commit_hash) }
+    : {};
+
+  const sync = runNodeScript("scripts/bossmind-runtime-sync.mjs", ["--once"], continueEnv);
+  const supervisor = runNodeScript("scripts/bossmind-supervisor-worker.mjs", ["--once"], continueEnv);
+  const monitor = runNodeScript("scripts/bossmind-monitor-health.mjs", [], continueEnv);
 
   let deployGate = { skipped: true };
   if (runDeployGate && deployGateEvery > 0 && cycle % deployGateEvery === 0) {
@@ -183,6 +198,19 @@ async function runCycle(neonApi) {
           structural: localSyncStatus.structural,
         }
       : null,
+    continueFrom: continuePoint
+      ? {
+          source: continuePoint.source,
+          commitHash:
+            continuePoint.checkpoint.commit_hash ||
+            continuePoint.checkpoint.commitHash ||
+            null,
+          baselineHash:
+            continuePoint.checkpoint.baseline_hash ||
+            continuePoint.checkpoint.baselineHash ||
+            null,
+        }
+      : null,
   };
 
   writeStatus(snapshot);
@@ -190,6 +218,24 @@ async function runCycle(neonApi) {
 
   if (neonApi) {
     await logNeonHeartbeat(neonApi, snapshot);
+  }
+
+  if (!degraded && localSyncStatus?.fingerprint?.hash) {
+    await saveContinuePoint({
+      neon: neonApi,
+      projectKey,
+      checkpointKey,
+      commitHash: localSyncStatus.gitHead || "",
+      baselineHash: localSyncStatus.fingerprint.hash,
+      source: "bossmind-autonomous-runtime",
+      payload: {
+        cycle: snapshot.cycle,
+        rates: snapshot.rates,
+        degraded: false,
+        autonomyScore,
+        runtimeSync: localSyncStatus,
+      },
+    });
   }
 
   console.log(JSON.stringify(snapshot, null, 2));

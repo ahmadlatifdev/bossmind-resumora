@@ -36,6 +36,7 @@
     "bossmind:runtime:sync:dry": "node scripts/bossmind-runtime-sync.mjs --once --dry-run",
     "bossmind:autonomous:runtime": "node scripts/bossmind-autonomous-runtime.mjs",
     "bossmind:autonomous:runtime:once": "node scripts/bossmind-autonomous-runtime.mjs --once",
+    "bossmind:continuity:status": "node scripts/bossmind-continuity-status.mjs",
     "bossmind:deploy:gate": "node scripts/bossmind-deploy-gate.mjs",
     "bossmind:antileak": "node scripts/bossmind-antileak-guard.mjs",
     "bossmind:self-heal": "node scripts/bossmind-self-heal.mjs",

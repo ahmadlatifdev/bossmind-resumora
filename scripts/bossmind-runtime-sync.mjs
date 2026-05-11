@@ -29,6 +29,10 @@ const {
   computeAutonomyScores,
   loadManifest,
 } = require(path.join(root, "lib/orchestration/bossmind-interface-authority.js"));
+const {
+  loadContinuePoint,
+  saveContinuePoint,
+} = require(path.join(root, "lib/orchestration/bossmind-last-confirmed-point.js"));
 
 const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
@@ -294,6 +298,11 @@ async function syncOnce() {
   const neonApi = require(path.join(root, "lib/shared/neon-memory.js"));
   const neonInit = await neonApi.initializeSharedMemory();
   const neonEnabled = Boolean(neonInit?.enabled);
+  const continuePoint = await loadContinuePoint({
+    neon: neonApi,
+    projectKey,
+    checkpointKey: "global_continuity",
+  });
 
   let authority = null;
   if (neonEnabled) {
@@ -401,6 +410,8 @@ async function syncOnce() {
     neonEnabled,
     authorityKey,
     authority,
+    continuePoint: continuePoint?.checkpoint || null,
+    continuePointSource: continuePoint?.source || "none",
     fingerprint,
     structural,
     probe: finalProbe,
@@ -424,6 +435,27 @@ async function syncOnce() {
   );
 
   writeStatus(summary);
+
+  if (!summary.hasDrift && finalProbe.ok && structural.ok && !dryRun) {
+    await saveContinuePoint({
+      neon: neonApi,
+      projectKey,
+      checkpointKey: "global_continuity",
+      commitHash: gitHead,
+      baselineHash: fingerprint.hash,
+      source: "bossmind-runtime-sync",
+      payload: {
+        runtimeSync: {
+          ts: now,
+          scores,
+          structuralOk: structural.ok,
+          probeOk: finalProbe.ok,
+          hasDrift: false,
+        },
+        authorityHash: authority?.baseline_hash || fingerprint.hash,
+      },
+    });
+  }
 
   if (neonEnabled) {
     await neonApi.saveEvent({
