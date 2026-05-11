@@ -185,3 +185,6 @@
 {"ts":"2026-05-10T21:00:02.4414613-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-10T21:05:02.4088588-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-10T21:10:02.5088713-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T21:15:02.4047899-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-10T21:15:02.4657374-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-10T21:20:02.4303212-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
