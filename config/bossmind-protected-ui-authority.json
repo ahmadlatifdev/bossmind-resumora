@@ -1,6 +1,11 @@
 {
   "version": 1,
   "project": "resumora",
+  "immutableProductionBaseline": {
+    "configPath": "config/bossmind-immutable-production-baseline.json",
+    "snapshotDir": "config/bossmind-baseline-snapshots/luxury-v1",
+    "notes": "Sealed checksums + on-disk snapshots; npm run bossmind:baseline:seal after explicit UI approval. Deploy uses bossmind:immutable:verify."
+  },
   "description": "Single active luxury marketing baseline authority (localhost + deploy + Neon sync)",
   "authorityKey": "luxury_ui_baseline",
   "canonicalRoutes": {

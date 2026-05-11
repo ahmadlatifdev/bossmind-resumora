@@ -94,7 +94,9 @@ When runtime probes pass, structure is valid, **and reconciliation reports `ok`*
 npm run bossmind:deploy:gate
 ```
 
-Runs hosting policy → protected surface → anti-leak → lint → build → optional `bossmind:ui-probe` if `BOSSMIND_DEPLOY_GATE_UI_PROBE=1`. Skip lint only if needed: `BOSSMIND_DEPLOY_GATE_SKIP_LINT=1`.
+Runs hosting policy → protected surface → **immutable luxury baseline verify** (`bossmind:immutable:verify`) → anti-leak → lint → build → optional `bossmind:ui-probe` if `BOSSMIND_DEPLOY_GATE_UI_PROBE=1`. Skip lint only if needed: `BOSSMIND_DEPLOY_GATE_SKIP_LINT=1`. Skip immutable gate only if needed: `BOSSMIND_DEPLOY_GATE_SKIP_IMMUTABLE=1`.
+
+**Immutable baseline:** `config/bossmind-immutable-production-baseline.json` + `config/bossmind-baseline-snapshots/luxury-v1/`. Seal after approved UI work: `npm run bossmind:baseline:seal`. Runtime sync can auto-restore from snapshots when `BOSSMIND_AUTO_RESTORE_IMMUTABLE=1`.
 
 ## Heal strategy (optimized)
 

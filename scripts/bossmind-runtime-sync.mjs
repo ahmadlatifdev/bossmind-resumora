@@ -11,7 +11,6 @@
  */
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
 import http from "http";
 import https from "https";
 import { execSync, spawnSync } from "child_process";
@@ -27,7 +26,6 @@ const statusPath = path.join(stateDir, "status.json");
 const {
   structuralAuthorityReport,
   computeAutonomyScores,
-  loadManifest,
 } = require(path.join(root, "lib/orchestration/bossmind-interface-authority.js"));
 const {
   loadContinuePoint,
@@ -37,6 +35,11 @@ const {
   buildReconciliationSnapshot,
   persistReconciliation,
 } = require(path.join(root, "lib/orchestration/bossmind-reconciliation.js"));
+const {
+  computeBaselineFingerprint,
+  loadAuthorityMarkers: loadMarkersForSync,
+} = require(path.join(root, "lib/orchestration/bossmind-baseline-fingerprint.js"));
+const { verifyImmutableBaseline } = require(path.join(root, "lib/orchestration/bossmind-immutable-baseline.js"));
 
 const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
@@ -50,6 +53,7 @@ const requestTimeoutMs = Number(process.env.BOSSMIND_RUNTIME_SYNC_HTTP_MS || 120
 const reconcileDeployHook = process.env.BOSSMIND_RECONCILE_DEPLOY_HOOK_URL || "";
 const once = process.argv.includes("--once");
 const dryRun = process.argv.includes("--dry-run");
+const autoRestoreImmutable = process.env.BOSSMIND_AUTO_RESTORE_IMMUTABLE === "1";
 
 async function notifyReconcileDeployHook(reconciliation) {
   if (!reconcileDeployHook || dryRun) return null;
@@ -74,10 +78,6 @@ async function notifyReconcileDeployHook(reconciliation) {
   }
 }
 
-function sha256(value) {
-  return crypto.createHash("sha256").update(value).digest("hex");
-}
-
 function writeStatus(obj) {
   fs.mkdirSync(stateDir, { recursive: true });
   fs.writeFileSync(statusPath, JSON.stringify(obj, null, 2), "utf8");
@@ -89,69 +89,6 @@ function getGitHead() {
   } catch {
     return "";
   }
-}
-
-function loadAuthorityMarkers() {
-  const m = loadManifest(root) || {};
-  return {
-    requiredHomeHtmlMarkers:
-      m.requiredHomeHtmlMarkers || [
-        'id="top"',
-        'id="trust"',
-        'id="home-intake"',
-        'id="pricing"',
-        "rs-week-main",
-        "rs-cta-strip",
-      ],
-    fingerprintExtraPaths: m.fingerprintExtraPaths || [],
-  };
-}
-
-function loadProtectedPaths() {
-  const cfgPath = path.join(root, "config", "bossmind-protected-surface.json");
-  let fromCfg = [];
-  try {
-    const cfg = JSON.parse(fs.readFileSync(cfgPath, "utf8"));
-    fromCfg = [...(cfg.surfaceLockPaths || []), ...(cfg.shellLockPaths || [])];
-  } catch {
-    fromCfg = [];
-  }
-  const { fingerprintExtraPaths } = loadAuthorityMarkers();
-  const mustHave = [
-    "components/marketing/HomePage.jsx",
-    "components/marketing/SiteChrome.js",
-    "components/marketing/sections/TrustMetricsPanel.jsx",
-    "components/marketing/sections/UploadPanel.jsx",
-    "components/marketing/sections/PricingPanel.jsx",
-    "pages/index.js",
-    "context/LanguageContext.js",
-    "lib/marketing/site-copy.js",
-    "styles/resumora-global.css",
-    "next.config.ts",
-    ...fingerprintExtraPaths,
-  ];
-  return [...new Set([...fromCfg, ...mustHave])].sort();
-}
-
-function computeBaselineFingerprint() {
-  const files = loadProtectedPaths();
-  const parts = [];
-  const missing = [];
-  for (const rel of files) {
-    const abs = path.join(root, ...rel.split("/"));
-    if (!fs.existsSync(abs)) {
-      missing.push(rel);
-      parts.push(`${rel}:<missing>`);
-      continue;
-    }
-    const body = fs.readFileSync(abs, "utf8");
-    parts.push(`${rel}:${sha256(body)}`);
-  }
-  return {
-    files,
-    missing,
-    hash: sha256(parts.join("\n")),
-  };
 }
 
 function requestText(urlString) {
@@ -320,9 +257,26 @@ async function promoteAuthority(neonApi, fingerprint, gitHead, scores, structura
 async function syncOnce() {
   const now = new Date().toISOString();
   const gitHead = getGitHead();
-  const markersCfg = loadAuthorityMarkers();
+  const markersCfg = loadMarkersForSync(root);
   const structural = structuralAuthorityReport(root);
-  const fingerprint = computeBaselineFingerprint();
+  let fingerprint = computeBaselineFingerprint(root);
+
+  let immutableStatus = verifyImmutableBaseline(root);
+  let immutableRestored = false;
+  if (immutableStatus.enabled && !immutableStatus.ok && autoRestoreImmutable && !dryRun) {
+    const r = spawnSync(process.execPath, [path.join(root, "scripts/bossmind-baseline-restore.mjs")], {
+      cwd: root,
+      encoding: "utf8",
+      shell: false,
+      env: { ...process.env, BOSSMIND_BASELINE_RESTORE_CONFIRM: "RESTORE_IMMUTABLE_BASELINE" },
+    });
+    immutableRestored = (r.status ?? 1) === 0;
+    if (immutableRestored) {
+      fingerprint = computeBaselineFingerprint(root);
+      immutableStatus = verifyImmutableBaseline(root);
+    }
+  }
+
   const neonApi = require(path.join(root, "lib/shared/neon-memory.js"));
   const neonInit = await neonApi.initializeSharedMemory();
   const neonEnabled = Boolean(neonInit?.enabled);
@@ -382,6 +336,7 @@ async function syncOnce() {
     runtimeMismatch: !probe.ok,
     structuralViolation: !structural.ok,
     pricingOnlyHome: Boolean(probe.pricingOnlyTrap),
+    immutableBaselineViolation: Boolean(immutableStatus.enabled && !immutableStatus.ok),
   };
 
   const needsHeal =
@@ -419,7 +374,8 @@ async function syncOnce() {
       drift.pricingOnlyHome ||
       !finalProbe.ok ||
       drift.authorityMissing ||
-      drift.baselineHashMismatch
+      drift.baselineHashMismatch ||
+      drift.immutableBaselineViolation
   );
 
   const reconciliation = await buildReconciliationSnapshot({
@@ -494,6 +450,13 @@ async function syncOnce() {
     heal,
     healSucceeded,
     reconciliation,
+    immutableBaseline: {
+      enabled: immutableStatus.enabled,
+      ok: immutableStatus.enabled ? immutableStatus.ok : null,
+      luxuryHash: immutableStatus.luxury?.hash || null,
+      workspaceHash: immutableStatus.workspace?.hash || null,
+      immutableRestored,
+    },
   };
 
   summary.hasDrift = Boolean(
@@ -502,6 +465,8 @@ async function syncOnce() {
       drift.pricingOnlyHome ||
       !finalProbe.ok ||
       drift.authorityMissing ||
+      drift.baselineHashMismatch ||
+      drift.immutableBaselineViolation ||
       (neonEnabled && !matchesAfterPromote)
   );
 
@@ -557,9 +522,27 @@ async function syncOnce() {
         enterpriseOrchestrationScore: scores.enterpriseOrchestrationScore,
         productionReconciliationScore: scores.productionReconciliationScore,
         reconcileOk: reconciliation?.ok,
+        immutableBaselineOk: !drift.immutableBaselineViolation,
         fingerprintHash: fingerprint.hash,
         authorityHash: authority?.baseline_hash || null,
         updatedAt: now,
+      },
+    });
+  }
+
+  if (neonEnabled && drift.immutableBaselineViolation) {
+    await neonApi.saveEvent({
+      projectKey,
+      eventType: "bossmind.immutable_baseline.violation",
+      severity: "error",
+      source: "bossmind-runtime-sync",
+      eventKey: `immutable_${Date.now()}`,
+      payload: {
+        luxuryOk: immutableStatus.luxuryOk,
+        workspaceOk: immutableStatus.workspaceOk,
+        immutableRestored,
+        expectedLuxury: immutableStatus.lock?.lockedLuxuryInterfaceFingerprint?.slice(0, 14),
+        currentLuxury: immutableStatus.luxury?.hash?.slice(0, 14),
       },
     });
   }

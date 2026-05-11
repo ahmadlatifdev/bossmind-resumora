@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "enabled": true,
+  "description": "Immutable confirmed Resumora luxury public UI (resumora.net). Deploy + runtime authority must match these checksums.",
+  "productionPublicOrigin": "https://resumora.net",
+  "sealedAt": "2026-05-11T03:20:46.810Z",
+  "sealedGitHead": "f41924475d4bee7fdf7569d09e129625c8a32e2d",
+  "lockFullWorkspaceFingerprint": false,
+  "immutableInterfacePaths": [
+    "components/marketing/HomePage.jsx",
+    "components/marketing/SiteChrome.js",
+    "components/marketing/MinimalAppChrome.js",
+    "components/marketing/sections/TrustMetricsPanel.jsx",
+    "components/marketing/sections/UploadPanel.jsx",
+    "components/marketing/sections/PricingPanel.jsx",
+    "components/marketing/FooterUniversalDock.jsx",
+    "components/marketing/FooterSocialStrip.jsx",
+    "components/marketing/FooterEngagementDock.jsx",
+    "components/marketing/LanguageSwitcher.js",
+    "pages/index.js",
+    "context/LanguageContext.js",
+    "lib/marketing/site-copy.js",
+    "styles/resumora-global.css",
+    "config/bossmind-protected-ui-authority.json",
+    "config/bossmind-protected-surface.json",
+    "next.config.ts"
+  ],
+  "snapshotRelativeDir": "config/bossmind-baseline-snapshots/luxury-v1",
+  "lockedLuxuryInterfaceFingerprint": "e120e32ff08b9c3f0383a4f782c367477020ce679d87983b8d4e50a6d20febbf",
+  "lockedFullWorkspaceFingerprint": "c8a73ab5732b45b432f9e200d3811da0c9a6e1b0710ca9d9dc3993941bea920b"
+}

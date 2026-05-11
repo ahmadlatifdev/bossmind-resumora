@@ -47,6 +47,7 @@ console.log(`Git HEAD: ${head()}`);
 console.log(`Branch:   ${branch()}\n`);
 
 const steps = [
+  ["bossmind:immutable:verify", "sealed luxury + full-workspace checksums (BOSSMIND_BASELINE_OVERRIDE=1 to approve drift)"],
   ["build", "next build (production CSS/JS bundle)"],
   ["bossmind:protect:verify", "locked routes + shell files exist"],
   ["bossmind:antileak", "anti-leak vs origin/main (set BOSSMIND_PROTECTED_EDIT_OK=1 to bypass)"],

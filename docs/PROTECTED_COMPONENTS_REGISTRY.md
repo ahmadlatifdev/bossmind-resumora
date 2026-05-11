@@ -40,6 +40,18 @@ Agents must **not** rewrite or remove these without explicit owner approval. Pre
 | LangGraph repair | `lib/orchestration/langgraph-repair-flow.js` |
 | Sentry ingest / repair triggers | `pages/api/orchestration/sentry-ingest.js`, `next.config.ts` |
 
+## Immutable production baseline (luxury UI freeze)
+
+| Area | Path(s) |
+|------|---------|
+| Sealed checksums + policy | `config/bossmind-immutable-production-baseline.json` |
+| On-disk restore snapshots | `config/bossmind-baseline-snapshots/luxury-v1/**` |
+| Shared fingerprint logic | `lib/orchestration/bossmind-baseline-fingerprint.js`, `lib/orchestration/bossmind-immutable-baseline.js` |
+| Verify (deploy gate) | `scripts/bossmind-immutable-verify.mjs` — `npm run bossmind:immutable:verify` |
+| Seal after approved UI change | `npm run bossmind:baseline:seal` |
+
+**Rules:** Deploy gate runs immutable verify (skip with `BOSSMIND_DEPLOY_GATE_SKIP_IMMUTABLE=1` only for emergencies). Explicit approval to ship drift: `BOSSMIND_BASELINE_OVERRIDE=1` then re-seal. Optional live check: `BOSSMIND_IMMUTABLE_PROBE_ORIGIN=https://resumora.net` or `BOSSMIND_IMMUTABLE_PROBE_FROM_LOCK=1`. Strict full-repo checksum: set `lockFullWorkspaceFingerprint: true` in the baseline JSON and re-seal.
+
 ## Marketing home & tiers
 
 | Area | Path(s) |

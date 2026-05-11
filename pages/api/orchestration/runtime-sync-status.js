@@ -14,6 +14,7 @@ const {
 const {
   loadContinuePoint,
 } = require("../../../lib/orchestration/bossmind-last-confirmed-point");
+const { verifyImmutableBaseline } = require("../../../lib/orchestration/bossmind-immutable-baseline");
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -69,6 +70,7 @@ export default async function handler(req, res) {
   const local = readLocalStatus();
   const autonomous = readAutonomousStatus();
   const reconciliation = readReconciliationStatus();
+  const immutableBaseline = verifyImmutableBaseline(process.cwd());
   const structural = structuralAuthorityReport(process.cwd());
 
   try {
@@ -114,6 +116,7 @@ export default async function handler(req, res) {
       structural,
       scores,
       reconciliation,
+      immutableBaseline,
       rollbacksReady: Boolean(authority?.baseline_hash),
       continuePoint: continuePoint?.checkpoint || null,
       continuePointSource: continuePoint?.source || "none",

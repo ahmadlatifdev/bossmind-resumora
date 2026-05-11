@@ -44,6 +44,7 @@ export default function RuntimeSyncPage() {
   const s = data?.scores || {};
   const structural = data?.structural;
   const rec = data?.reconciliation || local?.reconciliation;
+  const imm = data?.immutableBaseline;
 
   return (
     <MinimalAppChrome>
@@ -166,6 +167,37 @@ export default function RuntimeSyncPage() {
             <div>runtimeMismatch: {String(Boolean(drift.runtimeMismatch))}</div>
             <div>structuralViolation: {String(Boolean(drift.structuralViolation))}</div>
             <div>pricingOnlyHome: {String(Boolean(drift.pricingOnlyHome))}</div>
+            <div>immutableBaselineViolation: {String(Boolean(drift.immutableBaselineViolation))}</div>
+          </div>
+
+          <div style={{ marginTop: "1.35rem", display: "grid", gap: "0.55rem" }}>
+            <h2 className="rs-h2" style={{ fontSize: "1.15rem", margin: 0 }}>
+              Immutable production baseline
+            </h2>
+            <div>
+              <strong>Lock:</strong>{" "}
+              {imm?.enabled
+                ? imm.ok
+                  ? "SEALED — workspace matches frozen luxury + full checksums"
+                  : "VIOLATION — source drift vs sealed baseline (deploy blocked)"
+                : "disabled (no config)"}
+            </div>
+            {imm?.enabled ? (
+              <>
+                <div>
+                  <strong>Luxury slice checksum:</strong> {imm.luxury?.hash ? `${String(imm.luxury.hash).slice(0, 14)}…` : "—"}
+                </div>
+                <div>
+                  <strong>Full workspace checksum:</strong>{" "}
+                  {imm.workspace?.hash ? `${String(imm.workspace.hash).slice(0, 14)}…` : "—"}
+                </div>
+              </>
+            ) : null}
+            <p style={{ margin: 0, color: "var(--rs-text-secondary)", fontSize: "0.9rem" }}>
+              Approved UI updates: run <code>npm run bossmind:baseline:seal</code> then commit. Emergency restore (working tree
+              only): <code>BOSSMIND_BASELINE_RESTORE_CONFIRM=RESTORE_IMMUTABLE_BASELINE npm run bossmind:baseline:restore</code>
+              . Continuous auto-restore: <code>BOSSMIND_AUTO_RESTORE_IMMUTABLE=1</code> on the runtime sync process.
+            </p>
           </div>
         </section>
       </main>

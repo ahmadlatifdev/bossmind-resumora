@@ -55,6 +55,19 @@ if (continuePoint?.checkpoint) {
 run("Hosting policy (no Vercel)", "node", ["scripts/bossmind-hosting-guard.mjs"], continueEnv);
 run("Protected surface", "node", ["scripts/bossmind-protected-surface-verify.mjs"], continueEnv);
 
+if (process.env.BOSSMIND_DEPLOY_GATE_SKIP_IMMUTABLE !== "1") {
+  const probeEnv =
+    process.env.BOSSMIND_IMMUTABLE_PROBE_ORIGIN ||
+    process.env.BOSSMIND_PRODUCTION_PUBLIC_ORIGIN ||
+    "";
+  run(
+    "Immutable luxury baseline (checksum + optional prod probe)",
+    "node",
+    ["scripts/bossmind-immutable-verify.mjs"],
+    probeEnv ? { ...continueEnv, BOSSMIND_IMMUTABLE_PROBE_ORIGIN: probeEnv } : continueEnv
+  );
+}
+
 if (process.env.BOSSMIND_SKIP_ANTILEAK !== "1") {
   run("Anti-leak", "node", ["scripts/bossmind-antileak-guard.mjs"], continueEnv);
 }
