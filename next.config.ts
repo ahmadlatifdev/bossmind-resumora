@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      /* Wrong bookmarks → canonical luxury homepage (BossMind protected baseline). */
+      { source: "/client", destination: "/", permanent: true },
+      { source: "/client/", destination: "/", permanent: true },
       { source: "/global-reach", destination: "/", permanent: true },
       { source: "/marketing", destination: "/", permanent: true },
       { source: "/geo/:country", destination: "/", permanent: true },

@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "node scripts/dev-with-browser.mjs",
     "dev:plain": "next dev --webpack",
+    "clean:next": "node scripts/clean-next-cache.mjs",
+    "bossmind:dev-fresh": "npm run clean:next && echo Fresh Next cache. Run: npm run dev:plain",
     "build": "next build",
     "start": "node server.js",
     "lint": "eslint",

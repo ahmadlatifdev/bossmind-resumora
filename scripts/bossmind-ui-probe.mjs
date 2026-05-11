@@ -11,7 +11,17 @@ const origin =
   process.env.BOSSMIND_PROBE_ORIGIN?.replace(/\/$/, "") || "http://127.0.0.1:3001";
 
 const PATHS = [
-  { path: "/", expect: ["Resumora", "</html>"], minBytes: 400 },
+  {
+    path: "/",
+    expect: ['id="top"', 'id="trust"', 'id="home-intake"', 'id="pricing"', "Resumora", "</html>"],
+    minBytes: 1200,
+  },
+  /* Mis-typed /client → luxury homepage (matches next.config.ts redirect). */
+  {
+    path: "/client",
+    expectRedirect: true,
+    redirectPath: "/",
+  },
   { path: "/pricing", expect: ["</html>"], minBytes: 400 },
   { path: "/services", expect: ["</html>"], minBytes: 400 },
   { path: "/capabilities", expect: ["</html>"], minBytes: 400 },
@@ -64,12 +74,45 @@ function fetchText(urlString) {
   });
 }
 
+function redirectOk(probe, r) {
+  if (!probe.expectRedirect) return false;
+  const loc = r.headers?.location || "";
+  const pathOnly =
+    (() => {
+      try {
+        return new URL(loc, origin).pathname;
+      } catch {
+        return loc;
+      }
+    })() || "";
+  const statusOk = [301, 302, 307, 308].includes(r.status);
+  const pathOk =
+    pathOnly === probe.redirectPath ||
+    pathOnly === `${probe.redirectPath}` ||
+    loc.endsWith(probe.redirectPath) ||
+    loc === `${origin}${probe.redirectPath}`;
+  return statusOk && pathOk;
+}
+
 async function main() {
   const results = [];
   for (const probe of PATHS) {
     const url = `${origin}${probe.path}`;
     try {
       const r = await fetchText(url);
+      if (probe.expectRedirect) {
+        const ok = redirectOk(probe, r);
+        const loc = r.headers?.location || "";
+        results.push({
+          url,
+          ok,
+          status: r.status,
+          location: loc,
+          bytes: r.body.length,
+          kind: "redirect",
+        });
+        continue;
+      }
       const ok =
         r.status === 200 &&
         probe.expect.every((s) => r.body.includes(s)) &&
