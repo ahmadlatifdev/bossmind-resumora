@@ -1,7 +1,14 @@
 {
   "version": 1,
   "project": "resumora",
-  "description": "Approved pages/api route modules — Anti-Leak enforcement + integrity verify. Other BossMind apps (ElegancyArt, AI Video Generator, TikTok AI, Global Stock, Master Admin) are separate repos: copy this pattern there.",
+  "description": "Approved pages/api route modules + luxury UI shell (CSS, SiteChrome, pricing) — integrity verify + Anti-Leak merge. Other BossMind apps are separate repos.",
+  "shellLockPaths": [
+    "context/LanguageContext.js",
+    "components/marketing/MinimalAppChrome.js",
+    "components/marketing/SiteChrome.js",
+    "components/marketing/sections/PricingPanel.jsx",
+    "styles/resumora-global.css"
+  ],
   "surfaceLockPaths": [
     "pages/_app.js",
     "pages/_document.js",
@@ -20,6 +27,7 @@
     "pages/api/integrations/social-growth-orchestrate.js",
     "pages/api/integrations/social-ingest.js",
     "pages/api/orchestration/bossmind-control.js",
+    "pages/api/orchestration/bossmind-health.js",
     "pages/api/orchestration/deployment-report.js",
     "pages/api/orchestration/file-guard.js",
     "pages/api/orchestration/run-repair.js",

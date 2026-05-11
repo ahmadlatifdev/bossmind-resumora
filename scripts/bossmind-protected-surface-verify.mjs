@@ -16,7 +16,7 @@ if (!existsSync(manifestPath)) {
 }
 
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-const paths = manifest.surfaceLockPaths || [];
+const paths = [...(manifest.surfaceLockPaths || []), ...(manifest.shellLockPaths || [])];
 const missing = [];
 for (const rel of paths) {
   const p = join(root, ...String(rel).split("/").filter(Boolean));

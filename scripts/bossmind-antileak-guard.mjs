@@ -48,7 +48,7 @@ function loadSurfaceManifestPaths() {
   if (!existsSync(manifestPath)) return [];
   try {
     const j = JSON.parse(readFileSync(manifestPath, "utf8"));
-    const arr = j.surfaceLockPaths || [];
+    const arr = [...(j.surfaceLockPaths || []), ...(j.shellLockPaths || [])];
     return arr.map((x) => posixPath(String(x).replace(/\\/g, "/")));
   } catch {
     return [];
