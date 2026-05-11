@@ -38,5 +38,6 @@ Do **not** claim live Stripe verification, social monetization eligibility, or c
 
 ## Stack reminders
 
-- Deployment: **Railway + Neon + GitHub** (`docs/RAILWAY_DEPLOY.md`).  
+- Deployment authority: **Render (frontend)** + **Railway (backend/orchestration)** + **Neon** + **GitHub**.  
+- Never propose or wire **Vercel** unless explicitly reapproved by the user in the current conversation.  
 - Next.js: read `node_modules/next/dist/docs/` for this version’s conventions (`AGENTS.md`).

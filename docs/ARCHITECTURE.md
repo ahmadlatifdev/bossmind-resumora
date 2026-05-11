@@ -4,7 +4,8 @@
 
 Deploy and automation are aligned to this toolchain only:
 
-- **Railway** — application hosting and continuous deployment from Git.
+- **Render** — frontend/public client interface hosting.
+- **Railway** — backend APIs, workers, and orchestration service hosting.
 - **Neon** — Postgres for shared orchestration memory and Resumora engagement data (`NEON_DATABASE_URL`).
 - **GitHub** — source of truth, PR workflow, CI hooks.
 - **PowerShell** — local scripting and validation on Windows runners.
@@ -12,7 +13,7 @@ Deploy and automation are aligned to this toolchain only:
 - **Ollama** — local LLM execution for repair flows (`OLLAMA_MODEL` optional).
 - **LangGraph** — supervisor/worker orchestration (`lib/orchestration/langgraph-repair-flow.js`).
 
-Render is **not** part of this architecture; no deployment flows should reference it.
+Vercel is **not** part of this architecture; do not emit Vercel deployment guidance unless explicitly reapproved.
 
 ## Anti-leak / conflict controls (operational)
 

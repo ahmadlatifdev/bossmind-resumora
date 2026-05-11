@@ -15,7 +15,8 @@
     "stripe:diagnose": "node scripts/stripe-env-diagnose.mjs",
     "stripe:pricing:check": "node scripts/stripe-pricing-anti-regression.mjs",
     "validate:deps": "npm ls --depth=0",
-    "validate:all": "npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
+    "validate:hosting": "node scripts/bossmind-hosting-guard.mjs",
+    "validate:all": "npm run validate:hosting && npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",
     "marketing:social-drafts": "node scripts/marketing/generate-social-drafts.mjs",
     "marketing:weekly": "node scripts/marketing/weekly-organic-pipeline.js",
@@ -44,7 +45,7 @@
     "bossmind:ui-baseline": "node scripts/bossmind-ui-baseline-verify.mjs",
     "bossmind:monitor": "node scripts/bossmind-monitor-health.mjs",
     "bossmind:engagement:summary": "node scripts/bossmind-engagement-summary.mjs",
-    "bossmind:autonomous-check": "npm run bossmind:antileak && npm run bossmind:audit && npm run bossmind:perf-scan",
+    "bossmind:autonomous-check": "npm run validate:hosting && npm run bossmind:antileak && npm run bossmind:audit && npm run bossmind:perf-scan",
     "bossmind:e2e-gate": "node scripts/bossmind-antileak-guard.mjs && node scripts/bossmind-performance-scan.mjs",
     "hub:index": "node scripts/bossmind-hub-index.mjs",
     "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1"

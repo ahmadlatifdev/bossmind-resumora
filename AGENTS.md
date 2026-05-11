@@ -6,7 +6,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Deployment
 
-Assume **production runs only on Railway** with Neon for Postgres. Do not add or preserve Render deployment configuration unless the user explicitly asks. See `docs/RAILWAY_DEPLOY.md`.
+BossMind locked hosting strategy:
+
+- **Render** = frontend/public client interfaces
+- **Railway** = backend APIs, workers, orchestration services
+- **Neon** = shared memory + Postgres authority (`task_state`, `event_log`, `error_memory`, snapshots)
+- **GitHub** = source control + deploy triggers
+- **PowerShell** = local execution/repair tooling
+
+Do **not** recommend, add, or preserve any **Vercel** deployment path unless the user explicitly reapproves it in-thread. See `docs/RAILWAY_DEPLOY.md`.
 
 ## Local preview (development)
 

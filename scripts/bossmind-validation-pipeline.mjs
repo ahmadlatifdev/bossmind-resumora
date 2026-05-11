@@ -10,6 +10,15 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const isWin = process.platform === "win32";
 
+const hosting = spawnSync("node scripts/bossmind-hosting-guard.mjs", {
+  cwd: root,
+  shell: true,
+  stdio: "inherit",
+});
+if ((hosting.status ?? 1) !== 0) {
+  process.exit(hosting.status ?? 1);
+}
+
 const surface = spawnSync("node scripts/bossmind-protected-surface-verify.mjs", {
   cwd: root,
   shell: true,

@@ -1,6 +1,12 @@
-# Railway-only production deployment
+# Render + Railway deployment strategy
 
-This repository targets **Railway** as the sole managed hosting layer for the Next.js app (`npm run build` → `npm start` / `node server.js`). **Render is not used.** Do not add `render.yaml`, Render env blocks, or Render webhooks unless explicitly requested.
+BossMind locked topology:
+
+- **Render**: frontend/public client interface
+- **Railway**: backend APIs, workers, orchestration runtime
+- **Neon**: shared memory/database authority
+
+Vercel is not an approved deployment target for this repository.
 
 ## Environment variables (Railway)
 
@@ -15,10 +21,23 @@ This repository targets **Railway** as the sole managed hosting layer for the Ne
 | `NEXT_PUBLIC_GSC_VERIFICATION` | Optional Search Console HTML tag |
 | `NEXT_PUBLIC_SOCIAL_*` | Optional footer social URLs (`LINKEDIN`, `X`, `YOUTUBE`, `INSTAGRAM`) |
 
+## Frontend (Render)
+
+Deploy frontend/client surfaces on Render. Keep public route and UX validation tied to protected baseline checks (`npm run bossmind:ui-baseline`, `npm run bossmind:ui-probe`).
+
+## Backend/API (Railway)
+
+Deploy backend APIs, orchestration, and worker processes on Railway (`npm run build` then `npm start` / `node server.js`).
+
 ## DNS
 
-Point production domains (e.g. `resumora.net`) at Railway’s assigned hostname **after** validating health checks, uploads, checkout, and webhooks—never at legacy Render targets.
+Point production domains according to the split topology:
 
-## Leaving Render (manual)
+- frontend hostnames to Render
+- API/orchestration hostnames to Railway
 
-Pause/delete Render services only **after** Railway is live and DNS has propagated. Rotate any webhook endpoints or secrets that still referenced Render URLs.
+Apply only after health checks, uploads, checkout, and webhook validation pass.
+
+## Migration safety
+
+When moving existing services, switch DNS and webhook targets gradually and keep rollback tags/snapshots available for protected baseline recovery.

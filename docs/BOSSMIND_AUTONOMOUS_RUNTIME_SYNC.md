@@ -33,10 +33,13 @@ Detect -> Compare -> Diagnose -> Repair -> Verify -> Lock
 ## Commands
 
 ```bash
+npm run validate:hosting
 npm run bossmind:runtime:sync:once
 npm run bossmind:runtime:sync:dry
 npm run bossmind:runtime:sync
 ```
+
+`validate:hosting` is a hard policy gate: it blocks Vercel env/config/guidance unless `BOSSMIND_ALLOW_VERCEL=1` is explicitly set.
 
 ## Status API
 

@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+BossMind / Resumora runtime with protected luxury UI baseline, orchestration APIs, and Neon-backed shared memory.
 
 ## Getting Started
 
@@ -16,21 +16,20 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing route surfaces under `pages/` and protected UI modules under `components/marketing/`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Hosting strategy (locked)
 
-## Learn More
+- **Render** = frontend/public client interfaces
+- **Railway** = backend APIs, workers, orchestration services
+- **Neon** = shared memory + database authority
+- **GitHub** = source control + deployment triggers
+- **PowerShell** = local repair/runtime tooling
 
-To learn more about Next.js, take a look at the following resources:
+Vercel is not part of the approved runtime/deployment path unless explicitly reapproved.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Production deployment (Railway only)
-
-Deploy this app on **[Railway](https://railway.app)**. Build: `npm run build`; start: `npm start` (see `package.json` / `server.js`). **Do not use Render** for this project—see `docs/RAILWAY_DEPLOY.md` for environment variables and DNS notes.
+See `docs/RAILWAY_DEPLOY.md` for Render (frontend) + Railway (backend) topology and environment setup.
 
 Local preview: `npm run dev` → [http://localhost:3000](http://localhost:3000).

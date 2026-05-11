@@ -6,6 +6,6 @@ if (dsn) {
   Sentry.init({
     dsn,
     tracesSampleRate: Number(process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
-    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
+    environment: process.env.NEXT_PUBLIC_DEPLOY_ENV ?? process.env.NODE_ENV,
   });
 }
