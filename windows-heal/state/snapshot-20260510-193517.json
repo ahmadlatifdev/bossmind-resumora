@@ -1,0 +1,139 @@
+﻿{
+    "phase":  "post-repair",
+    "incident":  {
+                     "ts":  "2026-05-10T19:35:17.7175644-04:00",
+                     "mode":  "AutoHeal",
+                     "initial":  {
+                                     "lookbackMinutes":  10,
+                                     "gpuVendor":  "amd",
+                                     "criticalCount":  0,
+                                     "displayEventCount":  0,
+                                     "kernelPnpDisplayCount":  0,
+                                     "blackScreenIndicatorCount":  0,
+                                     "explorerCrashCount":  0,
+                                     "displayTimeoutCount":  0,
+                                     "currentRefreshRate":  60,
+                                     "memoryPressurePercent":  85.76,
+                                     "cpuSpikePercent":  7.16,
+                                     "diskQueueLength":  0,
+                                     "diskHealth":  [
+                                                        {
+                                                            "drive":  "C:",
+                                                            "freePct":  52.47,
+                                                            "lowSpace":  false
+                                                        },
+                                                        {
+                                                            "drive":  "D:",
+                                                            "freePct":  79.87,
+                                                            "lowSpace":  false
+                                                        }
+                                                    ],
+                                     "cpuTemperatureC":  87.1,
+                                     "adaptiveBrightnessSignalPresent":  true,
+                                     "startupHeavyCount":  0,
+                                     "startupConflictCandidates":  {
+
+                                                                   },
+                                     "serviceIssueCount":  5,
+                                     "serviceIssueCandidates":  [
+                                                                    {
+                                                                        "Name":  "edgeupdate",
+                                                                        "DisplayName":  "Microsoft Edge Update Service (edgeupdate)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "GoogleUpdaterInternalService149.0.7814.0",
+                                                                        "DisplayName":  "Google Updater Internal Service (GoogleUpdaterInternalService149.0.7814.0)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "GoogleUpdaterService149.0.7814.0",
+                                                                        "DisplayName":  "Google Updater Service (GoogleUpdaterService149.0.7814.0)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "MapsBroker",
+                                                                        "DisplayName":  "Downloaded Maps Manager",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "sppsvc",
+                                                                        "DisplayName":  "Software Protection",
+                                                                        "Status":  1
+                                                                    }
+                                                                ],
+                                     "events":  {
+
+                                                }
+                                 },
+                     "repairedActions":  "service_repair",
+                     "verify":  {
+                                    "lookbackMinutes":  10,
+                                    "gpuVendor":  "amd",
+                                    "criticalCount":  0,
+                                    "displayEventCount":  0,
+                                    "kernelPnpDisplayCount":  0,
+                                    "blackScreenIndicatorCount":  0,
+                                    "explorerCrashCount":  0,
+                                    "displayTimeoutCount":  0,
+                                    "currentRefreshRate":  60,
+                                    "memoryPressurePercent":  86,
+                                    "cpuSpikePercent":  12.52,
+                                    "diskQueueLength":  0.01,
+                                    "diskHealth":  [
+                                                       {
+                                                           "drive":  "C:",
+                                                           "freePct":  52.47,
+                                                           "lowSpace":  false
+                                                       },
+                                                       {
+                                                           "drive":  "D:",
+                                                           "freePct":  79.87,
+                                                           "lowSpace":  false
+                                                       }
+                                                   ],
+                                    "cpuTemperatureC":  87.1,
+                                    "adaptiveBrightnessSignalPresent":  true,
+                                    "startupHeavyCount":  0,
+                                    "startupConflictCandidates":  {
+
+                                                                  },
+                                    "serviceIssueCount":  5,
+                                    "serviceIssueCandidates":  [
+                                                                   {
+                                                                       "Name":  "edgeupdate",
+                                                                       "DisplayName":  "Microsoft Edge Update Service (edgeupdate)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "GoogleUpdaterInternalService149.0.7814.0",
+                                                                       "DisplayName":  "Google Updater Internal Service (GoogleUpdaterInternalService149.0.7814.0)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "GoogleUpdaterService149.0.7814.0",
+                                                                       "DisplayName":  "Google Updater Service (GoogleUpdaterService149.0.7814.0)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "MapsBroker",
+                                                                       "DisplayName":  "Downloaded Maps Manager",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "sppsvc",
+                                                                       "DisplayName":  "Software Protection",
+                                                                       "Status":  1
+                                                                   }
+                                                               ],
+                                    "events":  {
+
+                                               }
+                                },
+                     "remainingTriggers":  "service_repair",
+                     "warnings":  {
+
+                                  }
+                 },
+    "mode":  "AutoHeal"
+}
