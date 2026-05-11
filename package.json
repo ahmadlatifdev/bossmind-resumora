@@ -34,6 +34,7 @@
     "bossmind:runtime:sync": "node scripts/bossmind-runtime-sync.mjs",
     "bossmind:runtime:sync:once": "node scripts/bossmind-runtime-sync.mjs --once",
     "bossmind:runtime:sync:dry": "node scripts/bossmind-runtime-sync.mjs --once --dry-run",
+    "bossmind:deploy:gate": "node scripts/bossmind-deploy-gate.mjs",
     "bossmind:antileak": "node scripts/bossmind-antileak-guard.mjs",
     "bossmind:self-heal": "node scripts/bossmind-self-heal.mjs",
     "bossmind:snapshot": "node scripts/bossmind-snapshot-save.mjs",

@@ -6,8 +6,13 @@
     "context/LanguageContext.js",
     "components/marketing/MinimalAppChrome.js",
     "components/marketing/SiteChrome.js",
+    "components/marketing/HomePage.jsx",
     "components/marketing/sections/PricingPanel.jsx",
-    "styles/resumora-global.css"
+    "components/marketing/sections/TrustMetricsPanel.jsx",
+    "components/marketing/sections/UploadPanel.jsx",
+    "lib/orchestration/bossmind-interface-authority.js",
+    "styles/resumora-global.css",
+    "config/bossmind-protected-ui-authority.json"
   ],
   "surfaceLockPaths": [
     "pages/_app.js",
@@ -28,6 +33,7 @@
     "pages/api/integrations/social-ingest.js",
     "pages/api/orchestration/bossmind-control.js",
     "pages/api/orchestration/bossmind-health.js",
+    "pages/api/orchestration/runtime-sync-status.js",
     "pages/api/orchestration/deployment-report.js",
     "pages/api/orchestration/file-guard.js",
     "pages/api/orchestration/run-repair.js",
@@ -52,6 +58,7 @@
     "pages/privacy.js",
     "pages/refund.js",
     "pages/register.js",
+    "pages/runtime-sync.js",
     "pages/services.js",
     "pages/solutions/[slug].js",
     "pages/success.js",

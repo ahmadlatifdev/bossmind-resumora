@@ -44,6 +44,7 @@ Agents must **not** rewrite or remove these without explicit owner approval. Pre
 
 | Area | Path(s) |
 |------|---------|
+| Protected luxury baseline manifest (single active UI authority) | `config/bossmind-protected-ui-authority.json`, `lib/orchestration/bossmind-interface-authority.js` |
 | Homepage | `components/marketing/HomePage.jsx`, `pages/index.js` |
 | Capabilities/services grid & configurator | `components/marketing/sections/ServiceOfferingsGrid.jsx` |
 | Pricing UI | `components/marketing/sections/PricingPanel.jsx` |

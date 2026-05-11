@@ -6,6 +6,10 @@ const {
   listRecentEvents,
   listRecentTaskStates,
 } = require("../../../lib/shared/neon-memory");
+const {
+  structuralAuthorityReport,
+  computeAutonomyScores,
+} = require("../../../lib/orchestration/bossmind-interface-authority");
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -38,6 +42,7 @@ export default async function handler(req, res) {
   const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
   const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
   const local = readLocalStatus();
+  const structural = structuralAuthorityReport(process.cwd());
 
   try {
     const init = await initializeSharedMemory();
@@ -45,6 +50,22 @@ export default async function handler(req, res) {
     const authority = neonEnabled
       ? await getRuntimeAuthority({ projectKey, authorityKey })
       : null;
+
+    const cachedScores = local?.scores || null;
+    const authMatch =
+      !authority?.baseline_hash ||
+      !local?.fingerprint?.hash ||
+      authority.baseline_hash === local.fingerprint.hash;
+    const scores =
+      cachedScores ||
+      computeAutonomyScores({
+        probeOk: Boolean(local?.probe?.ok),
+        neonEnabled,
+        authorityHashMatches: authMatch,
+        structuralOk: structural.ok,
+        hasAuthority: Boolean(authority),
+        healSucceeded: Boolean(local?.healSucceeded),
+      });
     const [events, tasks] = neonEnabled
       ? await Promise.all([
           listRecentEvents({ projectKey, limit: 10 }),
@@ -58,6 +79,9 @@ export default async function handler(req, res) {
       ts: Date.now(),
       neonEnabled,
       authority,
+      structural,
+      scores,
+      rollbacksReady: Boolean(authority?.baseline_hash),
       localStatus: local,
       recentEvents: events,
       recentTasks: tasks,

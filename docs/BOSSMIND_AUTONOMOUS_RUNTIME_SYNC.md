@@ -47,6 +47,45 @@ npm run bossmind:runtime:sync
 - Returns local status + Neon authority/events/tasks
 - Auth: development, `BOSSMIND_DIAGNOSTICS=1`, or Bearer `BOSSMIND_ORCHESTRATION_SECRET`
 
+## Protection manifest (single active luxury baseline)
+
+- `config/bossmind-protected-ui-authority.json` — canonical `HomePage.jsx`, required HTML markers (hero, trust, intake, pricing, navy/gold CSS tokens), fingerprint extras.
+- `lib/orchestration/bossmind-interface-authority.js` — structural checks:
+  - single `HomePage.jsx` under `components/`
+  - `pages/index.js` imports canonical module (no minimal/pricing-only bootstrap)
+  - no App Router `app/**/page.*` colliding with `pages/`
+
+## Scores (observability)
+
+Each sync cycle computes **0–100** metrics including:
+
+- `compositeAutonomyScore` — target default **90+** (`BOSSMIND_AUTONOMY_MIN_SCORE`)
+- `runtimeSynchronizationScore`, `driftProtectionScore`, `deploymentIntegrityScore`, `protectedBaselineLockScore`, `memoryAuthorityScore`, `routeAuthorityScore`
+
+Dashboard: **`/runtime-sync`** (reads `GET /api/orchestration/runtime-sync-status`).
+
+## Neon authority promotion
+
+When runtime probes pass and structure is valid, the sync loop **upserts** `runtime_authority` with the current baseline hash (`BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY`, default on). Disable with `BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY=0` if you must compare without updating memory.
+
+## Deploy governance (pre-release)
+
+```bash
+npm run bossmind:deploy:gate
+```
+
+Runs hosting policy → protected surface → anti-leak → lint → build → optional `bossmind:ui-probe` if `BOSSMIND_DEPLOY_GATE_UI_PROBE=1`. Skip lint only if needed: `BOSSMIND_DEPLOY_GATE_SKIP_LINT=1`.
+
+## Heal strategy (optimized)
+
+1. Clear `.next` (`clean-next-cache`)
+2. Re-probe; if still failing → `npm run build` → re-probe  
+   Baseline-only drift (hash vs Neon) does **not** trigger rebuild — memory is updated after successful verification.
+
+## Dry-run exit semantics
+
+`--dry-run` validates **manifest + structural + fingerprint** only; exits **1** only if files are missing or structural lock fails (server need not be running).
+
 ## Safety
 
 - No destructive git commands

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "project": "resumora",
+  "description": "Single active luxury marketing baseline authority (localhost + deploy + Neon sync)",
+  "authorityKey": "luxury_ui_baseline",
+  "canonicalRoutes": {
+    "homePath": "/",
+    "homePageSource": "components/marketing/HomePage.jsx",
+    "indexBootstrap": "pages/index.js",
+    "clientRedirectSources": ["/client", "/client/"]
+  },
+  "requiredHomeHtmlMarkers": [
+    "id=\"top\"",
+    "id=\"trust\"",
+    "id=\"home-intake\"",
+    "id=\"pricing\"",
+    "rs-week-main",
+    "rs-btn-accent",
+    "rs-cta-strip",
+    "--rs-gold:",
+    "--rs-bg-deep:",
+    "--rs-border-strong:",
+    "--rs-shadow-card:"
+  ],
+  "forbiddenMinimalHomeIndicators": [],
+  "fingerprintExtraPaths": [
+    "config/bossmind-protected-ui-authority.json"
+  ]
+}
