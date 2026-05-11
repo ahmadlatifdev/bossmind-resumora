@@ -1,13 +1,13 @@
 import { performanceStats, translations } from "@/lib/marketing/site-copy";
 import { useLanguage } from "@/context/LanguageContext";
 
-export default function TrustMetricsPanel() {
+export default function TrustMetricsPanel({ sectionId } = {}) {
   const { lang } = useLanguage();
   const t = translations[lang];
   const stats = performanceStats[lang];
 
   return (
-    <section className="rs-section rs-section-muted">
+    <section id={sectionId || undefined} className="rs-section rs-section-muted">
       <div className="rs-container">
         <p className="rs-eyebrow">{t.navTrust}</p>
         <h2 className="rs-h2">{t.trustTitle}</h2>

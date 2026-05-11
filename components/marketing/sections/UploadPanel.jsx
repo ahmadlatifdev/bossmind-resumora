@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 
-export default function UploadPanel() {
+export default function UploadPanel({ sectionId = "intake" }) {
   const { lang } = useLanguage();
   const t = translations[lang];
   const [uploadStatus, setUploadStatus] = useState("");
@@ -35,7 +35,7 @@ export default function UploadPanel() {
   };
 
   return (
-    <section id="intake" className="rs-section rs-section-muted">
+    <section id={sectionId} className="rs-section rs-section-muted">
       <div className="rs-container">
         <p className="rs-eyebrow">{t.footerUpload}</p>
         <h2 className="rs-h2">{t.uploadTitle}</h2>
