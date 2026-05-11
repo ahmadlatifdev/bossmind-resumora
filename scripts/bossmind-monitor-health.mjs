@@ -20,6 +20,12 @@ const checks = [
     path: "/api/orchestration/bossmind-health",
     expectStatus: [200, 401],
   },
+  {
+    key: "runtimeSyncStatus",
+    method: "GET",
+    path: "/api/orchestration/runtime-sync-status",
+    expectStatus: [200, 401],
+  },
   { key: "stripeHealth", method: "GET", path: "/api/stripe/status", expectStatus: [200, 404, 503] },
   { key: "deepseekHealth", method: "GET", path: "/api/ai/deepseek-status", expectStatus: [200, 503] },
   { key: "home", method: "GET", path: "/", expectStatus: [200] },
