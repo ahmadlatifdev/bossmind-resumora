@@ -44,6 +44,16 @@ function readAutonomousStatus() {
   }
 }
 
+function readReconciliationStatus() {
+  const p = path.join(process.cwd(), ".bossmind", "reconciliation", "status.json");
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -58,6 +68,7 @@ export default async function handler(req, res) {
   const checkpointKey = process.env.BOSSMIND_CONTINUITY_KEY || "global_continuity";
   const local = readLocalStatus();
   const autonomous = readAutonomousStatus();
+  const reconciliation = readReconciliationStatus();
   const structural = structuralAuthorityReport(process.cwd());
 
   try {
@@ -102,6 +113,7 @@ export default async function handler(req, res) {
       authority,
       structural,
       scores,
+      reconciliation,
       rollbacksReady: Boolean(authority?.baseline_hash),
       continuePoint: continuePoint?.checkpoint || null,
       continuePointSource: continuePoint?.source || "none",

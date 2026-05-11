@@ -34,6 +34,7 @@
     "bossmind:runtime:sync": "node scripts/bossmind-runtime-sync.mjs",
     "bossmind:runtime:sync:once": "node scripts/bossmind-runtime-sync.mjs --once",
     "bossmind:runtime:sync:dry": "node scripts/bossmind-runtime-sync.mjs --once --dry-run",
+    "bossmind:reconcile": "node scripts/bossmind-reconciliation-engine.mjs",
     "bossmind:autonomous:runtime": "node scripts/bossmind-autonomous-runtime.mjs",
     "bossmind:autonomous:runtime:once": "node scripts/bossmind-autonomous-runtime.mjs --once",
     "bossmind:continuity:status": "node scripts/bossmind-continuity-status.mjs",

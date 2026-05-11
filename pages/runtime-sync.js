@@ -43,6 +43,7 @@ export default function RuntimeSyncPage() {
   const hasDrift = Boolean(local?.hasDrift);
   const s = data?.scores || {};
   const structural = data?.structural;
+  const rec = data?.reconciliation || local?.reconciliation;
 
   return (
     <MinimalAppChrome>
@@ -66,12 +67,53 @@ export default function RuntimeSyncPage() {
               Autonomy &amp; integrity scores
             </h2>
             {scoreRow("Composite autonomy", s.compositeAutonomyScore, "%")}
+            {scoreRow("Enterprise orchestration", s.enterpriseOrchestrationScore, "%")}
+            {scoreRow("Production reconciliation", s.productionReconciliationScore, "%")}
             {scoreRow("Runtime synchronization", s.runtimeSynchronizationScore, "%")}
             {scoreRow("Drift protection", s.driftProtectionScore, "%")}
             {scoreRow("Deployment / build integrity", s.deploymentIntegrityScore, "%")}
             {scoreRow("Protected baseline lock", s.protectedBaselineLockScore, "%")}
             {scoreRow("Memory authority (Neon)", s.memoryAuthorityScore, "%")}
             {scoreRow("Route authority", s.routeAuthorityScore, "%")}
+          </div>
+
+          <div style={{ marginTop: "1.35rem", display: "grid", gap: "0.55rem" }}>
+            <h2 className="rs-h2" style={{ fontSize: "1.15rem", margin: 0 }}>
+              Reconciliation engine
+            </h2>
+            <div>
+              <strong>State:</strong>{" "}
+              {rec ? (rec.ok ? "ALIGNED (no blocking mismatches)" : "MISMATCH") : "— (run sync or bossmind:reconcile)"}
+            </div>
+            {scoreRow("Reconcile score", rec?.score, "%")}
+            {scoreRow("Authority alignment blend", rec?.alignmentBlend, "%")}
+            <div>
+              <strong>Git HEAD:</strong> {rec?.signals?.gitHead ? `${String(rec.signals.gitHead).slice(0, 7)}…` : "—"}
+            </div>
+            <div>
+              <strong>Checkpoint commit:</strong>{" "}
+              {rec?.signals?.checkpointCommit ? `${String(rec.signals.checkpointCommit).slice(0, 7)}…` : "—"}
+            </div>
+            <div>
+              <strong>Neon baseline (memory):</strong>{" "}
+              {rec?.signals?.neonAuthorityHash ? `${String(rec.signals.neonAuthorityHash).slice(0, 12)}…` : "—"}
+            </div>
+            <div>
+              <strong>Workspace fingerprint:</strong>{" "}
+              {rec?.signals?.fingerprintHash ? `${String(rec.signals.fingerprintHash).slice(0, 12)}…` : "—"}
+            </div>
+            <div>
+              <strong>Runtime unreachable (last probe):</strong> {String(Boolean(rec?.signals?.probeUnreachable))}
+            </div>
+            {rec?.mismatches?.length ? (
+              <ul style={{ margin: "0.25rem 0 0 1rem", color: "var(--rs-text-secondary)" }}>
+                {rec.mismatches.map((m) => (
+                  <li key={m.code}>
+                    <code>{m.code}</code> ({m.severity}) — {m.detail}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
 
           <div style={{ marginTop: "1.35rem", display: "grid", gap: "0.6rem" }}>

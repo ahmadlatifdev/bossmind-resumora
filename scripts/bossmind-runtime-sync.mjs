@@ -33,6 +33,10 @@ const {
   loadContinuePoint,
   saveContinuePoint,
 } = require(path.join(root, "lib/orchestration/bossmind-last-confirmed-point.js"));
+const {
+  buildReconciliationSnapshot,
+  persistReconciliation,
+} = require(path.join(root, "lib/orchestration/bossmind-reconciliation.js"));
 
 const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
@@ -43,8 +47,32 @@ const autoHeal = process.env.BOSSMIND_RUNTIME_SYNC_AUTO_HEAL !== "0";
 const promoteOnVerify = process.env.BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY !== "0";
 const autonomyMin = Number(process.env.BOSSMIND_AUTONOMY_MIN_SCORE || 90);
 const requestTimeoutMs = Number(process.env.BOSSMIND_RUNTIME_SYNC_HTTP_MS || 12000);
+const reconcileDeployHook = process.env.BOSSMIND_RECONCILE_DEPLOY_HOOK_URL || "";
 const once = process.argv.includes("--once");
 const dryRun = process.argv.includes("--dry-run");
+
+async function notifyReconcileDeployHook(reconciliation) {
+  if (!reconcileDeployHook || dryRun) return null;
+  const min = Number(process.env.BOSSMIND_RECONCILE_DEPLOY_HOOK_MIN_SCORE || 95);
+  if (!reconciliation?.ok || reconciliation.score < min) return { skipped: true, reason: "not_green" };
+  try {
+    const res = await fetch(reconcileDeployHook, {
+      method: "POST",
+      headers: { "content-type": "application/json", "user-agent": "BossMind-reconcile-hook/1.0" },
+      body: JSON.stringify({
+        event: "bossmind.reconciliation.promote_signal",
+        ts: new Date().toISOString(),
+        projectKey,
+        score: reconciliation.score,
+        alignmentBlend: reconciliation.alignmentBlend,
+        signals: reconciliation.signals,
+      }),
+    });
+    return { ok: res.ok, status: res.status };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -385,7 +413,46 @@ async function syncOnce() {
 
   const finalProbe = heal?.probeAfter || probe;
 
-  if (neonEnabled && !dryRun && finalProbe.ok && structural.ok && promoteOnVerify) {
+  const hasDriftLive = Boolean(
+    drift.missingProtectedFiles ||
+      drift.structuralViolation ||
+      drift.pricingOnlyHome ||
+      !finalProbe.ok ||
+      drift.authorityMissing ||
+      drift.baselineHashMismatch
+  );
+
+  const reconciliation = await buildReconciliationSnapshot({
+    cwd: root,
+    neonApi: neonEnabled ? neonApi : null,
+    projectKey,
+    authorityKey,
+    checkpointKey: "global_continuity",
+    liveSyncPayload: {
+      probe: finalProbe,
+      fingerprint: { hash: fingerprint.hash },
+      hasDrift: hasDriftLive,
+      ts: now,
+      gitHead,
+    },
+  });
+  persistReconciliation(root, reconciliation);
+
+  const matchesPrePromote =
+    !authority?.baseline_hash || authority.baseline_hash === fingerprint.hash;
+
+  scores = computeAutonomyScores({
+    probeOk: finalProbe.ok,
+    neonEnabled,
+    authorityHashMatches: matchesPrePromote,
+    structuralOk: structural.ok,
+    hasAuthority: Boolean(authority),
+    healSucceeded,
+    reconcileScore: reconciliation.score,
+    probeUnreachable: Boolean(reconciliation.signals?.probeUnreachable),
+  });
+
+  if (neonEnabled && !dryRun && finalProbe.ok && structural.ok && promoteOnVerify && reconciliation.ok) {
     await promoteAuthority(neonApi, fingerprint, gitHead, scores, structural, finalProbe);
     authority = await neonApi.getRuntimeAuthority({ projectKey, authorityKey });
   }
@@ -399,6 +466,8 @@ async function syncOnce() {
     structuralOk: structural.ok,
     hasAuthority: Boolean(authority),
     healSucceeded,
+    reconcileScore: reconciliation.score,
+    probeUnreachable: Boolean(reconciliation.signals?.probeUnreachable),
   });
 
   const summary = {
@@ -419,10 +488,12 @@ async function syncOnce() {
     scores,
     autonomyThreshold: autonomyMin,
     meetsAutonomyTarget: scores.compositeAutonomyScore >= autonomyMin,
+    meetsEnterpriseTarget: Number(scores.enterpriseOrchestrationScore || 0) >= autonomyMin,
     autoHeal,
     dryRun,
     heal,
     healSucceeded,
+    reconciliation,
   };
 
   summary.hasDrift = Boolean(
@@ -471,6 +542,7 @@ async function syncOnce() {
         fingerprintHash: fingerprint.hash,
         authorityHash: authority?.baseline_hash || null,
         structuralOk: structural.ok,
+        reconciliation,
       },
     });
     await neonApi.upsertTaskState({
@@ -482,11 +554,19 @@ async function syncOnce() {
         hasDrift: summary.hasDrift,
         scores,
         compositeAutonomyScore: scores.compositeAutonomyScore,
+        enterpriseOrchestrationScore: scores.enterpriseOrchestrationScore,
+        productionReconciliationScore: scores.productionReconciliationScore,
+        reconcileOk: reconciliation?.ok,
         fingerprintHash: fingerprint.hash,
         authorityHash: authority?.baseline_hash || null,
         updatedAt: now,
       },
     });
+  }
+
+  const reconcileHook = await notifyReconcileDeployHook(reconciliation);
+  if (reconcileHook && !reconcileHook.skipped) {
+    summary.reconcileDeployHook = reconcileHook;
   }
 
   console.log(JSON.stringify(summary, null, 2));

@@ -154,6 +154,7 @@ async function runCycle(neonApi) {
   }
 
   const localSyncStatus = readJsonSafe(path.join(root, ".bossmind", "runtime-sync", "status.json"));
+  const latestReconciliation = readJsonSafe(path.join(root, ".bossmind", "reconciliation", "status.json"));
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
   const healed = Boolean(localSyncStatus?.healSucceeded);
   const autonomyScore = Number(localSyncStatus?.scores?.compositeAutonomyScore || 0);
@@ -196,6 +197,16 @@ async function runCycle(neonApi) {
           scores: localSyncStatus.scores,
           probe: localSyncStatus.probe,
           structural: localSyncStatus.structural,
+          reconciliation: localSyncStatus.reconciliation || null,
+        }
+      : null,
+    latestReconciliation: latestReconciliation
+      ? {
+          ok: latestReconciliation.ok,
+          score: latestReconciliation.score,
+          alignmentBlend: latestReconciliation.alignmentBlend,
+          mismatchCount: latestReconciliation.mismatches?.length ?? 0,
+          ts: latestReconciliation.ts,
         }
       : null,
     continueFrom: continuePoint

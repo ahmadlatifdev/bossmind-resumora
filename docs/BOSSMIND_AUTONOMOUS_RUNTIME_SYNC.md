@@ -39,6 +39,7 @@ npm run bossmind:runtime:sync:dry
 npm run bossmind:runtime:sync
 npm run bossmind:autonomous:runtime:once
 npm run bossmind:autonomous:runtime
+npm run bossmind:reconcile
 ```
 
 `validate:hosting` is a hard policy gate: it blocks Vercel env/config/guidance unless `BOSSMIND_ALLOW_VERCEL=1` is explicitly set.
@@ -62,13 +63,30 @@ npm run bossmind:autonomous:runtime
 Each sync cycle computes **0–100** metrics including:
 
 - `compositeAutonomyScore` — target default **90+** (`BOSSMIND_AUTONOMY_MIN_SCORE`)
+- `productionReconciliationScore`, `enterpriseOrchestrationScore` — autonomy rollup using reconcile score + probes (`bossmind-interface-authority`); snapshot also exposes `alignmentBlend` in reconcile JSON
 - `runtimeSynchronizationScore`, `driftProtectionScore`, `deploymentIntegrityScore`, `protectedBaselineLockScore`, `memoryAuthorityScore`, `routeAuthorityScore`
 
 Dashboard: **`/runtime-sync`** (reads `GET /api/orchestration/runtime-sync-status`).
 
+## Production reconciliation engine
+
+Continuous comparison across workspace Git HEAD, Neon `runtime_authority` baseline hash, `last_confirmed_checkpoint`, structural lock, and the live runtime probe:
+
+- Persisted snapshot: `.bossmind/reconciliation/status.json`
+- Each `bossmind-runtime-sync` cycle merges **live** probe + fingerprint (no reliance on stale local files)
+- `npm run bossmind:reconcile` — standalone reconcile (writes the same snapshot; optional webhook)
+
+Env:
+
+- `BOSSMIND_RECONCILE_STRICT_CHECKPOINT` — set to `0` to ignore HEAD vs checkpoint mismatch during local iteration (default: strict compare)
+- `BOSSMIND_RECONCILE_DEPLOY_HOOK_URL` — when set, a **successful** reconcile may `POST` a small JSON promote signal (`BOSSMIND_RECONCILE_DEPLOY_HOOK_MIN_SCORE`, default **95**)
+- `BOSSMIND_RECONCILE_STRICT_EXIT=1` on `bossmind:reconcile` — exit non-zero if any non-`low` mismatch remains
+
+Unreachable dev server (`ECONNREFUSED` / timeout) is scored as **low** severity so autonomy metrics can remain high when structure + Neon baseline still align (`computeAutonomyScores` partial credit). The reconcile snapshot includes a separate **`alignmentBlend`** metric (different from dashboard `enterpriseOrchestrationScore`).
+
 ## Neon authority promotion
 
-When runtime probes pass and structure is valid, the sync loop **upserts** `runtime_authority` with the current baseline hash (`BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY`, default on). Disable with `BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY=0` if you must compare without updating memory.
+When runtime probes pass, structure is valid, **and reconciliation reports `ok`**, the sync loop **upserts** `runtime_authority` with the current baseline hash (`BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY`, default on). Disable with `BOSSMIND_AUTHORITY_PROMOTE_ON_VERIFY=0` if you must compare without updating memory.
 
 ## Deploy governance (pre-release)
 
