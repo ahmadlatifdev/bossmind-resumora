@@ -2,7 +2,9 @@
 /**
  * Git tag rollback point + Neon event (optional). Run before risky edits / merges.
  *
- * Env: BOSSMIND_SKIP_GIT_TAG=1 — Neon event only when DB configured
+ * Env:
+ *   BOSSMIND_SKIP_GIT_TAG=1 — Neon event only when DB configured
+ *   BOSSMIND_GIT_EXE — full path to git.exe if `git` is not on PATH for Node (Windows)
  */
 import { spawnSync } from "child_process";
 import { createRequire } from "module";
@@ -16,8 +18,16 @@ const PROJECT_KEY = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 
 const label = process.argv[2] || `stable-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
+/** Override git binary if PATH is stripped for Node children (Windows/Cursor): BOSSMIND_GIT_EXE=C:\\Program Files\\Git\\bin\\git.exe */
+function gitExe() {
+  return process.env.BOSSMIND_GIT_EXE || "git";
+}
+
 function head() {
-  const r = spawnSync("git rev-parse HEAD", { cwd: root, encoding: "utf8" });
+  const r = spawnSync(gitExe(), ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  });
   return r.stdout?.trim() || null;
 }
 
@@ -31,7 +41,7 @@ async function main() {
   const tag = `bossmind/${label}-${h.slice(0, 10)}`;
 
   if (process.env.BOSSMIND_SKIP_GIT_TAG !== "1") {
-    const r = spawnSync("git", ["tag", "-a", tag, "-m", `BossMind snapshot ${label}`], {
+    const r = spawnSync(gitExe(), ["tag", "-a", tag, "-m", `BossMind snapshot ${label}`], {
       cwd: root,
       encoding: "utf8",
     });
