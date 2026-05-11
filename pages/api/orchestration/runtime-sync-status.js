@@ -30,6 +30,16 @@ function readLocalStatus() {
   }
 }
 
+function readAutonomousStatus() {
+  const p = path.join(process.cwd(), ".bossmind", "autonomous-runtime", "status.json");
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
@@ -42,6 +52,7 @@ export default async function handler(req, res) {
   const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
   const authorityKey = process.env.BOSSMIND_AUTHORITY_KEY || "luxury_ui_baseline";
   const local = readLocalStatus();
+  const autonomous = readAutonomousStatus();
   const structural = structuralAuthorityReport(process.cwd());
 
   try {
@@ -83,6 +94,7 @@ export default async function handler(req, res) {
       scores,
       rollbacksReady: Boolean(authority?.baseline_hash),
       localStatus: local,
+      autonomousRuntime: autonomous,
       recentEvents: events,
       recentTasks: tasks,
     });
@@ -92,6 +104,7 @@ export default async function handler(req, res) {
       projectKey,
       authorityKey,
       localStatus: local,
+      autonomousRuntime: autonomous,
     });
   }
 }

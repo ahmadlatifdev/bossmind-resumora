@@ -37,6 +37,8 @@ npm run validate:hosting
 npm run bossmind:runtime:sync:once
 npm run bossmind:runtime:sync:dry
 npm run bossmind:runtime:sync
+npm run bossmind:autonomous:runtime:once
+npm run bossmind:autonomous:runtime
 ```
 
 `validate:hosting` is a hard policy gate: it blocks Vercel env/config/guidance unless `BOSSMIND_ALLOW_VERCEL=1` is explicitly set.
@@ -85,6 +87,31 @@ Runs hosting policy → protected surface → anti-leak → lint → build → o
 ## Dry-run exit semantics
 
 `--dry-run` validates **manifest + structural + fingerprint** only; exits **1** only if files are missing or structural lock fails (server need not be running).
+
+## Full continuous activation (one active architecture)
+
+Use `bossmind:autonomous:runtime` as the single continuously active controller.  
+Each loop executes:
+
+1. `bossmind-runtime-sync --once`
+2. `bossmind-supervisor-worker --once`
+3. `bossmind-monitor-health`
+4. periodic `bossmind-deploy-gate` (every N cycles)
+
+State:
+
+- `.bossmind/autonomous-runtime/status.json`
+- `.bossmind/autonomous-runtime/history.jsonl`
+
+Neon heartbeat task:
+
+- `task_state(project_key=resumora, task_key=bossmind_autonomous_runtime)`
+
+Control env:
+
+- `BOSSMIND_AUTONOMOUS_LOOP_MS` (default `60000`)
+- `BOSSMIND_DEPLOY_GATE_EVERY_CYCLES` (default `20`)
+- `BOSSMIND_AUTONOMOUS_RUN_DEPLOY_GATE` (`1`/`0`)
 
 ## Safety
 

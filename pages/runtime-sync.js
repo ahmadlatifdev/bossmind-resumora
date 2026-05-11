@@ -37,6 +37,7 @@ export default function RuntimeSyncPage() {
   }, []);
 
   const local = data?.localStatus;
+  const autonomous = data?.autonomousRuntime;
   const drift = local?.drift || {};
   const hasDrift = Boolean(local?.hasDrift);
   const s = data?.scores || {};
@@ -78,6 +79,18 @@ export default function RuntimeSyncPage() {
             </div>
             <div>
               <strong>Neon shared memory:</strong> {data ? (data.neonEnabled ? "connected" : "offline") : "…"}
+            </div>
+            <div>
+              <strong>Autonomous controller loop:</strong>{" "}
+              {autonomous ? (autonomous.degraded ? "ACTIVE (degraded)" : "ACTIVE (healthy)") : "not running / no status file"}
+            </div>
+            <div>
+              <strong>Synchronization rate:</strong>{" "}
+              {autonomous?.rates?.synchronizationRate != null ? `${autonomous.rates.synchronizationRate}%` : "—"}
+            </div>
+            <div>
+              <strong>Healing rate:</strong>{" "}
+              {autonomous?.rates?.healingRate != null ? `${autonomous.rates.healingRate}%` : "—"}
             </div>
             <div>
               <strong>Structural lock (single HomePage):</strong>{" "}
