@@ -34,6 +34,8 @@ const runOnce = process.argv.includes("--once");
 const checkpointKey = process.env.BOSSMIND_CONTINUITY_KEY || "global_continuity";
 /** When > 0, run unified marketing activation every N cycles (~weekly at 60s interval when set to 10080). */
 const marketingEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_MARKETING_EVERY_CYCLES || 0);
+/** When > 0, run enterprise envelope (light) every N cycles for proof ledger + boundary checks. */
+const enterpriseEnvelopeEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES || 0);
 
 const {
   loadContinuePoint,
@@ -164,6 +166,15 @@ async function runCycle(neonApi) {
     );
   }
 
+  let enterpriseEnvelope = { skipped: true, reason: "BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES=0" };
+  if (enterpriseEnvelopeEveryCycles > 0 && cycle > 0 && cycle % enterpriseEnvelopeEveryCycles === 0) {
+    enterpriseEnvelope = runNodeScript(
+      "scripts/bossmind-enterprise-envelope.mjs",
+      ["--from-autonomous"],
+      continueEnv
+    );
+  }
+
   const localSyncStatus = readJsonSafe(path.join(root, ".bossmind", "runtime-sync", "status.json"));
   const latestReconciliation = readJsonSafe(path.join(root, ".bossmind", "reconciliation", "status.json"));
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
@@ -204,6 +215,9 @@ async function runCycle(neonApi) {
       marketingActivation: marketingActivation.skipped
         ? marketingActivation
         : { ok: marketingActivation.ok, code: marketingActivation.code },
+      enterpriseEnvelope: enterpriseEnvelope.skipped
+        ? enterpriseEnvelope
+        : { ok: enterpriseEnvelope.ok, code: enterpriseEnvelope.code },
     },
     latestRuntimeSync: localSyncStatus
       ? {

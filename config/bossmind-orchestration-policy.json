@@ -52,6 +52,11 @@
     "protected_components_registry",
     "bossmind:validate"
   ],
+  "recommendedEnterpriseAutomation": [
+    "bossmind:enterprise:risk",
+    "bossmind:enterprise:envelope",
+    "BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES on Railway worker for proof ledger + boundary checks"
+  ],
   "requiredSharedMemoryTables": [
     "task_state",
     "event_log",

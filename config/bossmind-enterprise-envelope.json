@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "description": "Maps enterprise automation requests to in-repo scripts. External-only items are noted honestly.",
+  "layers": {
+    "runtime_authority": {
+      "scripts": ["scripts/bossmind-runtime-sync.mjs", "scripts/bossmind-reconciliation-engine.mjs"],
+      "neon": ["task_state", "event_log", "runtime_authority", "last_confirmed_checkpoint"],
+      "external": "GitHub/Railway/Render live revision compare requires platform APIs + tokens (not in repo)."
+    },
+    "closed_loop": {
+      "scripts": ["scripts/bossmind-self-heal.mjs", "scripts/bossmind-deploy-gate.mjs", "scripts/bossmind-runtime-recovery.mjs"],
+      "note": "Full auto-deploy+rollback is operator-owned; gate + recovery scripts are the safe in-repo chain."
+    },
+    "execution_boundary": {
+      "scripts": ["scripts/bossmind-antileak-guard.mjs", "scripts/bossmind-protected-surface-verify.mjs", "scripts/bossmind-immutable-verify.mjs"],
+      "registry": "docs/PROTECTED_COMPONENTS_REGISTRY.md"
+    },
+    "production_validation": {
+      "scripts": ["scripts/bossmind-monitor-health.mjs", "scripts/bossmind-ui-probe.mjs", "scripts/bossmind-performance-scan.mjs", "scripts/bossmind-ui-baseline-verify.mjs"],
+      "note": "Pixel-perfect visual AI QA is partial; baseline verify + probes cover what ships in-tree."
+    },
+    "proof_ledger": {
+      "local": ".bossmind/ledger/enterprise-envelope.jsonl",
+      "neon_event": "bossmind.enterprise_envelope.completed"
+    },
+    "dependency_drift": {
+      "scripts": ["npm run validate:deps"],
+      "lockfile": "package-lock.json"
+    },
+    "predictive_failure": {
+      "scripts": ["scripts/bossmind-predictive-runtime-risk.mjs"],
+      "note": "Heuristic risk score from local runtime-sync + autonomy history — not ML."
+    },
+    "multi_agent": {
+      "scripts": ["scripts/bossmind-supervisor-worker.mjs"],
+      "note": "Supervisor + task_state is the coordinator; parallel lanes = multiple Railway workers with SKIP LOCKED."
+    },
+    "secrets_governance": {
+      "scripts": ["scripts/stripe-env-validation.js", "scripts/bossmind-env-keys-audit.mjs"],
+      "example": "config/bossmind-env-structure.example.txt"
+    },
+    "visual_qa": {
+      "scripts": ["scripts/bossmind-ui-baseline-verify.mjs", "scripts/bossmind-ui-probe.mjs"],
+      "note": "No separate vision model; checksum/baseline + HTTP probes."
+    }
+  }
+}
