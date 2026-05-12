@@ -3,8 +3,8 @@
   "enabled": true,
   "description": "Immutable confirmed Resumora luxury public UI (resumora.net). Deploy + runtime authority must match these checksums.",
   "productionPublicOrigin": "https://resumora.net",
-  "sealedAt": "2026-05-11T03:29:28.420Z",
-  "sealedGitHead": "2ca30b5e49da1465b50e8338b4dd3c1a069bbbbc",
+  "sealedAt": "2026-05-12T01:47:49.676Z",
+  "sealedGitHead": "a2d4ea9861f831ab9a1d461a36d6c87d801e6369",
   "lockFullWorkspaceFingerprint": false,
   "immutableInterfacePaths": [
     "components/marketing/HomePage.jsx",
@@ -27,5 +27,5 @@
   ],
   "snapshotRelativeDir": "config/bossmind-baseline-snapshots/luxury-v1",
   "lockedLuxuryInterfaceFingerprint": "f67177ec65f399671f68775fc1f7b52d3d67b1603294d7ae1decd0f1600802c3",
-  "lockedFullWorkspaceFingerprint": "ec34b0e9835eb12701e146cdafba0767fc9e77e782765d9f22bde9bc72085e09"
+  "lockedFullWorkspaceFingerprint": "1106563497450585914ff0d93feb60091cb20fd5e8fb22cd5779797a165ba869"
 }
