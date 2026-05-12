@@ -260,3 +260,9 @@
 {"ts":"2026-05-11T23:20:01.8356053-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-11T23:25:01.8945140-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-11T23:30:01.7730080-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-11T23:35:01.8581102-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-11T23:35:01.8970667-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-11T23:35:11.6958420-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260511-2335"}}
+{"ts":"2026-05-11T23:35:17.7957887-04:00","level":"info","message":"Runner completed","data":{"postActions":"service_repair","displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":"service_repair"}}
+{"ts":"2026-05-11T23:40:02.0271598-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-11T23:45:01.9005417-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
