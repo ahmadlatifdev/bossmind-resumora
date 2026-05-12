@@ -3,7 +3,7 @@
  * Configure endpoint in Stripe Dashboard + STRIPE_WEBHOOK_SECRET.
  */
 const { createStripeServerClient } = require("../../../lib/marketing/stripe-server");
-const { saveEvent } = require("../../../lib/shared/neon-memory");
+const { saveEvent, initializeSharedMemory, getSqlClient } = require("../../../lib/shared/neon-memory");
 
 export const config = {
   api: {
@@ -51,6 +51,23 @@ export default async function handler(req, res) {
   } catch (e) {
     console.error("stripe webhook verify:", e.message);
     return res.status(400).json({ error: "Invalid signature" });
+  }
+
+  await initializeSharedMemory().catch(() => {});
+
+  try {
+    const sql = getSqlClient();
+    if (sql) {
+      const dup = await sql(
+        `SELECT 1 FROM event_log WHERE project_key = $1 AND event_key = $2 AND source = $3 LIMIT 1`,
+        [bossmindProjectKey(), event.id, "stripe"]
+      );
+      if (Array.isArray(dup) && dup.length > 0) {
+        return res.status(200).json({ received: true, duplicate: true });
+      }
+    }
+  } catch (e) {
+    console.error("stripe webhook dedupe check:", e.message);
   }
 
   try {

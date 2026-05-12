@@ -13,6 +13,7 @@
     "validate:runtime": "node scripts/runtime-validation.js",
     "validate:stripe": "node scripts/stripe-env-validation.js",
     "stripe:diagnose": "node scripts/stripe-env-diagnose.mjs",
+    "bossmind:stripe:production-report": "node scripts/bossmind-stripe-production-report.mjs",
     "stripe:pricing:check": "node scripts/stripe-pricing-anti-regression.mjs",
     "validate:deps": "npm ls --depth=0",
     "validate:hosting": "node scripts/bossmind-hosting-guard.mjs",

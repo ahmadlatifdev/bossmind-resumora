@@ -25,6 +25,7 @@ This matrix is the **honest production-confirmation** map: what is **implemented
 | 7 | GSC / indexing API | Auto submit all URLs | — | 🔌 OAuth + policy; not bulk auto here |
 | 8 | Marketing | Weekly + organic | `weekly-organic-pipeline.js`, `bossmind-google-organic-orchestrator.mjs`, `bossmind-marketing-activation.mjs` | `npm run bossmind:organic:growth` |
 | 8 | Conversion | Engagement + pricing UI | `EngagementMomentumStrip.jsx`, `PricingPanel.jsx`, `site-copy.js` | Visual QA on `/` and `/pricing` |
+| 11 | **Stripe / payments** | **Checkout + webhooks** | `pages/api/checkout.js`, `pages/api/webhooks/stripe.js`, `client-hooks.js` | `npm run bossmind:stripe:production-report` · `docs/STRIPE_PRODUCTION_VALIDATION.md` |
 | 9 | Enterprise envelope | Orchestrated validation | `bossmind-enterprise-envelope.mjs`, ledger `.bossmind/ledger/` | `npm run bossmind:enterprise:envelope` |
 | 9 | Predictive risk | Heuristic score | `bossmind-predictive-runtime-risk.mjs` | `npm run bossmind:enterprise:risk` |
 | 9 | Multi-agent | Parallel workers | `bossmind-supervisor-worker.mjs` + Neon `SKIP LOCKED` | 🔌 Scale Railway worker replicas |

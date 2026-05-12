@@ -118,6 +118,7 @@ async function main() {
     ].map((d) => ({ path: d, exists: exists(d) })),
     recommendedCommands: [
       "npm run bossmind:activation-audit",
+      "npm run bossmind:stripe:production-report",
       "npm run bossmind:enterprise:envelope:dry",
       "npm run bossmind:enterprise:envelope",
       "npm run bossmind:autonomous:runtime:once",
