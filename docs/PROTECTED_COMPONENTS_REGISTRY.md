@@ -36,6 +36,7 @@ Agents must **not** rewrite or remove these without explicit owner approval. Pre
 | Area | Path(s) |
 |------|---------|
 | Neon schema init + events | `lib/shared/neon-memory.js` |
+| Preservation / rolling backup | `docs/BOSSMIND_PRESERVATION_AND_BACKUP.md`, `config/bossmind-preservation-scope.json`, `scripts/bossmind-backup-daily.mjs` |
 | File guard / rollback snapshots | `lib/shared/file-guard.js`, `pages/api/orchestration/file-guard.js` |
 | LangGraph repair | `lib/orchestration/langgraph-repair-flow.js` |
 | Sentry ingest / repair triggers | `pages/api/orchestration/sentry-ingest.js`, `next.config.ts` |

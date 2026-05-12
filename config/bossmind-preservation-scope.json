@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "projectId": "resumora",
+  "lifecycle": "active",
+  "description": "BossMind preservation index for this repo — backup/validate only; never deletes source. External BossMind apps live in other repos: register roots via BOSSMIND_PRESERVATION_EXTRA_ROOTS.",
+  "includeProtectedSurface": true,
+  "additionalPaths": [
+    "package.json",
+    "package-lock.json",
+    "next.config.ts",
+    "server.js",
+    "ecosystem.config.cjs",
+    "config/bossmind-requirement-lock.json",
+    "config/bossmind-protected-ui-authority.json",
+    "docs/BOSSMIND_AUTONOMOUS_RUNTIME_SYNC.md",
+    "docs/BOSSMIND_PRESERVATION_AND_BACKUP.md",
+    "docs/PROTECTED_COMPONENTS_REGISTRY.md",
+    "docs/RAILWAY_DEPLOY.md",
+    "lib/shared/neon-memory.js",
+    "lib/orchestration/bossmind-baseline-fingerprint.js",
+    "lib/orchestration/bossmind-immutable-baseline.js",
+    "lib/orchestration/bossmind-reconciliation.js",
+    "lib/orchestration/bossmind-interface-authority.js",
+    "lib/orchestration/bossmind-last-confirmed-point.js",
+    "scripts/bossmind-deploy-gate.mjs",
+    "scripts/bossmind-runtime-sync.mjs",
+    "scripts/bossmind-autonomous-runtime.mjs",
+    "scripts/bossmind-immutable-verify.mjs",
+    "scripts/bossmind-baseline-seal.mjs",
+    "scripts/bossmind-backup-daily.mjs",
+    "scripts/bossmind-preservation-validate.mjs",
+    "scripts/bossmind-deploy-checkpoint.mjs",
+    "scripts/bossmind-recovery-suggest.mjs",
+    "scripts/bossmind-recovery-apply.mjs",
+    ".github/workflows/bossmind-daily-backup.yml",
+    ".github/workflows/hosting-policy-guard.yml"
+  ],
+  "externalRepositoriesRegistry": [
+    {
+      "id": "bossmind-master-admin",
+      "status": "dormant",
+      "note": "Separate repository — not backed up from this tree. Clone to BOSSMIND_PRESERVATION_EXTRA_ROOTS or run hub index."
+    },
+    {
+      "id": "elegancyart",
+      "status": "dormant",
+      "note": "Separate repository."
+    },
+    {
+      "id": "ai-video-generator",
+      "status": "dormant",
+      "note": "Separate repository."
+    },
+    {
+      "id": "tiktok-ai",
+      "status": "dormant",
+      "note": "Separate repository."
+    },
+    {
+      "id": "global-stock",
+      "status": "dormant",
+      "note": "Separate repository."
+    }
+  ]
+}

@@ -52,6 +52,10 @@ if (continuePoint?.checkpoint) {
   );
 }
 
+if (process.env.BOSSMIND_DEPLOY_SKIP_CHECKPOINT !== "1") {
+  run("Pre-deploy preservation checkpoint", "node", ["scripts/bossmind-deploy-checkpoint.mjs"], continueEnv);
+}
+
 run("Hosting policy (no Vercel)", "node", ["scripts/bossmind-hosting-guard.mjs"], continueEnv);
 run("Protected surface", "node", ["scripts/bossmind-protected-surface-verify.mjs"], continueEnv);
 

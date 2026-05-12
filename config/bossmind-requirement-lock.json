@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "enabled": false,
+  "description": "Organizational freeze flag — tooling does not auto-enforce this JSON; enable branch protection + required CI checks. When true, operators treat the repo as preservation-only until explicitly reactivated.",
+  "reactivationChecklist": [
+    "Confirm BOSSMIND_REQUIREMENT_LOCK cleared in runbooks",
+    "Run npm run bossmind:preservation:validate",
+    "Run npm run bossmind:immutable:verify",
+    "Run npm run bossmind:deploy:gate before production"
+  ]
+}

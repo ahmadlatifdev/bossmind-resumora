@@ -166,3 +166,7 @@ npm run bossmind:autonomous:runtime
 - No `.git` mutation
 - No source-file deletion
 - Cache cleanup only removes `.next`
+
+## See also
+
+- **Preservation, 30-day rolling backup, recovery:** `docs/BOSSMIND_PRESERVATION_AND_BACKUP.md`

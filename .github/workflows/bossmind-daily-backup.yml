@@ -1,0 +1,40 @@
+name: BossMind daily preservation backup
+
+on:
+  schedule:
+    # 06:15 UTC daily — adjust for your ops window
+    - cron: "15 6 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: bossmind-backup-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  preservation-backup:
+    name: Verified rolling backup + validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Daily verified backup (30-day prune policy in script)
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BOSSMIND_PROJECT_KEY: ${{ vars.BOSSMIND_PROJECT_KEY }}
+        run: npm run bossmind:backup:daily
+
+      - name: Read-only preservation validate
+        run: npm run bossmind:preservation:validate
+
+      - name: Recovery suggest (dry report)
+        run: npm run bossmind:recovery:suggest
