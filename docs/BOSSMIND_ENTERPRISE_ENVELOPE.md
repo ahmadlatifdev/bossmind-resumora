@@ -43,4 +43,5 @@ Single entrypoint that **chains existing** BossMind protection and validation sc
 - **Visual “AI” QA** = baseline + HTTP probes in-repo; not a separate vision model.  
 - **Multi-agent parallelism** = Neon `SKIP LOCKED` supervisor workers + optional multiple Railway processes.
 
-Layer map: `config/bossmind-enterprise-envelope.json`.
+Layer map: `config/bossmind-enterprise-envelope.json`.  
+**Full ecosystem matrix (honest status per layer):** `docs/BOSSMIND_ENTERPRISE_COVERAGE_MATRIX.md` · **Evidence report:** `npm run bossmind:enterprise:coverage`

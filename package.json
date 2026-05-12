@@ -47,6 +47,7 @@
     "bossmind:organic:growth": "node scripts/marketing/bossmind-google-organic-orchestrator.mjs",
     "bossmind:enterprise:envelope": "node scripts/bossmind-enterprise-envelope.mjs",
     "bossmind:enterprise:envelope:dry": "node scripts/bossmind-enterprise-envelope.mjs --dry-run",
+    "bossmind:enterprise:coverage": "node scripts/bossmind-enterprise-coverage-report.mjs",
     "bossmind:enterprise:risk": "node scripts/bossmind-predictive-runtime-risk.mjs",
     "bossmind:continuity:status": "node scripts/bossmind-continuity-status.mjs",
     "bossmind:backup:daily": "node scripts/bossmind-backup-daily.mjs",
