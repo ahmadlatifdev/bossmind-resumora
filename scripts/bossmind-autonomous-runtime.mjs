@@ -12,6 +12,12 @@
  * Safety:
  * - never mutates git history
  * - only safe cache cleanup via delegated runtime-sync scripts
+ *
+ * Control plane (closed-loop, default on):
+ * - BOSSMIND_CONTROL_PLANE_GATES=0 — disable pre-flight gates
+ * - BOSSMIND_GATE_HOSTING_EVERY_CYCLES (default 1) — hosting-policy guard cadence
+ * - BOSSMIND_GATE_COVERAGE_EVERY_CYCLES (default 0) — enterprise coverage JSON gate; 0=off, e.g. 24=hourly-ish at 60s loop
+ * When gates fail, marketing activation + enterprise envelope are skipped (sync/supervisor/monitor still run).
  */
 import fs from "fs";
 import path from "path";
@@ -37,6 +43,10 @@ const marketingEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_MARKETING_EV
 /** When > 0, run enterprise envelope (light) every N cycles for proof ledger + boundary checks. */
 const enterpriseEnvelopeEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES || 0);
 
+const controlPlaneGates = process.env.BOSSMIND_CONTROL_PLANE_GATES !== "0";
+const gateHostingEveryCycles = Number(process.env.BOSSMIND_GATE_HOSTING_EVERY_CYCLES || 1);
+const gateCoverageEveryCycles = Number(process.env.BOSSMIND_GATE_COVERAGE_EVERY_CYCLES || 0);
+
 const {
   loadContinuePoint,
   saveContinuePoint,
@@ -44,6 +54,7 @@ const {
 
 let stopping = false;
 let cycle = 0;
+let lastControlPlaneBlocked = false;
 let consecutiveHealthy = 0;
 let consecutiveDegraded = 0;
 let healedCount = 0;
@@ -129,6 +140,36 @@ async function logNeonHeartbeat(neon, payload) {
   }
 }
 
+async function logControlPlaneTransition(neonApi, { cycle: c, blockedDownstream, reasons, skippedTasks }) {
+  if (neonApi) {
+    try {
+      if (blockedDownstream !== lastControlPlaneBlocked) {
+        await neonApi.saveEvent({
+          projectKey,
+          eventType: blockedDownstream
+            ? "bossmind.control_plane.transition_blocked"
+            : "bossmind.control_plane.transition_clear",
+          severity: blockedDownstream ? "warning" : "info",
+          source: "bossmind-autonomous-runtime",
+          eventKey: `control_plane_${c}_${Date.now()}`,
+          payload: { cycle: c, reasons, skippedTasks },
+        });
+        if (blockedDownstream && !lastControlPlaneBlocked) {
+          await neonApi.saveMissingUpdate({
+            projectKey,
+            taskKey: "downstream_automation",
+            reason: reasons.join(";") || "control_plane",
+            payload: { cycle: c, skippedTasks },
+          });
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  lastControlPlaneBlocked = blockedDownstream;
+}
+
 async function runCycle(neonApi) {
   cycle += 1;
   const startedAt = new Date().toISOString();
@@ -141,6 +182,69 @@ async function runCycle(neonApi) {
   const continueEnv = continuePoint?.checkpoint?.commit_hash
     ? { BOSSMIND_CONTINUE_FROM_COMMIT: String(continuePoint.checkpoint.commit_hash) }
     : {};
+
+  let hostingGuard = { skipped: true, ok: true, code: 0, reason: "BOSSMIND_CONTROL_PLANE_GATES=0" };
+  let coverageGate = { skipped: true, ok: true, code: 0, reason: "BOSSMIND_CONTROL_PLANE_GATES=0" };
+  const controlPlaneBlockedReasons = [];
+
+  if (controlPlaneGates) {
+    const runHostingThisCycle =
+      gateHostingEveryCycles > 0 && (cycle === 1 || cycle % gateHostingEveryCycles === 0);
+    if (runHostingThisCycle) {
+      hostingGuard = runNodeScript("scripts/bossmind-hosting-guard.mjs", [], continueEnv);
+      hostingGuard = { skipped: false, ...hostingGuard };
+      if (!hostingGuard.ok) controlPlaneBlockedReasons.push("hosting_guard_failed");
+    } else if (gateHostingEveryCycles > 0) {
+      hostingGuard = { skipped: true, ok: true, code: 0, reason: "cadence_skip" };
+    } else {
+      hostingGuard = { skipped: true, ok: true, code: 0, reason: "BOSSMIND_GATE_HOSTING_EVERY_CYCLES=0" };
+    }
+
+    const runCoverageThisCycle =
+      gateCoverageEveryCycles > 0 && (cycle === 1 || cycle % gateCoverageEveryCycles === 0);
+    if (runCoverageThisCycle) {
+      const r = runNodeScript("scripts/bossmind-enterprise-coverage-report.mjs", [], {
+        ...continueEnv,
+        BOSSMIND_COVERAGE_STRICT: "0",
+      });
+      const artifactsOk = r.json?.allCriticalArtifactsPresent !== false;
+      coverageGate = {
+        skipped: false,
+        ok: r.ok && artifactsOk,
+        code: r.code,
+        allCriticalArtifactsPresent: r.json?.allCriticalArtifactsPresent,
+      };
+      if (!coverageGate.ok) {
+        controlPlaneBlockedReasons.push(
+          r.json?.allCriticalArtifactsPresent === false
+            ? "coverage_critical_artifacts_missing"
+            : "coverage_script_failed"
+        );
+      }
+    } else if (gateCoverageEveryCycles > 0) {
+      coverageGate = { skipped: true, ok: true, code: 0, reason: "cadence_skip" };
+    } else {
+      coverageGate = { skipped: true, ok: true, code: 0, reason: "BOSSMIND_GATE_COVERAGE_EVERY_CYCLES=0" };
+    }
+  }
+
+  const blockedDownstream = controlPlaneBlockedReasons.length > 0;
+  const skippedDownstreamTasks = [];
+  if (blockedDownstream) {
+    if (marketingEveryCycles > 0 && cycle > 0 && cycle % marketingEveryCycles === 0) {
+      skippedDownstreamTasks.push("marketing_activation");
+    }
+    if (enterpriseEnvelopeEveryCycles > 0 && cycle > 0 && cycle % enterpriseEnvelopeEveryCycles === 0) {
+      skippedDownstreamTasks.push("enterprise_envelope");
+    }
+  }
+
+  await logControlPlaneTransition(neonApi, {
+    cycle,
+    blockedDownstream,
+    reasons: controlPlaneBlockedReasons,
+    skippedTasks: skippedDownstreamTasks,
+  });
 
   const sync = runNodeScript("scripts/bossmind-runtime-sync.mjs", ["--once"], continueEnv);
   const supervisor = runNodeScript("scripts/bossmind-supervisor-worker.mjs", ["--once"], continueEnv);
@@ -159,20 +263,34 @@ async function runCycle(neonApi) {
 
   let marketingActivation = { skipped: true, reason: "BOSSMIND_AUTONOMOUS_MARKETING_EVERY_CYCLES=0" };
   if (marketingEveryCycles > 0 && cycle > 0 && cycle % marketingEveryCycles === 0) {
-    marketingActivation = runNodeScript(
-      "scripts/bossmind-marketing-activation.mjs",
-      ["--from-autonomous"],
-      continueEnv
-    );
+    if (blockedDownstream) {
+      marketingActivation = {
+        skipped: true,
+        reason: `control_plane_blocked:${controlPlaneBlockedReasons.join(",")}`,
+      };
+    } else {
+      marketingActivation = runNodeScript(
+        "scripts/bossmind-marketing-activation.mjs",
+        ["--from-autonomous"],
+        continueEnv
+      );
+    }
   }
 
   let enterpriseEnvelope = { skipped: true, reason: "BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES=0" };
   if (enterpriseEnvelopeEveryCycles > 0 && cycle > 0 && cycle % enterpriseEnvelopeEveryCycles === 0) {
-    enterpriseEnvelope = runNodeScript(
-      "scripts/bossmind-enterprise-envelope.mjs",
-      ["--from-autonomous"],
-      continueEnv
-    );
+    if (blockedDownstream) {
+      enterpriseEnvelope = {
+        skipped: true,
+        reason: `control_plane_blocked:${controlPlaneBlockedReasons.join(",")}`,
+      };
+    } else {
+      enterpriseEnvelope = runNodeScript(
+        "scripts/bossmind-enterprise-envelope.mjs",
+        ["--from-autonomous"],
+        continueEnv
+      );
+    }
   }
 
   const localSyncStatus = readJsonSafe(path.join(root, ".bossmind", "runtime-sync", "status.json"));
@@ -180,7 +298,7 @@ async function runCycle(neonApi) {
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
   const healed = Boolean(localSyncStatus?.healSucceeded);
   const autonomyScore = Number(localSyncStatus?.scores?.compositeAutonomyScore || 0);
-  const degraded = !sync.ok || !monitor.ok || hasDrift;
+  const degraded = !sync.ok || !monitor.ok || hasDrift || blockedDownstream;
 
   if (hasDrift) driftCount += 1;
   if (healed) healedCount += 1;
@@ -205,6 +323,14 @@ async function runCycle(neonApi) {
     autonomyScore,
     rates,
     tasks: {
+      hostingGuard,
+      coverageGate,
+      controlPlane: {
+        gatesEnabled: controlPlaneGates,
+        blockedDownstream,
+        reasons: controlPlaneBlockedReasons,
+        skippedDownstreamTasks,
+      },
       runtimeSync: { ok: sync.ok, code: sync.code },
       supervisor: { ok: supervisor.ok, code: supervisor.code },
       monitor: { ok: monitor.ok, code: monitor.code },

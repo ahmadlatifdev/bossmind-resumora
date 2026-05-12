@@ -44,6 +44,15 @@ npm run bossmind:reconcile
 
 `validate:hosting` is a hard policy gate: it blocks Vercel env/config/guidance unless `BOSSMIND_ALLOW_VERCEL=1` is explicitly set.
 
+## Autonomous control plane (closed-loop)
+
+`scripts/bossmind-autonomous-runtime.mjs` runs **before** each cycle’s sync/supervisor/monitor:
+
+- **Hosting guard** (default: first cycle + every `BOSSMIND_GATE_HOSTING_EVERY_CYCLES`, default `1`) — same policy as `validate:hosting`.
+- **Optional coverage gate** — set `BOSSMIND_GATE_COVERAGE_EVERY_CYCLES` (e.g. `24`) to parse `bossmind-enterprise-coverage-report.mjs` JSON and block if critical scripts are missing.
+
+If a gate fails, **marketing activation** and **enterprise envelope** are skipped for that cycle, the cycle is marked **degraded**, and Neon records `bossmind.control_plane.transition_blocked` plus one `missing_updates_log` row on the first transition into blocked state. Disable entirely with `BOSSMIND_CONTROL_PLANE_GATES=0`.
+
 ## Status API
 
 - `GET /api/orchestration/runtime-sync-status`

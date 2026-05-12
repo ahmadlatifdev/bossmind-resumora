@@ -55,7 +55,8 @@
   "recommendedEnterpriseAutomation": [
     "bossmind:enterprise:risk",
     "bossmind:enterprise:envelope",
-    "BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES on Railway worker for proof ledger + boundary checks"
+    "BOSSMIND_AUTONOMOUS_ENTERPRISE_EVERY_CYCLES on Railway worker for proof ledger + boundary checks",
+    "bossmind:autonomous:runtime on Railway with default BOSSMIND_CONTROL_PLANE_GATES (hosting guard gates downstream marketing/envelope)"
   ],
   "requiredSharedMemoryTables": [
     "task_state",
