@@ -1,6 +1,13 @@
 # Expected production-related env KEY NAMES only (no values). Copy to env-structure.local.txt
 # and maintain for your deployment; never commit real .env files.
 #
+# Public site URL for sitemap, canonical, OG (no trailing slash)
+NEXT_PUBLIC_SITE_URL
+# Google Search Console HTML tag verification (optional)
+NEXT_PUBLIC_GSC_VERIFICATION
+# Google Analytics 4 (optional)
+NEXT_PUBLIC_GA_MEASUREMENT_ID
+#
 # Resumora / BossMind orchestration
 BOSSMIND_PROJECT_KEY
 BOSSMIND_AUTHORITY_KEY

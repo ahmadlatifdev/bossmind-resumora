@@ -3,6 +3,17 @@
 This document **locks the default strategy** for BossMind organic growth: **artifact-first, API-second, never silent overwrite of approved UI**.  
 Implementation in this repository is **bounded** to what can be shipped safely in Git (scripts, JSON bundles, Neon audit events). **Google Cloud OAuth, YouTube uploads, Merchant feeds, and n8n** are **out-of-repo integrations** wired with secrets on Railway / Render.
 
+## Technical SEO shipped in-app
+
+| Surface | Location |
+|---------|----------|
+| Dynamic `sitemap.xml` | `pages/sitemap.xml.js` + `lib/marketing/seo-config.js` |
+| Dynamic `robots.txt` | `pages/robots.txt.js` (disallows `/api/`, auth, ops routes) |
+| Site-wide JSON-LD | `pages/_document.js` (Organization + WebSite) |
+| Homepage meta / OG / Twitter / hreflang | `components/marketing/HomePage.jsx` + `site-copy` |
+
+Set **`NEXT_PUBLIC_SITE_URL`** (canonical origin, no trailing slash) on Render. Submit **`{origin}/sitemap.xml`** in Search Console after deploy. **Indexing API** auto-submit for all URLs is not enabled (policy + credentials); use GSC or compliant batch jobs.
+
 ## 1. Master Google identity (BossMind-Core)
 
 Create a single GCP project (suggested id: `bossmind-core`). Enable APIs only as needed:
