@@ -1,6 +1,6 @@
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { getAggregateStats } = require("../../../lib/engagement/store");
-const { getSqlClient } = require("../../../lib/shared/neon-memory");
+const { getSqlClient, ensureSharedMemoryInitialized } = require("../../../lib/shared/neon-memory");
 
 function authorized(req, actor) {
   const secret = process.env.BOSSMIND_ORCHESTRATION_SECRET;
@@ -19,6 +19,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
+  await ensureSharedMemoryInitialized();
   const stats = await getAggregateStats();
   const sql = getSqlClient();
   let socialPerf = [];

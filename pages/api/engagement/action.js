@@ -8,7 +8,7 @@ const {
   recordSocialClick,
   toggleFollowBrand,
 } = require("../../../lib/engagement/store");
-const { getSqlClient } = require("../../../lib/shared/neon-memory");
+const { getSqlClient, ensureSharedMemoryInitialized } = require("../../../lib/shared/neon-memory");
 const { checkRateLimit } = require("../../../lib/engagement/rate-limit");
 
 export default async function handler(req, res) {
@@ -17,16 +17,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!getSqlClient()) {
-    return res.status(503).json({ error: "Engagement store unavailable (set NEON_DATABASE_URL)" });
-  }
-
   const { type, resourceKey, regionHint } = req.body || {};
   if (!type) {
     return res.status(400).json({ error: "Missing type" });
   }
 
   try {
+    const init = await ensureSharedMemoryInitialized();
+    if (!init.enabled || !getSqlClient()) {
+      return res.status(503).json({ error: "Engagement store unavailable (set NEON_DATABASE_URL)" });
+    }
+
     const actor = await readEngagementActor(req, res);
     const profileId = actor.profileId;
     const visitorId = actor.visitorId;

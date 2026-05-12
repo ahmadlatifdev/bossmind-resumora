@@ -53,6 +53,7 @@ function seoArtifactsOk() {
     "pages/robots.txt.js",
     "pages/api/marketing/public-engagement.js",
     "pages/api/marketing/traffic-discovery.js",
+    "pages/api/marketing/trust-snapshot.js",
   ];
   const missing = paths.filter((p) => !fs.existsSync(path.join(root, p)));
   return { ok: missing.length === 0, missing };

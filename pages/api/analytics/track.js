@@ -1,4 +1,4 @@
-const { getSqlClient, saveEvent } = require("../../../lib/shared/neon-memory");
+const { getSqlClient, saveEvent, ensureSharedMemoryInitialized } = require("../../../lib/shared/neon-memory");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,6 +7,12 @@ export default async function handler(req, res) {
   }
 
   const { path: pagePath, referrer, lang, source, campaign, meta } = req.body || {};
+
+  try {
+    await ensureSharedMemoryInitialized();
+  } catch {
+    /* continue without blocking client beacon */
+  }
 
   const sql = getSqlClient();
   if (sql && pagePath) {

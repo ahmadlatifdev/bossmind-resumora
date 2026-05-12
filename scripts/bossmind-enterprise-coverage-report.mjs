@@ -79,6 +79,7 @@ const CRITICAL_SCRIPTS = [
   "lib/marketing/seo-config.js",
   "pages/sitemap.xml.js",
   "pages/robots.txt.js",
+  "pages/api/marketing/trust-snapshot.js",
   "lib/orchestration/bossmind-continuous-optimization-snapshot.js",
   "scripts/bossmind-continuous-optimization-cycle.mjs",
 ];

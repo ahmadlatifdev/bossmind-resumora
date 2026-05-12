@@ -7,6 +7,7 @@ This document describes **what the repository implements** versus what **must be
 - **Technical SEO:** `lib/marketing/seo-config.js`, `pages/sitemap.xml.js`, `pages/robots.txt.js`, site-wide JSON-LD via `_document`.
 - **Organic bundles:** `lib/marketing/google-organic-engine.js` (article outlines, clusters, GSC checklist steps, EN/FR). Orchestrator: `npm run bossmind:organic:growth`.
 - **Discovery inventory API:** `GET /api/marketing/traffic-discovery` — public URL counts, sitemap/robots URLs, schema summary, and explicit `cannotAutoConfirmFromRepo` items.
+- **Operator trust snapshot:** `GET /api/marketing/trust-snapshot` — engagement aggregates (no dislike promotion), discovery hints, optional local optimization readiness; requires the same auth as `runtime-sync-status` (dev, `BOSSMIND_DIAGNOSTICS=1`, or Bearer `BOSSMIND_ORCHESTRATION_SECRET`).
 - **Production evidence script:** `npm run bossmind:global:production-confirm` — optional live sitemap probe with `BOSSMIND_CONFIRM_PROBE_SITEMAP=1`.
 
 ## Not auto-activated from code

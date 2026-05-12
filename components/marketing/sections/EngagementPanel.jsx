@@ -27,10 +27,22 @@ export default function EngagementPanel() {
           if (!c && d) setEngStats(d);
         })
         .catch(() => {});
-    }, 30000);
+    }, 28000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        void fetch("/api/engagement/stats", { credentials: "same-origin" })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            if (!c && d) setEngStats(d);
+          })
+          .catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       c = true;
       window.clearInterval(pollId);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
 
@@ -96,7 +108,25 @@ export default function EngagementPanel() {
               <span className="rs-engage-metric-value">{engStats?.enabled === false ? "—" : t.engagementNeonLive}</span>
               <span className="rs-engage-metric-label">{t.engagementMetricNeon}</span>
             </div>
+            <div className="rs-engage-metric">
+              <span className="rs-engage-metric-value">
+                {engStats?.enabled === false ? "—" : engStats?.sharesTotal ?? 0}
+              </span>
+              <span className="rs-engage-metric-label">{t.engagementMetricShares}</span>
+            </div>
           </div>
+          {engStats?.serverTs ? (
+            <p className="rs-engage-synced">
+              {t.engagementSyncedShort}:{" "}
+              {new Date(engStats.serverTs).toLocaleString(lang === "fr" ? "fr-FR" : "en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+          ) : null}
           <button
             type="button"
             className="rs-engage-inline-text"

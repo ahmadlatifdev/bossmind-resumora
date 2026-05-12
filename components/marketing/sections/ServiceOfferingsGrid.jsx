@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ArrowRight, Bookmark, Heart, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, Bookmark, Heart, Share2, SlidersHorizontal } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -32,17 +32,26 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
   const [configs, setConfigs] = useState({});
 
   useEffect(() => {
-    let c = false;
-    fetch("/api/engagement/stats", { credentials: "same-origin" })
-      .then((r) => r.json())
-      .then((d) => {
-        if (!c) setEngStats(d);
-      })
-      .catch(() => {
-        if (!c) setEngStats({ enabled: false });
-      });
+    let cancelled = false;
+    const load = () =>
+      fetch("/api/engagement/stats", { credentials: "same-origin" })
+        .then((r) => r.json())
+        .then((d) => {
+          if (!cancelled) setEngStats(d);
+        })
+        .catch(() => {
+          if (!cancelled) setEngStats({ enabled: false });
+        });
+    load();
+    const pollId = window.setInterval(load, 28000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", onVis);
     return () => {
-      c = true;
+      cancelled = true;
+      window.clearInterval(pollId);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
 
@@ -171,6 +180,34 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
     [t]
   );
 
+  const likeMap = useMemo(() => {
+    const m = {};
+    for (const r of engStats?.likesByResource || []) {
+      m[r.key] = Number(r.count || 0);
+    }
+    return m;
+  }, [engStats]);
+
+  const saveMap = useMemo(() => {
+    const m = {};
+    for (const r of engStats?.savesByResource || []) {
+      m[r.key] = Number(r.count || 0);
+    }
+    return m;
+  }, [engStats]);
+
+  const shareLane = async (item) => {
+    await runEngagementAction({ type: "share", resourceKey: item.resourceKey });
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        const url = new URL(item.ctaHref, window.location.origin).href;
+        await navigator.share({ title: item.title, text: t.engagementShareText, url });
+      } catch {
+        /* user dismissed */
+      }
+    }
+  };
+
   return (
     <section id={variant === "services" ? "catalogue" : "capabilities"} className="rs-section">
       <div className="rs-container">
@@ -185,6 +222,8 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
             const open = expandedKey === item.resourceKey;
             const cg = getConfig(item.resourceKey);
             const q = open ? quoteFor(item.resourceKey) : null;
+            const likeCount = engStats?.enabled ? likeMap[item.resourceKey] ?? 0 : null;
+            const saveCount = engStats?.enabled ? saveMap[item.resourceKey] ?? 0 : null;
 
             return (
               <article
@@ -237,6 +276,7 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
                   >
                     <Heart size={16} strokeWidth={1.5} className="rs-icon-gold" fill={liked ? "currentColor" : "none"} aria-hidden />
                     {t.engagementLike}
+                    {likeCount != null ? ` · ${likeCount}` : ""}
                   </button>
                   <button
                     type="button"
@@ -247,6 +287,16 @@ export default function ServiceOfferingsGrid({ variant = "capabilities" }) {
                   >
                     <Bookmark size={16} strokeWidth={1.5} className="rs-icon-gold" fill={saved ? "currentColor" : "none"} aria-hidden />
                     {t.engagementSave}
+                    {saveCount != null ? ` · ${saveCount}` : ""}
+                  </button>
+                  <button
+                    type="button"
+                    className="rs-engage-pill"
+                    disabled={engBusy}
+                    onClick={() => shareLane(item)}
+                  >
+                    <Share2 size={16} strokeWidth={1.5} className="rs-icon-gold" aria-hidden />
+                    {t.engagementShareCta}
                   </button>
                   <button
                     type="button"
