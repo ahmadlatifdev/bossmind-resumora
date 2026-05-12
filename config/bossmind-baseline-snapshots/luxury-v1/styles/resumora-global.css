@@ -2190,12 +2190,42 @@ body {
   font-size: 0.875rem;
 }
 
+/* Main slot between minimal header/footer — must not collapse (flex:1 + min-height:0 hid register/login body in production). */
 .rs-minimal-app > .rs-app-shell {
-  flex: 1;
+  flex: 1 1 auto;
   display: grid;
   align-content: center;
-  min-height: 0;
   width: 100%;
+  position: relative;
+  z-index: 2;
+  min-height: min(70vh, max(22rem, calc(100vh - 12rem)));
+  padding-block: clamp(0.75rem, 2.5vh, 1.75rem);
+}
+
+.rs-register-layout {
+  width: min(960px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .rs-register-layout--split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.rs-register-plan-card .rs-register-plan-features {
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--rs-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.rs-register-plan-card .rs-register-plan-features li {
+  margin: 0.25rem 0;
 }
 
 .rs-footer-lang-row {
