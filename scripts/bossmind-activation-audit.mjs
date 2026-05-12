@@ -273,6 +273,17 @@ async function main() {
       partialBecause:
         "SSL/DNS/mobile checks need BOSSMIND_PUBLIC_ORIGIN or manual Lighthouse; not run in this script.",
     },
+    marketingStacks: {
+      score: scoreGate([
+        { ok: exists("scripts/bossmind-marketing-activation.mjs"), label: "unified_activation_script" },
+        { ok: exists("scripts/marketing/weekly-organic-pipeline.js"), label: "weekly_organic_pipeline" },
+        { ok: exists("scripts/marketing/run-google-organic-engine.mjs"), label: "google_organic_engine" },
+        { ok: exists("scripts/marketing/run-social-growth-engine.mjs"), label: "social_growth_engine" },
+        { ok: init.enabled, label: "neon_coordination_for_dedupe_and_logs" },
+      ]),
+      partialBecause:
+        "Autopublish is opt-in (`BOSSMIND_MARKETING_AUTOPUBLISH=1`); schedule `npm run bossmind:marketing:activate` (cron) or `BOSSMIND_AUTONOMOUS_MARKETING_EVERY_CYCLES` on the autonomous worker. Engagement/Elite pricing are UI-only.",
+    },
   };
 
   const weights = {
@@ -291,6 +302,7 @@ async function main() {
     performanceEngine: 4,
     eventDrivenAutomation: 8,
     productionDeploymentValidation: 8,
+    marketingStacks: 5,
   };
 
   let weightedSum = 0;

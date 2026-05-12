@@ -32,6 +32,8 @@ const deployGateEvery = Number(process.env.BOSSMIND_DEPLOY_GATE_EVERY_CYCLES || 
 const runDeployGate = process.env.BOSSMIND_AUTONOMOUS_RUN_DEPLOY_GATE !== "0";
 const runOnce = process.argv.includes("--once");
 const checkpointKey = process.env.BOSSMIND_CONTINUITY_KEY || "global_continuity";
+/** When > 0, run unified marketing activation every N cycles (~weekly at 60s interval when set to 10080). */
+const marketingEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_MARKETING_EVERY_CYCLES || 0);
 
 const {
   loadContinuePoint,
@@ -153,6 +155,15 @@ async function runCycle(neonApi) {
     );
   }
 
+  let marketingActivation = { skipped: true, reason: "BOSSMIND_AUTONOMOUS_MARKETING_EVERY_CYCLES=0" };
+  if (marketingEveryCycles > 0 && cycle > 0 && cycle % marketingEveryCycles === 0) {
+    marketingActivation = runNodeScript(
+      "scripts/bossmind-marketing-activation.mjs",
+      ["--from-autonomous"],
+      continueEnv
+    );
+  }
+
   const localSyncStatus = readJsonSafe(path.join(root, ".bossmind", "runtime-sync", "status.json"));
   const latestReconciliation = readJsonSafe(path.join(root, ".bossmind", "reconciliation", "status.json"));
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
@@ -190,6 +201,9 @@ async function runCycle(neonApi) {
         deployGate.skipped
           ? { ok: true, skipped: true }
           : { ok: deployGate.ok, code: deployGate.code },
+      marketingActivation: marketingActivation.skipped
+        ? marketingActivation
+        : { ok: marketingActivation.ok, code: marketingActivation.code },
     },
     latestRuntimeSync: localSyncStatus
       ? {

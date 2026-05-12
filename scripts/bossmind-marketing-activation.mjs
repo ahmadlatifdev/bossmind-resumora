@@ -30,6 +30,7 @@ const root = path.join(__dirname, "..");
 const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
 const lockDir = path.join(root, ".bossmind", "marketing-activation");
 const lockPath = path.join(lockDir, "lock.json");
+const localWeekMarker = (wid) => path.join(lockDir, `completed-${wid}.json`);
 const STALE_LOCK_MS = 30 * 60 * 1000;
 const STALE_TASK_MS = 45 * 60 * 1000;
 
@@ -161,6 +162,20 @@ async function main() {
     process.exit(0);
   }
 
+  if (!neonOn && fs.existsSync(localWeekMarker(weekId)) && !opts.force) {
+    releaseLock();
+    console.log(
+      JSON.stringify({
+        ok: true,
+        skipped: true,
+        reason: "local_week_marker_no_neon",
+        weekId,
+        marker: localWeekMarker(weekId),
+      })
+    );
+    process.exit(0);
+  }
+
   let row = neonOn ? await getTaskRow(neon, taskKey) : null;
   if (row?.status === "completed" && !opts.force) {
     releaseLock();
@@ -215,19 +230,11 @@ async function main() {
   }
 
   const steps = [];
-  const weeklyArgs = ["--persist-neon"];
+  const weeklyArgsFinal = [];
+  if (neonOn) weeklyArgsFinal.push("--persist-neon");
   if (neonOn && process.env.BOSSMIND_MARKETING_AI_ENRICH === "1" && process.env.DEEPSEEK_API_KEY) {
-    weeklyArgs.push("--enrich-ai");
+    weeklyArgsFinal.push("--enrich-ai");
   }
-  if (!neonOn) {
-    weeklyArgs.length = 0;
-    weeklyArgs.push();
-  }
-  const weeklyArgsFinal = neonOn
-    ? weeklyArgs.includes("--enrich-ai")
-      ? ["--persist-neon", "--enrich-ai"]
-      : ["--persist-neon"]
-    : [];
 
   const w = runNodeScript("scripts/marketing/weekly-organic-pipeline.js", weeklyArgsFinal);
   steps.push({ id: "weekly_organic", ok: w.ok, code: w.code, stderrTail: w.stderr.slice(-2000) });
@@ -236,7 +243,8 @@ async function main() {
   const g = runNodeScript("scripts/marketing/run-google-organic-engine.mjs", googleArgs);
   steps.push({ id: "google_organic", ok: g.ok, code: g.code, stderrTail: g.stderr.slice(-2000) });
 
-  const socialArgs = ["--persist-neon"];
+  const socialArgs = [];
+  if (neonOn) socialArgs.push("--persist-neon");
   if (capabilities.socialAutopublish) {
     socialArgs.push("--autopublish");
     if (capabilities.socialDryRun) socialArgs.push("--dry-run");
@@ -276,6 +284,13 @@ async function main() {
       eventKey: weekId,
       payload: summary,
     });
+  } else if (allOk) {
+    fs.mkdirSync(lockDir, { recursive: true });
+    fs.writeFileSync(
+      localWeekMarker(weekId),
+      JSON.stringify({ weekId, finishedAt: new Date().toISOString(), steps }, null, 2),
+      "utf8"
+    );
   }
 
   releaseLock();

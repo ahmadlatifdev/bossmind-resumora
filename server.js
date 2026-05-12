@@ -1,6 +1,8 @@
 const { loadProjectEnv } = require("./lib/shared/load-project-env");
 loadProjectEnv();
 
+const path = require("path");
+const { spawn } = require("child_process");
 const express = require("express");
 const next = require("next");
 const {
@@ -58,6 +60,17 @@ app
     server.listen(port, (err) => {
       if (err) throw err;
       console.log(`Resumora running on port ${port}`);
+      if (process.env.BOSSMIND_MARKETING_ACTIVATE_ON_SERVER_START === "1") {
+        const script = path.join(__dirname, "scripts", "bossmind-marketing-activation.mjs");
+        const child = spawn(process.execPath, [script], {
+          cwd: __dirname,
+          detached: true,
+          stdio: "ignore",
+          env: process.env,
+        });
+        child.unref();
+        console.log("BossMind marketing activation forked (BOSSMIND_MARKETING_ACTIVATE_ON_SERVER_START=1).");
+      }
     });
   })
   .catch((err) => {
