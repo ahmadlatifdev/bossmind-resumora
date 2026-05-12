@@ -1,5 +1,6 @@
 import { performanceStats, translations } from "@/lib/marketing/site-copy";
 import { useLanguage } from "@/context/LanguageContext";
+import EngagementMomentumStrip from "@/components/marketing/EngagementMomentumStrip";
 
 export default function TrustMetricsPanel({ sectionId } = {}) {
   const { lang } = useLanguage();
@@ -21,6 +22,7 @@ export default function TrustMetricsPanel({ sectionId } = {}) {
             </article>
           ))}
         </div>
+        <EngagementMomentumStrip />
         <p className="rs-trust-strip">{t.trustStrip}</p>
       </div>
     </section>

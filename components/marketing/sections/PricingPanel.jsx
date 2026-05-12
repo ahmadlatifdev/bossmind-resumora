@@ -8,6 +8,7 @@ import {
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
 import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
+import EngagementMomentumStrip from "@/components/marketing/EngagementMomentumStrip";
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -96,6 +97,11 @@ export default function PricingPanel() {
         <h2 className="rs-h2">{t.pricingTitle}</h2>
         <p className="rs-subtitle">{t.pricingSubtitle}</p>
 
+        <p className="rs-subtitle" style={{ marginTop: "0.35rem", maxWidth: "52rem" }}>
+          {t.pricingCompareHint}
+        </p>
+        <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
+
         {checkoutError ? (
           <p className="rs-pricing-checkout-msg" role="status">
             {checkoutError}
@@ -121,15 +127,23 @@ export default function PricingPanel() {
           </aside>
         ) : null}
 
+        <EngagementMomentumStrip variant="compact" />
+
         <div className="rs-pricing-grid">
           {dynamicPlans.map((plan) => (
             <article
               key={plan.id}
-              className="rs-price-card"
+              className={`rs-price-card rs-price-card--${plan.id}`}
               data-featured={plan.featured}
+              data-tier={plan.id}
               data-quote-match={savedQuote?.quote?.tier === plan.id ? "true" : "false"}
             >
-              {plan.featured ? <span className="rs-price-flag">{t.popular}</span> : null}
+              {plan.badge === "flagship" ? (
+                <span className="rs-price-flag">{t.badgeBestValue}</span>
+              ) : null}
+              {plan.badge === "balanced" ? (
+                <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
+              ) : null}
               <div>
                 <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800 }}>{plan.name[lang]}</h3>
                 <div className="rs-price-amount" style={{ marginTop: "0.35rem" }}>
@@ -147,7 +161,7 @@ export default function PricingPanel() {
               </ul>
               <button
                 type="button"
-                className="rs-price-btn"
+                className={`rs-price-btn${plan.id === "elite" ? " rs-price-btn--elite" : ""}`}
                 disabled={busyPlan === plan.id}
                 onClick={() => handleCheckout(plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
               >
