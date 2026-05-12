@@ -528,6 +528,14 @@ body {
   background: linear-gradient(90deg, var(--rs-gold), var(--rs-gold-soft));
 }
 
+.rs-trust-secure-line {
+  margin: 0.65rem 0 0;
+  max-width: 52rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--rs-text-secondary);
+}
+
 .rs-trust-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -769,6 +777,22 @@ body {
   text-transform: uppercase;
   background: linear-gradient(135deg, var(--rs-gold), var(--rs-gold-soft));
   color: #0a0f1f;
+}
+
+.rs-price-flag-row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-height: 1.35rem;
+  margin: 0 0 0.4rem;
+}
+
+.rs-price-flag-row .rs-price-flag {
+  position: static;
+  top: auto;
+  right: auto;
 }
 
 .rs-price-amount {
@@ -2702,12 +2726,26 @@ body {
 }
 
 .rs-pricing-elite-hint {
-  margin: 0.5rem 0 0.85rem;
+  margin: 0.5rem 0 0.5rem;
   max-width: 52rem;
   font-size: 0.88rem;
   line-height: 1.55;
   color: rgba(201, 162, 39, 0.88);
   font-weight: 600;
+}
+
+.rs-pricing-trust-line {
+  margin: 0 0 0.45rem;
+  max-width: 52rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--rs-text-secondary);
+}
+
+.rs-pricing-trust-line--muted {
+  color: var(--rs-text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
 }
 
 .rs-engagement-strip {
@@ -2821,6 +2859,30 @@ body {
   color: var(--rs-text-muted);
 }
 
+.rs-engagement-recent-line {
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--rs-text-secondary);
+}
+
+.rs-engagement-recent-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rs-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.rs-engagement-positive-only {
+  margin: 0.45rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: rgba(120, 200, 160, 0.85);
+}
+
 .rs-engagement-popular-row {
   display: flex;
   flex-wrap: wrap;
@@ -2902,10 +2964,17 @@ body {
   border: 1px solid rgba(201, 162, 39, 0.45);
 }
 
+.rs-price-flag--popular {
+  background: rgba(201, 162, 39, 0.12);
+  color: var(--rs-gold-soft);
+  border: 1px solid rgba(201, 162, 39, 0.38);
+}
+
 .rs-price-card[data-tier="elite"] {
-  border-color: rgba(201, 162, 39, 0.5);
-  background: radial-gradient(circle at 50% -10%, rgba(201, 162, 39, 0.14), transparent 55%),
+  border-color: rgba(201, 162, 39, 0.55);
+  background: radial-gradient(circle at 50% -10%, rgba(201, 162, 39, 0.18), transparent 55%),
     rgba(11, 20, 48, 0.92);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
 }
 
 .rs-price-btn--elite {

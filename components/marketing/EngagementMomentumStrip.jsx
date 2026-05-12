@@ -94,6 +94,15 @@ export default function EngagementMomentumStrip({ variant = "default" }) {
         </div>
       )}
 
+      {e.recentSelectionLine ? (
+        <p className="rs-engagement-recent-line">
+          <span className="rs-engagement-recent-label">{t.engagementRecentlySelected}</span>
+          {e.recentSelectionLine}
+        </p>
+      ) : null}
+
+      <p className="rs-engagement-positive-only">{t.engagementSatisfactionTrust}</p>
+
       <div className="rs-engagement-metrics">
         <div className="rs-engagement-metric">
           <span className="rs-engagement-metric-label">{sessionsMetricLabel}</span>

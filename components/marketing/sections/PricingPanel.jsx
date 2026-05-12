@@ -101,6 +101,8 @@ export default function PricingPanel() {
           {t.pricingCompareHint}
         </p>
         <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
+        <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
+        <p className="rs-pricing-trust-line rs-pricing-trust-line--muted">{t.pricingWorkflowTrustLine}</p>
 
         {checkoutError ? (
           <p className="rs-pricing-checkout-msg" role="status">
@@ -138,12 +140,19 @@ export default function PricingPanel() {
               data-tier={plan.id}
               data-quote-match={savedQuote?.quote?.tier === plan.id ? "true" : "false"}
             >
-              {plan.badge === "flagship" ? (
-                <span className="rs-price-flag">{t.badgeBestValue}</span>
-              ) : null}
-              {plan.badge === "balanced" ? (
-                <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
-              ) : null}
+              {(plan.badge === "flagship" || plan.badge === "balanced" || plan.id === "professional") && (
+                <div className="rs-price-flag-row">
+                  {plan.badge === "flagship" ? (
+                    <span className="rs-price-flag">{t.badgeBestValue}</span>
+                  ) : null}
+                  {plan.badge === "balanced" ? (
+                    <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
+                  ) : null}
+                  {plan.id === "professional" ? (
+                    <span className="rs-price-flag rs-price-flag--popular">{t.badgeMostPopular}</span>
+                  ) : null}
+                </div>
+              )}
               <div>
                 <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800 }}>{plan.name[lang]}</h3>
                 <div className="rs-price-amount" style={{ marginTop: "0.35rem" }}>
