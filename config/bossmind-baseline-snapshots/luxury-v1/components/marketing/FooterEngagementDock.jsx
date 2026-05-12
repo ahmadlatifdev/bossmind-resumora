@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bell, Share2, UserPlus } from "lucide-react";
+import { Bell, LayoutGrid, Share2, UserPlus } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { FOOTER_SITE_RESOURCE_KEY } from "@/lib/engagement/service-ids";
 import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
@@ -102,6 +102,7 @@ export default function FooterEngagementDock({ variant = "default" }) {
 
       <div className="rs-footer-trust-chips" aria-label={t.footerLiveSignals}>
         <span className="rs-footer-trust-chip">{t.footerTrustChipPopular}</span>
+        <span className="rs-footer-trust-chip">{t.footerTrustChipRecent}</span>
         <span className="rs-footer-trust-chip rs-footer-trust-chip--gold">{t.footerTrustChipElite}</span>
         <span className="rs-footer-trust-chip">{t.footerTrustChipSecure}</span>
         {trendingLabel ? (
@@ -132,6 +133,10 @@ export default function FooterEngagementDock({ variant = "default" }) {
           <Share2 className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
           <span className="rs-foot-engage-v2__label">{t.footerEngageShare}</span>
         </button>
+        <Link href="/pricing#pricing" className="rs-foot-engage-v2 rs-foot-engage-v2--link">
+          <LayoutGrid className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{t.footerPricingCta}</span>
+        </Link>
         <Link href="/register" className="rs-foot-engage-v2 rs-foot-engage-v2--link">
           <UserPlus className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
           <span className="rs-foot-engage-v2__label">{t.footerEngageRegister}</span>
