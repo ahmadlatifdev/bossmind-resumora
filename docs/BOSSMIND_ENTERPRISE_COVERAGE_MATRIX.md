@@ -39,6 +39,14 @@ This matrix is the **honest production-confirmation** map: what is **implemented
 npm run bossmind:enterprise:coverage
 ```
 
+**Roll-up (marketing + Stripe + SEO artifacts + envelope dry-run):**
+
+```bash
+npm run bossmind:global:production-confirm
+```
+
+See `docs/BOSSMIND_GLOBAL_PRODUCTION_CONFIRMATION.md`.
+
 Optional: `BOSSMIND_COVERAGE_STRICT=1` — exit non-zero if Neon is missing or critical scripts are absent.
 
 ## Policy
