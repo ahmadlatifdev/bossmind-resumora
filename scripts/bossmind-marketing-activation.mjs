@@ -16,6 +16,7 @@
  *   BOSSMIND_MARKETING_AI_ENRICH=1 — weekly --enrich-ai when DEEPSEEK_API_KEY set
  *   BOSSMIND_MARKETING_AUTOPUBLISH=1 — pass --autopublish to social engine (still respects its week dedupe)
  *   BOSSMIND_MARKETING_SOCIAL_DRY_RUN=1 — force social --dry-run even if autopublish on
+ *   BOSSMIND_ORGANIC_USE_ORCHESTRATOR=1 — run unified Google organic orchestrator instead of three separate child scripts
  */
 import fs from "fs";
 import path from "path";
@@ -230,27 +231,43 @@ async function main() {
   }
 
   const steps = [];
-  const weeklyArgsFinal = [];
-  if (neonOn) weeklyArgsFinal.push("--persist-neon");
-  if (neonOn && process.env.BOSSMIND_MARKETING_AI_ENRICH === "1" && process.env.DEEPSEEK_API_KEY) {
-    weeklyArgsFinal.push("--enrich-ai");
+  const useOrchestrator = process.env.BOSSMIND_ORGANIC_USE_ORCHESTRATOR === "1";
+
+  if (useOrchestrator) {
+    const orch = runNodeScript(
+      "scripts/marketing/bossmind-google-organic-orchestrator.mjs",
+      [],
+      { BOSSMIND_ORGANIC_WEEK: weekId }
+    );
+    steps.push({
+      id: "organic_growth_orchestrator",
+      ok: orch.ok,
+      code: orch.code,
+      stderrTail: orch.stderr.slice(-2000),
+    });
+  } else {
+    const weeklyArgsFinal = [];
+    if (neonOn) weeklyArgsFinal.push("--persist-neon");
+    if (neonOn && process.env.BOSSMIND_MARKETING_AI_ENRICH === "1" && process.env.DEEPSEEK_API_KEY) {
+      weeklyArgsFinal.push("--enrich-ai");
+    }
+
+    const w = runNodeScript("scripts/marketing/weekly-organic-pipeline.js", weeklyArgsFinal);
+    steps.push({ id: "weekly_organic", ok: w.ok, code: w.code, stderrTail: w.stderr.slice(-2000) });
+
+    const googleArgs = neonOn ? ["--persist-neon"] : [];
+    const g = runNodeScript("scripts/marketing/run-google-organic-engine.mjs", googleArgs);
+    steps.push({ id: "google_organic", ok: g.ok, code: g.code, stderrTail: g.stderr.slice(-2000) });
+
+    const socialArgs = [];
+    if (neonOn) socialArgs.push("--persist-neon");
+    if (capabilities.socialAutopublish) {
+      socialArgs.push("--autopublish");
+      if (capabilities.socialDryRun) socialArgs.push("--dry-run");
+    }
+    const s = runNodeScript("scripts/marketing/run-social-growth-engine.mjs", socialArgs);
+    steps.push({ id: "social_growth", ok: s.ok, code: s.code, stderrTail: s.stderr.slice(-2000) });
   }
-
-  const w = runNodeScript("scripts/marketing/weekly-organic-pipeline.js", weeklyArgsFinal);
-  steps.push({ id: "weekly_organic", ok: w.ok, code: w.code, stderrTail: w.stderr.slice(-2000) });
-
-  const googleArgs = neonOn ? ["--persist-neon"] : [];
-  const g = runNodeScript("scripts/marketing/run-google-organic-engine.mjs", googleArgs);
-  steps.push({ id: "google_organic", ok: g.ok, code: g.code, stderrTail: g.stderr.slice(-2000) });
-
-  const socialArgs = [];
-  if (neonOn) socialArgs.push("--persist-neon");
-  if (capabilities.socialAutopublish) {
-    socialArgs.push("--autopublish");
-    if (capabilities.socialDryRun) socialArgs.push("--dry-run");
-  }
-  const s = runNodeScript("scripts/marketing/run-social-growth-engine.mjs", socialArgs);
-  steps.push({ id: "social_growth", ok: s.ok, code: s.code, stderrTail: s.stderr.slice(-2000) });
 
   const allOk = steps.every((x) => x.ok);
   const summary = {

@@ -44,6 +44,7 @@
     "bossmind:autonomous:runtime:once": "node scripts/bossmind-autonomous-runtime.mjs --once",
     "bossmind:marketing:activate": "node scripts/bossmind-marketing-activation.mjs",
     "bossmind:marketing:activate:force": "node scripts/bossmind-marketing-activation.mjs --force",
+    "bossmind:organic:growth": "node scripts/marketing/bossmind-google-organic-orchestrator.mjs",
     "bossmind:continuity:status": "node scripts/bossmind-continuity-status.mjs",
     "bossmind:backup:daily": "node scripts/bossmind-backup-daily.mjs",
     "bossmind:preservation:validate": "node scripts/bossmind-preservation-validate.mjs",

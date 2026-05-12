@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "name": "BossMind Google Organic Growth — ecosystem registry",
+  "googleCloud": {
+    "suggestedProjectId": "bossmind-core",
+    "enableApisHint": [
+      "searchconsole.googleapis.com",
+      "indexing.googleapis.com",
+      "analyticsadmin.googleapis.com",
+      "youtube.googleapis.com",
+      "merchantapi.googleapis.com",
+      "generativelanguage.googleapis.com"
+    ],
+    "secretsNote": "OAuth clients, service accounts, and refresh tokens live only in Railway / Render env — never in git."
+  },
+  "protection": {
+    "neverAutoOverwriteMarketingPages": true,
+    "useDeployGateAndProtectedSurface": true,
+    "canonicalAndSitemapNote": "Next.js routes + public/robots.txt; programmatic new routes require explicit PR review per PROTECTED_COMPONENTS_REGISTRY."
+  },
+  "projects": [
+    {
+      "id": "resumora",
+      "displayName": "Resumora",
+      "siteUrl": "https://resumora.net",
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_RESUMORA",
+      "pipelines": {
+        "weeklyOrganic": true,
+        "googleOrganicBundle": true,
+        "socialGrowthBundle": true,
+        "marketingActivationBundle": false
+      }
+    },
+    {
+      "id": "elegancyart",
+      "displayName": "ElegancyArt",
+      "siteUrl": null,
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_ELEGANCYART",
+      "pipelines": {
+        "weeklyOrganic": false,
+        "googleOrganicBundle": false,
+        "socialGrowthBundle": false,
+        "marketingActivationBundle": false
+      }
+    },
+    {
+      "id": "ai-video-generator",
+      "displayName": "AI Video Generator",
+      "siteUrl": null,
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO",
+      "pipelines": {
+        "weeklyOrganic": false,
+        "googleOrganicBundle": false,
+        "socialGrowthBundle": false,
+        "marketingActivationBundle": false
+      }
+    },
+    {
+      "id": "tiktok-ai",
+      "displayName": "TikTok AI",
+      "siteUrl": null,
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_TIKTOK_AI",
+      "pipelines": {
+        "weeklyOrganic": false,
+        "googleOrganicBundle": false,
+        "socialGrowthBundle": false,
+        "marketingActivationBundle": false
+      }
+    },
+    {
+      "id": "global-stock",
+      "displayName": "Global Stock",
+      "siteUrl": null,
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_GLOBAL_STOCK",
+      "pipelines": {
+        "weeklyOrganic": false,
+        "googleOrganicBundle": false,
+        "socialGrowthBundle": false,
+        "marketingActivationBundle": false
+      }
+    }
+  ]
+}
