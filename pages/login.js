@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
-import { getPostAuthRedirectPath } from "@/lib/marketing/checkout-plan-persistence";
+import {
+  getPostAuthRedirectPath,
+  normalizeCheckoutPlanId,
+  setPendingCheckoutPlan,
+} from "@/lib/marketing/checkout-plan-persistence";
 import { translations } from "@/lib/marketing/site-copy";
+
+function firstQuery(value) {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return "";
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +23,12 @@ export default function LoginPage() {
   const t = translations[lang];
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const p = normalizeCheckoutPlanId(firstQuery(router.query.plan));
+    if (p) setPendingCheckoutPlan(p);
+  }, [router.isReady, router.query.plan]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -45,7 +61,7 @@ export default function LoginPage() {
         <title>{t.loginTitle} · Resumora</title>
         <meta name="description" content={t.loginSubtitle} />
       </Head>
-      <main className="rs-app-shell rs-app-shell--minimal-main">
+      <main className="rs-app-shell rs-app-shell--minimal-main" id="login-main">
         <section className="rs-simple-card">
           <h1>{t.loginTitle}</h1>
           <p>{t.loginSubtitle}</p>
