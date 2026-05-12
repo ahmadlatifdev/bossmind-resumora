@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { Share2, ThumbsDown, ThumbsUp, UserPlus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bell, Share2, UserPlus } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { FOOTER_SITE_RESOURCE_KEY } from "@/lib/engagement/service-ids";
-import { translations } from "@/lib/marketing/site-copy";
+import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 
 export default function FooterEngagementDock({ variant = "default" }) {
   const { lang } = useLanguage();
   const t = translations[lang];
+  const labels = SERVICE_LABELS[lang] || SERVICE_LABELS.en;
   const [stats, setStats] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -27,10 +28,15 @@ export default function FooterEngagementDock({ variant = "default" }) {
     }, 0);
     const poll = window.setInterval(() => {
       void refresh();
-    }, 20000);
+    }, 24000);
+    const onVis = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       window.clearTimeout(id);
       window.clearInterval(poll);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, [refresh]);
 
@@ -64,7 +70,7 @@ export default function FooterEngagementDock({ variant = "default" }) {
     const url = typeof window !== "undefined" ? window.location.href : "https://resumora.net";
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Resumora", url, text: "Resumora — executive resume studio." });
+        await navigator.share({ title: "Resumora", url, text: t.engagementShareText });
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
         window.alert(t.footerShareCopied);
@@ -78,12 +84,14 @@ export default function FooterEngagementDock({ variant = "default" }) {
   };
 
   const neonReady = stats?.enabled === true;
-  const liked = stats?.myLikes?.includes(FOOTER_SITE_RESOURCE_KEY);
-  const disliked = stats?.myDislikes?.includes(FOOTER_SITE_RESOURCE_KEY);
-  const likeCount =
-    stats?.likesByResource?.find((x) => x.key === FOOTER_SITE_RESOURCE_KEY)?.count ?? 0;
-  const dislikeCount =
-    stats?.dislikesByResource?.find((x) => x.key === FOOTER_SITE_RESOURCE_KEY)?.count ?? 0;
+  const following = Boolean(stats?.followingBrand);
+
+  const trendingLabel = useMemo(() => {
+    if (!neonReady || !stats?.trendingServices?.length) return null;
+    const top = stats.trendingServices[0];
+    if (!top?.key || !(Number(top.score) > 0)) return null;
+    return labels[top.key] || null;
+  }, [neonReady, stats, labels]);
 
   return (
     <div className={`rs-footer-engage-dock ${variant === "minimal" ? "rs-footer-engage-dock--minimal" : ""}`}>
@@ -91,6 +99,19 @@ export default function FooterEngagementDock({ variant = "default" }) {
         <span className="rs-footer-engage-title">{t.footerDockEngage}</span>
         <span className="rs-footer-engage-sub">{t.footerEngageBarLead}</span>
       </div>
+
+      <div className="rs-footer-trust-chips" aria-label={t.footerLiveSignals}>
+        <span className="rs-footer-trust-chip">{t.footerTrustChipPopular}</span>
+        <span className="rs-footer-trust-chip rs-footer-trust-chip--gold">{t.footerTrustChipElite}</span>
+        <span className="rs-footer-trust-chip">{t.footerTrustChipSecure}</span>
+        {trendingLabel ? (
+          <span className="rs-footer-trust-chip rs-footer-trust-chip--trend">
+            {t.footerTrendingPrefix}: {trendingLabel}
+          </span>
+        ) : null}
+        {!neonReady ? <span className="rs-footer-trust-chip rs-footer-trust-chip--muted">{t.footerConfigureNeon}</span> : null}
+      </div>
+
       <div
         className="rs-footer-engage-toolbar"
         role="group"
@@ -98,31 +119,14 @@ export default function FooterEngagementDock({ variant = "default" }) {
       >
         <button
           type="button"
-          className={`rs-foot-engage-v2 ${liked ? "rs-foot-engage-v2--active" : ""}`}
+          className={`rs-foot-engage-v2 ${following ? "rs-foot-engage-v2--active" : ""}`}
           disabled={busy || !neonReady}
           title={!neonReady ? t.engagementDisabled : undefined}
-          aria-pressed={liked ? "true" : "false"}
-          onClick={() => runAction({ type: "like", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
+          aria-pressed={following ? "true" : "false"}
+          onClick={() => runAction({ type: following ? "unfollow" : "follow" })}
         >
-          <ThumbsUp className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
-          <span className="rs-foot-engage-v2__label">{t.footerEngageLike}</span>
-          <span className="rs-foot-engage-v2__badge" aria-label="Likes">
-            {likeCount}
-          </span>
-        </button>
-        <button
-          type="button"
-          className={`rs-foot-engage-v2 ${disliked ? "rs-foot-engage-v2--active-dislike" : ""}`}
-          disabled={busy || !neonReady}
-          title={!neonReady ? t.engagementDisabled : undefined}
-          aria-pressed={disliked ? "true" : "false"}
-          onClick={() => runAction({ type: "dislike", resourceKey: FOOTER_SITE_RESOURCE_KEY })}
-        >
-          <ThumbsDown className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
-          <span className="rs-foot-engage-v2__label">{t.footerEngageDislike}</span>
-          <span className="rs-foot-engage-v2__badge" aria-label="Dislikes">
-            {dislikeCount}
-          </span>
+          <Bell className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />
+          <span className="rs-foot-engage-v2__label">{following ? t.engagementFollowing : t.engagementFollow}</span>
         </button>
         <button type="button" className="rs-foot-engage-v2" disabled={busy} onClick={onShare}>
           <Share2 className="rs-foot-engage-v2__icon" size={22} strokeWidth={1.75} aria-hidden />

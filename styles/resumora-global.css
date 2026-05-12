@@ -3155,6 +3155,50 @@ body {
   letter-spacing: 0.04em;
 }
 
+.rs-footer-trust-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 52rem;
+  margin: 0.15rem auto 0.35rem;
+}
+
+.rs-footer-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rs-text-secondary);
+  border: 1px solid rgba(120, 140, 180, 0.28);
+  background: rgba(6, 12, 28, 0.55);
+}
+
+.rs-footer-trust-chip--gold {
+  color: rgba(201, 162, 39, 0.95);
+  border-color: rgba(201, 162, 39, 0.38);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.rs-footer-trust-chip--trend {
+  border-color: rgba(120, 180, 200, 0.35);
+  color: rgba(200, 230, 255, 0.88);
+}
+
+.rs-footer-trust-chip--muted {
+  opacity: 0.82;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.65rem;
+}
+
 .rs-footer-engage-toolbar {
   display: flex;
   flex-wrap: wrap;
