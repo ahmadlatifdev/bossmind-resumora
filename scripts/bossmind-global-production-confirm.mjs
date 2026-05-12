@@ -5,7 +5,7 @@
  *
  *   npm run bossmind:global:production-confirm
  *   BOSSMIND_CONFIRM_STRICT=1 — exit 1 if Stripe financial pipeline or critical artifacts fail
- *   BOSSMIND_CONFIRM_RUN_ORGANIC=1 — also run organic growth orchestrator (writes campaigns + Neon events)
+ *   BOSSMIND_CONFIRM_PROBE_SITEMAP=1 — optional HTTP GET of {NEXT_PUBLIC_SITE_URL}/sitemap.xml (evidence only)
  */
 import { spawnSync } from "child_process";
 import path from "path";
@@ -48,12 +48,38 @@ function seoArtifactsOk() {
   const fs = require("fs");
   const paths = [
     "lib/marketing/seo-config.js",
+    "lib/marketing/traffic-discovery-hints.js",
     "pages/sitemap.xml.js",
     "pages/robots.txt.js",
     "pages/api/marketing/public-engagement.js",
+    "pages/api/marketing/traffic-discovery.js",
   ];
   const missing = paths.filter((p) => !fs.existsSync(path.join(root, p)));
   return { ok: missing.length === 0, missing };
+}
+
+async function probePublicSitemap(originRaw) {
+  const origin = String(originRaw || "").replace(/\/$/, "");
+  if (!/^https:\/\//i.test(origin)) {
+    return { ok: false, error: "invalid_origin", url: `${origin}/sitemap.xml` };
+  }
+  const url = `${origin}/sitemap.xml`;
+  const ac = new AbortController();
+  const tid = setTimeout(() => ac.abort(), 12000);
+  try {
+    const r = await fetch(url, { signal: ac.signal, redirect: "follow" });
+    const text = await r.text();
+    const hasUrlset = /<urlset[\s>]/i.test(text);
+    clearTimeout(tid);
+    return { ok: r.ok && hasUrlset, status: r.status, url, hasUrlset };
+  } catch (e) {
+    clearTimeout(tid);
+    return {
+      ok: false,
+      url,
+      error: e.name === "AbortError" ? "timeout" : e.message || String(e),
+    };
+  }
 }
 
 async function neonPing() {
@@ -95,6 +121,15 @@ async function main() {
   const seo = seoArtifactsOk();
   const neon = await neonPing();
 
+  let sitemapProbe = {
+    skipped: true,
+    reason: "set BOSSMIND_CONFIRM_PROBE_SITEMAP=1 to fetch public /sitemap.xml (Render origin)",
+  };
+  if (process.env.BOSSMIND_CONFIRM_PROBE_SITEMAP === "1") {
+    const { getSiteUrl } = require(path.join(root, "lib/marketing/seo-config.js"));
+    sitemapProbe = await probePublicSitemap(getSiteUrl());
+  }
+
   const stripeReady = Boolean(stripe.json?.audit?.financialPipelineReady);
   const artifactsOk = Boolean(coverage.json?.allCriticalArtifactsPresent);
 
@@ -129,6 +164,7 @@ async function main() {
       seoArtifacts: seo,
       neon: neon,
       organicOrchestrator: organic,
+      sitemapProbe,
     },
     cannotAutoConfirmFromRepo: [
       "Google Search Console property verified and sitemap submitted (Dashboard)",
@@ -142,6 +178,7 @@ async function main() {
       "docs/BOSSMIND_GOOGLE_ORGANIC_GROWTH_ARCHITECTURE.md",
       "docs/BOSSMIND_ENTERPRISE_COVERAGE_MATRIX.md",
       "docs/BOSSMIND_ENTERPRISE_ENVELOPE.md",
+      "docs/BOSSMIND_GLOBAL_TRAFFIC_DISCOVERY.md",
     ],
   };
 
