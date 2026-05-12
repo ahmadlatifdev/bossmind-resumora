@@ -1,20 +1,69 @@
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { getEngagementSurface } from "@/lib/marketing/engagement-signals";
-import { translations } from "@/lib/marketing/site-copy";
+import { buildSmartEngagementSurface } from "@/lib/marketing/engagement-signals";
+import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 
-/** Luxury trust / conversion strip — banded studio momentum (not live headcount). */
+/** Luxury trust / conversion strip — real aggregates when Neon is available, else illustrative pacing (policy-safe). */
 export default function EngagementMomentumStrip({ variant = "default" }) {
   const { lang } = useLanguage();
   const t = translations[lang];
   const [pulse, setPulse] = useState(0);
+  const [bundle, setBundle] = useState(null);
+  const [bundleError, setBundleError] = useState(false);
 
   useEffect(() => {
     const id = window.setInterval(() => setPulse((p) => (p + 1) % 10_000), 135_000);
     return () => window.clearInterval(id);
   }, []);
 
-  const e = useMemo(() => getEngagementSurface(lang, pulse), [lang, pulse]);
+  useEffect(() => {
+    let cancelled = false;
+    const ac = new AbortController();
+    (async () => {
+      try {
+        const r = await fetch("/api/marketing/public-engagement", {
+          signal: ac.signal,
+          headers: { accept: "application/json" },
+        });
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        if (!cancelled) setBundle(j);
+      } catch {
+        if (!cancelled) {
+          setBundle(null);
+          setBundleError(true);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+      ac.abort();
+    };
+  }, []);
+
+  const serviceLabels = SERVICE_LABELS[lang] || SERVICE_LABELS.en;
+
+  const e = useMemo(
+    () =>
+      buildSmartEngagementSurface({
+        lang,
+        refreshKey: pulse,
+        bundle: bundleError ? null : bundle,
+        serviceLabels,
+      }),
+    [lang, pulse, bundle, bundleError, serviceLabels]
+  );
+
+  const sessionsMetricLabel =
+    e.dataMode === "analytics" ? t.engagementSessionsLabelSignals : t.engagementSessionsLabel;
+
+  const disclaimer =
+    e.dataMode === "analytics"
+      ? t.engagementDisclaimerAnalytics
+      : e.dataMode === "blended"
+        ? t.engagementDisclaimerBlended
+        : t.engagementSignalsDisclaimer;
 
   const compact = variant === "compact";
 
@@ -31,9 +80,23 @@ export default function EngagementMomentumStrip({ variant = "default" }) {
           ))}
         </div>
       </div>
+
+      {(e.popularLabel || e.trendingSecondary) && (
+        <div className="rs-engagement-popular-row" aria-label={t.engagementTrending}>
+          {e.popularLabel ? (
+            <span className="rs-engagement-chip">
+              {t.engagementPopularLabel}: <strong>{e.popularLabel}</strong>
+            </span>
+          ) : null}
+          {e.trendingSecondary ? (
+            <span className="rs-engagement-chip rs-engagement-chip--trend">{t.engagementTrendingChip}</span>
+          ) : null}
+        </div>
+      )}
+
       <div className="rs-engagement-metrics">
         <div className="rs-engagement-metric">
-          <span className="rs-engagement-metric-label">{t.engagementSessionsLabel}</span>
+          <span className="rs-engagement-metric-label">{sessionsMetricLabel}</span>
           <strong className="rs-engagement-metric-value">{e.sessionsBand}</strong>
         </div>
         <div className="rs-engagement-metric">
@@ -46,8 +109,27 @@ export default function EngagementMomentumStrip({ variant = "default" }) {
         </div>
       </div>
       <p className="rs-engagement-micro">{e.microSignal}</p>
-      <blockquote className="rs-engagement-quote">{e.testimonialLine}</blockquote>
-      <p className="rs-engagement-disclaimer">{t.engagementSignalsDisclaimer}</p>
+
+      <div className="rs-engagement-quote-block">
+        {e.verifiedTestimonial ? (
+          <p className="rs-engagement-verified-badge">{t.engagementVerifiedReview}</p>
+        ) : null}
+        <blockquote className="rs-engagement-quote">{e.testimonialLine}</blockquote>
+      </div>
+
+      <div className="rs-engagement-micro-cta">
+        <Link className="rs-engagement-micro-cta-link" href="/testimonials">
+          {t.engagementMicroCtaStories}
+        </Link>
+        <span className="rs-engagement-micro-cta-sep" aria-hidden>
+          ·
+        </span>
+        <Link className="rs-engagement-micro-cta-link" href="/pricing#pricing">
+          {t.engagementMicroCtaPricing}
+        </Link>
+      </div>
+
+      <p className="rs-engagement-disclaimer">{disclaimer}</p>
     </div>
   );
 }

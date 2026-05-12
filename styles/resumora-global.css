@@ -2821,6 +2821,81 @@ body {
   color: var(--rs-text-muted);
 }
 
+.rs-engagement-popular-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.65rem 0 0;
+  align-items: center;
+}
+
+.rs-engagement-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rs-text-secondary);
+  border: 1px solid rgba(120, 140, 180, 0.35);
+  background: rgba(5, 10, 24, 0.55);
+}
+
+.rs-engagement-chip strong {
+  font-weight: 800;
+  color: var(--rs-gold-soft);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.rs-engagement-chip--trend {
+  border-color: rgba(201, 162, 39, 0.45);
+  color: rgba(201, 162, 39, 0.95);
+}
+
+.rs-engagement-quote-block {
+  margin: 0.65rem 0 0;
+}
+
+.rs-engagement-verified-badge {
+  margin: 0 0 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(120, 200, 160, 0.95);
+}
+
+.rs-engagement-micro-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0;
+}
+
+.rs-engagement-micro-cta-link {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--rs-gold-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.rs-engagement-micro-cta-link:hover {
+  color: var(--rs-text);
+  border-bottom-color: rgba(201, 162, 39, 0.55);
+}
+
+.rs-engagement-micro-cta-sep {
+  color: var(--rs-text-muted);
+  font-weight: 600;
+}
+
 .rs-price-flag--balanced {
   background: transparent;
   color: var(--rs-gold-soft);
