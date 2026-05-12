@@ -142,10 +142,11 @@ Pair with **`npm run bossmind:watch:dev`** on a dev VM for localhost auto-recove
 
 ## Social growth automation layer
 
-- Unified cross-platform growth engine: **`lib/marketing/social-growth-engine.js`**
-- CLI runner + publish dispatch: **`npm run marketing:growth-engine`**, **`npm run marketing:growth-engine:publish`**, **`npm run marketing:growth-engine:dry-run`**
+- Unified cross-platform growth engine: **`lib/marketing/social-growth-engine.js`** (weekly cadence, dedupe on publish)
+- CLI runner + publish dispatch: **`npm run marketing:growth-engine`**, **`npm run marketing:growth-engine:publish`**, **`npm run marketing:growth-engine:dry-run`** (`--no-dedupe` to force replays)
+- Google organic artifact engine: **`lib/marketing/google-organic-engine.js`**, **`npm run marketing:google-organic`**, **`npm run marketing:google-organic:dry`**
 - Performance rollup: **`npm run marketing:growth-report`**
-- Secure orchestration endpoint: **`POST /api/integrations/social-growth-orchestrate`** (Bearer `BOSSMIND_ORCHESTRATION_SECRET` or `SOCIAL_AUTOMATION_SECRET`)
+- Secure orchestration endpoint: **`POST /api/integrations/social-growth-orchestrate`** (Bearer `BOSSMIND_ORCHESTRATION_SECRET` or `SOCIAL_AUTOMATION_SECRET`; body may include `skipIfAlreadyPublished: false`)
 - Metrics ingest endpoint: **`POST /api/integrations/social-ingest`** (Bearer `SOCIAL_INGEST_SECRET`)
 - Full setup and env map: **`docs/SOCIAL_GROWTH_AUTOMATION.md`**
 

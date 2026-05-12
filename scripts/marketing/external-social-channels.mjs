@@ -33,10 +33,10 @@ const bundle = {
     cadence: "weekly",
     captionHashtags: ["#Resumora", "#ExecutiveResume", "#ATS", "#Career", "#Leadership"],
   },
-  automationHooks: {
-    queueKey: "BOSSMIND_WEEKLY_SHORT",
+    automationHooks: {
+    queueKey: "BOSSMIND_WEEKLY_ORGANIC_SINGLE",
     variationSeed: weekId,
-    publishWindowsUtc: ["Tue 14:00", "Thu 18:00"],
+    publishWindowsUtc: ["Wed 16:00"],
     assetSlots: ["cold_open", "proof_point", "cta_resumora_net"],
   },
   engagement: {

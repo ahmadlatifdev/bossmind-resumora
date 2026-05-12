@@ -8,6 +8,7 @@
  * Usage:
  *   node scripts/marketing/run-social-growth-engine.mjs --persist-neon --autopublish
  *   node scripts/marketing/run-social-growth-engine.mjs --week=2026-W20 --dry-run
+ *   node scripts/marketing/run-social-growth-engine.mjs --no-dedupe  # force publish attempts even if week already sent
  */
 import fs from "fs";
 import path from "path";
@@ -28,12 +29,14 @@ function parseArgs() {
     persistNeon: false,
     autopublish: false,
     dryRun: false,
+    skipDedupe: false,
   };
   for (const a of args) {
     if (a.startsWith("--week=")) out.weekId = a.split("=")[1];
     if (a === "--persist-neon") out.persistNeon = true;
     if (a === "--autopublish") out.autopublish = true;
     if (a === "--dry-run") out.dryRun = true;
+    if (a === "--no-dedupe") out.skipDedupe = true;
   }
   return out;
 }
@@ -68,7 +71,10 @@ async function main() {
 
   let publishResults = [];
   if (opts.autopublish) {
-    publishResults = await runAutopublish(bundle, { dryRun: opts.dryRun });
+    publishResults = await runAutopublish(bundle, {
+      dryRun: opts.dryRun,
+      skipIfAlreadyPublished: !opts.skipDedupe,
+    });
   }
 
   process.stdout.write(

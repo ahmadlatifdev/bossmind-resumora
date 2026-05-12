@@ -19,7 +19,7 @@ The automation layer is **engine-only** (content + analytics + orchestration). I
 
 ## Components
 
-- Queue generation + scoring: `lib/marketing/social-growth-engine.js`
+- Queue generation + scoring: `lib/marketing/social-growth-engine.js` (weekly per platform, EN/FR rotation)
 - CLI orchestrator: `scripts/marketing/run-social-growth-engine.mjs`
 - Weekly analytics rollup: `scripts/marketing/social-growth-report.mjs`
 - Secure ingest endpoint: `POST /api/integrations/social-ingest`
@@ -27,7 +27,7 @@ The automation layer is **engine-only** (content + analytics + orchestration). I
 
 ## What is automated
 
-- Bilingual EN/FR queue generation per platform
+- **Weekly cadence:** one queued post **per platform per ISO week** (8 slots/week), with **EN/FR rotating** by week + platform index so both languages stay active without same-week duplicate bilingual spam.
 - Platform-specific objective routing
 - CTA enforcement:
   - Book Resume Review
@@ -37,10 +37,14 @@ The automation layer is **engine-only** (content + analytics + orchestration). I
   - Start Your Career Upgrade
 - Hashtag generation and hook generation
 - Predicted engagement scoring
-- Publish window optimization from historical metrics (when available in Neon)
-- Optional webhook-driven autopublish dispatch
+- **Single** publish window per platform (default), refined from historical metrics when Neon has `social_channel_metric` rows
+- Optional webhook-driven autopublish dispatch with **Neon dedupe**: successful `social_growth.publish_attempt` for the same `weekId` + `platform` is not re-sent unless `--no-dedupe` or API `skipIfAlreadyPublished: false`
 - Shared-memory persistence (`event_log`, `task_state`, `error_memory`)
 - Weekly performance report snapshots
+
+## Google organic companion
+
+- See **`docs/GOOGLE_ORGANIC_AUTOMATION.md`** and `npm run marketing:google-organic` for SEO / landing / YouTube / GSC **artifact** generation.
 
 ## Required environment
 
@@ -68,14 +72,21 @@ The automation layer is **engine-only** (content + analytics + orchestration). I
   - `npm run marketing:growth-engine:publish`
 - Dry-run publish dispatch:
   - `npm run marketing:growth-engine:dry-run`
+- Google organic bundle (SEO / landing / YouTube outlines):
+  - `npm run marketing:google-organic`
+  - `npm run marketing:google-organic:dry`
 - Build weekly performance report:
   - `npm run marketing:growth-report`
 
 ## Recommended schedule (Railway cron / external scheduler)
 
-- **Daily 08:00 UTC**: `npm run marketing:growth-engine`
-- **Daily 09:00 UTC**: `npm run marketing:growth-engine:publish`
-- **Monday 10:00 UTC**: `npm run marketing:growth-report`
+- **Monday 10:15 UTC (weekly)**: `npm run marketing:growth-engine:publish` — single organic wave per week (dedupe protects replays).
+- **Same window (optional)**: `npm run marketing:google-organic` — Google organic JSON bundle.
+- **Monday 10:30 UTC**: `npm run marketing:growth-report` — rollup report.
+
+GitHub Actions: **`.github/workflows/resumora-organic-weekly.yml`** runs the dry-run publish path in CI plus Google bundle + report (set `NEON_DATABASE_URL` secret for persistence).
+
+> **Removed:** daily 08:00 / 09:00 UTC jobs — replaced by weekly organic strategy (`config/resumora-organic-marketing.json`).
 
 ## Safety / Anti-Leak
 

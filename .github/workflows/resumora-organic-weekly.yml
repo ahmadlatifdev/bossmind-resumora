@@ -1,0 +1,40 @@
+name: Resumora organic weekly (social + Google bundles)
+
+on:
+  schedule:
+    # Monday 10:15 UTC — weekly organic wave (not daily)
+    - cron: "15 10 * * 1"
+  workflow_dispatch: {}
+
+concurrency:
+  group: resumora-organic-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  organic-weekly:
+    name: Social growth publish + Google organic + report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Social growth engine (persist + dry-run publish in CI)
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: npm run marketing:growth-engine:dry-run
+
+      - name: Google organic bundle
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: npm run marketing:google-organic
+
+      - name: Weekly social report
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: npm run marketing:growth-report

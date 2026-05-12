@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "socialCadence": "weekly_once_per_platform",
+  "description": "One organic post per connected platform per ISO week; EN/FR rotate by platform index + week parity. Prevents daily spam while keeping bilingual coverage over time.",
+  "publishWindowsMode": "single_slot",
+  "maxPostsPerPlatformPerWeek": 1,
+  "staggerPlatformsUtc": true,
+  "googleOrganic": {
+    "enabled": true,
+    "strategy": "free_organic_first",
+    "notes": "Engine outputs JSON artifacts for articles, keywords, schema, internal links. Live GSC/Business Profile/YouTube API uploads require separate OAuth credentials — not bundled in repo."
+  }
+}

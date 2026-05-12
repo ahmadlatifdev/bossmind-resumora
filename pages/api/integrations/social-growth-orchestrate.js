@@ -26,11 +26,12 @@ export default async function handler(req, res) {
   const persistNeon = body.persistNeon !== false;
   const autopublish = body.autopublish === true;
   const dryRun = body.dryRun !== false;
+  const skipIfAlreadyPublished = body.skipIfAlreadyPublished !== false;
 
   try {
     const bundle = await generateUnifiedGrowthBundle({ weekId, trendSignals });
     const persist = persistNeon ? await persistGrowthBundle(bundle) : { persisted: false, reason: "disabled" };
-    const publishResults = autopublish ? await runAutopublish(bundle, { dryRun }) : [];
+    const publishResults = autopublish ? await runAutopublish(bundle, { dryRun, skipIfAlreadyPublished }) : [];
     return res.status(200).json({
       ok: true,
       weekId: bundle.weekId,
