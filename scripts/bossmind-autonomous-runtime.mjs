@@ -18,6 +18,9 @@
  * - BOSSMIND_GATE_HOSTING_EVERY_CYCLES (default 1) — hosting-policy guard cadence
  * - BOSSMIND_GATE_COVERAGE_EVERY_CYCLES (default 0) — enterprise coverage JSON gate; 0=off, e.g. 24=hourly-ish at 60s loop
  * When gates fail, marketing activation + enterprise envelope are skipped (sync/supervisor/monitor still run).
+ *
+ * Continuous optimization (evidence + recommendations only; default off):
+ * - BOSSMIND_AUTONOMOUS_OPTIMIZATION_EVERY_CYCLES — e.g. 1440 ≈ daily at 60s loop; writes .bossmind/optimization/latest.json + Neon task/event when enabled
  */
 import fs from "fs";
 import path from "path";
@@ -46,6 +49,9 @@ const enterpriseEnvelopeEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_ENT
 const controlPlaneGates = process.env.BOSSMIND_CONTROL_PLANE_GATES !== "0";
 const gateHostingEveryCycles = Number(process.env.BOSSMIND_GATE_HOSTING_EVERY_CYCLES || 1);
 const gateCoverageEveryCycles = Number(process.env.BOSSMIND_GATE_COVERAGE_EVERY_CYCLES || 0);
+
+/** Evidence-only optimization snapshot cadence (0 = disabled). */
+const optimizationEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_OPTIMIZATION_EVERY_CYCLES || 0);
 
 const {
   loadContinuePoint,
@@ -295,6 +301,60 @@ async function runCycle(neonApi) {
 
   const localSyncStatus = readJsonSafe(path.join(root, ".bossmind", "runtime-sync", "status.json"));
   const latestReconciliation = readJsonSafe(path.join(root, ".bossmind", "reconciliation", "status.json"));
+
+  let optimizationCycle = { skipped: true, reason: "BOSSMIND_AUTONOMOUS_OPTIMIZATION_EVERY_CYCLES=0" };
+  if (optimizationEveryCycles > 0 && cycle > 0 && cycle % optimizationEveryCycles === 0) {
+    try {
+      const risk = runNodeScript("scripts/bossmind-predictive-runtime-risk.mjs", [], continueEnv);
+      const {
+        buildOptimizationSnapshot,
+        persistOptimizationSnapshot,
+      } = require(path.join(root, "lib/orchestration/bossmind-continuous-optimization-snapshot.js"));
+      const optSnap = buildOptimizationSnapshot({
+        projectKey,
+        cycle,
+        runtimeSync: localSyncStatus,
+        reconciliation: latestReconciliation,
+        predictiveRisk: risk.json || {},
+        hostingGate: hostingGuard,
+        envHints: {
+          neonDatabaseUrl: Boolean(process.env.NEON_DATABASE_URL),
+          siteUrlConfigured: Boolean(
+            process.env.NEXT_PUBLIC_SITE_URL ||
+              process.env.NEXT_PUBLIC_BOSSMIND_PUBLIC_ORIGIN ||
+              process.env.BOSSMIND_PUBLIC_ORIGIN
+          ),
+          stripePricesConfigured: Boolean(
+            process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC &&
+              process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO &&
+              process.env.NEXT_PUBLIC_STRIPE_PRICE_ELITE
+          ),
+        },
+      });
+      const optDir = path.join(root, ".bossmind", "optimization");
+      fs.mkdirSync(optDir, { recursive: true });
+      fs.writeFileSync(path.join(optDir, "latest.json"), JSON.stringify(optSnap, null, 2), "utf8");
+      let persist = { persisted: false, reason: "neon_off" };
+      if (neonApi) {
+        persist = await persistOptimizationSnapshot(neonApi, optSnap);
+      }
+      optimizationCycle = {
+        skipped: false,
+        ok: true,
+        readinessScore: optSnap.optimizationReadinessScore,
+        recommendationCount: optSnap.recommendations.length,
+        predictiveRiskScore: optSnap.predictiveRiskSnapshot?.riskScore ?? null,
+        persist,
+      };
+    } catch (e) {
+      optimizationCycle = {
+        skipped: false,
+        ok: false,
+        error: e.message || String(e),
+      };
+    }
+  }
+
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
   const healed = Boolean(localSyncStatus?.healSucceeded);
   const autonomyScore = Number(localSyncStatus?.scores?.compositeAutonomyScore || 0);
@@ -344,6 +404,7 @@ async function runCycle(neonApi) {
       enterpriseEnvelope: enterpriseEnvelope.skipped
         ? enterpriseEnvelope
         : { ok: enterpriseEnvelope.ok, code: enterpriseEnvelope.code },
+      optimizationCycle,
     },
     latestRuntimeSync: localSyncStatus
       ? {

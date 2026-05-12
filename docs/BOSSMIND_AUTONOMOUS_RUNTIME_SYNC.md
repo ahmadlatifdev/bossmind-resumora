@@ -53,6 +53,14 @@ npm run bossmind:reconcile
 
 If a gate fails, **marketing activation** and **enterprise envelope** are skipped for that cycle, the cycle is marked **degraded**, and Neon records `bossmind.control_plane.transition_blocked` plus one `missing_updates_log` row on the first transition into blocked state. Disable entirely with `BOSSMIND_CONTROL_PLANE_GATES=0`.
 
+## Continuous optimization (readiness + recommendations)
+
+`lib/orchestration/bossmind-continuous-optimization-snapshot.js` builds an **evidence-only** snapshot: drift, autonomy, reconciliation, predictive risk, hosting guard outcome, and light env hints. It outputs **prioritized commands** (for example `npm run bossmind:runtime:sync:once`, `npm run bossmind:reconcile`) — it does **not** edit protected UI, bump dependencies, or call external marketing APIs.
+
+- **Manual / CI:** `npm run bossmind:optimization:cycle` — writes `.bossmind/optimization/latest.json` (gitignored).
+- **Neon:** `npm run bossmind:optimization:cycle:persist` — same plus `event_log` (`bossmind.optimization_cycle`) and `task_state` (`bossmind_continuous_optimization`).
+- **Autonomous loop:** set `BOSSMIND_AUTONOMOUS_OPTIMIZATION_EVERY_CYCLES` (e.g. `1440` for ~daily at a 60s loop) to refresh the snapshot on the worker when Neon is enabled.
+
 ## Status API
 
 - `GET /api/orchestration/runtime-sync-status`
