@@ -105,6 +105,7 @@ export default function FooterEngagementDock({ variant = "default" }) {
         <span className="rs-footer-trust-chip">{t.footerTrustChipRecent}</span>
         <span className="rs-footer-trust-chip rs-footer-trust-chip--gold">{t.footerTrustChipElite}</span>
         <span className="rs-footer-trust-chip">{t.footerTrustChipSecure}</span>
+        <span className="rs-footer-trust-chip rs-footer-trust-chip--ai">{t.footerTrustChipAi}</span>
         {trendingLabel ? (
           <span className="rs-footer-trust-chip rs-footer-trust-chip--trend">
             {t.footerTrendingPrefix}: {trendingLabel}

@@ -3204,6 +3204,12 @@ body {
   color: rgba(200, 230, 255, 0.88);
 }
 
+.rs-footer-trust-chip--ai {
+  border-color: rgba(160, 140, 220, 0.35);
+  color: rgba(210, 200, 255, 0.9);
+  background: rgba(40, 28, 72, 0.35);
+}
+
 .rs-footer-trust-chip--muted {
   opacity: 0.82;
   font-weight: 600;
