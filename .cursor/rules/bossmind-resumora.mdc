@@ -46,6 +46,8 @@ Do **not** claim live Stripe verification, social monetization eligibility, or c
 
 - **Cursor scope:** `.cursorignore` trims `.next`, `node_modules`, heal logs, and other low-signal paths from indexing.  
 - **Preflight (structural + policy + immutable checksums; no build by default):** **`npm run bossmind:enterprise:preflight`**. Set **`BOSSMIND_ENTERPRISE_PREFLIGHT_BUILD=1`** to also run `next build`.  
+- **Release verify (preflight + full deploy gate / build):** **`npm run bossmind:enterprise:release-verify`**.  
+- **Post-deploy production checks:** **`npm run bossmind:enterprise:post-deploy`** — set **`BOSSMIND_REALITY_LIVE_URL`** for live footer + `/api/health`; optional Neon record per closed-loop playbook.
 - **Memory / authority context (read before large changes):** `docs/PROTECTED_COMPONENTS_REGISTRY.md`, `config/bossmind-immutable-production-baseline.json`, `config/bossmind-protected-ui-authority.json`, `config/bossmind-protected-surface.json`, `docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md`, `docs/BOSSMIND_TASK_COMPLETION_GATE.md`, `docs/BOSSMIND_CLOSED_LOOP_PLAYBOOK.md`.  
 - **Stack map (in-repo vs CI/hosting):** `docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md`.  
 - **Do not** claim a fully autonomous closed loop (unsupervised auto-redeploy + vision QA + auto-merge) exists in-repo without Playwright baselines, hosting credentials, and explicit human policy—use gates + CI instead.

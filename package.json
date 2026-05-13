@@ -21,6 +21,8 @@
     "validate:all": "npm run validate:hosting && npm run validate:deps && npm run lint && npm run build && npm run validate:runtime",
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",
     "bossmind:enterprise:preflight": "node scripts/bossmind-enterprise-preflight.mjs",
+    "bossmind:enterprise:release-verify": "npm run bossmind:enterprise:preflight && npm run bossmind:deploy:gate",
+    "bossmind:enterprise:post-deploy": "node scripts/bossmind-production-reality-gate.mjs",
     "bossmind:deploy:gate": "node scripts/bossmind-deploy-gate.mjs",
     "bossmind:completion:gate": "node scripts/bossmind-task-completion-gate.mjs",
     "bossmind:forbidden-ui:scan": "node scripts/bossmind-public-ui-forbidden-scan.mjs",

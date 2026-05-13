@@ -36,6 +36,47 @@ Immutable production lock — sealed baseline + `bossmind:locked-production:veri
 | Runtime monitoring | Sentry (`@sentry/nextjs`), health routes | Not a replacement for product QA |
 | Immutable UI lock | `config/bossmind-immutable-production-baseline.json`, `bossmind:baseline:seal` | Prevents accidental luxury drift |
 | Closed-loop **recording** | `npm run bossmind:closed-loop:record` | Neon audit trail when URL is set |
+| **Release verify (preflight + full deploy gate)** | `npm run bossmind:enterprise:release-verify` | Runs `enterprise:preflight` then `deploy:gate` (checkpoint, lint, **build**) |
+| **Post-deploy production truth** | `npm run bossmind:enterprise:post-deploy` | Alias for `bossmind:reality:gate`; set `BOSSMIND_REALITY_LIVE_URL` for live checks |
+| Runtime sync / repair | `npm run bossmind:runtime:sync:once`, `bossmind:runtime:repair`, `bossmind:reconcile` | Operator/CI; needs env + policy |
+| Recovery suggest/apply | `npm run bossmind:recovery:suggest`, `bossmind:recovery:apply` | Human-gated restore paths |
+| UI baseline / perf | `npm run bossmind:ui-baseline`, `bossmind:perf-scan` | Optional quality bars |
+
+## Neon “unified memory core” (authoritative when `NEON_DATABASE_URL` is set)
+
+Schema and helpers live in **`lib/shared/neon-memory.js`**. Tables used for orchestration and audit include (non-exhaustive):
+
+| Table / concern | Role |
+|-----------------|------|
+| `task_state` | Per-task payload + status (`upsertTaskState`) |
+| `event_log` | Append-only events (`saveEvent`) |
+| `error_memory` | Deduplicated error fingerprints (`upsertErrorMemory`) |
+| `missing_updates_log` | Tracked gaps (`saveMissingUpdate`) |
+| `deployment_history` | Commits / environments (`saveDeploymentHistory`) |
+| `runtime_authority` | Sealed UI authority rows (`upsertRuntimeAuthority`) |
+| `rollback_snapshots` | File snapshots for recovery |
+| `last_confirmed_checkpoint` | Continuity / confirmed checkpoints |
+
+**Required behavior in practice:** agents and CI should **read** the protected registry + immutable baseline **before** large edits; Neon backs **persistence** of checkpoints and closed-loop records—it does not replace code review or hosting APIs.
+
+## Closed-loop flow — mapped to real commands (no false autonomy)
+
+The following is the **enforced** shape you can run in CI or locally. Steps marked **human/CI** cannot be done from this repo alone.
+
+| Step | In-repo command / artifact |
+|------|----------------------------|
+| Request / intent | Issue, PR, operator note |
+| Analyze | Cursor + rules; optional `npm run bossmind:audit` |
+| Patch | Git diff (human or agent) |
+| Build / lint | `npm run bossmind:deploy:gate` or `npm run bossmind:enterprise:release-verify` |
+| Deploy | **Render / Railway** (human or pipeline with credentials) |
+| Open live URL / HTTP checks | `BOSSMIND_REALITY_LIVE_URL=… npm run bossmind:enterprise:post-deploy` |
+| Screenshot / pixel compare | **Playwright or external visual pipeline** (not shipped here) |
+| Auto-fix / retry deploy | **Agent or CI job with policy**—not an infinite silent loop in `package.json` |
+| Confirm + lock | `npm run bossmind:locked-production:verify`; after approved UI change: `npm run bossmind:baseline:seal` |
+| Prevent false “completed” | `npm run bossmind:completion:gate` + live probe envs per `docs/BOSSMIND_TASK_COMPLETION_GATE.md` |
+
+**Preflight scanner** (`bossmind:enterprise:preflight`) already covers hosting policy, forbidden public UI, protected surface, **duplicate Home / route authority**, and **immutable checksums**. It does not replace dependency audits beyond what `deploy:gate` runs—add Dependabot or `npm audit` in CI if you need more.
 
 ## What is **not** fully automatable inside Git alone
 
@@ -53,7 +94,13 @@ Immutable production lock — sealed baseline + `bossmind:locked-production:veri
 2. `npm run bossmind:enterprise:preflight`
 3. Edit minimally (protected registry in `docs/PROTECTED_COMPONENTS_REGISTRY.md`)
 
-**Before merge / deploy**
+**Before merge / deploy (full automation you can run in CI)**
+
+1. `npm run bossmind:enterprise:release-verify` (preflight + `deploy:gate` including **build**)
+2. Merge → Render/Railway deploy
+3. `BOSSMIND_REALITY_LIVE_URL=https://resumora.net npm run bossmind:enterprise:post-deploy` (or `bossmind:reality:gate`)
+
+**Before merge / deploy (manual two-step)**
 
 1. `npm run bossmind:deploy:gate`
 2. Merge → Render/Railway deploy

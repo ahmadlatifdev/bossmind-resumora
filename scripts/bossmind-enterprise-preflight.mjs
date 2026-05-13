@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Enterprise preflight — fast structural + policy gates before wide edits or CI.
- * Does not deploy, screenshot, or auto-fix; pair with `npm run bossmind:deploy:gate` before ship.
+ * Does not deploy, screenshot, or auto-fix; pair with `npm run bossmind:deploy:gate` or `npm run bossmind:enterprise:release-verify` before ship.
  *
  *   npm run bossmind:enterprise:preflight
  *
