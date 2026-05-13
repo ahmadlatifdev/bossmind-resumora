@@ -150,8 +150,7 @@ export const translations = {
     footerEngageShare: "Share",
     footerEngageRegister: "Register",
     footerPricingCta: "Compare plans",
-    footerFollowChannelsCta: "Official channels & follower growth",
-    footerFollowChannelsSub: "Tap the icons above — each click is tracked for growth analytics.",
+    footerToolbarAria: "Resumora quick actions",
     footerShareCopied: "Link copied to clipboard.",
     footerShareFail: "Could not share. Copy resumora.net manually.",
     footerEngageBarLead:
@@ -458,8 +457,7 @@ export const translations = {
     footerEngageShare: "Partager",
     footerEngageRegister: "Inscription",
     footerPricingCta: "Comparer les paliers",
-    footerFollowChannelsCta: "Canaux officiels & croissance d’audience",
-    footerFollowChannelsSub: "Touchez les icônes ci-dessus — chaque clic alimente les analytics de croissance.",
+    footerToolbarAria: "Actions rapides Resumora",
     footerShareCopied: "Lien copié dans le presse-papiers.",
     footerShareFail: "Partage impossible. Copiez resumora.net manuellement.",
     footerEngageBarLead:

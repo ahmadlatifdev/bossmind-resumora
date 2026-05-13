@@ -94,7 +94,7 @@ async function liveHomeProbe() {
     'id="home-intake"',
     'id="pricing"',
     "rs-footer-engage-dock",
-    "rs-footer-trust-chips",
+    'id="footer-official-social"',
   ];
   try {
     const r = await fetchText(`${origin}/`);

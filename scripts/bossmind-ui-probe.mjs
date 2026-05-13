@@ -19,7 +19,7 @@ const PATHS = [
       'id="home-intake"',
       'id="pricing"',
       "rs-footer-engage-dock",
-      "rs-footer-trust-chips",
+      'id="footer-official-social"',
       "Resumora",
       "</html>",
     ],
