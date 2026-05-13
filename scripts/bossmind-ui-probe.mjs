@@ -13,7 +13,16 @@ const origin =
 const PATHS = [
   {
     path: "/",
-    expect: ['id="top"', 'id="trust"', 'id="home-intake"', 'id="pricing"', "Resumora", "</html>"],
+    expect: [
+      'id="top"',
+      'id="trust"',
+      'id="home-intake"',
+      'id="pricing"',
+      "rs-footer-engage-dock",
+      "rs-footer-trust-chips",
+      "Resumora",
+      "</html>",
+    ],
     minBytes: 1200,
   },
   /* Mis-typed /client → luxury homepage (matches next.config.ts redirect). */

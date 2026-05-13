@@ -80,3 +80,11 @@ Agents must **not** rewrite or remove these without explicit owner approval. Pre
 ---
 
 **Process:** For changes touching ≥2 protected areas, run `npm run bossmind:checkpoint` first and keep PRs small.
+
+## Task completion enforcement (scripts)
+
+| Script | Path |
+|--------|------|
+| Task completion gate (lint + build + immutable + optional live probe) | `scripts/bossmind-task-completion-gate.mjs` → `npm run bossmind:completion:gate` |
+| Forbidden public UI regression scan | `scripts/bossmind-public-ui-forbidden-scan.mjs` → `npm run bossmind:forbidden-ui:scan` |
+| Policy | `docs/BOSSMIND_TASK_COMPLETION_GATE.md` |

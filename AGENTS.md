@@ -25,3 +25,9 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - Follow **`.cursor/rules/bossmind-resumora.mdc`** and **`docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md`** (fix-only unless the user explicitly approves redesign).
 - Before wide edits: **`npm run bossmind:checkpoint`** (use **`npm run bossmind:checkpoint -- --stash`** only when intentionally stashing WIP)
 - Protected surfaces: **`docs/PROTECTED_COMPONENTS_REGISTRY.md`**
+
+## Task completion vs production “live”
+
+- Repo-enforced “ready to ship” pipeline: **`npm run bossmind:completion:gate`** (build + guards + immutable verify; optional live HTML probe). See **`docs/BOSSMIND_TASK_COMPLETION_GATE.md`**.
+- Pre-merge / pre-deploy aggregate: **`npm run bossmind:deploy:gate`** (includes forbidden public UI scan + deploy checkpoint + immutable + build).
+- Declaring work finished for **resumora.net** still requires a successful **Render deploy** (or equivalent); use **`BOSSMIND_COMPLETION_LIVE_PROBE=1`** with **`BOSSMIND_COMPLETION_PROBE_ORIGIN=https://resumora.net`** after deploy to verify production HTML markers.

@@ -57,6 +57,7 @@ if (process.env.BOSSMIND_DEPLOY_SKIP_CHECKPOINT !== "1") {
 }
 
 run("Hosting policy (no Vercel)", "node", ["scripts/bossmind-hosting-guard.mjs"], continueEnv);
+run("Forbidden public UI patterns (marketing)", "node", ["scripts/bossmind-public-ui-forbidden-scan.mjs"], continueEnv);
 run("Protected surface", "node", ["scripts/bossmind-protected-surface-verify.mjs"], continueEnv);
 
 if (process.env.BOSSMIND_DEPLOY_GATE_SKIP_IMMUTABLE !== "1") {

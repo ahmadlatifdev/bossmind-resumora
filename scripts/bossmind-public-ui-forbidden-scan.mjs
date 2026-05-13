@@ -4,7 +4,6 @@
  * from re-entering protected marketing components before deploy or task closure.
  *
  *   node scripts/bossmind-public-ui-forbidden-scan.mjs
- *   BOSSMIND_FORBIDDEN_SCAN_ROOT=subdir  (advanced; default repo root)
  */
 import fs from "fs";
 import path from "path";
@@ -40,12 +39,9 @@ function walkFiles(dir, acc) {
 }
 
 function main() {
-  const base = process.env.BOSSMIND_FORBIDDEN_SCAN_ROOT
-    ? path.resolve(root, process.env.BOSSMIND_FORBIDDEN_SCAN_ROOT)
-    : root;
   const files = [];
   for (const rel of REL_DIRS) {
-    walkFiles(path.join(base, rel), files);
+    walkFiles(path.join(root, rel), files);
   }
   const hits = [];
   for (const file of files) {
