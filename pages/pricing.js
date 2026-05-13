@@ -1,7 +1,6 @@
 import Link from "next/link";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
-import TrustMetricsPanel from "@/components/marketing/sections/TrustMetricsPanel";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 
@@ -12,14 +11,13 @@ export default function PricingPage() {
   return (
     <SiteChrome>
       <main>
-        <section className="rs-section">
+        <section className="rs-section rs-pricing-page-hero">
           <div className="rs-container">
             <p className="rs-eyebrow">{t.navPricing}</p>
             <h1 className="rs-page-title">{t.pricingTitle}</h1>
-            <p className="rs-lead">{t.pricingSubtitle}</p>
+            <p className="rs-lead rs-lead--pricing-tight">{t.pricingSubtitle}</p>
           </div>
         </section>
-        <TrustMetricsPanel />
         <PricingPanel />
         <section className="rs-section">
           <div className="rs-container">

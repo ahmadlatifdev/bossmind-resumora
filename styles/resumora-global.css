@@ -2769,6 +2769,94 @@ body {
   margin-bottom: 0.75rem;
 }
 
+/* —— Pricing section (minimal luxury hero + cards) —— */
+.rs-pricing-section {
+  padding-top: clamp(0.35rem, 1.2vw, 0.75rem);
+}
+
+.rs-pricing-hero-lead {
+  margin: 0.45rem 0 0;
+  max-width: 40rem;
+  font-size: 0.98rem;
+  line-height: 1.58;
+  color: var(--rs-text-secondary);
+}
+
+.rs-pricing-grid--spaced {
+  margin-top: clamp(1.25rem, 2.5vw, 1.85rem);
+}
+
+.rs-price-tier-name {
+  margin: 0;
+  font-size: clamp(1.12rem, 2vw, 1.22rem);
+  font-weight: 800;
+  letter-spacing: var(--rs-tracking-tight);
+}
+
+.rs-price-amount--spaced {
+  margin-top: 0.4rem;
+}
+
+.rs-price-one-time {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rs-text-muted);
+}
+
+.rs-pricing-page-hero {
+  padding-bottom: 0.25rem;
+}
+
+.rs-lead--pricing-tight {
+  margin-top: 0.5rem;
+  max-width: 42rem;
+}
+
+.rs-trust-panel--slim .rs-h2--trust-slim {
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+
+.rs-subtitle--trust-slim {
+  margin-top: 0.4rem;
+  max-width: 44rem;
+}
+
+.rs-trust-secure-line--slim {
+  margin-top: 0.5rem;
+  margin-bottom: 0.15rem;
+  font-size: 0.8125rem;
+}
+
+.rs-trust-grid--slim {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 1rem;
+  gap: clamp(0.55rem, 1.2vw, 0.85rem);
+}
+
+@media (max-width: 720px) {
+  .rs-trust-grid--slim {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rs-stat-card--slim {
+  padding: 0.85rem 0.95rem;
+}
+
+.rs-stat-card--slim .rs-stat-value {
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+}
+
+.rs-stat-card--slim .rs-stat-detail {
+  font-size: 0.72rem;
+}
+
+.rs-trust-strip--slim {
+  margin-top: 1rem;
+  font-size: 0.72rem;
+  opacity: 0.92;
+}
+
 .rs-engagement-strip {
   margin: 1rem 0 0;
   padding: 1rem 1.1rem 1.05rem;
