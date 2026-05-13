@@ -37,6 +37,8 @@ const nextConfig: NextConfig = {
       { source: "/icon-512.png", headers: branding },
       { source: "/android-chrome-192x192.png", headers: branding },
       { source: "/android-chrome-512x512.png", headers: branding },
+      { source: "/resumora-logo.png", headers: branding },
+      { source: "/og-resumora-brand.png", headers: branding },
     ];
   },
 };

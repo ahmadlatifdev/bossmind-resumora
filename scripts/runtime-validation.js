@@ -18,8 +18,12 @@ async function main() {
     "D:\\Shakhsy11\\bossmind-resumora-base\\reference-images";
 
   const hasLogo = fs.existsSync(path.join(process.cwd(), "public", "resumora-logo.png"));
+  const hasOg = fs.existsSync(path.join(process.cwd(), "public", "og-resumora-brand.png"));
   if (!hasLogo) {
     throw new Error("Missing public/resumora-logo.png");
+  }
+  if (!hasOg) {
+    throw new Error("Missing public/og-resumora-brand.png (run npm run bossmind:branding:icons)");
   }
 
   const screenshotCount = listScreenshotFiles(referenceFolder).length;

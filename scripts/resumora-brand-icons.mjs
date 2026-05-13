@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Rasterize public/favicon.svg into PNG + favicon.ico (Resumora premium mark).
- * Run after editing the SVG: npm run bossmind:branding:icons
+ * Rasterize favicon.svg + resumora-logo.svg into PNG/ICO, OG card, android-chrome, and service worker sync.
+ * Run after editing SVGs or config/branding-asset-version.json: npm run bossmind:branding:icons
  */
 import fs from "fs";
 import path from "path";
@@ -38,6 +38,36 @@ async function main() {
   const ico = await toIco([png16, png32]);
   fs.writeFileSync(path.join(pub, "favicon.ico"), ico);
 
+  const logoSvgPath = path.join(pub, "resumora-logo.svg");
+  if (!fs.existsSync(logoSvgPath)) {
+    console.error("resumora-brand-icons: missing public/resumora-logo.svg");
+    process.exit(1);
+  }
+  const logoSvg = fs.readFileSync(logoSvgPath);
+  const logoPngBuf = await sharp(logoSvg)
+    .resize(315, 72, {
+      fit: "contain",
+      position: "west",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toBuffer();
+  fs.writeFileSync(path.join(pub, "resumora-logo.png"), logoPngBuf);
+
+  const ogLogo = await sharp(logoSvg).resize({ width: 780 }).ensureAlpha().png().toBuffer();
+  const ogPng = await sharp({
+    create: {
+      width: 1200,
+      height: 630,
+      channels: 4,
+      background: { r: 4, g: 8, b: 20, alpha: 1 },
+    },
+  })
+    .composite([{ input: ogLogo, gravity: "center" }])
+    .png()
+    .toBuffer();
+  fs.writeFileSync(path.join(pub, "og-resumora-brand.png"), ogPng);
+
   fs.copyFileSync(path.join(pub, "favicon.svg"), path.join(pub, "icon.svg"));
   fs.copyFileSync(path.join(pub, "icon-192.png"), path.join(pub, "android-chrome-192x192.png"));
   fs.copyFileSync(path.join(pub, "icon-512.png"), path.join(pub, "android-chrome-512x512.png"));
@@ -58,7 +88,7 @@ async function main() {
   }
 
   console.log(
-    "resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192/512, android-chrome-*, icon.svg; synced sw.js CACHE + query from config/branding-asset-version.json"
+    "resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192/512, android-chrome-*, icon.svg, resumora-logo.png, og-resumora-brand.png; synced sw.js from config/branding-asset-version.json"
   );
 }
 

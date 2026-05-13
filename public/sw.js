@@ -2,8 +2,8 @@
  * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
  * npm run bossmind:branding:icons patches BRANDING_ASSET_QUERY + CACHE from that file.
  */
-const BRANDING_ASSET_QUERY = "?v=20260602-rs1";
-const CACHE = "resumora-shell-20260602-rs1";
+const BRANDING_ASSET_QUERY = "?v=20260602-rs2";
+const CACHE = "resumora-shell-20260602-rs2";
 
 const q = () => BRANDING_ASSET_QUERY;
 
@@ -24,6 +24,7 @@ self.addEventListener("install", (event) => {
           "/android-chrome-192x192.png" + q(),
           "/android-chrome-512x512.png" + q(),
           "/resumora-logo.png" + q(),
+          "/og-resumora-brand.png" + q(),
           "/manifest.webmanifest",
           "/",
         ]).catch(() => {})
@@ -63,6 +64,8 @@ self.addEventListener("fetch", (event) => {
     path.startsWith("/icon-") ||
     path.startsWith("/android-chrome") ||
     path === "/apple-touch-icon.png" ||
+    path === "/resumora-logo.png" ||
+    path === "/og-resumora-brand.png" ||
     path === "/manifest.webmanifest" ||
     path === "/api/branding-manifest";
 
