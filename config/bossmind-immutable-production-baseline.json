@@ -3,8 +3,17 @@
   "enabled": true,
   "description": "Immutable confirmed Resumora luxury public UI (resumora.net). Deploy + runtime authority must match these checksums.",
   "productionPublicOrigin": "https://resumora.net",
-  "sealedAt": "2026-05-12T01:47:49.676Z",
-  "sealedGitHead": "a2d4ea9861f831ab9a1d461a36d6c87d801e6369",
+  "lockedProductionMode": true,
+  "enforcementContract": {
+    "verifyCommand": "npm run bossmind:locked-production:verify",
+    "deployGateCommand": "npm run bossmind:deploy:gate",
+    "completionGateCommand": "npm run bossmind:completion:gate",
+    "baselineOverrideEnv": "BOSSMIND_BASELINE_OVERRIDE=1",
+    "restoreCommand": "npm run bossmind:baseline:restore",
+    "notes": "Checksums + snapshots are authoritative in-repo. Render/Railway rollback is operator-owned. Visual diff requires your own screenshot/Playwright pipeline."
+  },
+  "sealedAt": "2026-05-13T02:10:54.831Z",
+  "sealedGitHead": "44d5b6d45e55631929a85584b8da877c200b1dec",
   "lockFullWorkspaceFingerprint": false,
   "immutableInterfacePaths": [
     "components/marketing/HomePage.jsx",
@@ -26,6 +35,6 @@
     "next.config.ts"
   ],
   "snapshotRelativeDir": "config/bossmind-baseline-snapshots/luxury-v1",
-  "lockedLuxuryInterfaceFingerprint": "f67177ec65f399671f68775fc1f7b52d3d67b1603294d7ae1decd0f1600802c3",
-  "lockedFullWorkspaceFingerprint": "1106563497450585914ff0d93feb60091cb20fd5e8fb22cd5779797a165ba869"
+  "lockedLuxuryInterfaceFingerprint": "49e7f64363343e61d5aee41e98e26913aebb8182fab880b025ee1e3567583baf",
+  "lockedFullWorkspaceFingerprint": "0644fcf8fb5cb2dea424d7001852fd4a791f27dfb0b268a2853a8025b2ffb93d"
 }

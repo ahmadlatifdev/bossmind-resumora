@@ -44,6 +44,7 @@
     "bossmind:reconcile": "node scripts/bossmind-reconciliation-engine.mjs",
     "bossmind:baseline:seal": "node scripts/bossmind-baseline-seal.mjs",
     "bossmind:immutable:verify": "node scripts/bossmind-immutable-verify.mjs",
+    "bossmind:locked-production:verify": "node scripts/bossmind-locked-production-verify.mjs",
     "bossmind:baseline:restore": "node scripts/bossmind-baseline-restore.mjs",
     "bossmind:autonomous:runtime": "node scripts/bossmind-autonomous-runtime.mjs",
     "bossmind:autonomous:runtime:once": "node scripts/bossmind-autonomous-runtime.mjs --once",

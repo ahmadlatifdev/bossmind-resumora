@@ -65,12 +65,34 @@ if (workspace.missing.length) {
 
 copySnapshot(ifacePaths);
 
+const defaultEnforcement = {
+  verifyCommand: "npm run bossmind:locked-production:verify",
+  deployGateCommand: "npm run bossmind:deploy:gate",
+  completionGateCommand: "npm run bossmind:completion:gate",
+  baselineOverrideEnv: "BOSSMIND_BASELINE_OVERRIDE=1",
+  restoreCommand: "npm run bossmind:baseline:restore",
+  notes:
+    "No silent overwrite: snapshots under snapshotRelativeDir are git-tracked; seal updates checksums. Production hosts are not auto-rolled back from this repo.",
+};
+
 const payload = {
   version: 1,
   enabled: true,
   description:
-    "Immutable confirmed Resumora luxury public UI (resumora.net). Deploy + runtime authority must match these checksums.",
-  productionPublicOrigin: "https://resumora.net",
+    typeof existing.description === "string" && existing.description.trim().length > 0
+      ? existing.description
+      : "Immutable confirmed Resumora luxury public UI (resumora.net). Deploy + runtime authority must match these checksums.",
+  productionPublicOrigin:
+    typeof existing.productionPublicOrigin === "string" && /^https:\/\//i.test(existing.productionPublicOrigin)
+      ? existing.productionPublicOrigin.replace(/\/$/, "")
+      : "https://resumora.net",
+  lockedProductionMode: existing.lockedProductionMode !== false,
+  enforcementContract: {
+    ...defaultEnforcement,
+    ...(typeof existing.enforcementContract === "object" && existing.enforcementContract !== null
+      ? existing.enforcementContract
+      : {}),
+  },
   sealedAt: new Date().toISOString(),
   sealedGitHead: gitHead(),
   lockFullWorkspaceFingerprint: existing.lockFullWorkspaceFingerprint === true,

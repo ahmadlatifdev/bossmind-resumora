@@ -76,6 +76,14 @@ if (!v.enabled) {
   process.exit(0);
 }
 
+if (v.lock?.lockedProductionMode === false) {
+  console.warn(
+    "bossmind-immutable-verify: lockedProductionMode=false in baseline JSON (informational; checksums still enforced if enabled)."
+  );
+} else {
+  console.log("bossmind-immutable-verify: locked production mode active (baseline JSON).");
+}
+
 let failed = false;
 const lines = [];
 

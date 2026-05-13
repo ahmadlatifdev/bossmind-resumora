@@ -85,6 +85,7 @@ Agents must **not** rewrite or remove these without explicit owner approval. Pre
 
 | Script | Path |
 |--------|------|
+| Locked production design lock (structural + immutable checksums) | `scripts/bossmind-locked-production-verify.mjs` → `npm run bossmind:locked-production:verify` |
 | Task completion gate (lint + build + immutable + optional live probe) | `scripts/bossmind-task-completion-gate.mjs` → `npm run bossmind:completion:gate` |
 | Forbidden public UI regression scan | `scripts/bossmind-public-ui-forbidden-scan.mjs` → `npm run bossmind:forbidden-ui:scan` |
-| Policy | `docs/BOSSMIND_TASK_COMPLETION_GATE.md` |
+| Policy | `docs/BOSSMIND_TASK_COMPLETION_GATE.md`, `docs/BOSSMIND_IMMUTABLE_PRODUCTION_LOCK.md` |

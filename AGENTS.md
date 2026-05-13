@@ -31,3 +31,4 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - Repo-enforced “ready to ship” pipeline: **`npm run bossmind:completion:gate`** (build + guards + immutable verify; optional live HTML probe). See **`docs/BOSSMIND_TASK_COMPLETION_GATE.md`**.
 - Pre-merge / pre-deploy aggregate: **`npm run bossmind:deploy:gate`** (includes forbidden public UI scan + deploy checkpoint + immutable + build).
 - Declaring work finished for **resumora.net** still requires a successful **Render deploy** (or equivalent); use **`BOSSMIND_COMPLETION_LIVE_PROBE=1`** with **`BOSSMIND_COMPLETION_PROBE_ORIGIN=https://resumora.net`** after deploy to verify production HTML markers.
+- **Immutable design lock:** sealed checksums + `luxury-v1` snapshots + `npm run bossmind:locked-production:verify` — see **`docs/BOSSMIND_IMMUTABLE_PRODUCTION_LOCK.md`**.
