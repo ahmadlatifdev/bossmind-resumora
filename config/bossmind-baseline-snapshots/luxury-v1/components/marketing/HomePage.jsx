@@ -15,7 +15,7 @@ export default function HomePage() {
   const t = translations[lang];
   const siteUrl = getSiteUrl();
   const canonical = `${siteUrl}/`;
-  const ogImage = brandAbsoluteUrl(siteUrl, "/resumora-logo.png");
+  const ogImage = brandAbsoluteUrl(siteUrl, "/og-resumora-brand.png");
 
   return (
     <SiteChrome>

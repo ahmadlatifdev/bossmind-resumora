@@ -90,7 +90,7 @@ export default function SiteChrome({ children }) {
           <Link href="/" className="rs-brand rs-brand-sidebar" onClick={() => setSidebarOpen(false)}>
             <Image
               src="/resumora-logo.png"
-              alt="Resumora"
+              alt="Resumora — RESUMORA wordmark"
               width={315}
               height={72}
               priority
@@ -140,7 +140,14 @@ export default function SiteChrome({ children }) {
           </button>
 
           <Link href="/" className="rs-topbar-brand hide-desktop-flex" aria-label="Resumora home">
-            <Image src="/resumora-logo.png" alt="" width={200} height={46} className="rs-logo rs-logo-topbar" sizes="200px" />
+            <Image
+              src="/resumora-logo.png"
+              alt="Resumora — RESUMORA wordmark"
+              width={200}
+              height={46}
+              className="rs-logo rs-logo-topbar"
+              sizes="200px"
+            />
           </Link>
 
           <div className="rs-topbar-actions">

@@ -18,7 +18,14 @@ export default function MinimalAppChrome({ children }) {
 
       <header className="rs-minimal-topbar">
         <Link href="/" className="rs-minimal-topbar-brand" aria-label={t.minimalHomeAria}>
-          <Image src="/resumora-logo.png" alt="" width={160} height={37} className="rs-logo rs-logo-minimal" sizes="160px" />
+          <Image
+            src="/resumora-logo.png"
+            alt="Resumora — RESUMORA wordmark"
+            width={160}
+            height={37}
+            className="rs-logo rs-logo-minimal"
+            sizes="160px"
+          />
         </Link>
         <LanguageSwitcher />
       </header>
