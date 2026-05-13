@@ -26,6 +26,12 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - Before wide edits: **`npm run bossmind:checkpoint`** (use **`npm run bossmind:checkpoint -- --stash`** only when intentionally stashing WIP)
 - Protected surfaces: **`docs/PROTECTED_COMPONENTS_REGISTRY.md`**
 
+## Enterprise AI engineering (Cursor + BossMind)
+
+- **Cursor index:** `.cursorignore` (fewer irrelevant files indexed).  
+- **Preflight before wide edits:** **`npm run bossmind:enterprise:preflight`** (hosting, forbidden UI, protected surface, structural authority, immutable checksums; optional `BOSSMIND_ENTERPRISE_PREFLIGHT_BUILD=1`).  
+- **What is / is not automatable in-repo:** **`docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md`**.
+
 ## Task completion vs production “live”
 
 - Repo-enforced “ready to ship” pipeline: **`npm run bossmind:completion:gate`** (build + guards + immutable verify; optional live HTML probe). See **`docs/BOSSMIND_TASK_COMPLETION_GATE.md`**.
