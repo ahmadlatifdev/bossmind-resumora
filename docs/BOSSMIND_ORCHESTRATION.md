@@ -96,7 +96,7 @@ See also `docs/ARCHITECTURE.md` for engagement tables and approved toolchain.
 
 - **`POST /api/webhooks/stripe`** — Stripe-signed webhooks; requires **`STRIPE_WEBHOOK_SECRET`** + **`STRIPE_SECRET_KEY`**. Writes `stripe_webhook.*` rows into `event_log` for centralized BossMind tracking (refunds, checkout completion, etc.).
 - Checkout sessions already attach plan + **UTM metadata** (`pages/api/checkout.js`); **`verify-session`** logs paid sessions once (`stripe_checkout_paid`).
-- Other BossMind apps (ElegancyArt, AI Video Generator, TikTok AI, Global Stock): reuse the same Stripe + webhook pattern with **`BOSSMIND_PROJECT_KEY`** set per deployment.
+- Other BossMind apps (ElegancyArt, AI Video Generator, TikTok AI, BossMind Capital): reuse the same Stripe + webhook pattern with **`BOSSMIND_PROJECT_KEY`** set per deployment.
 
 ## Orchestration ingress (multi-project)
 

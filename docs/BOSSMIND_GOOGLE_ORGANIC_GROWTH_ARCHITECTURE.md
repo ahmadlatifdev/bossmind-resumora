@@ -99,7 +99,7 @@ Sentry → LangGraph repair remains the operational repair chain (see existing o
 
 ## 12. Multi-product registry
 
-`config/bossmind-organic-growth-registry.json` lists **Resumora, ElegancyArt, AI Video Generator, TikTok AI, Global Stock**.  
+`config/bossmind-organic-growth-registry.json` lists **Resumora, ElegancyArt, AI Video Generator, TikTok AI, BossMind Capital**.  
 Only projects with `BOSSMIND_REPO_ROOT_<NAME>` set **and** matching script layout run from this orchestrator; **Resumora** runs from the current repo root by default.
 
 ## 13. Commands

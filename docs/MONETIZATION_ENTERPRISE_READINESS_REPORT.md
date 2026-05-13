@@ -53,7 +53,7 @@ Copyright / duplicate-content safety for **posted** creative: **MISSING** (opera
 | Payout methods / tax | **MISSING** | Stripe Dashboard |
 | Neon financial logging | **PARTIAL** | Webhook attempts `event_log` when Neon configured |
 | Projects: Resumora | **PARTIAL** | This repo |
-| ElegancyArt / AI Video / TikTok AI / Global Stock | **MISSING** | Out of repo scope |
+| ElegancyArt / AI Video / TikTok AI / BossMind Capital | **MISSING** | Out of repo scope |
 
 ---
 

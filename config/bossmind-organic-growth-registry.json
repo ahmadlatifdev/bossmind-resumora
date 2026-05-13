@@ -68,10 +68,13 @@
       }
     },
     {
-      "id": "global-stock",
-      "displayName": "Global Stock",
+      "id": "bossmind-capital",
+      "displayName": "BossMind Capital",
+      "tagline": "Protect First. Grow Gradually.",
+      "positioning": "Institutional-grade AI wealth intelligence — capital preservation first, gradual long-term growth, defensive allocation.",
       "siteUrl": null,
-      "repoRootEnv": "BOSSMIND_REPO_ROOT_GLOBAL_STOCK",
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_BOSSMIND_CAPITAL",
+      "legacyRepoRootEnv": "BOSSMIND_REPO_ROOT_GLOBAL_STOCK",
       "pipelines": {
         "weeklyOrganic": false,
         "googleOrganicBundle": false,

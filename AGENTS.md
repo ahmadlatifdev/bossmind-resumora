@@ -34,6 +34,8 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **After deploy (build + lock + optional live URL):** **`npm run bossmind:enterprise:post-deploy`** with **`BOSSMIND_REALITY_LIVE_URL`** set when you need production HTML/health checks.  
 - **What is / is not automatable in-repo:** **`docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md`**.
 
+- **Sibling product branding (BossMind Capital):** **`docs/BOSSMIND_CAPITAL_BRAND.md`** — the Capital **app** is a separate repo; Resumora only registers it in `config/bossmind-organic-growth-registry.json`.
+
 ## Task completion vs production “live”
 
 - Repo-enforced “ready to ship” pipeline: **`npm run bossmind:completion:gate`** (build + guards + immutable verify; optional live HTML probe). See **`docs/BOSSMIND_TASK_COMPLETION_GATE.md`**.

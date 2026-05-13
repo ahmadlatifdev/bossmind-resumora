@@ -2,7 +2,7 @@
 
 **Surface lock:** Every approved `pages/**/*.js` route module is listed in `config/bossmind-protected-surface.json` (`surfaceLockPaths`). The Anti-Leak guard merges that list with this registry. **`npm run bossmind:protect:verify`** confirms none of those files were deleted. Intentional edits to locked paths require **`BOSSMIND_PROTECTED_EDIT_OK=1`** (see `scripts/bossmind-antileak-guard.mjs`).
 
-Other BossMind products (ElegancyArt, AI Video Generator, TikTok AI, Global Stock, Master Admin) live in **other repositories** — replicate `config/bossmind-protected-surface.json` + registry pattern per repo; there is no remote cross-repo enforcement from Resumora alone.
+Other BossMind products (ElegancyArt, AI Video Generator, TikTok AI, BossMind Capital, Master Admin) live in **other repositories** — replicate `config/bossmind-protected-surface.json` + registry pattern per repo; there is no remote cross-repo enforcement from Resumora alone.
 
 Agents must **not** rewrite or remove these without explicit owner approval. Prefer **minimal diffs** and extend rather than replace.
 

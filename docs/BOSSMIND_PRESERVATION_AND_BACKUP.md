@@ -1,6 +1,6 @@
 # BossMind preservation, requirement lock, and rolling backup
 
-This document describes **safe archive mode**, **30-day verified rolling backups**, **pre-deploy checkpoints**, and **recovery** for the **Resumora** repo. Other BossMind products (Master Admin, ElegancyArt, AI Video Generator, TikTok AI, Global Stock) live in **separate repositories** — register them in `config/bossmind-preservation-scope.json` under `externalRepositoriesRegistry` and back them up via **separate CI jobs** or `BOSSMIND_INDEX_ROOTS` with `npm run hub:index` (see `scripts/bossmind-hub-index.mjs`).
+This document describes **safe archive mode**, **30-day verified rolling backups**, **pre-deploy checkpoints**, and **recovery** for the **Resumora** repo. Other BossMind products (Master Admin, ElegancyArt, AI Video Generator, TikTok AI, BossMind Capital) live in **separate repositories** — register them in `config/bossmind-preservation-scope.json` under `externalRepositoriesRegistry` and back them up via **separate CI jobs** or `BOSSMIND_INDEX_ROOTS` with `npm run hub:index` (see `scripts/bossmind-hub-index.mjs`).
 
 ## Principles (non-negotiable)
 

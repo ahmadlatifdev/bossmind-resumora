@@ -15,7 +15,7 @@
 - **Pixel-perfect visual regression** — not bundled (would need Percy/Chromatic or stored screenshots per release).
 - **Blocking Railway/SSL deploys from this repo** — requires your hosting pipeline to call `npm run bossmind:validate` (or equivalent) and fail the deploy.
 - **“Auto-rollback on bad deploy”** — not continuous; use Neon/git rollback scripts plus human or CI gate.
-- **Other BossMind codebases** — **ElegancyArt**, **AI Video Generator**, **TikTok AI**, **Global Stock**, **BossMind Master Admin** must each copy:
+- **Other BossMind codebases** — **ElegancyArt**, **AI Video Generator**, **TikTok AI**, **BossMind Capital**, **BossMind Master Admin** must each copy:
 
   1. `config/bossmind-protected-surface.json` (adjusted file list),
   2. `docs/PROTECTED_COMPONENTS_REGISTRY.md`,
