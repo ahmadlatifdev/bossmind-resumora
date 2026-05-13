@@ -1,0 +1,44 @@
+name: BossMind production reality gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      live_url:
+        description: "HTTPS production origin (e.g. https://resumora.net)"
+        required: false
+        default: ""
+      skip_build:
+        description: "Set to 1 to skip next build (faster; assumes artifacts not required)"
+        required: false
+        default: "0"
+      record_task_id:
+        description: "If set with NEON_DATABASE_URL, records verified checkpoint for this task id"
+        required: false
+        default: ""
+
+jobs:
+  reality-gate:
+    name: Build + lock + optional live probe
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production reality gate
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BOSSMIND_REALITY_LIVE_URL: ${{ github.event.inputs.live_url || secrets.BOSSMIND_REALITY_LIVE_URL }}
+          BOSSMIND_REALITY_SKIP_BUILD: ${{ github.event.inputs.skip_build }}
+          BOSSMIND_CLOSED_LOOP_RECORD: ${{ github.event.inputs.record_task_id != '' && '1' || '0' }}
+          BOSSMIND_CLOSED_LOOP_TASK_ID: ${{ github.event.inputs.record_task_id }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: npm run bossmind:reality:gate
