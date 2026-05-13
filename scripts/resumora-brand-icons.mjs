@@ -37,7 +37,29 @@ async function main() {
 
   const ico = await toIco([png16, png32]);
   fs.writeFileSync(path.join(pub, "favicon.ico"), ico);
-  console.log("resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192.png, icon-512.png");
+
+  fs.copyFileSync(path.join(pub, "favicon.svg"), path.join(pub, "icon.svg"));
+  fs.copyFileSync(path.join(pub, "icon-192.png"), path.join(pub, "android-chrome-192x192.png"));
+  fs.copyFileSync(path.join(pub, "icon-512.png"), path.join(pub, "android-chrome-512x512.png"));
+
+  const ver = JSON.parse(fs.readFileSync(path.join(root, "config", "branding-asset-version.json"), "utf8")).version;
+  const q = `?v=${String(ver).replace(/"/g, "")}`;
+  const swPath = path.join(pub, "sw.js");
+  let sw = fs.readFileSync(swPath, "utf8");
+  sw = sw.replace(/const BRANDING_ASSET_QUERY = "[^"]*"/, `const BRANDING_ASSET_QUERY = "${q}"`);
+  sw = sw.replace(/const CACHE = "resumora-shell-[^"]*"/, `const CACHE = "resumora-shell-${ver}"`);
+  fs.writeFileSync(swPath, sw);
+
+  const idxPath = path.join(pub, "index.html");
+  if (fs.existsSync(idxPath)) {
+    let html = fs.readFileSync(idxPath, "utf8");
+    html = html.replace(/\?v=[^"&\s)]+/g, `?v=${ver}`);
+    fs.writeFileSync(idxPath, html);
+  }
+
+  console.log(
+    "resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192/512, android-chrome-*, icon.svg; synced sw.js CACHE + query from config/branding-asset-version.json"
+  );
 }
 
 main().catch((e) => {

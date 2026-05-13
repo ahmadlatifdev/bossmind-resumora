@@ -6,6 +6,7 @@ import TrustMetricsPanel from "@/components/marketing/sections/TrustMetricsPanel
 import UploadPanel from "@/components/marketing/sections/UploadPanel";
 import { useLanguage } from "@/context/LanguageContext";
 import { getSiteUrl } from "@/lib/marketing/seo-config";
+import { brandAbsoluteUrl } from "@/lib/marketing/branding-assets";
 import { translations } from "@/lib/marketing/site-copy";
 
 /** Luxury navy/gold homepage — full hero, trust metrics, encrypted intake, pricing, closing strip (EN/FR). */
@@ -14,7 +15,7 @@ export default function HomePage() {
   const t = translations[lang];
   const siteUrl = getSiteUrl();
   const canonical = `${siteUrl}/`;
-  const ogImage = `${siteUrl}/resumora-logo.png`;
+  const ogImage = brandAbsoluteUrl(siteUrl, "/resumora-logo.png");
 
   return (
     <SiteChrome>

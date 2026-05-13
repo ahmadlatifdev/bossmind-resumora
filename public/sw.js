@@ -1,5 +1,11 @@
-/* Minimal offline shell — caches logo + manifest-friendly responses */
-const CACHE = "resumora-shell-v2";
+/**
+ * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
+ * npm run bossmind:branding:icons patches BRANDING_ASSET_QUERY + CACHE from that file.
+ */
+const BRANDING_ASSET_QUERY = "?v=20260602-rs1";
+const CACHE = "resumora-shell-20260602-rs1";
+
+const q = () => BRANDING_ASSET_QUERY;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -7,12 +13,17 @@ self.addEventListener("install", (event) => {
       .open(CACHE)
       .then((cache) =>
         cache.addAll([
-          "/favicon.svg",
-          "/favicon.ico",
-          "/favicon-32x32.png",
-          "/apple-touch-icon.png",
-          "/icon-192.png",
-          "/resumora-logo.png",
+          "/favicon.svg" + q(),
+          "/icon.svg" + q(),
+          "/favicon.ico" + q(),
+          "/favicon-32x32.png" + q(),
+          "/favicon-16x16.png" + q(),
+          "/apple-touch-icon.png" + q(),
+          "/icon-192.png" + q(),
+          "/icon-512.png" + q(),
+          "/android-chrome-192x192.png" + q(),
+          "/android-chrome-512x512.png" + q(),
+          "/resumora-logo.png" + q(),
           "/manifest.webmanifest",
           "/",
         ]).catch(() => {})
@@ -22,7 +33,21 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.map((key) => {
+            if (key.startsWith("resumora-shell-") && key !== CACHE) {
+              return caches.delete(key);
+            }
+            return Promise.resolve();
+          })
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener("fetch", (event) => {
@@ -30,13 +55,39 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  const path = url.pathname;
+  const isBrandAsset =
+    path.startsWith("/favicon") ||
+    path === "/icon.svg" ||
+    path.startsWith("/icon-") ||
+    path.startsWith("/android-chrome") ||
+    path === "/apple-touch-icon.png" ||
+    path === "/manifest.webmanifest" ||
+    path === "/api/branding-manifest";
+
+  if (isBrandAsset) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+        .then((res) => {
+          const copy = res.clone();
+          if (res.ok) {
+            caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request)
         .then((res) => {
           const copy = res.clone();
-          if (res.ok && (request.destination === "image" || url.pathname === "/" || url.pathname.endsWith(".css"))) {
+          if (res.ok && (request.destination === "image" || path === "/" || path.endsWith(".css"))) {
             caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
           }
           return res;

@@ -1,0 +1,4 @@
+{
+  "version": "20260602-rs1",
+  "notes": "Bump this when favicons, manifest icons, or OG branding assets change. Run: npm run bossmind:branding:icons (syncs service worker precache query + cache name)."
+}
