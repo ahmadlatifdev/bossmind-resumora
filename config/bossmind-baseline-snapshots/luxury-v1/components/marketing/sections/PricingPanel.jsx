@@ -8,7 +8,6 @@ import {
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
 import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
-import EngagementMomentumStrip from "@/components/marketing/EngagementMomentumStrip";
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -91,18 +90,13 @@ export default function PricingPanel() {
   };
 
   return (
-    <section id="pricing" className="rs-section">
+    <section id="pricing" className="rs-section rs-pricing-section">
       <div className="rs-container">
         <p className="rs-eyebrow">{t.navPricing}</p>
         <h2 className="rs-h2">{t.pricingTitle}</h2>
-        <p className="rs-subtitle">{t.pricingSubtitle}</p>
-
-        <p className="rs-subtitle" style={{ marginTop: "0.35rem", maxWidth: "52rem" }}>
-          {t.pricingCompareHint}
-        </p>
+        <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
         <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
         <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
-        <p className="rs-pricing-trust-line rs-pricing-trust-line--muted">{t.pricingWorkflowTrustLine}</p>
 
         {checkoutError ? (
           <p className="rs-pricing-checkout-msg" role="status">
@@ -129,9 +123,7 @@ export default function PricingPanel() {
           </aside>
         ) : null}
 
-        <EngagementMomentumStrip variant="compact" />
-
-        <div className="rs-pricing-grid">
+        <div className="rs-pricing-grid rs-pricing-grid--spaced">
           {dynamicPlans.map((plan) => (
             <article
               key={plan.id}
@@ -154,13 +146,10 @@ export default function PricingPanel() {
                 </div>
               )}
               <div>
-                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800 }}>{plan.name[lang]}</h3>
-                <div className="rs-price-amount" style={{ marginTop: "0.35rem" }}>
+                <h3 className="rs-price-tier-name">{plan.name[lang]}</h3>
+                <div className="rs-price-amount rs-price-amount--spaced">
                   {plan.price}
-                  <span style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--rs-text-muted)" }}>
-                    {" "}
-                    · {t.pricingOneTimeNote}
-                  </span>
+                  <span className="rs-price-one-time">· {t.pricingOneTimeNote}</span>
                 </div>
               </div>
               <ul className="rs-price-features">
