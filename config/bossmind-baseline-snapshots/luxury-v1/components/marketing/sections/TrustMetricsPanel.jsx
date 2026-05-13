@@ -1,5 +1,6 @@
 import { performanceStats, translations } from "@/lib/marketing/site-copy";
 import { useLanguage } from "@/context/LanguageContext";
+import EngagementMomentumStrip from "@/components/marketing/EngagementMomentumStrip";
 
 export default function TrustMetricsPanel({ sectionId } = {}) {
   const { lang } = useLanguage();
@@ -12,6 +13,7 @@ export default function TrustMetricsPanel({ sectionId } = {}) {
         <p className="rs-eyebrow">{t.navTrust}</p>
         <h2 className="rs-h2">{t.trustTitle}</h2>
         <p className="rs-subtitle">{t.trustSubtitle}</p>
+        <p className="rs-trust-secure-line">{t.trustSecureDelivery}</p>
         <div className="rs-trust-grid">
           {stats.map((s) => (
             <article key={s.label} className="rs-stat-card">
@@ -21,6 +23,7 @@ export default function TrustMetricsPanel({ sectionId } = {}) {
             </article>
           ))}
         </div>
+        <EngagementMomentumStrip />
         <p className="rs-trust-strip">{t.trustStrip}</p>
       </div>
     </section>

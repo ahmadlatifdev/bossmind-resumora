@@ -75,7 +75,39 @@ export const translations = {
     trustTitle: "Operating metrics sponsors expect",
     trustSubtitle:
       "Consistency you can cite in stakeholder updates—delivery cadence, satisfaction, and scale.",
+    trustSecureDelivery:
+      "Encrypted intake, governed artifact handling, and positive-only public engagement signals—no dark patterns on checkout.",
     trustStrip: "Greenhouse · Lever · Workday · ATS-safe PDF/DOC · Global hiring desks · EN/FR delivery",
+    engagementStripTitle: "Studio momentum (typical week)",
+    engagementHeatLabel: "Delivery rhythm signal",
+    engagementSessionsLabel: "Intake band",
+    engagementApprovalLabel: "Stakeholder approval feel",
+    engagementRecommendLabel: "Would recommend (survey band)",
+    engagementSignalsDisclaimer:
+      "Illustrative pacing band for a premium studio week—not a live concurrent user count. Values drift slowly to reflect normal operational variance.",
+    engagementDisclaimerAnalytics:
+      "Aggregated, anonymized product signals (likes, saves, requests, and coarse page views)—not concurrent visitors. Values are smoothed to avoid hourly spikes.",
+    engagementDisclaimerBlended:
+      "Combines light real product signals with studio pacing bands when the sample is still small—not a live headcount.",
+    engagementPopularLabel: "Popular lane",
+    engagementTrendingChip: "Strong demand",
+    engagementVerifiedReview: "Verified client note",
+    engagementSessionsLabelSignals: "7-day signal band",
+    engagementMicroCtaStories: "Client stories",
+    engagementMicroCtaPricing: "Compare tiers",
+    engagementRecentlySelected: "Selection cadence",
+    engagementSatisfactionTrust: "Client satisfaction signals stay positive-only in public views—no dislike counters.",
+    badgeBestValue: "Best value",
+    badgeBalanced: "Balanced",
+    badgeMostPopular: "Most selected",
+    pricingTrustSecureLine:
+      "Stripe-hosted checkout, TLS throughout, and no resale of your materials—encryption on upload and governed retention windows.",
+    pricingWorkflowTrustLine:
+      "After payment you receive a concierge routing note within the SLA window on your receipt—no anonymous queues.",
+    pricingCompareHint:
+      "Every tier ships ATS-safe collateral. Elite adds concierge depth, LinkedIn relaunch, and rehearsal assets—ideal when the mandate is visible and time-sensitive.",
+    pricingEliteHighlight:
+      "Elite is the full studio lane—workshop, relaunch, rehearsals, and concierge routing in one coordinated delivery.",
     footerTagline:
       "Resumora crafts institutional-grade career collateral for leaders who cannot afford generic.",
     footerColProduct: "Product",
@@ -222,6 +254,9 @@ export const translations = {
     homeHeadline: "Institutional-grade career collateral for leaders operating under scrutiny.",
     homeLead:
       "ATS-safe dossiers, bilingual EN/FR delivery, and concierge pacing—without diluting your mandate.",
+    homeMetaTitle: "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+    homeMetaDescription:
+      "Executive resumes, LinkedIn, and interview prep for leaders. ATS-safe collateral, bilingual EN/FR delivery, concierge cadence. Secure intake at resumora.net.",
     homeStripTitle: "Book on resumora.net",
     homeStripSubtitle: "Basic · Professional · Elite plans — secure Stripe checkout.",
     homeStripPrimary: "View pricing",
@@ -232,6 +267,10 @@ export const translations = {
     engagementMetricFollowers: "Followers",
     engagementMetricRegistrations: "Registered clients",
     engagementMetricNeon: "Neon sync",
+    engagementMetricShares: "Share signals (logged)",
+    engagementSyncedShort: "Engagement snapshot",
+    engagementShareCta: "Share lane",
+    engagementShareText: "Resumora studio lane — executive collateral and ATS-safe delivery.",
     engagementNeonLive: "Live",
     engagementAnalyticsLink: "Analytics dashboard",
     engagementEmptySignals: "Awaiting first signals",
@@ -337,8 +376,41 @@ export const translations = {
     trustTitle: "Indicateurs attendus en comité",
     trustSubtitle:
       "Des références opérationnelles—cadence, satisfaction et ampleur—pas des tableaux décoratifs.",
+    trustSecureDelivery:
+      "Intake chiffré, traitement des artefacts encadré et signaux d’engagement publics positifs uniquement—pas de motifs obscurs au checkout.",
     trustStrip:
       "Greenhouse · Lever · Workday · PDF/DOC compatibles ATS · Recrutement global · Livrables EN/FR",
+    engagementStripTitle: "Momentum studio (semaine type)",
+    engagementHeatLabel: "Signal de rythme de livraison",
+    engagementSessionsLabel: "Bande d’intake",
+    engagementApprovalLabel: "Ressenti validation parties prenantes",
+    engagementRecommendLabel: "Recommandation (bande sondage)",
+    engagementSignalsDisclaimer:
+      "Bande illustrative pour une semaine studio premium—pas un compteur d’utilisateurs simultanés. Les valeurs évoluent lentement pour refléter une variance opérationnelle normale.",
+    engagementDisclaimerAnalytics:
+      "Signaux produit agrégés et anonymisés (j’aime, enregistrements, intentions et vues de pages grossières)—pas de visiteurs simultanés. Lissage pour éviter les pics horaires.",
+    engagementDisclaimerBlended:
+      "Mélange de signaux réels légers avec des bandes studio lorsque l’échantillon reste modeste—pas un compteur en direct.",
+    engagementPopularLabel: "Voie populaire",
+    engagementTrendingChip: "Forte demande",
+    engagementVerifiedReview: "Retour client vérifié",
+    engagementSessionsLabelSignals: "Bande de signaux (7 j.)",
+    engagementMicroCtaStories: "Récits clients",
+    engagementMicroCtaPricing: "Comparer les paliers",
+    engagementRecentlySelected: "Cadence de sélection",
+    engagementSatisfactionTrust:
+      "Les signaux de satisfaction restent positifs dans les vues publiques—pas de compteurs de désaccord.",
+    badgeBestValue: "Meilleur rapport valeur",
+    badgeBalanced: "Équilibré",
+    badgeMostPopular: "Le plus sélectionné",
+    pricingTrustSecureLine:
+      "Paiement hébergé Stripe, TLS de bout en bout, et aucune revente de vos supports—chiffrement à l’upload et fenêtres de conservation encadrées.",
+    pricingWorkflowTrustLine:
+      "Après paiement, une note de routage concierge arrive dans la fenêtre SLA indiquée sur votre reçu—pas de files anonymes.",
+    pricingCompareHint:
+      "Chaque palier livre des livrables compatibles ATS. Élite ajoute profondeur concierge, relance LinkedIn et assets de répétition—idéal lorsque le mandat est visible et urgent.",
+    pricingEliteHighlight:
+      "Élite est la voie studio complète—atelier, relance, répétitions et routing concierge dans une livraison coordonnée.",
     footerTagline:
       "Resumora produit des dossiers carrière de niveau institutionnel pour les leaders qui refusent le générique.",
     footerColProduct: "Produit",
@@ -488,6 +560,9 @@ export const translations = {
     homeHeadline: "Dossiers carrière de niveau institutionnel pour cadres sous contrainte.",
     homeLead:
       "Livrables compatibles ATS, livraison bilingue EN/FR et cadence concierge—sans diluer votre mandat.",
+    homeMetaTitle: "Resumora | Studio CV direction — compatible ATS, bilingue EN/FR",
+    homeMetaDescription:
+      "CV direction, LinkedIn et préparation entretien pour cadres. Livrables compatibles ATS, livraison bilingue EN/FR, cadence concierge. Intake sécurisé sur resumora.net.",
     homeStripTitle: "Réservez sur resumora.net",
     homeStripSubtitle: "Plans Basic · Professional · Elite — paiement sécurisé Stripe.",
     homeStripPrimary: "Voir les tarifs",
@@ -498,6 +573,11 @@ export const translations = {
     engagementMetricFollowers: "Abonnés",
     engagementMetricRegistrations: "Clients inscrits",
     engagementMetricNeon: "Sync Neon",
+    engagementMetricShares: "Signaux de partage (journalisés)",
+    engagementSyncedShort: "Instantané engagement",
+    engagementShareCta: "Partager la voie",
+    engagementShareText:
+      "Studio Resumora — dossiers direction et livrables compatibles ATS.",
     engagementNeonLive: "Actif",
     engagementAnalyticsLink: "Tableau analytics",
     engagementEmptySignals: "En attente de signaux",
@@ -796,6 +876,7 @@ export const pricingPlans = [
     price: `$${BASIC_PRICE_USD}`,
     env: "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
     featured: false,
+    badge: null,
     features: {
       en: [
         "Deep ATS remediation pass",
@@ -818,7 +899,8 @@ export const pricingPlans = [
     name: { en: "Professional", fr: "Professionnel" },
     price: `$${PRO_PRICE_USD}`,
     env: "NEXT_PUBLIC_STRIPE_PRICE_PRO",
-    featured: true,
+    featured: false,
+    badge: "balanced",
     features: {
       en: [
         "Everything inside Basic",
@@ -826,6 +908,7 @@ export const pricingPlans = [
         "Role-specific accomplishment mining",
         "Personalized cover letter included",
         "2 free edits included",
+        "Same-week kickoff when studio capacity allows",
       ],
       fr: [
         "Toutes les garanties Basic",
@@ -833,6 +916,7 @@ export const pricingPlans = [
         "Mining de réalisations cible métier",
         "Lettre de motivation personnalisée incluse",
         "2 modifications gratuites incluses",
+        "Démarrage même semaine si capacité studio",
       ],
     },
   },
@@ -841,23 +925,26 @@ export const pricingPlans = [
     name: { en: "Elite", fr: "Élite" },
     price: `$${ELITE_PRICE_USD}`,
     env: "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
-    featured: false,
+    featured: true,
+    badge: "flagship",
     features: {
       en: [
-        "Professional depth + LinkedIn relaunch",
+        "Everything in Professional",
+        "Executive storyline workshop + white-glove export pack (PDF/DOC/ATS variants)",
+        "LinkedIn profile relaunch with headline & featured-section rewrite",
         "Executive-level personalized cover letter",
-        "Executive storyline workshop",
-        "Recorded interview rehearsals",
+        "Recorded interview rehearsals with annotated feedback",
         "3 free edits included",
-        "Dedicated concierge strategist",
+        "Dedicated concierge strategist with priority routing",
       ],
       fr: [
-        "Profondeur Professionnel + LinkedIn relancé",
+        "Tout le Professionnel inclus",
+        "Atelier storyline direction + pack export premium (PDF/DOC/variantes ATS)",
+        "Relance LinkedIn avec réécriture titre & section à la une",
         "Lettre de motivation personnalisée niveau direction",
-        "Atelier storyline direction",
-        "Répétitions entretien enregistrées",
+        "Répétitions entretien enregistrées avec retours annotés",
         "3 modifications gratuites incluses",
-        "Stratège concierge attitré",
+        "Stratège concierge attitré avec file prioritaire",
       ],
     },
   },
