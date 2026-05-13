@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" fill="none" role="img" aria-label="Resumora">
+  <defs>
+    <linearGradient id="rsFavGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#AA8A2E"/>
+      <stop offset="45%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F4D98C"/>
+    </linearGradient>
+    <linearGradient id="rsFavGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="58" height="58" rx="14" fill="#08122C" stroke="url(#rsFavGold)" stroke-width="2"/>
+  <path
+    d="M16 42V14H27.75C37.0875 14 44.5 20.9625 44.5 28.25C44.5 34.0875 40.8375 38.9625 35.775 41.0875L45 58H39.725L31.0875 42H21.25V38.75H28.875C34.0875 38.75 38.4375 34.0875 38.4375 28.5625C38.4375 22.9625 33.9625 18.25 27.8875 18.25H22.25V42H16Z"
+    fill="url(#rsFavGold)"
+  />
+  <rect x="1" y="1" width="58" height="28" rx="14" fill="url(#rsFavGlow)"/>
+</svg>

@@ -29,6 +29,11 @@
   ],
   "forbiddenMinimalHomeIndicators": [],
   "fingerprintExtraPaths": [
-    "config/bossmind-protected-ui-authority.json"
+    "config/bossmind-protected-ui-authority.json",
+    "config/branding-asset-version.json",
+    "lib/marketing/branding-assets.js",
+    "pages/_document.js",
+    "pages/api/branding-manifest.js",
+    "public/sw.js"
   ]
 }
