@@ -133,7 +133,7 @@ export default function FooterSocialStrip({ variant = "default" }) {
   };
 
   return (
-    <div className={`rs-footer-social-dock rs-footer-social-dock--bare ${variant === "minimal" ? "rs-footer-social-dock--minimal" : ""}`}>
+    <div id="footer-official-social" className={`rs-footer-social-dock rs-footer-social-dock--bare ${variant === "minimal" ? "rs-footer-social-dock--minimal" : ""}`}>
       <ul className="rs-footer-social-icons rs-footer-social-icons--bare" role="list">
         {items.map(({ key, href, label, Icon }) => (
           <li key={key}>

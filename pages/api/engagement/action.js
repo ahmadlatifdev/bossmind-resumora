@@ -1,7 +1,6 @@
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const {
   toggleLike,
-  toggleDislike,
   toggleSave,
   recordRequest,
   recordShare,
@@ -50,9 +49,10 @@ export default async function handler(req, res) {
       return res.status(200).json(r);
     }
     if (type === "dislike" || type === "undislike") {
-      if (!resourceKey) return res.status(400).json({ error: "Missing resourceKey" });
-      const r = await toggleDislike(profileId, visitorId, resourceKey, regionHint);
-      return res.status(200).json(r);
+      return res.status(403).json({
+        error: "Public dislike actions are disabled.",
+        hint: "Use support@resumora.net or /support for private feedback — public surfaces stay positive-only.",
+      });
     }
     if (type === "share") {
       const r = await recordShare(profileId, visitorId, resourceKey, regionHint);

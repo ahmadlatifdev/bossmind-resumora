@@ -26,7 +26,6 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ...stats,
       myLikes: Array.from(engagement.likes),
-      myDislikes: Array.from(engagement.dislikes),
       mySaves: Array.from(engagement.saves),
       followingBrand: engagement.following,
       signedIn: Boolean(actor.profileId),

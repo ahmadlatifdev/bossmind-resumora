@@ -54,6 +54,15 @@ export default function SuccessPage() {
               <h1>{t.successPaymentTitle}</h1>
               <p>{t.successThanks}</p>
               <p>{t.successVerified}</p>
+              <p className="rs-success-private-hint">{t.successPrivateFeedbackHint}</p>
+              <p className="rs-success-private-cta">
+                <a
+                  href={`mailto:${t.footerEmail}?subject=${encodeURIComponent("Private feedback (Resumora client)")}`}
+                  className="rs-btn-ghost"
+                >
+                  {t.successPrivateFeedbackCta}
+                </a>
+              </p>
               <Link href="/" className="rs-link-muted">
                 {t.returnHome}
               </Link>

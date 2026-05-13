@@ -143,6 +143,12 @@ export default function FooterEngagementDock({ variant = "default" }) {
           <span className="rs-foot-engage-v2__label">{t.footerEngageRegister}</span>
         </Link>
       </div>
+      <p className="rs-footer-follow-bridge">
+        <a href="#footer-official-social" className="rs-footer-follow-bridge-link">
+          {t.footerFollowChannelsCta}
+        </a>
+        <span className="rs-footer-follow-bridge-sub"> {t.footerFollowChannelsSub}</span>
+      </p>
     </div>
   );
 }
