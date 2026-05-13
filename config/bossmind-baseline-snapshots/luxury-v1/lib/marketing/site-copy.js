@@ -150,6 +150,8 @@ export const translations = {
     footerEngageShare: "Share",
     footerEngageRegister: "Register",
     footerPricingCta: "Compare plans",
+    footerFollowChannelsCta: "Official channels & follower growth",
+    footerFollowChannelsSub: "Tap the icons above — each click is tracked for growth analytics.",
     footerShareCopied: "Link copied to clipboard.",
     footerShareFail: "Could not share. Copy resumora.net manually.",
     footerEngageBarLead:
@@ -245,6 +247,9 @@ export const translations = {
     successPaymentTitle: "Payment successful",
     successThanks: "Thank you for choosing Resumora.",
     successVerified: "Your payment has been verified successfully.",
+    successPrivateFeedbackHint:
+      "Share private feedback (ratings, delivery notes) only through secure channels — never as a public dislike.",
+    successPrivateFeedbackCta: "Email private feedback",
     successInvalidTitle: "Invalid session",
     successInvalidLead: "We could not verify this payment session.",
     successErrorTitle: "Verification error",
@@ -453,6 +458,8 @@ export const translations = {
     footerEngageShare: "Partager",
     footerEngageRegister: "Inscription",
     footerPricingCta: "Comparer les paliers",
+    footerFollowChannelsCta: "Canaux officiels & croissance d’audience",
+    footerFollowChannelsSub: "Touchez les icônes ci-dessus — chaque clic alimente les analytics de croissance.",
     footerShareCopied: "Lien copié dans le presse-papiers.",
     footerShareFail: "Partage impossible. Copiez resumora.net manuellement.",
     footerEngageBarLead:
@@ -551,6 +558,9 @@ export const translations = {
     successPaymentTitle: "Paiement réussi",
     successThanks: "Merci d’avoir choisi Resumora.",
     successVerified: "Votre paiement a été vérifié avec succès.",
+    successPrivateFeedbackHint:
+      "Pour un retour privé (notes, livraison), utilisez uniquement les canaux sécurisés — jamais comme « dislike » public.",
+    successPrivateFeedbackCta: "Envoyer un retour privé par e-mail",
     successInvalidTitle: "Session invalide",
     successInvalidLead: "Nous n’avons pas pu vérifier cette session de paiement.",
     successErrorTitle: "Erreur de vérification",
