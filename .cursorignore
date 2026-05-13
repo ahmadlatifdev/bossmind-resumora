@@ -1,0 +1,19 @@
+# BossMind / Resumora — reduce Cursor indexing noise (not .gitignore).
+# See docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md
+
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.nyc_output/
+.vercel/
+*.tsbuildinfo
+
+windows-heal/logs/
+windows-heal/state/
+windows-heal/reports/
+
+*.pack
+trace
+trace-build
