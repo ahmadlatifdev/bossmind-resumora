@@ -332,3 +332,6 @@
 {"ts":"2026-05-12T23:40:03.8447393-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-12T23:45:04.1198626-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-12T23:50:07.3310838-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-12T23:55:02.3760927-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-12T23:55:02.5466052-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-12T23:55:13.2868174-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260512-2355"}}
