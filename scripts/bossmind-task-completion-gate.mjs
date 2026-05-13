@@ -23,9 +23,11 @@
 import { spawnSync } from "node:child_process";
 import https from "node:https";
 import http from "node:http";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const require = createRequire(import.meta.url);
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const isWin = process.platform === "win32";
 const npm = isWin ? "npm.cmd" : "npm";
@@ -110,7 +112,16 @@ async function liveHomeProbe() {
       for (const m of missing) console.error(`  - ${m}`);
       process.exit(1);
     }
-    console.log("  live homepage markers: OK");
+    const { assertApprovedFooterInHtml } = require(join(root, "lib/orchestration/bossmind-footer-live-drift.js"));
+    const drift = assertApprovedFooterInHtml(r.body);
+    if (!drift.ok) {
+      console.error("bossmind-task-completion-gate: LIVE FOOTER DRIFT — production still serving pre-cleanup footer or incomplete HTML.");
+      if (drift.violations?.length) console.error("  forbidden (stale):", drift.violations.join(", "));
+      if (drift.missing?.length) console.error("  missing (new baseline):", drift.missing.join(", "));
+      console.error("  Fix: redeploy Render from latest main, clear build cache, purge CDN if any.");
+      process.exit(1);
+    }
+    console.log("  live homepage markers + footer anti-drift: OK");
   } catch (e) {
     console.error("bossmind-task-completion-gate: live probe error:", e?.message || e);
     process.exit(1);

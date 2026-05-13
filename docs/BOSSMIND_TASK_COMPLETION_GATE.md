@@ -10,7 +10,7 @@ This document defines **what the repository can enforce automatically** versus w
 | `npm run bossmind:deploy:gate` | Pre-deploy gate (includes forbidden UI scan + checkpoint + immutable + build). Prefer this before merging UI that must ship. |
 | `npm run bossmind:forbidden-ui:scan` | Fast guard only: marketing components must not reintroduce `ThumbsUp` / `ThumbsDown` or `footerEngageDislike` bindings. |
 | `npm run bossmind:immutable:verify` | Sealed luxury checksums; optional production HTML marker probe via `BOSSMIND_IMMUTABLE_PROBE_ORIGIN`. |
-| `npm run bossmind:ui-probe` | Local/preview HTTP checks; homepage probe expects trust footer v2 markers (`rs-footer-trust-chips`, `rs-footer-engage-dock`). |
+| `npm run bossmind:ui-probe` | Local/preview HTTP checks; homepage expects simplified footer (`rs-footer-engage-dock`, `#footer-official-social`, CTA pills). |
 
 ## Optional live production confirmation
 

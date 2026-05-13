@@ -13,6 +13,7 @@ const require = createRequire(import.meta.url);
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { loadManifest } = require(join(root, "lib/orchestration/bossmind-interface-authority.js"));
 const { verifyImmutableBaseline } = require(join(root, "lib/orchestration/bossmind-immutable-baseline.js"));
+const { assertApprovedFooterInHtml } = require(join(root, "lib/orchestration/bossmind-footer-live-drift.js"));
 
 const override = process.env.BOSSMIND_BASELINE_OVERRIDE === "1";
 const envProbeOrigin = (process.env.BOSSMIND_IMMUTABLE_PROBE_ORIGIN || "").replace(/\/$/, "");
@@ -52,14 +53,21 @@ async function verifyProductionProbe(probeOrigin) {
   try {
     const first = await fetchText(`${origin}/`);
     const body = first.body;
-    const ok =
+    const markersOk =
       first.status === 200 &&
       markers.every((m) => body.includes(m)) &&
       !(
         body.includes('id="pricing"') &&
         !body.includes('id="home-intake"')
       );
-    return { ok, status: first.status, origin };
+    const footerCheck = assertApprovedFooterInHtml(body);
+    const ok = markersOk && footerCheck.ok;
+    return {
+      ok,
+      status: first.status,
+      origin,
+      footerDrift: footerCheck.ok ? null : { violations: footerCheck.violations, missing: footerCheck.missing },
+    };
   } catch (e) {
     return { ok: false, error: e.message, origin };
   }
@@ -102,7 +110,12 @@ if (!v.workspaceOk) {
 
 if (!prod.skipped && !prod.ok) {
   failed = true;
-  lines.push(`PRODUCTION_PROBE_FAILED ${prod.origin || ""} ${prod.error || prod.status}`);
+  const drift = prod.footerDrift;
+  const driftMsg =
+    drift && (drift.violations?.length || drift.missing?.length)
+      ? ` FOOTER_DRIFT violations=${JSON.stringify(drift.violations)} missing=${JSON.stringify(drift.missing)}`
+      : "";
+  lines.push(`PRODUCTION_PROBE_FAILED ${prod.origin || ""} ${prod.error || prod.status || ""}${driftMsg}`);
 }
 
 if (failed) {
@@ -119,7 +132,7 @@ if (failed) {
 
 console.log("bossmind-immutable-verify: OK (luxury + full workspace checksums match sealed baseline)");
 if (!prod.skipped) {
-  console.log(`  production probe: OK (${prod.origin})`);
+  console.log(`  production probe: OK (${prod.origin}) — home markers + footer anti-drift`);
 } else {
   console.log("  production probe: skipped (set BOSSMIND_IMMUTABLE_PROBE_ORIGIN=https://resumora.net for live check)");
 }

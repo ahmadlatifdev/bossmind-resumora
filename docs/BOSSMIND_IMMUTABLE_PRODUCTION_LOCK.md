@@ -39,7 +39,14 @@ Silent overwrite of snapshots is prevented the same way as all source: **git + c
 
 ## Optional live probe
 
-Set `BOSSMIND_IMMUTABLE_PROBE_ORIGIN=https://resumora.net` when running `bossmind:locked-production:verify` or `bossmind:immutable:verify` so production HTML is checked against `requiredHomeHtmlMarkers` in `bossmind-protected-ui-authority.json`.
+Set `BOSSMIND_IMMUTABLE_PROBE_ORIGIN=https://resumora.net` (or `BOSSMIND_IMMUTABLE_PROBE_FROM_LOCK=1` to use `productionPublicOrigin` from the baseline JSON) when running `bossmind:locked-production:verify` or `bossmind:immutable:verify`. The probe:
+
+1. Checks `requiredHomeHtmlMarkers` from `bossmind-protected-ui-authority.json`.
+2. Runs **footer anti-drift** rules (`lib/orchestration/bossmind-footer-live-drift.js`): fails if live HTML still contains removed trust-chip rows, “Connect Neon…”, “Trust & signals” / “Confiance & signaux”, or is missing the simplified footer signals (`aria-label` for the CTA toolbar, `#footer-official-social`, `rs-foot-engage-v2`).
+
+If the probe fails while local checksums pass, production is serving an **older build** — on **Render**, trigger a **clean rebuild** (clear build cache) and redeploy the commit that contains the approved `FooterEngagementDock.jsx`, then re-run the probe.
+
+`npm run bossmind:completion:gate` with `BOSSMIND_COMPLETION_LIVE_PROBE=1` applies the same footer checks after deploy.
 
 ## Explicit approval path
 
