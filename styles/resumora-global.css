@@ -460,6 +460,19 @@ body {
   font-size: clamp(1.25rem, 2vw, 1.55rem) !important;
 }
 
+/* Closing / pricing CTA strip — fluid headline scale (replaces inline styles). */
+.rs-h2--closing {
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+}
+
+.rs-subtitle--strip-tight {
+  margin-top: 0.42rem;
+}
+
+.rs-cta-strip-actions--loose {
+  gap: 0.65rem;
+}
+
 .rs-h3-compact {
   margin: 0.35rem 0 0;
   font-size: clamp(1.05rem, 1.6vw, 1.25rem);

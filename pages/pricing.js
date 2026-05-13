@@ -25,14 +25,10 @@ export default function PricingPage() {
           <div className="rs-container">
             <div className="rs-cta-strip">
               <div>
-                <h2 className="rs-h2" style={{ fontSize: "clamp(1.45rem, 2.5vw, 1.85rem)" }}>
-                  {t.pricingQuestionsTitle}
-                </h2>
-                <p className="rs-subtitle" style={{ marginTop: "0.42rem" }}>
-                  {t.pricingQuestionsSubtitle}
-                </p>
+                <h2 className="rs-h2 rs-h2--closing">{t.pricingQuestionsTitle}</h2>
+                <p className="rs-subtitle rs-subtitle--strip-tight">{t.pricingQuestionsSubtitle}</p>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.65rem", justifyContent: "flex-end" }}>
+              <div className="rs-cta-strip-actions rs-cta-strip-actions--loose">
                 <Link href="/contact" className="rs-btn-ghost">
                   {t.navContact}
                 </Link>
