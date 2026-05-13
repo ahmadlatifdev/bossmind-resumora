@@ -2,8 +2,8 @@
  * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
  * npm run bossmind:branding:icons patches BRANDING_ASSET_QUERY + CACHE from that file.
  */
-const BRANDING_ASSET_QUERY = "?v=20260602-rs2";
-const CACHE = "resumora-shell-20260602-rs2";
+const BRANDING_ASSET_QUERY = "?v=20260610-rs1";
+const CACHE = "resumora-shell-20260610-rs1";
 
 const q = () => BRANDING_ASSET_QUERY;
 
