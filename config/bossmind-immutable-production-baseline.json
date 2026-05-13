@@ -12,8 +12,8 @@
     "restoreCommand": "npm run bossmind:baseline:restore",
     "notes": "Checksums + snapshots are authoritative in-repo. Render/Railway rollback is operator-owned. Visual diff requires your own screenshot/Playwright pipeline."
   },
-  "sealedAt": "2026-05-13T02:49:50.552Z",
-  "sealedGitHead": "20734b43698f8ff5ec1f651a97c631c7c96b8d82",
+  "sealedAt": "2026-05-13T03:08:08.644Z",
+  "sealedGitHead": "2a160c655ed6cb9449dd715a1841da630067e172",
   "lockFullWorkspaceFingerprint": false,
   "immutableInterfacePaths": [
     "components/marketing/HomePage.jsx",
@@ -35,6 +35,6 @@
     "next.config.ts"
   ],
   "snapshotRelativeDir": "config/bossmind-baseline-snapshots/luxury-v1",
-  "lockedLuxuryInterfaceFingerprint": "201e3adc9a991fe7d25756a7b950bcc7bfb15ab00ddd3a0363dbce1b0b974a33",
-  "lockedFullWorkspaceFingerprint": "003206efd590eb05526b77281f8ab2643267f9afb9dc5acbca35b75b70126b58"
+  "lockedLuxuryInterfaceFingerprint": "221ac8494a3979af091670c1d4200c8d2c0d9687ea64813c9be9522d6358c137",
+  "lockedFullWorkspaceFingerprint": "ea9ce31114d3babbd6ba3e2c438e820610e6f6c4e0e13d85a905668b69ad84f4"
 }
