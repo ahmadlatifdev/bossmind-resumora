@@ -1,4 +1,4 @@
 {
-  "version": "20260602-rs2",
+  "version": "20260610-rs1",
   "notes": "Bump when favicons, manifest icons, wordmark PNG, or OG branding assets change. Run: npm run bossmind:branding:icons (syncs service worker precache query + cache name)."
 }
