@@ -43,6 +43,7 @@
     "bossmind:runtime:sync:dry": "node scripts/bossmind-runtime-sync.mjs --once --dry-run",
     "bossmind:reconcile": "node scripts/bossmind-reconciliation-engine.mjs",
     "bossmind:baseline:seal": "node scripts/bossmind-baseline-seal.mjs",
+    "bossmind:branding:icons": "node scripts/resumora-brand-icons.mjs",
     "bossmind:immutable:verify": "node scripts/bossmind-immutable-verify.mjs",
     "bossmind:locked-production:verify": "node scripts/bossmind-locked-production-verify.mjs",
     "bossmind:reality:gate": "node scripts/bossmind-production-reality-gate.mjs",
@@ -106,6 +107,7 @@
     "eslint-config-next": "16.2.6",
     "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "to-ico": "^1.1.2",
     "typescript": "^5"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",

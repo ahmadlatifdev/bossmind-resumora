@@ -1,9 +1,22 @@
 /* Minimal offline shell — caches logo + manifest-friendly responses */
-const CACHE = "resumora-shell-v1";
+const CACHE = "resumora-shell-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(["/resumora-logo.png", "/manifest.webmanifest", "/"]).catch(() => {}))
+    caches
+      .open(CACHE)
+      .then((cache) =>
+        cache.addAll([
+          "/favicon.svg",
+          "/favicon.ico",
+          "/favicon-32x32.png",
+          "/apple-touch-icon.png",
+          "/icon-192.png",
+          "/resumora-logo.png",
+          "/manifest.webmanifest",
+          "/",
+        ]).catch(() => {})
+      )
   );
   self.skipWaiting();
 });
