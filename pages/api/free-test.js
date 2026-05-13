@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   if (!sql) {
     return res.status(503).json({
       error: "free_test_requires_neon",
-      message: "Configure NEON_DATABASE_URL to submit a Free Test request.",
+      message: "Configure NEON_DATABASE_URL to submit a complimentary review request.",
     });
   }
 
