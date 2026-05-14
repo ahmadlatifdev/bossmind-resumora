@@ -41,6 +41,7 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **Railway closed-loop repair:** **`docs/BOSSMIND_RAILWAY_CLOSED_LOOP_REPAIR.md`** — `POST /api/orchestration/railway-incident-webhook` + `bossmind:supervisor` + `deployment_repair_log`.
 - **Windows + Chrome keyboard / productivity playbook:** **`docs/WINDOWS_CHROME_KEYBOARD_ACTIVATION_PLAYBOOK.md`** + **`npm run bossmind:windows:keyboard-diagnostics`** (read-only; optional `-RepairAccessibilitySafe`).
 - **Laptop workspace safe validation bundle:** **`npm run bossmind:laptop:safe-validate`** — runs diagnostics + optional Chrome `Bookmarks` copy (only if Chrome is closed) + bookmark audit; writes **`windows-heal/reports/laptop-workspace-safe-validation-*.txt`** (does not change OS DPI or global popups).
+- **Snipping Tool overlay (invisible border):** **`docs/WINDOWS_SNIPPING_OVERLAY_PLAYBOOK.md`** + **`npm run bossmind:windows:snip-diagnostics`** (read-only JSON; optional `-ApplySafeUiHints` on the `.ps1`).
 
 ## Task completion vs production “live”
 

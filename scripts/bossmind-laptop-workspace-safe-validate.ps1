@@ -79,6 +79,16 @@ try {
 }
 
 Add-Line ""
+Add-Line "=== Snipping overlay diagnostics (read-only) ==="
+$snip = Join-Path $root "scripts\windows-snipping-overlay-diagnostics.ps1"
+if (Test-Path -LiteralPath $snip) {
+  $snOut = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $snip 2>&1
+  $snOut | Select-Object -First 40 | ForEach-Object { Add-Line $_ }
+} else {
+  Add-Line "  (snipping script not found)"
+}
+
+Add-Line ""
 Add-Line "=== Post-checklist (operator) ==="
 Add-Line "  [ ] Chrome shortcuts: test with extensions disabled if any fail."
 Add-Line "  [ ] Settings > Accessibility > Keyboard: Sticky/Filter keys off unless needed."

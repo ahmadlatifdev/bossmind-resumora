@@ -93,6 +93,7 @@
     "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1",
     "bossmind:windows:keyboard-diagnostics": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows-keyboard-shortcut-diagnostics.ps1",
     "bossmind:laptop:safe-validate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bossmind-laptop-workspace-safe-validate.ps1",
+    "bossmind:windows:snip-diagnostics": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows-snipping-overlay-diagnostics.ps1",
     "bossmind:chrome:bookmark-consolidation": "node scripts/chrome-bookmark-consolidation.mjs",
     "bossmind:chrome:bookmark-backup": "node scripts/chrome-bookmark-consolidation.mjs --backup-bookmarks",
     "resumora:support:ai:arch-lock": "node scripts/resumora-ai-support-mail-confirm.mjs"

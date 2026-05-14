@@ -1,0 +1,36 @@
+{
+    "sections":  {
+                     "explorerHints":  {
+
+                                       },
+                     "personalize":  {
+                                         "EnableTransparency":  0
+                                     },
+                     "primaryDisplay":  {
+                                            "boundsHeight":  900,
+                                            "workingWidth":  1600,
+                                            "boundsWidth":  1600,
+                                            "workingHeight":  852
+                                        },
+                     "video":  [
+                                   {
+                                       "Status":  "OK",
+                                       "Name":  "AMD Radeon(TM) RX Vega 10 Graphics",
+                                       "DriverVersion":  "27.20.11044.5003"
+                                   }
+                               ],
+                     "desktopDpi":  {
+                                        "LogPixels":  null,
+                                        "Win8DpiScaling":  0
+                                    },
+                     "visualEffects":  "{\"VisualFXSetting\":1}"
+                 },
+    "recommendations":  [
+                            "Try Settings \u003e Personalization \u003e Colors \u003e Transparency effects ON; retry Win+Shift+S.",
+                            "If overlay invisible: disable HDR temporarily; test 100%/125% scale; Repair Snipping Tool in Apps settings.",
+                            "Dual GPU: Settings \u003e Display \u003e Graphics - force Snipping Tool / Screen Snipping to iGPU or dGPU and test both.",
+                            "ASUS: pause Armoury Crate overlays / GameVisual; update Intel + discrete GPU drivers from ASUS + vendor."
+                        ],
+    "generatedAt":  "2026-05-14T18:36:26.1215952-04:00",
+    "machine":  "DESKTOP-57NGLMT"
+}
