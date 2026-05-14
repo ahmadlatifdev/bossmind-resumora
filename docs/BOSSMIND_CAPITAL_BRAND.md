@@ -48,3 +48,7 @@ Reuse patterns from shared BossMind docs: Neon `task_state` / `event_log`, deplo
 ## Legal / safety
 
 Any public UI that could be read as investment advice or order execution must carry **jurisdiction-appropriate disclosures** and be reviewed by qualified counsel. This markdown is **not** legal or investment advice.
+
+## Architecture stack (integrations)
+
+See **`docs/BOSSMIND_CAPITAL_CORE_STACK.md`** for the full **Final Core Stack** (TradingView, OpenAI, DeepSeek, Polygon, Sentry, n8n, GitHub, Neon) — implementation belongs in the **BossMind Capital** repository, not Resumora.

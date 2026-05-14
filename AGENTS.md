@@ -35,6 +35,7 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **What is / is not automatable in-repo:** **`docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md`**.
 
 - **Sibling product branding (BossMind Capital):** **`docs/BOSSMIND_CAPITAL_BRAND.md`** — the Capital **app** is a separate repo; Resumora only registers it in `config/bossmind-organic-growth-registry.json`.
+- **BossMind Capital core stack (integrations contract):** **`docs/BOSSMIND_CAPITAL_CORE_STACK.md`** — architecture for TradingView, OpenAI, DeepSeek, Polygon, Sentry, n8n, GitHub, Neon; **not activated inside Resumora**.
 
 ## Task completion vs production “live”
 
