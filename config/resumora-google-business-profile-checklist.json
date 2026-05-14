@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "brand": "Resumora",
+  "canonicalSite": "https://resumora.net",
+  "notes": "Target state for Google Business Profile (Maps) — apply in GBP UI or via official GBP API after OAuth. This file is not sent to Google automatically.",
+  "profileAttributes": {
+    "onlineAppointments": {
+      "recommended": true,
+      "implementationHint": "Link to /contact or trusted booking URL; match website CTA."
+    },
+    "onlineEstimates": {
+      "recommended": true,
+      "implementationHint": "Use if you offer scoped quotes; align wording with /pricing."
+    },
+    "virtualOrRemoteServices": {
+      "recommended": true,
+      "implementationHint": "Primary delivery is remote; list regions served (global online)."
+    },
+    "appointmentRequired": {
+      "recommended": true,
+      "implementationHint": "Studio cadence is concierge-led; avoids walk-in mismatch."
+    },
+    "multilingualSupport": {
+      "recommended": true,
+      "languages": ["English", "French"]
+    },
+    "primaryCategories": {
+      "recommended": [
+        "Resume service",
+        "Career counselor",
+        "Business management consultant"
+      ],
+      "notes": "Pick the closest GBP taxonomy; avoid unrelated categories for E-E-A-T."
+    },
+    "servicesHighlights": [
+      "ATS resume optimization",
+      "Executive resume services",
+      "Bilingual EN/FR résumés",
+      "LinkedIn profile optimization",
+      "Interview preparation",
+      "Cover letter writing",
+      "Career coaching (executive)"
+    ],
+    "serviceArea": {
+      "type": "online_global",
+      "notes": "If you also serve a city, add without removing online positioning."
+    }
+  },
+  "crossChannelConsistency": {
+    "website": "https://resumora.net — canonical from NEXT_PUBLIC_SITE_URL",
+    "descriptionAlignment": "Match tone: premium, ATS-safe, bilingual EN/FR, concierge — no hype claims.",
+    "socialBios": "NEXT_PUBLIC_SOCIAL_* URLs should match GBP 'Website' and same brand strings."
+  },
+  "validationQueries": [
+    "site:resumora.net",
+    "Resumora resume",
+    "Resumora ATS"
+  ],
+  "antiLeak": {
+    "neverCommit": ["Google OAuth client secrets", "GBP API refresh tokens", "service account JSON"],
+    "storeIn": "Render/Railway environment or Google Secret Manager only"
+  }
+}

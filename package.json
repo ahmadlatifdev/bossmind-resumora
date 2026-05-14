@@ -84,6 +84,7 @@
     "bossmind:autonomous-check": "npm run validate:hosting && npm run bossmind:antileak && npm run bossmind:audit && npm run bossmind:perf-scan",
     "bossmind:e2e-gate": "node scripts/bossmind-antileak-guard.mjs && node scripts/bossmind-performance-scan.mjs",
     "hub:index": "node scripts/bossmind-hub-index.mjs",
+    "resumora:gbp:confirm": "node scripts/resumora-gbp-operator-confirm.mjs",
     "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1"
   },
   "dependencies": {

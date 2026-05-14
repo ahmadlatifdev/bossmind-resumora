@@ -146,3 +146,14 @@
 3. URL Inspection: request indexing for `/`, `/pricing`, `/services`, `/resources`, top `/solutions/*`.  
 4. Rich Results Test: spot-check one solution URL.  
 5. If marketing approves UI checksum updates: **`npm run bossmind:baseline:seal`** then **`npm run bossmind:locked-production:verify`**.
+
+---
+
+## Google Business Profile (Maps)
+
+| Item | Status | Notes |
+|------|--------|--------|
+| Hands-free GBP attribute updates from repo | **STILL MISSING** | Requires **Google Business Profile API** + OAuth; not shipped here. |
+| Operator playbook + checklist | **ACTIVE** | **`docs/RESUMORA_GOOGLE_BUSINESS_PROFILE_PLAYBOOK.md`**, **`config/resumora-google-business-profile-checklist.json`**. |
+| Neon audit after manual GBP work | **ACTIVE** | **`npm run resumora:gbp:confirm -- --i-understand-manual-only --notes="..."`** (needs `NEON_DATABASE_URL`). |
+
