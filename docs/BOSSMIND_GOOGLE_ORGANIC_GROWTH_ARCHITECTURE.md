@@ -5,10 +5,13 @@ Implementation in this repository is **bounded** to what can be shipped safely i
 
 ## Technical SEO shipped in-app
 
+**Activation report (status matrix):** `docs/BOSSMIND_SEO_GOOGLE_ACTIVATION_REPORT.md`
+
 | Surface | Location |
 |---------|----------|
 | Dynamic `sitemap.xml` | `pages/sitemap.xml.js` + `lib/marketing/seo-config.js` |
-| Dynamic `robots.txt` | `pages/robots.txt.js` (disallows `/api/`, auth, ops routes) |
+| Image sitemap | `pages/sitemap-images.xml.js` + `buildImageSitemapXml` in `seo-config.js` |
+| Dynamic `robots.txt` | `pages/robots.txt.js` (disallows `/api/`, auth, ops routes; references both sitemaps) |
 | Site-wide JSON-LD | `pages/_document.js` (Organization + WebSite) |
 | Homepage meta / OG / Twitter / hreflang | `components/marketing/HomePage.jsx` + `site-copy` |
 

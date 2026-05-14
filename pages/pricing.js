@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
@@ -10,6 +11,12 @@ export default function PricingPage() {
 
   return (
     <SiteChrome>
+      <Head>
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+      </Head>
       <main>
         <section className="rs-section rs-pricing-page-hero">
           <div className="rs-container">

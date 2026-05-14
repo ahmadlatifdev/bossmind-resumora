@@ -10,6 +10,7 @@ export default function SuccessPage() {
   const router = useRouter();
   const { lang } = useLanguage();
   const t = translations[lang];
+  const { session_id } = router.query;
   const sid =
     typeof session_id === "string"
       ? session_id
