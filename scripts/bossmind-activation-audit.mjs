@@ -103,6 +103,7 @@ async function main() {
       "missing_updates_log",
       "rollback_snapshots",
       "deployment_history",
+      "deployment_repair_log",
     ];
     for (const t of want) {
       const rows = await sql(`SELECT to_regclass($1) AS n`, [`public.${t}`]);
@@ -168,6 +169,16 @@ async function main() {
       ]),
       partialBecause:
         "Cursor/Copilot execution and deployment verification are external; worker runs LangGraph repair + logs only.",
+    },
+    railwayClosedLoopRepair: {
+      score: scoreGate([
+        { ok: exists("pages/api/orchestration/railway-incident-webhook.js"), label: "railway_webhook" },
+        { ok: exists("lib/orchestration/railway-closed-loop-worker.js"), label: "closed_loop_worker" },
+        { ok: exists("lib/orchestration/railway-graphql.js"), label: "railway_graphql" },
+        { ok: init.enabled, label: "neon" },
+      ]),
+      partialBecause:
+        "Live repair requires `npm run bossmind:supervisor` (or Railway worker) + `RAILWAY_TOKEN` + optional `BOSSMIND_RAILWAY_AUTO_REDEPLOY`; git push stays off by default.",
     },
     langGraphOrchestration: {
       score: scoreGate([

@@ -54,6 +54,7 @@ async function neonSnapshot() {
       "missing_updates_log",
       "rollback_snapshots",
       "deployment_history",
+      "deployment_repair_log",
     ];
     const present = [];
     const missing = [];

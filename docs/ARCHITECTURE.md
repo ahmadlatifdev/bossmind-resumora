@@ -12,7 +12,10 @@ Deploy and automation are aligned to this toolchain only:
 - **Cursor / Windsurf** — agent editing with orchestration APIs (`/api/orchestration/*`).
 - **Ollama** — local LLM execution for repair flows (`OLLAMA_MODEL` optional).
 - **LangGraph** — supervisor/worker orchestration (`lib/orchestration/langgraph-repair-flow.js`).
-- **OpenAI Codex (policy layer)** — dedicated **coding + repair** agent; orchestration policy in `config/bossmind-codex-agent-layer.json`; status via `codexAgentLayer` on `GET /api/orchestration/bossmind-health` — see `docs/BOSSMIND_CODEX_AGENT_LAYER.md` (not primary reasoning; GitHub/Codex execution is external). do not emit Vercel deployment guidance unless explicitly reapproved.
+- **OpenAI Codex (policy layer)** — dedicated **coding + repair** agent; orchestration policy in `config/bossmind-codex-agent-layer.json`; status via `codexAgentLayer` on `GET /api/orchestration/bossmind-health` — see `docs/BOSSMIND_CODEX_AGENT_LAYER.md` (not primary reasoning; GitHub/Codex execution is external).
+- **Railway closed-loop repair** — `POST /api/orchestration/railway-incident-webhook` + `scripts/bossmind-supervisor-worker.mjs` + `deployment_repair_log` — see `docs/BOSSMIND_RAILWAY_CLOSED_LOOP_REPAIR.md`.
+
+Vercel is **not** part of this architecture; do not emit Vercel deployment guidance unless explicitly reapproved.
 
 ## Anti-leak / conflict controls (operational)
 
@@ -34,6 +37,7 @@ With `NEON_DATABASE_URL` set:
 - Shared memory tables initialise on boot (`initializeSharedMemory`).
 - Engagement events append to `engagement_activity` and mirror into `event_log` via `saveEvent` where possible.
 - Error fingerprints dedupe in `error_memory`.
+- Railway auto-repair phases append to `deployment_repair_log` (see `docs/BOSSMIND_RAILWAY_CLOSED_LOOP_REPAIR.md`).
 
 Local editors should enable **Files: Auto Save** in the IDE for frictionless checkpoints; database-backed checkpoints remain the source of truth for multi-machine workflows.
 

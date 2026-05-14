@@ -111,6 +111,24 @@ async function processOne(neon, runRepairFlow, taskRow) {
     return;
   }
 
+  if (job === "railway_closed_loop") {
+    const { executeRailwayClosedLoop } = require(path.join(
+      cwd,
+      "lib/orchestration/railway-closed-loop-worker.js"
+    ));
+    const r = await executeRailwayClosedLoop({
+      neon,
+      projectKey,
+      taskRow: { task_key: taskKey, payload },
+    });
+    await finishTask(neon, taskKey, r.ok ? "completed" : "failed", {
+      ...payload,
+      closedLoopResult: r,
+      finishedAt: new Date().toISOString(),
+    });
+    return;
+  }
+
   if (job === "noop") {
     await neon.saveEvent({
       projectKey,

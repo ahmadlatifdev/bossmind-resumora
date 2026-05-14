@@ -13,6 +13,7 @@ const {
 const {
   getBossMindCodexLayerStatus,
 } = require("../../../lib/orchestration/bossmind-codex-status");
+const { getRailwayRepairOverview } = require("../../../lib/orchestration/railway-repair-status");
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -61,6 +62,10 @@ export default async function handler(req, res) {
       projectKey,
       neonEnabled: neonOk,
     });
+    const railwayClosedLoop = await getRailwayRepairOverview({
+      projectKey,
+      neonEnabled: neonOk,
+    });
 
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
@@ -72,6 +77,7 @@ export default async function handler(req, res) {
       ),
       langgraphAvailable: true,
       codexAgentLayer,
+      railwayClosedLoop,
       stripe: {
         checkoutReady: audit.checkoutReady,
         financialPipelineReady: audit.financialPipelineReady,

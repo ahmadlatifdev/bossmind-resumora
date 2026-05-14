@@ -21,7 +21,9 @@ const REQUIRED_FILES = [
   "scripts/bossmind-monitor-health.mjs",
   "pages/api/orchestration/bossmind-control.js",
   "pages/api/orchestration/sentry-ingest.js",
+  "pages/api/orchestration/railway-incident-webhook.js",
   "lib/orchestration/langgraph-repair-flow.js",
+  "lib/orchestration/railway-closed-loop-worker.js",
 ];
 
 const REQUIRED_TABLES = [
@@ -31,6 +33,7 @@ const REQUIRED_TABLES = [
   "missing_updates_log",
   "rollback_snapshots",
   "deployment_history",
+  "deployment_repair_log",
 ];
 
 function exists(rel) {

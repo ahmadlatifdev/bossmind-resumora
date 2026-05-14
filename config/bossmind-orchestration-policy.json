@@ -84,7 +84,8 @@
     "error_memory",
     "missing_updates_log",
     "rollback_snapshots",
-    "deployment_history"
+    "deployment_history",
+    "deployment_repair_log"
   ],
   "orchestrationFlow": [
     "sentry_issue",
