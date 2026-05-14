@@ -342,3 +342,26 @@
 {"ts":"2026-05-13T00:15:02.5872599-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
 {"ts":"2026-05-13T00:15:02.7134873-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-13T00:20:02.6664867-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T00:25:06.6479198-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T00:30:02.6531168-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T00:35:02.4123887-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-13T00:35:02.6534228-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T00:40:03.2722637-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T00:45:02.5809227-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T01:35:24.4709767-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-13T01:40:04.2124517-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T01:45:03.1963501-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T01:50:03.0837461-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T04:05:03.5791322-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T04:10:03.5049075-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-13T04:15:03.7934518-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-13T04:15:11.4482265-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260513-0415"}}
+{"ts":"2026-05-13T04:15:11.4795895-04:00","level":"warn","message":"Thermal pressure detected; applying balanced power mode","data":{"tempC":96.1}}
+{"ts":"2026-05-13T04:15:17.3881921-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["thermal_protection","service_repair"]}}
+{"ts":"2026-05-14T03:11:26.5897626-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T03:15:13.3392547-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T03:15:13.3662791-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-14T03:20:26.0011564-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T03:25:41.6332357-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T03:30:32.7062910-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T03:35:22.2162179-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
