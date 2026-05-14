@@ -96,6 +96,7 @@
     "bossmind:windows:snip-diagnostics": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows-snipping-overlay-diagnostics.ps1",
     "bossmind:chrome:bookmark-consolidation": "node scripts/chrome-bookmark-consolidation.mjs",
     "bossmind:chrome:bookmark-backup": "node scripts/chrome-bookmark-consolidation.mjs --backup-bookmarks",
+    "bossmind:chrome:official-repair-assist": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/chrome-official-repair-assist.ps1",
     "resumora:support:ai:arch-lock": "node scripts/resumora-ai-support-mail-confirm.mjs"
   },
   "dependencies": {

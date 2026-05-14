@@ -42,6 +42,7 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **Windows + Chrome keyboard / productivity playbook:** **`docs/WINDOWS_CHROME_KEYBOARD_ACTIVATION_PLAYBOOK.md`** + **`npm run bossmind:windows:keyboard-diagnostics`** (read-only; optional `-RepairAccessibilitySafe`).
 - **Laptop workspace safe validation bundle:** **`npm run bossmind:laptop:safe-validate`** — runs diagnostics + optional Chrome `Bookmarks` copy (only if Chrome is closed) + bookmark audit; writes **`windows-heal/reports/laptop-workspace-safe-validation-*.txt`** (does not change OS DPI or global popups).
 - **Snipping Tool overlay (invisible border):** **`docs/WINDOWS_SNIPPING_OVERLAY_PLAYBOOK.md`** + **`npm run bossmind:windows:snip-diagnostics`** (read-only JSON; optional `-ApplySafeUiHints` on the `.ps1`).
+- **Chrome in-place repair assist (official `dl.google.com` installer + optional `User Data` backup):** **`npm run bossmind:chrome:official-repair-assist`** — runs **`scripts/chrome-official-repair-assist.ps1`** (inventory JSON by default; add PowerShell switches for backup/download/launch; does not touch Cursor chat DB).
 
 ## Task completion vs production “live”
 
