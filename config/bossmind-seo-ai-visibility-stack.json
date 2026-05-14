@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "name": "BossMind SEO + AI visibility expansion stack",
+  "primarySeoHub": {
+    "platform": "SE Ranking",
+    "role": "Primary rank tracking, site audit, and competitor / keyword research orchestration.",
+    "repoNote": "No SE Ranking API calls from this Next.js bundle. Use Railway worker + SE_RANKING_API_KEY (secret) to sync into Neon when approved."
+  },
+  "integrations": {
+    "googleSearchConsole": {
+      "publicEnv": ["NEXT_PUBLIC_GSC_VERIFICATION"],
+      "workerSecrets": ["GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN", "GSC_SITE_URL"],
+      "resumoraVerifyPath": "HTML meta tag via pages/_document.js when NEXT_PUBLIC_GSC_VERIFICATION is set."
+    },
+    "googleAnalytics4": {
+      "publicEnv": ["NEXT_PUBLIC_GA_MEASUREMENT_ID"],
+      "workerSecrets": ["GA4_MEASUREMENT_PROTOCOL_SECRET"],
+      "resumoraClientPath": "gtag in pages/_document.js when NEXT_PUBLIC_GA_MEASUREMENT_ID is set."
+    },
+    "microsoftClarity": {
+      "publicEnv": ["NEXT_PUBLIC_CLARITY_PROJECT_ID"],
+      "resumoraClientPath": "Optional Clarity snippet in pages/_document.js when NEXT_PUBLIC_CLARITY_PROJECT_ID is set (public project id only)."
+    },
+    "bingWebmasterTools": {
+      "publicEnv": ["NEXT_PUBLIC_BING_SITE_VERIFICATION"],
+      "resumoraVerifyPath": "meta msvalidate.01 in pages/_document.js when NEXT_PUBLIC_BING_SITE_VERIFICATION is set."
+    },
+    "neuronWriter": {
+      "workerSecrets": ["NEURONWRITER_API_KEY"],
+      "repoNote": "Content briefs / NLP scores — worker or manual export; never commit API keys."
+    },
+    "lowFruits": {
+      "workerSecrets": ["LOWFRUITS_API_KEY"],
+      "repoNote": "Low-competition keyword lists — import CSV or worker; keys in Railway only."
+    }
+  },
+  "antiLeak": {
+    "neverCommit": [
+      "SE_RANKING_API_KEY",
+      "NEURONWRITER_API_KEY",
+      "LOWFRUITS_API_KEY",
+      "GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN",
+      "GOOGLE_OAUTH_CLIENT_SECRET",
+      "GA4_MEASUREMENT_PROTOCOL_SECRET",
+      "BING_WEBMASTER_API_KEY"
+    ],
+    "publicEnvAllowed": [
+      "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+      "NEXT_PUBLIC_GSC_VERIFICATION",
+      "NEXT_PUBLIC_CLARITY_PROJECT_ID",
+      "NEXT_PUBLIC_BING_SITE_VERIFICATION",
+      "NEXT_PUBLIC_SITE_URL",
+      "NEXT_PUBLIC_ORG_SAME_AS"
+    ],
+    "storeSecretsIn": ["Render", "Railway", "Google Secret Manager"]
+  },
+  "duplicateSystemGuardrails": {
+    "rules": [
+      "Single GA gtag path in pages/_document.js — do not add a second full gtag loader elsewhere.",
+      "Neon analytics at /api/analytics/track is complementary metadata — not a replacement for GA4 reporting."
+    ]
+  },
+  "multilingualIndexing": {
+    "resumora": "Sitemap emits hreflang en, fr, x-default per URL in lib/marketing/seo-config.js — ensure FR copy routes remain indexable policy-safe."
+  },
+  "projects": [
+    { "id": "resumora", "canonicalSite": "https://resumora.net", "inRepo": true },
+    { "id": "elegancyart", "canonicalSite": null, "inRepo": false, "repoEnv": "BOSSMIND_REPO_ROOT_ELEGANCYART" },
+    { "id": "bossmind-capital", "canonicalSite": null, "inRepo": false, "repoEnv": "BOSSMIND_REPO_ROOT_BOSSMIND_CAPITAL" },
+    { "id": "ai-video-generator", "canonicalSite": null, "inRepo": false, "repoEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO" },
+    { "id": "global-stock", "canonicalSite": null, "inRepo": false, "repoEnv": "BOSSMIND_REPO_ROOT_GLOBAL_STOCK" }
+  ],
+  "keywordOpportunityThemes": [
+    "ATS resume",
+    "bilingual resume EN FR",
+    "executive resume",
+    "career coaching remote",
+    "LinkedIn optimization"
+  ],
+  "weakAuthorityHeuristic": {
+    "sitemapPriorityBelow": 0.5,
+    "note": "Routes with sitemap priority under threshold are candidates for internal links + fresh copy (PR-reviewed)."
+  }
+}

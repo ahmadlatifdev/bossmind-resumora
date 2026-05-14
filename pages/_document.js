@@ -1,6 +1,10 @@
 import { Head, Html, Main, NextScript } from "next/document";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const CLARITY_RAW = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "";
+const CLARITY_ID = /^[a-z0-9]{3,32}$/i.test(CLARITY_RAW) ? CLARITY_RAW : "";
+const BING_VERIFY_RAW = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || "";
+const BING_VERIFY = /^[A-Za-z0-9_-]{6,128}$/.test(BING_VERIFY_RAW) ? BING_VERIFY_RAW : "";
 const { organizationJsonLd } = require("../lib/marketing/seo-config");
 const { withBrandingQuery } = require("../lib/marketing/branding-assets");
 
@@ -36,6 +40,16 @@ export default function Document() {
         ) : null}
         {process.env.NEXT_PUBLIC_GSC_VERIFICATION ? (
           <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GSC_VERIFICATION} />
+        ) : null}
+        {BING_VERIFY ? <meta name="msvalidate.01" content={BING_VERIFY} /> : null}
+        {CLARITY_ID ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",${JSON.stringify(
+                CLARITY_ID
+              )});`,
+            }}
+          />
         ) : null}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: orgJson }} />
       </Head>

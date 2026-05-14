@@ -19,7 +19,10 @@ Vercel is not an approved deployment target for this repository.
 | `NEON_DATABASE_URL` | Neon Postgres — shared memory, engagement, analytics |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional Google Analytics (see `pages/_document.js`) |
 | `NEXT_PUBLIC_GSC_VERIFICATION` | Optional Search Console HTML tag |
+| `NEXT_PUBLIC_CLARITY_PROJECT_ID` | Optional Microsoft Clarity project id (public; see `pages/_document.js`) |
+| `NEXT_PUBLIC_BING_SITE_VERIFICATION` | Optional Bing Webmaster HTML tag content (`msvalidate.01`) |
 | `NEXT_PUBLIC_SOCIAL_*` | Optional footer social URLs (`LINKEDIN`, `X`, `YOUTUBE`, `INSTAGRAM`) |
+| `SE_RANKING_API_KEY` | **Worker only** — SE Ranking API (never `NEXT_PUBLIC_*`; see `config/bossmind-seo-ai-visibility-stack.json`) |
 
 ## Frontend (Render)
 

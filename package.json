@@ -87,6 +87,9 @@
     "resumora:gbp:confirm": "node scripts/resumora-gbp-operator-confirm.mjs",
     "resumora:gbp:audit": "node scripts/resumora-gbp-visibility-audit.mjs",
     "resumora:gbp:audit:persist": "node scripts/resumora-gbp-visibility-audit.mjs --persist-neon",
+    "bossmind:seo:ai-visibility:audit": "node scripts/bossmind-seo-ai-visibility-audit.mjs",
+    "bossmind:seo:ai-visibility:audit:persist": "node scripts/bossmind-seo-ai-visibility-audit.mjs --persist-neon",
+    "bossmind:seo:ai-visibility:lock": "node scripts/bossmind-seo-ai-visibility-lock.mjs",
     "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1"
   },
   "dependencies": {

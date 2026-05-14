@@ -14,6 +14,7 @@ Implementation in this repository is **bounded** to what can be shipped safely i
 | Dynamic `robots.txt` | `pages/robots.txt.js` (disallows `/api/`, auth, ops routes; references both sitemaps) |
 | Site-wide JSON-LD | `pages/_document.js` (Organization + WebSite) |
 | **Google Business Profile (Maps) ops** | **`docs/RESUMORA_GOOGLE_BUSINESS_PROFILE_PLAYBOOK.md`** + `config/resumora-google-business-profile-checklist.json` + **`npm run resumora:gbp:audit`** (live-site alignment) + **`npm run resumora:gbp:confirm`** (Neon audit after manual GBP work) |
+| **SEO + AI visibility stack (SE Ranking–centric policy)** | **`docs/BOSSMIND_SEO_AI_VISIBILITY_STACK.md`** + `config/bossmind-seo-ai-visibility-stack.json` + **`npm run bossmind:seo:ai-visibility:audit`** + **`npm run bossmind:seo:ai-visibility:lock`** (Neon, after external ops) |
 | Homepage meta / OG / Twitter / hreflang | `components/marketing/HomePage.jsx` + `site-copy` |
 
 Set **`NEXT_PUBLIC_SITE_URL`** (canonical origin, no trailing slash) on Render. Submit **`{origin}/sitemap.xml`** in Search Console after deploy. **Indexing API** auto-submit for all URLs is not enabled (policy + credentials); use GSC or compliant batch jobs.

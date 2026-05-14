@@ -1,6 +1,7 @@
 {
   "version": 1,
   "name": "BossMind Google Organic Growth — ecosystem registry",
+  "seoAiVisibilityStack": "config/bossmind-seo-ai-visibility-stack.json",
   "googleCloud": {
     "suggestedProjectId": "bossmind-core",
     "enableApisHint": [
@@ -48,6 +49,18 @@
       "displayName": "AI Video Generator",
       "siteUrl": null,
       "repoRootEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO",
+      "pipelines": {
+        "weeklyOrganic": false,
+        "googleOrganicBundle": false,
+        "socialGrowthBundle": false,
+        "marketingActivationBundle": false
+      }
+    },
+    {
+      "id": "global-stock",
+      "displayName": "Global Stock",
+      "siteUrl": null,
+      "repoRootEnv": "BOSSMIND_REPO_ROOT_GLOBAL_STOCK",
       "pipelines": {
         "weeklyOrganic": false,
         "googleOrganicBundle": false,
