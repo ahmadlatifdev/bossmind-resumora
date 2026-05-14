@@ -52,3 +52,5 @@ Any public UI that could be read as investment advice or order execution must ca
 ## Architecture stack (integrations)
 
 See **`docs/BOSSMIND_CAPITAL_CORE_STACK.md`** for the full **Final Core Stack** (TradingView, OpenAI, DeepSeek, Polygon, Sentry, n8n, GitHub, Neon) — implementation belongs in the **BossMind Capital** repository, not Resumora.
+
+See **`docs/BOSSMIND_CAPITAL_FUNDING_ARCHITECTURE.md`** and **`config/bossmind-capital-funding-policy.json`** for the **protected 30%-of-verified-NET** funding model (policy + gates; no money movement from this repo).

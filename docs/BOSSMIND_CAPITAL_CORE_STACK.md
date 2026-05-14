@@ -119,5 +119,6 @@ This Resumora tree **does not** host Capital dashboards, Polygon feeds, TradingV
 ## References
 
 - **Brand & tone:** `docs/BOSSMIND_CAPITAL_BRAND.md`  
+- **Funding from verified NET (30% policy, gates, Neon sketch):** `docs/BOSSMIND_CAPITAL_FUNDING_ARCHITECTURE.md` · **`config/bossmind-capital-funding-policy.json`**  
 - **Ecosystem registry:** `config/bossmind-organic-growth-registry.json`  
 - **Preservation index entry:** `config/bossmind-preservation-scope.json`  

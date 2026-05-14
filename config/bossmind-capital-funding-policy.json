@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "description": "BossMind Capital funding policy constants — governance only; no runtime activation in Resumora.",
+  "projectKeyCapital": "bossmind-capital",
+  "allocation": {
+    "rateOfVerifiedNetMonthly": 0.3,
+    "label": "30% of verified NET subject to surplus and reserve gates"
+  },
+  "priorityOrder": [
+    "operational_safety",
+    "emergency_reserve",
+    "capital_allocation"
+  ],
+  "guards": {
+    "blockAllocationIfNegativeCashFlow": true,
+    "blockAllocationIfUnstableProjectState": true,
+    "requireVerifiedNetBeforeAllocation": true,
+    "preserveHostingApiReserves": true,
+    "preserveEmergencyLiquidity": true
+  },
+  "capitalDeploymentPrinciples": [
+    "low_risk",
+    "government_or_stable_equities_preference",
+    "dividend_focused",
+    "etf_focused",
+    "gradual_compounding",
+    "no_forced_high_risk_trades",
+    "capital_preservation_first"
+  ],
+  "netIncomeDeductions": [
+    "hosting",
+    "api_costs",
+    "taxes_reserve",
+    "operational_expenses",
+    "refunds_chargebacks",
+    "platform_fees"
+  ],
+  "automationTargets": [
+    "monthly_income_verification",
+    "automated_allocation_calculation",
+    "transfer_preparation_logs",
+    "allocation_dashboard",
+    "profit_tracking",
+    "compounding_tracking",
+    "reinvestment_monitoring",
+    "risk_monitoring",
+    "allocation_history"
+  ],
+  "integrationHints": {
+    "stripe": "Gross/settled revenue signals — NET requires accounting layer",
+    "neon": "Capital DB or schema with project_key isolation",
+    "sharedMemory": "Append-only funding runs + approvals",
+    "adminDashboard": "BossMind Capital app or Master Admin — orchestration only per execution lock"
+  },
+  "legalNote": "Not investment, tax, or legal advice. Transfers and securities activity require licensed workflows and human approval where required by law."
+}
