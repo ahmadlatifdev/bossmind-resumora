@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "masterProfileDisplayNameMatch": ["Ahmed"],
+  "includeHostSubstrings": [
+    "resumora.net",
+    "elegancyart.com",
+    "commgl.ca",
+    "deepseek.com",
+    "chat.deepseek.com",
+    "chatgpt.com",
+    "openai.com",
+    "bossmind",
+    "cursor.com",
+    "cursor.sh",
+    "github.com",
+    "railway.app",
+    "render.com",
+    "neon.tech",
+    "google.com",
+    "bing.com",
+    "seranking",
+    "make.com",
+    "zapier.com",
+    "n8n.io"
+  ],
+  "notes": "URLs matching any substring (case-insensitive) are collected for deduped HTML export. Cursor/IDE favorite chats are NOT in Chrome Bookmarks — pin those in Cursor manually."
+}

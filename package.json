@@ -90,7 +90,9 @@
     "bossmind:seo:ai-visibility:audit": "node scripts/bossmind-seo-ai-visibility-audit.mjs",
     "bossmind:seo:ai-visibility:audit:persist": "node scripts/bossmind-seo-ai-visibility-audit.mjs --persist-neon",
     "bossmind:seo:ai-visibility:lock": "node scripts/bossmind-seo-ai-visibility-lock.mjs",
-    "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1"
+    "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1",
+    "bossmind:chrome:bookmark-consolidation": "node scripts/chrome-bookmark-consolidation.mjs",
+    "bossmind:chrome:bookmark-backup": "node scripts/chrome-bookmark-consolidation.mjs --backup-bookmarks"
   },
   "dependencies": {
     "@langchain/langgraph": "^1.3.0",
