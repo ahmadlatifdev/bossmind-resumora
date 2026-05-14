@@ -1,63 +1,116 @@
 {
-  "version": 1,
+  "version": 3,
   "brand": "Resumora",
   "canonicalSite": "https://resumora.net",
-  "notes": "Target state for Google Business Profile (Maps) — apply in GBP UI or via official GBP API after OAuth. This file is not sent to Google automatically.",
+  "notes": "Target state for Google Business Profile (Maps) — apply in GBP UI or via official Business Profile API after OAuth. This file is not sent to Google automatically.",
   "profileAttributes": {
     "onlineAppointments": {
       "recommended": true,
-      "implementationHint": "Link to /contact or trusted booking URL; match website CTA."
+      "implementationHint": "Yes — link to https://resumora.net/contact (or live booking URL). Match primary CTA on site."
     },
     "onlineEstimates": {
       "recommended": true,
-      "implementationHint": "Use if you offer scoped quotes; align wording with /pricing."
+      "implementationHint": "Yes — scoped quotes aligned with /pricing; avoid unbounded promises."
     },
     "virtualOrRemoteServices": {
       "recommended": true,
-      "implementationHint": "Primary delivery is remote; list regions served (global online)."
+      "implementationHint": "Yes — primary delivery is remote; service area: online / worldwide plus any real local areas."
     },
     "appointmentRequired": {
       "recommended": true,
-      "implementationHint": "Studio cadence is concierge-led; avoids walk-in mismatch."
+      "implementationHint": "Yes — concierge intake; avoids walk-in mismatch with studio positioning."
     },
     "multilingualSupport": {
       "recommended": true,
-      "languages": ["English", "French"]
+      "languages": ["English", "French"],
+      "implementationHint": "Enable multilingual + EN/FR explicitly where GBP allows both."
     },
-    "primaryCategories": {
-      "recommended": [
-        "Resume service",
-        "Career counselor",
-        "Business management consultant"
-      ],
-      "notes": "Pick the closest GBP taxonomy; avoid unrelated categories for E-E-A-T."
+    "englishSupport": {
+      "recommended": true,
+      "implementationHint": "List English under languages / attributes."
     },
-    "servicesHighlights": [
-      "ATS resume optimization",
-      "Executive resume services",
-      "Bilingual EN/FR résumés",
-      "LinkedIn profile optimization",
-      "Interview preparation",
-      "Cover letter writing",
-      "Career coaching (executive)"
-    ],
-    "serviceArea": {
-      "type": "online_global",
-      "notes": "If you also serve a city, add without removing online positioning."
+    "frenchSupport": {
+      "recommended": true,
+      "implementationHint": "List French; align with bilingual solution pages on resumora.net."
+    },
+    "professionalResumeConsulting": {
+      "recommended": true,
+      "implementationHint": "Categories + services: resume writer / career counselor taxonomy closest to region; services mirror /services + /solutions/*."
+    },
+    "careerCoachingRelevance": {
+      "recommended": true,
+      "implementationHint": "Include career coaching where offered (e.g. /solutions/career-coaching); do not over-claim outside scope."
+    },
+    "globalOnlineServiceOptimization": {
+      "recommended": true,
+      "implementationHint": "Service area: worldwide/online; hours accurate; website UTM optional: ?utm_source=gmb&utm_medium=organic"
+    },
+    "aiSeoDiscoverability": {
+      "recommended": true,
+      "implementationHint": "Site: JSON-LD Organization/WebSite + factual GBP description; GSC sitemap; no keyword stuffing."
+    },
+    "trustAndAuthority": {
+      "recommended": true,
+      "implementationHint": "Reviews + owner replies; photos; Q&A; consistent NAP with site footer; no duplicate listings."
     }
   },
+  "primaryCategories": {
+    "recommended": [
+      "Resume service",
+      "Career counselor",
+      "Business management consultant"
+    ],
+    "notes": "Pick closest GBP taxonomy per region; avoid unrelated categories for E-E-A-T."
+  },
+  "servicesHighlights": [
+    "ATS resume optimization",
+    "Executive resume services",
+    "Bilingual EN/FR résumés",
+    "LinkedIn profile optimization",
+    "Interview preparation",
+    "Cover letter writing",
+    "Career coaching (executive)",
+    "Remote / global delivery"
+  ],
+  "serviceArea": {
+    "type": "online_global",
+    "notes": "If you also serve a city, add without removing online positioning."
+  },
+  "liveSiteAlignment": {
+    "homeMustContainInsensitive": [
+      "resumora",
+      "resume",
+      "ats",
+      "bilingual",
+      "career"
+    ],
+    "notes": "Used by npm run resumora:gbp:audit — heuristic only; extend list cautiously."
+  },
+  "suspiciousAlternateOrigins": [],
   "crossChannelConsistency": {
     "website": "https://resumora.net — canonical from NEXT_PUBLIC_SITE_URL",
-    "descriptionAlignment": "Match tone: premium, ATS-safe, bilingual EN/FR, concierge — no hype claims.",
-    "socialBios": "NEXT_PUBLIC_SOCIAL_* URLs should match GBP 'Website' and same brand strings."
+    "descriptionAlignment": "Premium, ATS-safe, bilingual EN/FR, concierge — factual; no medical/legal claims.",
+    "socialBios": "NEXT_PUBLIC_SOCIAL_* and NEXT_PUBLIC_ORG_SAME_AS must match GBP social links where offered."
+  },
+  "internationalExposure": {
+    "gbpHints": [
+      "Service area: worldwide or multi-region you truly serve",
+      "Languages EN + FR",
+      "Posts alternate EN/FR captions where policy allows"
+    ]
   },
   "validationQueries": [
     "site:resumora.net",
     "Resumora resume",
-    "Resumora ATS"
+    "Resumora ATS",
+    "Resumora career coaching"
   ],
   "antiLeak": {
-    "neverCommit": ["Google OAuth client secrets", "GBP API refresh tokens", "service account JSON"],
+    "neverCommit": [
+      "Google OAuth client secrets",
+      "GBP API refresh tokens",
+      "service account JSON"
+    ],
     "storeIn": "Render/Railway environment or Google Secret Manager only"
   }
 }

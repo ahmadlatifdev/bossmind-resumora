@@ -155,5 +155,6 @@
 |------|--------|--------|
 | Hands-free GBP attribute updates from repo | **STILL MISSING** | Requires **Google Business Profile API** + OAuth; not shipped here. |
 | Operator playbook + checklist | **ACTIVE** | **`docs/RESUMORA_GOOGLE_BUSINESS_PROFILE_PLAYBOOK.md`**, **`config/resumora-google-business-profile-checklist.json`**. |
-| Neon audit after manual GBP work | **ACTIVE** | **`npm run resumora:gbp:confirm -- --i-understand-manual-only --notes="..."`** (needs `NEON_DATABASE_URL`). |
+| Neon audit after manual GBP work | **ACTIVE** | **`npm run resumora:gbp:confirm -- --i-understand-manual-only --notes="..."`** (needs `NEON_DATABASE_URL`; optional **`--with-visibility-audit`**). |
+| Live site vs GBP checklist (no Maps API) | **ACTIVE** | **`npm run resumora:gbp:audit`** — optional **`npm run resumora:gbp:audit:persist`**. |
 

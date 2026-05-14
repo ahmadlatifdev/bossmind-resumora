@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-05-14T13:26:18.545Z",
+  "checklistVersion": 3,
+  "checklistSha256": "7d11e65ae2682f2f7d54e702db9fa5cda35f879866f13bb77d8cfb80c0f8370f",
+  "canonicalSite": "https://resumora.net",
+  "originRequested": "https://resumora.net",
+  "originFinal": "https://www.resumora.net/",
+  "finalHost": "www.resumora.net",
+  "expectedHost": "resumora.net",
+  "httpStatus": 200,
+  "title": "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+  "checks": {
+    "https": true,
+    "titleHasBrand": true,
+    "bodyHasBrand": true,
+    "keywordHits": {
+      "resumora": true,
+      "resume": true,
+      "ats": true,
+      "bilingual": true,
+      "career": true
+    },
+    "canonicalHostOk": true,
+    "viewportMobile": true,
+    "jsonLdStructuredData": true
+  },
+  "socialEnvSummary": {
+    "configuredKeyCount": 0,
+    "hostnames": []
+  },
+  "gbpOperatorTodo": [
+    {
+      "key": "onlineAppointments",
+      "recommended": true,
+      "hint": "Yes — link to https://resumora.net/contact (or live booking URL). Match primary CTA on site."
+    },
+    {
+      "key": "onlineEstimates",
+      "recommended": true,
+      "hint": "Yes — scoped quotes aligned with /pricing; avoid unbounded promises."
+    },
+    {
+      "key": "virtualOrRemoteServices",
+      "recommended": true,
+      "hint": "Yes — primary delivery is remote; service area: online / worldwide plus any real local areas."
+    },
+    {
+      "key": "appointmentRequired",
+      "recommended": true,
+      "hint": "Yes — concierge intake; avoids walk-in mismatch with studio positioning."
+    },
+    {
+      "key": "multilingualSupport",
+      "recommended": true,
+      "hint": "Enable multilingual + EN/FR explicitly where GBP allows both."
+    },
+    {
+      "key": "englishSupport",
+      "recommended": true,
+      "hint": "List English under languages / attributes."
+    },
+    {
+      "key": "frenchSupport",
+      "recommended": true,
+      "hint": "List French; align with bilingual solution pages on resumora.net."
+    },
+    {
+      "key": "professionalResumeConsulting",
+      "recommended": true,
+      "hint": "Categories + services: resume writer / career counselor taxonomy closest to region; services mirror /services + /solutions/*."
+    },
+    {
+      "key": "careerCoachingRelevance",
+      "recommended": true,
+      "hint": "Include career coaching where offered (e.g. /solutions/career-coaching); do not over-claim outside scope."
+    },
+    {
+      "key": "globalOnlineServiceOptimization",
+      "recommended": true,
+      "hint": "Service area: worldwide/online; hours accurate; website UTM optional: ?utm_source=gmb&utm_medium=organic"
+    },
+    {
+      "key": "aiSeoDiscoverability",
+      "recommended": true,
+      "hint": "Site: JSON-LD Organization/WebSite + factual GBP description; GSC sitemap; no keyword stuffing."
+    },
+    {
+      "key": "trustAndAuthority",
+      "recommended": true,
+      "hint": "Reviews + owner replies; photos; Q&A; consistent NAP with site footer; no duplicate listings."
+    }
+  ],
+  "missingOptimizationPoints": [
+    "No NEXT_PUBLIC_SOCIAL_* / NEXT_PUBLIC_ORG_SAME_AS in env — cross-channel parity with GBP social links unverified locally."
+  ],
+  "weakVisibilitySignals": [],
+  "recommendedRepoActions": [],
+  "brandingConsistency": {
+    "ok": true,
+    "issues": []
+  },
+  "conflictHits": [],
+  "overallStatus": "pass",
+  "disclaimer": "This audit does not call Google Business Profile APIs or modify Maps. Apply attributes in GBP UI or Business Profile API after OAuth."
+}

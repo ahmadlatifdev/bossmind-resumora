@@ -13,7 +13,8 @@
 | Attribute updates (appointments, languages, services) | **Not automated** | GBP UI or **Business Profile API** |
 | “Auto-fix weak signals” on Maps | **Not possible** here | Reviews, photos, Q&A, categories — human + policy |
 | Public / global visibility verification | **Not automated** | Search Console, Maps URL checks, `site:` queries |
-| Lock state in BossMind memory | **PARTIAL** | Run **`npm run resumora:gbp:confirm`** after manual GBP work (Neon `event_log` + `task_state`) |
+| Lock state in BossMind memory | **PARTIAL** | Run **`npm run resumora:gbp:confirm`** after manual GBP work (Neon `event_log` + `task_state` + `last_confirmed_checkpoint` **`google_business_profile_optimized_state`**) |
+| Live site vs checklist audit (no Google API) | **ACTIVE** | **`npm run resumora:gbp:audit`** — optional **`--persist-neon`**, **`--json-out=...`**, **`--fail-on-warn`** |
 
 ---
 
@@ -79,7 +80,14 @@ After GBP edits, **manually** verify:
 After you confirm GBP matches the checklist:
 
 ```bash
+npm run resumora:gbp:audit
 npm run resumora:gbp:confirm -- --i-understand-manual-only --notes="GBP: virtual+EN/FR+services aligned to resumora.net 2026-05-14"
+```
+
+With live-site summary embedded in Neon (still no Google API calls from the repo):
+
+```bash
+npm run resumora:gbp:confirm -- --i-understand-manual-only --with-visibility-audit --notes="GBP aligned checklist v2 + live audit"
 ```
 
 Optional:
@@ -91,7 +99,8 @@ npm run resumora:gbp:confirm -- --i-understand-manual-only --notes="..." --maps-
 Requires **`NEON_DATABASE_URL`**. Writes:
 
 - `task_state` key **`google_business_profile:resumora_operator_sync`** (status `verified`)  
-- `event_log` type **`google_business_profile_operator_confirmed`**
+- `event_log` type **`google_business_profile_operator_confirmed`**  
+- `last_confirmed_checkpoint` key **`google_business_profile_optimized_state`** (checklist hash + optional audit summary)
 
 This is an **audit checkpoint**, not a technical lock on Google’s servers.
 

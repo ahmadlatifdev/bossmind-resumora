@@ -6,6 +6,7 @@
  *   node scripts/resumora-gbp-operator-confirm.mjs --i-understand-manual-only --notes="GBP attributes updated 2026-05-14"
  *
  * Optional: --maps-url="https://www.google.com/maps?cid=..." (stored in payload only; never a secret)
+ * Optional: --with-visibility-audit (fetches live site; attaches summary to Neon payload; still no Google API)
  *
  * Env: NEON_DATABASE_URL, BOSSMIND_PROJECT_KEY (default resumora)
  */
@@ -37,27 +38,43 @@ async function main() {
     process.exit(1);
   }
 
+  const checklistPath = join(root, "config", "resumora-google-business-profile-checklist.json");
+  const gbpAudit = require(join(root, "lib/marketing/resumora-gbp-audit-lib.js"));
+  let checklistVersion = 0;
+  let checklistSha256 = "";
+  try {
+    const raw = fs.readFileSync(checklistPath, "utf8");
+    const parsed = JSON.parse(raw);
+    checklistVersion = parsed.version ?? 0;
+    checklistSha256 = gbpAudit.sha256Hex(raw);
+  } catch {
+    checklistVersion = 0;
+  }
+
+  let visibilityAudit = null;
+  if (hasFlag("with-visibility-audit")) {
+    visibilityAudit = await gbpAudit.runVisibilityAudit({ root });
+  }
+
   const neon = require(join(root, "lib/shared/neon-memory.js"));
   await neon.ensureSharedMemoryInitialized().catch(() => {});
 
   if (!neon.getSqlClient()) {
     console.log(
       JSON.stringify(
-        { ok: false, skipped: true, reason: "NEON_DATABASE_URL not set — no Neon rows written." },
+        {
+          ok: false,
+          skipped: true,
+          reason: "NEON_DATABASE_URL not set — no Neon rows written.",
+          checklistVersion,
+          checklistSha256: checklistSha256 || undefined,
+          visibilityAudit: visibilityAudit || undefined,
+        },
         null,
         2
       )
     );
     process.exit(0);
-  }
-
-  const checklistPath = join(root, "config", "resumora-google-business-profile-checklist.json");
-  let checklistVersion = 0;
-  try {
-    const raw = fs.readFileSync(checklistPath, "utf8");
-    checklistVersion = JSON.parse(raw).version ?? 0;
-  } catch {
-    checklistVersion = 0;
   }
 
   const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
@@ -66,11 +83,22 @@ async function main() {
 
   const payload = {
     checklistVersion,
+    checklistSha256: checklistSha256 || undefined,
     notes,
     mapsUrl: mapsUrl || undefined,
     confirmedAt: new Date().toISOString(),
     source: "resumora-gbp-operator-confirm",
   };
+
+  if (visibilityAudit) {
+    payload.visibilityAudit = {
+      overallStatus: visibilityAudit.overallStatus,
+      checklistSha256: visibilityAudit.checklistSha256,
+      generatedAt: visibilityAudit.generatedAt,
+      originFinal: visibilityAudit.originFinal,
+      checks: visibilityAudit.checks,
+    };
+  }
 
   const taskKey = "google_business_profile:resumora_operator_sync";
 
@@ -89,6 +117,28 @@ async function main() {
     source: "resumora-gbp-operator-confirm",
     eventKey: `gbp_confirm:${payload.confirmedAt}`,
     payload,
+  });
+
+  await neon.upsertLastConfirmedCheckpoint({
+    projectKey,
+    checkpointKey: "google_business_profile_optimized_state",
+    commitHash: process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "",
+    baselineHash: checklistSha256 || "",
+    payload: {
+      checklistVersion,
+      checklistSha256,
+      taskKey,
+      confirmedAt: payload.confirmedAt,
+      mapsUrl: payload.mapsUrl,
+      visibilityAuditSummary: visibilityAudit
+        ? {
+            overallStatus: visibilityAudit.overallStatus,
+            originFinal: visibilityAudit.originFinal,
+          }
+        : undefined,
+    },
+    source: "resumora-gbp-operator-confirm",
+    locked: true,
   });
 
   console.log(JSON.stringify({ ok: true, taskKey, payload }, null, 2));

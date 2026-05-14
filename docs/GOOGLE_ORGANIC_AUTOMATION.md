@@ -6,6 +6,7 @@ This layer complements **social** automation (`docs/SOCIAL_GROWTH_AUTOMATION.md`
 
 - `npm run marketing:google-organic` — write bundle to `.bossmind/campaigns/google-organic/<week>.json` + optional Neon event `google_organic.bundle_generated` (requires `NEON_DATABASE_URL`).
 - `npm run marketing:google-organic:dry` — same without Neon persist.
+- `npm run resumora:gbp:audit` — public homepage vs GBP checklist (no Google API); optional `--persist-neon`, `--json-out=...`.
 
 ## What is generated
 
