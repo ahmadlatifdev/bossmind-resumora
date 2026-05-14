@@ -1,0 +1,200 @@
+{
+   "checksum": "aa628dd1d6d06a29aedd3d0975eebed8",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13303002021888636",
+            "date_last_used": "13423247535625364",
+            "guid": "44527431-eb7c-41f5-ad21-468c0b57751b",
+            "id": "2886",
+            "name": "Gmail",
+            "type": "url",
+            "url": "https://accounts.google.com/b/0/AddMailService"
+         }, {
+            "date_added": "13303002359025250",
+            "date_last_used": "0",
+            "guid": "934acee3-883a-4172-8173-e58c5084b306",
+            "id": "2889",
+            "name": "Alibaba.com: Manufacturers, Suppliers, Exporters & Importers from the world's largest online B2B marketplace",
+            "type": "url",
+            "url": "https://www.alibaba.com/?src=sem_ggl&from=sem_ggl&cmpgn=9922923052&adgrp=135429399773&fditm=&tgt=kwd-14739453&locintrst=&locphyscl=9000835&mtchtyp=e&ntwrk=g&device=c&dvcmdl=&creative=593583291491&plcmnt=&plcmntcat=&p1=&p2=&aceid=&position=&localKeyword=alibaba&gclid=EAIaIQobChMIodHv8NiD-QIV_WxvBB1Bdg8DEAAYASAAEgLnWPD_BwE"
+         }, {
+            "date_added": "13318836320298948",
+            "date_last_used": "0",
+            "guid": "a6e6ede1-a6de-417b-bd13-ff891d9518d0",
+            "id": "2903",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "",
+            "type": "url",
+            "url": "data:image/png;base64,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"
+         }, {
+            "date_added": "13370890603471442",
+            "date_last_used": "0",
+            "guid": "76b220d1-ba95-4047-8fd5-ffa4555c5435",
+            "id": "2914",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Apps",
+            "type": "url",
+            "url": "chrome://apps/"
+         }, {
+            "children": [ {
+               "date_added": "13414291952840145",
+               "date_last_used": "13414295370077532",
+               "guid": "4dadf4ea-bc10-4b80-8e6d-41cffef96955",
+               "id": "2921",
+               "meta_info": {
+                  "power_bookmark_meta": ""
+               },
+               "name": "Running Node.js App on Localhost Port - DeepSeek",
+               "type": "url",
+               "url": "https://chat.deepseek.com/a/chat/s/bdfa99b5-7f26-48bf-8535-7b8d212f51e0"
+            }, {
+               "date_added": "13414295135999013",
+               "date_last_used": "13423257188676106",
+               "guid": "21dbf247-455d-49a0-adfe-b72ffd91fb4c",
+               "id": "5843",
+               "meta_info": {
+                  "power_bookmark_meta": ""
+               },
+               "name": "User seeks Treasure financial platform domain. - DeepSeek",
+               "type": "url",
+               "url": "https://chat.deepseek.com/a/chat/s/77ac0e1b-9822-40b8-a5b0-b06a193fedb5"
+            } ],
+            "date_added": "13414292033741207",
+            "date_last_used": "0",
+            "date_modified": "13414346127712173",
+            "guid": "eb49b9f6-fa4b-4d55-9167-c337806e9ea8",
+            "id": "2922",
+            "name": "DeepSeek Chats",
+            "type": "folder"
+         } ],
+         "date_added": "13412828256865159",
+         "date_last_used": "0",
+         "date_modified": "13378854802280229",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13339777949774306",
+            "date_last_used": "0",
+            "guid": "6fad8621-a0ad-4da3-af71-68b8635afbce",
+            "id": "6",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "The Hub",
+            "type": "url",
+            "url": "https://wpmudev.com/hub2/reseller"
+         }, {
+            "children": [ {
+               "date_added": "13423257376284110",
+               "date_last_used": "0",
+               "guid": "a413103a-9432-4138-b374-24939932bff0",
+               "id": "6139",
+               "name": "Auto-create Organic Ads",
+               "type": "url",
+               "url": "https://chatgpt.com/c/6a028bcf-5530-83ea-909a-d71b65cd04e7"
+            }, {
+               "date_added": "13423257376284168",
+               "date_last_used": "0",
+               "guid": "ce619041-7167-4c4d-ac4f-ac4fdb8fcd93",
+               "id": "6140",
+               "name": "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+               "type": "url",
+               "url": "https://www.resumora.net/"
+            }, {
+               "date_added": "13423257376284222",
+               "date_last_used": "0",
+               "guid": "0dd839ed-be67-4861-9224-7d17b894662a",
+               "id": "6141",
+               "name": "Your Google Workspace billing information was received - info@elegancyart.com - elegancyart.com Mail",
+               "type": "url",
+               "url": "https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox/FMfcgzQgLrrkqvvMkmGQrPshBXBNwXnG"
+            }, {
+               "date_added": "13423257376284271",
+               "date_last_used": "0",
+               "guid": "1241ecc7-499e-4e53-ae56-f36e6eb0fcb8",
+               "id": "6142",
+               "name": "Dashboard - Admin Console",
+               "type": "url",
+               "url": "https://admin.google.com/ac/dashboard?journey=218&utm_source=google"
+            }, {
+               "date_added": "13423257376284298",
+               "date_last_used": "0",
+               "guid": "c3bb2cae-6901-4db2-b965-48672bf89ace",
+               "id": "6143",
+               "name": "Test - info@elegancyart.com - elegancyart.com Mail",
+               "type": "url",
+               "url": "https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox/KtbxLwGzcqJzscrTlQpZxXdjzrqPdSmxdV"
+            }, {
+               "date_added": "13423257376284332",
+               "date_last_used": "0",
+               "guid": "2890c1b5-008e-4b57-9fd7-ecec87b67262",
+               "id": "6144",
+               "name": "Inbox (672) - info@elegancyart.com - elegancyart.com Mail",
+               "type": "url",
+               "url": "https://mail.google.com/mail/u/0/#inbox"
+            }, {
+               "date_added": "13423257376284361",
+               "date_last_used": "0",
+               "guid": "907e720e-3874-4309-a50b-3b5d57a788f9",
+               "id": "6145",
+               "name": "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+               "type": "url",
+               "url": "https://www.resumora.net/"
+            }, {
+               "date_added": "13423257376284385",
+               "date_last_used": "0",
+               "guid": "38bce31a-1756-4d7b-9087-1189e1c86ee0",
+               "id": "6146",
+               "name": "New Tab",
+               "type": "url",
+               "url": "chrome://newtab/"
+            } ],
+            "date_added": "13423257376284008",
+            "date_last_used": "0",
+            "date_modified": "13423257376284385",
+            "guid": "04ff8be9-cb57-40ed-a92f-b9d557c3546f",
+            "id": "6138",
+            "name": "New folder",
+            "type": "folder"
+         } ],
+         "date_added": "13412828256865159",
+         "date_last_used": "0",
+         "date_modified": "13423257376284596",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [ {
+            "date_added": "13134502980756386",
+            "date_last_used": "0",
+            "guid": "81dd7e83-4715-4fc1-88b8-1f113fa1c857",
+            "id": "5",
+            "meta_info": {
+               "last_visited": "13142991309841213"
+            },
+            "name": "أخبار عاجلة - اليوم السابع",
+            "type": "url",
+            "url": "http://m.youm7.com/Section/%D8%A3%D8%AE%D8%A8%D8%A7%D8%B1-%D8%B9%D8%A7%D8%AC%D9%84%D8%A9/65/1"
+         } ],
+         "date_added": "13412828256865159",
+         "date_last_used": "0",
+         "date_modified": "13134502980756386",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

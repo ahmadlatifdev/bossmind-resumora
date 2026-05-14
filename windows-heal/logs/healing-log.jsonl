@@ -500,3 +500,4 @@
 {"ts":"2026-05-14T19:15:26.0684334-04:00","level":"warn","message":"Thermal pressure detected; applying balanced power mode","data":{"tempC":92.1}}
 {"ts":"2026-05-14T19:15:34.2849795-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["thermal_protection","service_repair"]}}
 {"ts":"2026-05-14T19:20:02.2642221-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-14T19:25:02.4002032-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}

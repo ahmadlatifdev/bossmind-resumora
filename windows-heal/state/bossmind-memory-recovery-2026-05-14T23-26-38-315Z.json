@@ -1,0 +1,184 @@
+{
+  "version": 1,
+  "stamp": "2026-05-14T23-26-38-315Z",
+  "projectKey": "resumora",
+  "objective": "BossMind memory recovery and preservation (repo-orchestrated)",
+  "limits": [
+    "Cursor favorite chats, DeepSeek app threads, and ChatGPT history are not inside Chrome User Data or this repo.",
+    "Gmail labels/filters and n8n flows require Google/n8n export outside this script.",
+    "Railway/Render live env vars and service IDs are on the host dashboards unless mirrored in local env (never printed here)."
+  ],
+  "steps": {
+    "backupDaily": {
+      "ok": true,
+      "status": 0,
+      "tail": "\n> resumora-fresh@0.1.0 bossmind:backup:daily\n> node scripts/bossmind-backup-daily.mjs\n\n{\n  \"ok\": true,\n  \"runId\": \"2026-05-14T23-26-41-754Z\",\n  \"backupRoot\": \"D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d\",\n  \"fileCount\": 89,\n  \"missing\": [],\n  \"verifyErrors\": [],\n  \"pruned\": []\n}\n"
+    },
+    "preservationValidate": {
+      "ok": true,
+      "status": 0,
+      "tail": "\n> resumora-fresh@0.1.0 bossmind:preservation:validate\n> node scripts/bossmind-preservation-validate.mjs\n\n{\n  \"ok\": true,\n  \"manifestRunId\": \"2026-05-14T23-26-41-754Z\",\n  \"manifestTs\": \"2026-05-14T23:26:41.764Z\",\n  \"driftCount\": 0,\n  \"drift\": []\n}\n"
+    },
+    "antileak": {
+      "ok": true,
+      "status": 0,
+      "tail": "\n> resumora-fresh@0.1.0 bossmind:antileak\n> node scripts/bossmind-antileak-guard.mjs\n\nbossmind-antileak: ok (base=origin/main, protected=80 paths).\nwarning: in the working copy of 'config/bossmind-preservation-scope.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'windows-heal/reports/dashboard.html', LF will be replaced by CRLF the next time Git touches it\n"
+    },
+    "gitTagSnapshot": {
+      "ok": true,
+      "status": 0,
+      "tail": "bossmind-snapshot: created tag bossmind/memory-recovery-2026-05-14T23-26-38-315Z-51e98bdfe1 at 51e98bdfe1bc7289c828a2e9419c43e43e512b2e\nbossmind-snapshot: done.\n"
+    },
+    "gitFetch": {
+      "ok": true
+    },
+    "chromeBookmarkBackup": {
+      "ok": true,
+      "status": 0,
+      "tail": "{\n  \"ok\": true,\n  \"reportPath\": \"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\reports\\\\chrome-bookmark-consolidation-2026-05-14T23-26-49.json\",\n  \"htmlPath\": \"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\reports\\\\chrome-merged-bookmarks-import-2026-05-14T23-26-49.html\",\n  \"mergedBookmarkCount\": 19,\n  \"masterCandidates\": [\n    \"Profile 3\"\n  ]\n}\n"
+    },
+    "chromeUserDataInventory": {
+      "ok": true,
+      "status": 0,
+      "stdout": "=== Chrome official repair assist (BossMind-safe) ===\nRepo: D:\\BossMind\\resumora-fresh\nUser Data: C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data\n\nChrome processes running: True\nUser Data size scan skipped (use -MeasureUserDataSize for full recursive byte count).\n\n=== Chrome-related shortcuts (read-only) ===\n---\nC:\\Users\\Public\\Desktop\\Google Chrome.lnk\n  Target: C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\n  Args: \n---\nC:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Google Chrome.lnk\n  Target: C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\n  Args: \n\nSnapshot JSON: D:\\BossMind\\resumora-fresh\\windows-heal\\state\\chrome-repair-assist-20260514-192650.json\n\n=== Operator checklist (post-install) ===\n  [ ] Open chrome://version and confirm expected version/channel.\n  [ ] chrome://settings/people - all profiles listed.\n  [ ] chrome://sync-internals if you use sync (bookmarks/passwords).\n  [ ] chrome://extensions - extensions still present (may need re-enable once).\n  [ ] Snipping: Win+Shift+S border - see npm run bossmind:windows:snip-diagnostics (OS-level).\n  [ ] Cursor favorites / DeepSeek threads: stored in Cursor app data, not Chrome User Data.\n  [ ] Optional: npm run bossmind:chrome:bookmark-backup (Chrome closed) before risky edits.\n  [ ] Optional: npm run bossmind:checkpoint before wide repo edits.\n\nDone.\n",
+      "stderr": ""
+    }
+  },
+  "localBossMindScan": {
+    "root": "D:\\BossMind",
+    "rootExists": true,
+    "entries": [
+      ".git",
+      "02-resumora",
+      "08-backups",
+      "09-archives",
+      "10-docs",
+      "11-scripts",
+      "12-Stitch-Design",
+      "14-Railway-Production",
+      "bossmind-ai-video-generator",
+      "bossmind-elegancyart",
+      "bossmind-global-stock",
+      "bossmind-master-admin",
+      "bossmind-resumora",
+      "bossmind-resumora-clean",
+      "bossmind-shared",
+      "bossmind-supervisor-service",
+      "bossmind-tiktok-ai",
+      "claude-code",
+      "cursor",
+      "node_modules",
+      "resumora-fresh",
+      "windsurf",
+      "worker"
+    ],
+    "matches": [
+      {
+        "name": "bossmind-master-admin",
+        "path": "D:\\BossMind\\bossmind-master-admin",
+        "isGit": false,
+        "head": null,
+        "dirtyLines": null
+      },
+      {
+        "name": "bossmind-resumora",
+        "path": "D:\\BossMind\\bossmind-resumora",
+        "isGit": true,
+        "head": "5f8bd3b",
+        "dirtyLines": 0
+      },
+      {
+        "name": "resumora-fresh",
+        "path": "D:\\BossMind\\resumora-fresh",
+        "isGit": true,
+        "head": "51e98bd",
+        "dirtyLines": 12
+      },
+      {
+        "name": "bossmind-elegancyart",
+        "path": "D:\\BossMind\\bossmind-elegancyart",
+        "isGit": true,
+        "head": "a4111eb",
+        "dirtyLines": 0
+      },
+      {
+        "name": "bossmind-ai-video-generator",
+        "path": "D:\\BossMind\\bossmind-ai-video-generator",
+        "isGit": true,
+        "head": "0cf7f75",
+        "dirtyLines": 0
+      },
+      {
+        "name": "bossmind-tiktok-ai",
+        "path": "D:\\BossMind\\bossmind-tiktok-ai",
+        "isGit": true,
+        "head": "b383169",
+        "dirtyLines": 0
+      },
+      {
+        "name": "bossmind-global-stock",
+        "path": "D:\\BossMind\\bossmind-global-stock",
+        "isGit": true,
+        "head": "f616bc3",
+        "dirtyLines": 0
+      },
+      {
+        "name": "bossmind-shared",
+        "path": "D:\\BossMind\\bossmind-shared",
+        "isGit": false,
+        "head": null,
+        "dirtyLines": null
+      }
+    ]
+  },
+  "deployMarkers": [
+    {
+      "path": "docs/RAILWAY_DEPLOY.md",
+      "type": "file",
+      "bytes": 2074
+    },
+    {
+      "path": "railway.json",
+      "type": "file",
+      "bytes": 130
+    },
+    {
+      "path": ".github/workflows",
+      "type": "dir",
+      "workflowCount": 4
+    }
+  ],
+  "envExampleKeys": [
+    "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+    "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+    "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET"
+  ],
+  "operatorManual": [
+    "Chrome full profile tree: close Chrome, run npm run bossmind:chrome:official-repair-assist -- -BackupUserData -BackupMode Lean",
+    "Chrome bookmarks: npm run bossmind:chrome:bookmark-backup (Chrome closed)",
+    "Gmail / Workspace: Google Takeout or Admin console (mail, labels)",
+    "n8n: export workflows JSON from n8n UI",
+    "Railway/Render: download env backup from each service settings (do not commit secrets)"
+  ],
+  "git": {
+    "branch": "main",
+    "head": "51e98bdfe1bc7289c828a2e9419c43e43e512b2e",
+    "remotes": "origin\thttps://github.com/ahmadlatifdev/bossmind-resumora.git (fetch)\norigin\thttps://github.com/ahmadlatifdev/bossmind-resumora.git (push)"
+  },
+  "neon": {
+    "enabled": false,
+    "reason": "NEON_DATABASE_URL unset"
+  },
+  "summary": {
+    "ok": true,
+    "criticalBackupSkipped": false,
+    "backupFailed": false,
+    "preservationFailed": false,
+    "antileakOk": true,
+    "warnings": [],
+    "neonOk": true
+  }
+}

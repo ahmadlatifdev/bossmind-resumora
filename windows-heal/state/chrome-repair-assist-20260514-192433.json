@@ -1,0 +1,74 @@
+﻿{
+    "stamp":  "20260514-192433",
+    "machine":  "DESKTOP-57NGLMT",
+    "user":  "user",
+    "userDataPath":  "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data",
+    "userDataExists":  true,
+    "chromeRunning":  true,
+    "approximateBytes":  null,
+    "officialInstaller":  "https://dl.google.com/chrome/install/ChromeStandaloneSetup64.exe",
+    "inventory":  {
+                      "localStatePresent":  true,
+                      "profileInfoCount":  [
+                                               1,
+                                               1,
+                                               1,
+                                               1,
+                                               1
+                                           ],
+                      "profiles":  [
+                                       {
+                                           "folder":  "Profile 1",
+                                           "bookmarks":  true,
+                                           "prefs":  true,
+                                           "bmBytes":  2791
+                                       },
+                                       {
+                                           "folder":  "Profile 10",
+                                           "bookmarks":  false,
+                                           "prefs":  true,
+                                           "bmBytes":  0
+                                       },
+                                       {
+                                           "folder":  "Profile 3",
+                                           "bookmarks":  true,
+                                           "prefs":  true,
+                                           "bmBytes":  32321
+                                       },
+                                       {
+                                           "folder":  "Profile 6",
+                                           "bookmarks":  true,
+                                           "prefs":  true,
+                                           "bmBytes":  12684
+                                       },
+                                       {
+                                           "folder":  "Profile 9",
+                                           "bookmarks":  false,
+                                           "prefs":  true,
+                                           "bmBytes":  0
+                                       }
+                                   ]
+                  },
+    "actions":  {
+                    "backupRequested":  false,
+                    "backupMode":  "Full",
+                    "downloadRequested":  false,
+                    "launchGuiRequested":  false,
+                    "shortcutsDumped":  true,
+                    "measuredUserData":  false
+                },
+    "shortcuts":  [
+                      {
+                          "lnk":  "C:\\Users\\Public\\Desktop\\Google Chrome.lnk",
+                          "target":  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                          "arguments":  "",
+                          "workingDir":  "C:\\Program Files\\Google\\Chrome\\Application"
+                      },
+                      {
+                          "lnk":  "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Google Chrome.lnk",
+                          "target":  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                          "arguments":  "",
+                          "workingDir":  "C:\\Program Files\\Google\\Chrome\\Application"
+                      }
+                  ]
+}

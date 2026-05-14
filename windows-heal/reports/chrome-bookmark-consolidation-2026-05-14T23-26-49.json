@@ -1,0 +1,205 @@
+{
+  "generatedAt": "2026-05-14T23:26:49.442Z",
+  "chromeUserData": "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data",
+  "localStatePresent": true,
+  "masterProfileDisplayNameMatch": [
+    "Ahmed"
+  ],
+  "masterProfileCandidates": [
+    "Profile 3"
+  ],
+  "masterProfileAmbiguous": false,
+  "cursorFavoriteChatsNote": "Cursor pinned/favorite chats are stored under Cursor app data, not Chrome Bookmarks. Open Cursor → chat history / favorites and re-pin there.",
+  "profiles": [
+    {
+      "directory": "Guest Profile",
+      "displayName": "(unnamed)",
+      "userName": "",
+      "bookmarkFileBytes": 1030,
+      "totalUrlsSampled": 0,
+      "matchedImportantUrls": 0,
+      "managedPreferencesFile": false,
+      "heuristicWorkspaceManaged": false,
+      "masterNameMatch": false
+    },
+    {
+      "directory": "Profile 1",
+      "displayName": "commgl.ca",
+      "userName": "aabdellatif@commgl.ca",
+      "bookmarkFileBytes": 2791,
+      "totalUrlsSampled": 4,
+      "matchedImportantUrls": 0,
+      "managedPreferencesFile": false,
+      "heuristicWorkspaceManaged": false,
+      "masterNameMatch": false
+    },
+    {
+      "directory": "Profile 3",
+      "displayName": "Ahmed",
+      "userName": "ahmadlatifzz20@gmail.com",
+      "bookmarkFileBytes": 32321,
+      "totalUrlsSampled": 37,
+      "matchedImportantUrls": 12,
+      "managedPreferencesFile": false,
+      "heuristicWorkspaceManaged": false,
+      "masterNameMatch": true
+    },
+    {
+      "directory": "Profile 6",
+      "displayName": "elegancyart.com",
+      "userName": "",
+      "bookmarkFileBytes": 12684,
+      "totalUrlsSampled": 16,
+      "matchedImportantUrls": 10,
+      "managedPreferencesFile": false,
+      "heuristicWorkspaceManaged": false,
+      "masterNameMatch": false
+    }
+  ],
+  "mergedBookmarkCount": 19,
+  "mergedBookmarksPreview": [
+    {
+      "url": "https://chat.deepseek.com/a/chat/s/bdfa99b5-7f26-48bf-8535-7b8d212f51e0",
+      "name": "Running Node.js App on Localhost Port - DeepSeek",
+      "mergedFromProfiles": [
+        "Profile 3",
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://chat.deepseek.com/a/chat/s/5037eccd-1848-4eff-8a74-43fdd78cb053",
+      "name": "404 Error: ShipBob Page Not Found - DeepSeek",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://gist.github.com/starred",
+      "name": "Discover gists",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://whois.domaintools.com/bossmind.com",
+      "name": "Bossmind.com WHOIS, DNS, & Domain Info - DomainTools",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://merchants.google.com/mc/setup/websiteverification?a=759285303&flow=onlineOnboarding",
+      "name": "Website verification – Merchant Center",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://chat.deepseek.com/a/chat/s/7330f270-2fbb-45cf-9fd7-429d0258786f",
+      "name": "TikTok Dashboard Analytics and Scheduling Tool - DeepSeek",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://chatgpt.com/c/69801fc3-6974-8332-ac37-4549d909f1f9",
+      "name": "Change Organization Squarespace",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://chat.deepseek.com/a/chat/s/62995de2-5bb0-446c-b376-97307acf60f8",
+      "name": "Adding API Scopes Search Interface Overview - DeepSeek",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://console.neon.tech/app/org-soft-hat-67181888/projects",
+      "name": "Neon Console",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://myaccount.google.com/u/1/?utm_source=sign_in_no_continue&pli=1",
+      "name": "Google Account",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://business.google.com/manager/stores?a=om-6382560988051961464&mc=759285303&hl=en-GB",
+      "name": "Business Manager",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://chatgpt.com/c/697c53ba-d630-8326-8e1b-d13103558fc7",
+      "name": "Registration Links Request",
+      "mergedFromProfiles": [
+        "Profile 3"
+      ]
+    },
+    {
+      "url": "https://accounts.google.com/b/0/AddMailService",
+      "name": "Gmail",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://chat.deepseek.com/a/chat/s/77ac0e1b-9822-40b8-a5b0-b06a193fedb5",
+      "name": "User seeks Treasure financial platform domain. - DeepSeek",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://chatgpt.com/c/6a028bcf-5530-83ea-909a-d71b65cd04e7",
+      "name": "Auto-create Organic Ads",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://www.resumora.net/",
+      "name": "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox/FMfcgzQgLrrkqvvMkmGQrPshBXBNwXnG",
+      "name": "Your Google Workspace billing information was received - info@elegancyart.com - elegancyart.com Mail",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://admin.google.com/ac/dashboard?journey=218&utm_source=google",
+      "name": "Dashboard - Admin Console",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    },
+    {
+      "url": "https://mail.google.com/mail/u/0/#inbox",
+      "name": "Inbox (672) - info@elegancyart.com - elegancyart.com Mail",
+      "mergedFromProfiles": [
+        "Profile 6"
+      ]
+    }
+  ],
+  "importInstructions": [
+    "1. Prefer quitting Chrome completely before importing.",
+    "2. Open Chrome as the Ahmed (master) profile only.",
+    "3. Chrome menu → Bookmarks and lists → Bookmark manager → ⋮ Organize → Import bookmarks → choose the generated HTML file.",
+    "4. Drag imported folder onto Bookmarks bar if desired.",
+    "5. Do NOT use this tool to copy Cookies/Login Data — not supported by design."
+  ],
+  "workspaceIsolationNote": "Keep work profiles for business-only: do not sign personal master into managed accounts; use separate Chrome profile shortcuts from chrome://settings/manageProfile.",
+  "bookmarkFileBackupsDir": "D:\\BossMind\\resumora-fresh\\windows-heal\\chrome-bookmark-backups\\2026-05-14T23-26-49"
+}

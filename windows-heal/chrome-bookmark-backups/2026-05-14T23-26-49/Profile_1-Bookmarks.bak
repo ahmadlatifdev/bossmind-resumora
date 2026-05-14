@@ -1,0 +1,80 @@
+{
+   "checksum": "6b05b1e5e8d4d3bb34ada7894148143f",
+   "roots": {
+      "bookmark_bar": {
+         "children": [  ],
+         "date_added": "13414474117537672",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Bookmarks bar",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13414474256203513",
+            "date_last_used": "0",
+            "guid": "011a072f-e64f-410a-9787-3f3fc479c410",
+            "id": "5",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Sign In | ElevenLabs",
+            "type": "url",
+            "url": "https://elevenlabs.io/app/sign-in?redirect=%2Fapp%2Fdevelopers%2Fapi-keys"
+         }, {
+            "date_added": "13414474312463205",
+            "date_last_used": "0",
+            "guid": "e99fca76-2e33-48c3-9aaa-e239e07baef7",
+            "id": "7",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Power BI Desktop | Microsoft Power Platform",
+            "type": "url",
+            "url": "https://www.microsoft.com/en-us/power-platform/products/power-bi/desktop"
+         }, {
+            "date_added": "13414474354187843",
+            "date_last_used": "0",
+            "guid": "7f5decb1-7e0d-4d1d-a590-7760fa5bab62",
+            "id": "9",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Runway Developer Portal",
+            "type": "url",
+            "url": "https://dev.runwayml.com/"
+         }, {
+            "date_added": "13415010683704665",
+            "date_last_used": "0",
+            "guid": "7d7f34ca-b57e-4639-929f-11748e378447",
+            "id": "11",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "Runway Developer Portal",
+            "type": "url",
+            "url": "https://dev.runwayml.com/organization/3148ca9f-f6fc-4d5b-809f-2d47821638ba/api-keys"
+         } ],
+         "date_added": "13414474117537672",
+         "date_last_used": "0",
+         "date_modified": "13415010683704665",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other bookmarks",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13414474117537672",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile bookmarks",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

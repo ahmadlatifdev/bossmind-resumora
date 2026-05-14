@@ -67,6 +67,7 @@
     "bossmind:optimization:cycle:persist": "node scripts/bossmind-continuous-optimization-cycle.mjs --persist-neon",
     "bossmind:backup:daily": "node scripts/bossmind-backup-daily.mjs",
     "bossmind:preservation:validate": "node scripts/bossmind-preservation-validate.mjs",
+    "bossmind:memory:recovery-preservation": "node scripts/bossmind-memory-recovery-preservation.mjs",
     "bossmind:recovery:suggest": "node scripts/bossmind-recovery-suggest.mjs",
     "bossmind:recovery:apply": "node scripts/bossmind-recovery-apply.mjs",
     "bossmind:deploy:checkpoint": "node scripts/bossmind-deploy-checkpoint.mjs",

@@ -29,6 +29,7 @@
     "scripts/bossmind-baseline-seal.mjs",
     "scripts/bossmind-backup-daily.mjs",
     "scripts/bossmind-preservation-validate.mjs",
+    "scripts/bossmind-memory-recovery-preservation.mjs",
     "scripts/bossmind-deploy-checkpoint.mjs",
     "scripts/bossmind-recovery-suggest.mjs",
     "scripts/bossmind-recovery-apply.mjs",
