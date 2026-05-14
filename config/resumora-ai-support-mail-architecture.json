@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "supportMailbox": "support@resumora.net",
+  "stack": {
+    "inbox": "Google Workspace Gmail (support@resumora.net)",
+    "automationEngine": "n8n (self-hosted or n8n Cloud — secrets only on Railway / n8n credentials store)",
+    "aiClassification": "DeepSeek API — routing, intent, urgency, language detect, PII redaction hints",
+    "aiDraftPolish": "OpenAI ChatGPT API — professional client-facing draft only after classification + policy gates",
+    "sharedMemory": "Neon Postgres — event_log + optional dedicated support_ticket_state (n8n or worker writes)",
+    "orchestrationControl": "BossMind — env kill-switches, deploy gates, this repo policy JSON + Neon audit rows"
+  },
+  "languages": {
+    "primary": ["en", "fr"],
+    "fallbackOptional": ["ar"],
+    "detectOrder": ["fr", "ar", "en"],
+    "notes": "n8n: Language detect node or LLM; reply in detected language when confidence high; else English with short FR/AR disclaimer."
+  },
+  "routing": [
+    {
+      "id": "pricing",
+      "matchHints": ["price", "pricing", "cost", "how much", "tarif", "prix", "السعر"],
+      "autoSendAllowed": true,
+      "humanReviewRequired": false,
+      "templateRef": "pricing_faq_link_resumora_net"
+    },
+    {
+      "id": "resume_status",
+      "matchHints": ["status", "order", "when will", "delivery", "commande", "statut", "delai"],
+      "autoSendAllowed": true,
+      "humanReviewRequired": false,
+      "templateRef": "status_intake_needs_session_or_email"
+    },
+    {
+      "id": "interview_coaching",
+      "matchHints": ["interview", "mock interview", "coaching call", "entretien"],
+      "autoSendAllowed": false,
+      "humanReviewRequired": true,
+      "notes": "AI draft only; human approves before send."
+    },
+    {
+      "id": "refund_legal_payment",
+      "matchHints": ["refund", "chargeback", "dispute", "lawyer", "legal", "sue", "stripe dispute", "remboursement", "litige"],
+      "autoSendAllowed": false,
+      "humanReviewRequired": true,
+      "blockAutoSend": true,
+      "notes": "Never auto-send; acknowledge receipt template only if lawyer-approved."
+    },
+    {
+      "id": "vip",
+      "matchHints": [],
+      "matchRules": ["crm_tag_vip", "subject_prefix_vip", "known_client_list"],
+      "autoSendAllowed": false,
+      "humanReviewRequired": true,
+      "gmailLabel": "Resumora/VIP"
+    },
+    {
+      "id": "spam",
+      "matchHints": [],
+      "matchRules": ["gmail_spam_category", "spf_dkim_fail", "bulk_score_high"],
+      "autoSendAllowed": false,
+      "humanReviewRequired": false,
+      "action": "archive_no_reply",
+      "notes": "No auto-reply to avoid backscatter; optional internal Neon log only."
+    }
+  ],
+  "gmailTriggers": {
+    "newMail": "Gmail trigger node or Google Pub/Sub push to n8n webhook (preferred at scale)",
+    "replies": "Thread ID continuity in n8n; store threadId in Neon",
+    "attachments": "Save metadata + virus scan (Workspace) before LLM; never send attachment to model if policy forbids",
+    "urgent": "Label INBOX + subject/body urgency classifier + SMS/slack optional",
+    "spam": "Use Gmail spam + custom rules; do not train on client PII without consent"
+  },
+  "neonPayloadShape": {
+    "eventTypes": [
+      "support_mail.received",
+      "support_mail.classified",
+      "support_mail.draft_created",
+      "support_mail.sent_auto",
+      "support_mail.sent_approved",
+      "support_mail.held_human_review",
+      "support_mail.spam_archived"
+    ],
+    "recommendedFields": [
+      "client_email_hash",
+      "thread_id",
+      "language_guess",
+      "route_id",
+      "sentiment_score",
+      "status",
+      "ai_confidence",
+      "message_id"
+    ],
+    "piiNote": "Prefer hashed email in logs; full email only in encrypted store or Gmail-native if policy allows."
+  },
+  "guardrails": {
+    "antiLoop": [
+      "Do not reply to no-reply addresses",
+      "Max 1 outbound per thread per 24h unless human override",
+      "Detect Out-of-Office headers and pause thread"
+    ],
+    "antiDuplicate": [
+      "Dedupe by Gmail message-id in Neon before send",
+      "Idempotency key on n8n execution"
+    ],
+    "antiHallucination": [
+      "Ground replies with approved snippets + links to resumora.net/pricing and /support only",
+      "Refuse to invent order status without Stripe/session lookup in n8n",
+      "Temperature low for auto-send paths"
+    ],
+    "rateLimits": [
+      "Respect Gmail API quotas; batch history fetch",
+      "Backoff on 429 from OpenAI/DeepSeek"
+    ],
+    "killSwitches": [
+      "BOSSMIND_SUPPORT_AI_EMERGENCY_STOP=1 — n8n IF node stops all auto-send",
+      "BOSSMIND_SUPPORT_AI_AUTO_SEND=0 — drafts only to approval queue"
+    ]
+  },
+  "approvalDashboard": {
+    "where": "n8n UI (manual task / form) or separate low-code dashboard; not shipped in Resumora Next.js unless product approves new admin surface",
+    "controls": [
+      "auto_send master switch",
+      "approval queue",
+      "confidence threshold slider in n8n",
+      "emergency stop webhook",
+      "daily volume cap"
+    ]
+  },
+  "antiLeak": {
+    "neverCommit": [
+      "Gmail OAuth refresh tokens",
+      "Google service account JSON",
+      "OPENAI_API_KEY",
+      "DEEPSEEK_API_KEY",
+      "N8N_ENCRYPTION_KEY",
+      "Neon connection string with write access from untrusted CI"
+    ],
+    "storeIn": ["Google Secret Manager", "Railway", "n8n credentials"]
+  },
+  "workspaceChromeNote": "Chrome profile isolation is client-side only; mail automation is server-side (n8n). Do not mix personal Gmail OAuth into managed Chrome profiles."
+}

@@ -92,7 +92,8 @@
     "bossmind:seo:ai-visibility:lock": "node scripts/bossmind-seo-ai-visibility-lock.mjs",
     "cursor:scm-diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cursor-git-scm-diagnostics.ps1",
     "bossmind:chrome:bookmark-consolidation": "node scripts/chrome-bookmark-consolidation.mjs",
-    "bossmind:chrome:bookmark-backup": "node scripts/chrome-bookmark-consolidation.mjs --backup-bookmarks"
+    "bossmind:chrome:bookmark-backup": "node scripts/chrome-bookmark-consolidation.mjs --backup-bookmarks",
+    "resumora:support:ai:arch-lock": "node scripts/resumora-ai-support-mail-confirm.mjs"
   },
   "dependencies": {
     "@langchain/langgraph": "^1.3.0",
