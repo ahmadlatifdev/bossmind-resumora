@@ -55,6 +55,27 @@ foreach ($pat in $names) {
 }
 
 Write-Host ""
+Write-Host "=== Primary display work area (read-only) ==="
+try {
+  Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+  $wa = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea
+  $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+  Write-Host "  Bounds: $($bounds.Width)x$($bounds.Height) at $($bounds.Left),$($bounds.Top)"
+  Write-Host "  WorkingArea (excludes taskbar): $($wa.Width)x$($wa.Height) at $($wa.Left),$($wa.Top)"
+} catch {
+  Write-Host "  (Could not load System.Windows.Forms: $_)"
+}
+
+Write-Host ""
+Write-Host "=== Chrome shortcuts - manual spot-check (operator) ==="
+Write-Host "  Ctrl+Shift+Delete  Clear browsing data"
+Write-Host "  Ctrl+Shift+B       Toggle bookmarks bar"
+Write-Host "  Ctrl+Shift+O       Bookmark Manager"
+Write-Host "  Ctrl+T / W / Tab   New tab / Close / Next tab"
+Write-Host "  Ctrl+Shift+N       Incognito"
+Write-Host "  If any fail: chrome://extensions (disable all), chrome://settings/shortcuts, then security software."
+
+Write-Host ""
 Write-Host "=== Chrome User Data (profiles only, names) ==="
 $chromeData = Join-Path $env:LOCALAPPDATA "Google\Chrome\User Data"
 if (Test-Path -LiteralPath $chromeData) {
@@ -68,7 +89,7 @@ if (Test-Path -LiteralPath $chromeData) {
 if ($RepairAccessibilitySafe) {
   Write-Host ""
   Write-Host "=== REPAIR: resetting HKCU accessibility Flags (current user) ==="
-  # Common Windows defaults: StickyKeys 510, Filter 122, Toggle 58 — may vary by OS build; 506/510 often cited for off.
+  # Common Windows defaults: StickyKeys 510, Filter 122, Toggle 58 (values vary by OS build).
   $fixes = @(
     @{ Path = "HKCU:\Control Panel\Accessibility\StickyKeys";       Name = "Flags"; Value = "510" },
     @{ Path = "HKCU:\Control Panel\Accessibility\Keyboard Response"; Name = "Flags"; Value = "122" },
@@ -84,4 +105,4 @@ if ($RepairAccessibilitySafe) {
 }
 
 Write-Host ""
-Write-Host "Done. Interpret Flags with Windows docs; Sticky/Filter Keys UI: Settings > Accessibility > Keyboard"
+Write-Host 'Done. Interpret Flags with Windows docs; Sticky/Filter Keys UI: Settings > Accessibility > Keyboard'

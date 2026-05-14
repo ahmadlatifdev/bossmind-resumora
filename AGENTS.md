@@ -39,6 +39,8 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **BossMind Capital core stack (integrations contract):** **`docs/BOSSMIND_CAPITAL_CORE_STACK.md`** — architecture for TradingView, OpenAI, DeepSeek, Polygon, Sentry, n8n, GitHub, Neon; **not activated inside Resumora**.
 - **Resumora AI support mail (Gmail + n8n + Neon policy):** **`docs/RESUMORA_AI_SUPPORT_MAIL_AUTOMATION.md`** + **`config/resumora-ai-support-mail-architecture.json`** + **`npm run resumora:support:ai:arch-lock`** (Neon audit after external go-live).
 - **Railway closed-loop repair:** **`docs/BOSSMIND_RAILWAY_CLOSED_LOOP_REPAIR.md`** — `POST /api/orchestration/railway-incident-webhook` + `bossmind:supervisor` + `deployment_repair_log`.
+- **Windows + Chrome keyboard / productivity playbook:** **`docs/WINDOWS_CHROME_KEYBOARD_ACTIVATION_PLAYBOOK.md`** + **`npm run bossmind:windows:keyboard-diagnostics`** (read-only; optional `-RepairAccessibilitySafe`).
+- **Laptop workspace safe validation bundle:** **`npm run bossmind:laptop:safe-validate`** — runs diagnostics + optional Chrome `Bookmarks` copy (only if Chrome is closed) + bookmark audit; writes **`windows-heal/reports/laptop-workspace-safe-validation-*.txt`** (does not change OS DPI or global popups).
 
 ## Task completion vs production “live”
 
