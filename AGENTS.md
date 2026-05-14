@@ -38,6 +38,7 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **Sibling product branding (BossMind Capital):** **`docs/BOSSMIND_CAPITAL_BRAND.md`** — the Capital **app** is a separate repo; Resumora only registers it in `config/bossmind-organic-growth-registry.json`.
 - **BossMind Capital core stack (integrations contract):** **`docs/BOSSMIND_CAPITAL_CORE_STACK.md`** — architecture for TradingView, OpenAI, DeepSeek, Polygon, Sentry, n8n, GitHub, Neon; **not activated inside Resumora**.
 - **Resumora AI support mail (Gmail + n8n + Neon policy):** **`docs/RESUMORA_AI_SUPPORT_MAIL_AUTOMATION.md`** + **`config/resumora-ai-support-mail-architecture.json`** + **`npm run resumora:support:ai:arch-lock`** (Neon audit after external go-live).
+- **OpenAI Codex agent layer (coding/repair only):** **`docs/BOSSMIND_CODEX_AGENT_LAYER.md`** + **`config/bossmind-codex-agent-layer.json`** + health field **`codexAgentLayer`** on **`GET /api/orchestration/bossmind-health`** (Master Admin widget feed lives outside this repo).
 
 ## Task completion vs production “live”
 

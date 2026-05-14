@@ -10,6 +10,9 @@ const {
   auditStripeEnv,
   describeStripeBlockers,
 } = require("../../../lib/marketing/stripe-env-audit");
+const {
+  getBossMindCodexLayerStatus,
+} = require("../../../lib/orchestration/bossmind-codex-status");
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -53,6 +56,12 @@ export default async function handler(req, res) {
     const bundleOk = overview.performance?.bundleScanned === true;
     const performanceScore = bundleOk ? 85 : 55;
 
+    const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
+    const codexAgentLayer = await getBossMindCodexLayerStatus({
+      projectKey,
+      neonEnabled: neonOk,
+    });
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
@@ -62,6 +71,7 @@ export default async function handler(req, res) {
         process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
       ),
       langgraphAvailable: true,
+      codexAgentLayer,
       stripe: {
         checkoutReady: audit.checkoutReady,
         financialPipelineReady: audit.financialPipelineReady,

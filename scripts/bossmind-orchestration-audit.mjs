@@ -122,6 +122,8 @@ async function main() {
     orchestrationApi: files.some((f) => f.file.endsWith("bossmind-control.js") && f.exists),
     sentryIngress: files.some((f) => f.file.endsWith("sentry-ingest.js") && f.exists),
     langGraphFlow: files.some((f) => f.file.endsWith("langgraph-repair-flow.js") && f.exists),
+    codexAgentPolicy: exists("config/bossmind-codex-agent-layer.json"),
+    codexStatusModule: exists("lib/orchestration/bossmind-codex-status.js"),
     deepseekConfigured: env.DEEPSEEK_API_KEY,
     sharedMemoryConfigured: env.NEON_DATABASE_URL,
   };

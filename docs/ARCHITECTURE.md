@@ -12,8 +12,7 @@ Deploy and automation are aligned to this toolchain only:
 - **Cursor / Windsurf** — agent editing with orchestration APIs (`/api/orchestration/*`).
 - **Ollama** — local LLM execution for repair flows (`OLLAMA_MODEL` optional).
 - **LangGraph** — supervisor/worker orchestration (`lib/orchestration/langgraph-repair-flow.js`).
-
-Vercel is **not** part of this architecture; do not emit Vercel deployment guidance unless explicitly reapproved.
+- **OpenAI Codex (policy layer)** — dedicated **coding + repair** agent; orchestration policy in `config/bossmind-codex-agent-layer.json`; status via `codexAgentLayer` on `GET /api/orchestration/bossmind-health` — see `docs/BOSSMIND_CODEX_AGENT_LAYER.md` (not primary reasoning; GitHub/Codex execution is external). do not emit Vercel deployment guidance unless explicitly reapproved.
 
 ## Anti-leak / conflict controls (operational)
 

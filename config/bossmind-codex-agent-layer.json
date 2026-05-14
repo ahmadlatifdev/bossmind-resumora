@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "role": "OpenAI Codex — dedicated coding + repair execution (not primary reasoning or customer comms)",
+  "ecosystemRoles": {
+    "deepseek": "Master reasoning + orchestration intelligence (internal analysis, triage, root-cause hypotheses)",
+    "chatgpt": "Strategic planning + polished external communication (not sole authority on money/legal)",
+    "codex": "Repository-aware patch generation, CI/build repair, PowerShell/script refinement, dependency fixes under whitelist",
+    "gemini": "Workspace productivity assistant (docs, email drafts where policy allows — separate from Codex)",
+    "n8n": "Workflow orchestration and human-in-the-loop gates",
+    "neon": "Shared memory: task_state, event_log, error_memory, fix patterns",
+    "bossmind": "Central control: deploy gates, antileak, snapshots, validation layer before merge/deploy"
+  },
+  "forbiddenPrimaryBrain": [
+    "customer_email_automation_primary",
+    "unsupervised_stripe_or_payout_actions",
+    "replacing_deepseek_orchestration_without_human_review",
+    "bypassing_bossmind_deploy_gate_or_immutable_lock"
+  ],
+  "executionBoundaries": {
+    "allowedPathPrefixes": [
+      "scripts/",
+      "lib/",
+      "pages/api/",
+      "config/",
+      "docs/",
+      "windows-heal/"
+    ],
+    "denyPathPrefixes": [
+      "node_modules/",
+      ".env",
+      ".env.local",
+      "config/bossmind-immutable-production-baseline.json"
+    ],
+    "requireBeforeWrite": [
+      "npm run bossmind:snapshot OR file-guard snapshot for touched paths",
+      "npm run bossmind:antileak",
+      "npm run bossmind:protect:verify for protected surface changes"
+    ],
+    "rollback": [
+      "On failed validation: restore rollback_snapshots / git revert per BOSSMIND_ORCHESTRATION.md"
+    ]
+  },
+  "repairPipeline": {
+    "orderedSteps": [
+      "Sentry error ingested (pages/api/orchestration/sentry-ingest.js)",
+      "DeepSeek analysis (external worker — policy; not in-repo API by default)",
+      "LangGraph task (lib/orchestration/langgraph-repair-flow.js)",
+      "Codex patch candidate (external — GitHub-connected Codex/Cursor Cloud Agent per org policy)",
+      "BossMind validation layer (lint, build, deploy gate, protected surface verify)",
+      "Deploy (Render/Railway external)",
+      "Verification (bossmind:enterprise:post-deploy, reality gate)",
+      "Save fix pattern to Neon error_memory / event_log"
+    ]
+  },
+  "githubIntegration": {
+    "recommended": "GitHub App with least-privilege: contents read, pull requests write, workflows read — installation on BossMind org repos only",
+    "neverCommit": ["GitHub App private keys", "installation tokens", "PATs with admin scope"],
+    "envHints": ["BOSSMIND_GITHUB_APP_ID", "BOSSMIND_GITHUB_APP_INSTALLATION_ID", "BOSSMIND_CODEX_LAYER_ENABLED"]
+  },
+  "masterAdminWidget": {
+    "dataSource": "GET /api/orchestration/bossmind-health (Bearer BOSSMIND_ORCHESTRATION_SECRET or dev/diagnostics) — field `codexAgentLayer`",
+    "note": "Master Admin dashboard UI lives outside this repository; consume this JSON only."
+  },
+  "multiProjectIsolation": {
+    "rule": "Each repo uses its own BOSSMIND_PROJECT_KEY and Neon project_key; share only anonymized fix_pattern text in error_memory when policy allows."
+  }
+}

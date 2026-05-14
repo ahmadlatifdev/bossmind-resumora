@@ -1,8 +1,9 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "project": "resumora",
   "enforcement": {
     "primaryExecutionEngine": "cursor",
+    "codingRepairAgent": "openai_codex",
     "strategyArchitect": "claude",
     "reviewOnlyEngine": "windsurf"
   },
@@ -42,6 +43,24 @@
         "replace_stable_production_files",
         "unsafe_merge_without_snapshot_or_antileak"
       ]
+    },
+    "openai_codex": {
+      "role": "coding_execution_repository_repair_only",
+      "allowed": [
+        "repo_analysis",
+        "patch_generation",
+        "powershell_script_refinement",
+        "ci_cd_suggestion",
+        "dependency_mismatch_repair",
+        "build_error_repair_assist"
+      ],
+      "restricted": [
+        "primary_reasoning_orchestration_brain",
+        "customer_email_automation_engine",
+        "bypass_bossmind_validation_layer",
+        "merge_without_antileak_and_snapshot_policy",
+        "overwrite_immutable_production_lock_without_approval"
+      ]
     }
   },
   "requiredProtectionLayers": [
@@ -72,6 +91,8 @@
     "bossmind_ingest",
     "langgraph_task",
     "deepseek_root_cause",
+    "codex_patch_candidate",
+    "bossmind_validation_layer",
     "cursor_execution",
     "windsurf_review",
     "build_validation",
