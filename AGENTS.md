@@ -31,6 +31,7 @@ Do **not** recommend, add, or preserve any **Vercel** deployment path unless the
 - **Cursor index:** `.cursorignore` (fewer irrelevant files indexed).  
 - **Preflight before wide edits:** **`npm run bossmind:enterprise:preflight`** (hosting, forbidden UI, protected surface, structural authority, immutable checksums; optional `BOSSMIND_ENTERPRISE_PREFLIGHT_BUILD=1`).  
 - **Pre-merge release chain (preflight + full deploy gate):** **`npm run bossmind:enterprise:release-verify`**.  
+- **Maximum in-repo verify (release chain + structural production lock):** **`npm run bossmind:enterprise:autonomous-chain`** — see **`docs/BOSSMIND_ENTERPRISE_AUTONOMOUS_OPTIMIZATION.md`**.  
 - **After deploy (build + lock + optional live URL):** **`npm run bossmind:enterprise:post-deploy`** with **`BOSSMIND_REALITY_LIVE_URL`** set when you need production HTML/health checks.  
 - **What is / is not automatable in-repo:** **`docs/BOSSMIND_ENTERPRISE_AI_ENGINEERING_STACK.md`**.
 

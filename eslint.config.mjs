@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "server-fixed.js",
+    // BossMind deploy checkpoints / rolling backups — not source (eslint was scanning duplicate copies).
+    ".bossmind/**",
   ]),
 ]);
 

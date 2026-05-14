@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { FREE_TEST_SERVICE_KEYS } from "@/lib/marketing/free-test-services";
@@ -31,7 +31,7 @@ export default function FreeTestPage() {
   useEffect(() => {
     const q = router.query?.service;
     if (typeof q === "string" && FREE_TEST_SERVICE_KEYS.includes(q)) {
-      setServiceKey(q);
+      startTransition(() => setServiceKey(q));
     }
   }, [router.query?.service]);
 

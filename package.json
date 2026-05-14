@@ -22,6 +22,7 @@
     "bossmind:validate": "node scripts/bossmind-validation-pipeline.mjs",
     "bossmind:enterprise:preflight": "node scripts/bossmind-enterprise-preflight.mjs",
     "bossmind:enterprise:release-verify": "npm run bossmind:enterprise:preflight && npm run bossmind:deploy:gate",
+    "bossmind:enterprise:autonomous-chain": "npm run bossmind:enterprise:release-verify && npm run bossmind:locked-production:verify",
     "bossmind:enterprise:post-deploy": "node scripts/bossmind-production-reality-gate.mjs",
     "bossmind:deploy:gate": "node scripts/bossmind-deploy-gate.mjs",
     "bossmind:completion:gate": "node scripts/bossmind-task-completion-gate.mjs",

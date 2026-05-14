@@ -10,29 +10,44 @@ export default function SuccessPage() {
   const router = useRouter();
   const { lang } = useLanguage();
   const t = translations[lang];
-  const { session_id } = router.query;
+  const sid =
+    typeof session_id === "string"
+      ? session_id
+      : Array.isArray(session_id) && typeof session_id[0] === "string"
+        ? session_id[0]
+        : "";
 
-  const [status, setStatus] = useState("loading");
+  /** Per-session verify result — avoids stale state when `session_id` query changes. */
+  const [bySession, setBySession] = useState(
+    /** @type {Record<string, "pending" | "success" | "invalid" | "error">} */ ({})
+  );
 
   useEffect(() => {
-    if (!router.isReady) return;
-    if (!session_id) {
-      setStatus("invalid");
-      return;
-    }
-    fetch(`/api/verify-session?session_id=${encodeURIComponent(session_id)}`)
+    if (!router.isReady || !sid) return;
+    let cancelled = false;
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.valid) {
-          setStatus("success");
-        } else {
-          setStatus("invalid");
-        }
+        if (cancelled) return;
+        setBySession((prev) => ({ ...prev, [sid]: data.valid ? "success" : "invalid" }));
       })
       .catch(() => {
-        setStatus("error");
+        if (!cancelled) setBySession((prev) => ({ ...prev, [sid]: "error" }));
       });
-  }, [router.isReady, session_id]);
+    return () => {
+      cancelled = true;
+    };
+  }, [router.isReady, sid]);
+
+  const remote = sid ? bySession[sid] ?? "pending" : "invalid";
+
+  const status = !router.isReady
+    ? "loading"
+    : !sid
+      ? "invalid"
+      : remote === "pending"
+        ? "loading"
+        : remote;
 
   return (
     <MinimalAppChrome>

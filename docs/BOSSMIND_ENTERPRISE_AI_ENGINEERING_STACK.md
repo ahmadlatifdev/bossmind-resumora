@@ -37,6 +37,7 @@ Immutable production lock — sealed baseline + `bossmind:locked-production:veri
 | Immutable UI lock | `config/bossmind-immutable-production-baseline.json`, `bossmind:baseline:seal` | Prevents accidental luxury drift |
 | Closed-loop **recording** | `npm run bossmind:closed-loop:record` | Neon audit trail when URL is set |
 | **Release verify (preflight + full deploy gate)** | `npm run bossmind:enterprise:release-verify` | Runs `enterprise:preflight` then `deploy:gate` (checkpoint, lint, **build**) |
+| **Autonomous chain (release verify + locked production structural lock)** | `npm run bossmind:enterprise:autonomous-chain` | Strongest **pre-merge** bar in this repo without a second full build; see **`docs/BOSSMIND_ENTERPRISE_AUTONOMOUS_OPTIMIZATION.md`** |
 | **Post-deploy production truth** | `npm run bossmind:enterprise:post-deploy` | Alias for `bossmind:reality:gate`; set `BOSSMIND_REALITY_LIVE_URL` for live checks |
 | Runtime sync / repair | `npm run bossmind:runtime:sync:once`, `bossmind:runtime:repair`, `bossmind:reconcile` | Operator/CI; needs env + policy |
 | Recovery suggest/apply | `npm run bossmind:recovery:suggest`, `bossmind:recovery:apply` | Human-gated restore paths |
@@ -125,6 +126,10 @@ Runtime errors flow through `@sentry/nextjs`; triage in Sentry remains operator-
 ## Versioning
 
 When branding or shell assets change, follow `config/branding-asset-version.json` and `npm run bossmind:branding:icons` (see branding docs / closed-loop playbook).
+
+## Autonomous optimization map (numbered enterprise checklist)
+
+See **`docs/BOSSMIND_ENTERPRISE_AUTONOMOUS_OPTIMIZATION.md`** — maps closed-loop, Neon memory, preflight, visual QA gaps, immutable lock, supervisor hierarchy, recovery, reconciliation, repo segmentation, and production reality gate to **real npm scripts** vs **external** requirements. Strongest pre-merge chain: **`npm run bossmind:enterprise:autonomous-chain`**.
 
 ---
 
