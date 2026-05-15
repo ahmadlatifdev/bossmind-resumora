@@ -71,6 +71,7 @@
     "bossmind:backup:production-report": "node scripts/bossmind-backup-production-report.mjs",
     "bossmind:backup:architecture-lock": "node scripts/bossmind-backup-architecture-lock.mjs",
     "bossmind:backup:activate-full": "node scripts/bossmind-backup-full-activation.mjs",
+    "bossmind:backup:execution-proof": "node scripts/bossmind-backup-execution-proof.mjs",
     "bossmind:preservation:validate": "node scripts/bossmind-preservation-validate.mjs",
     "bossmind:memory:recovery-preservation": "node scripts/bossmind-memory-recovery-preservation.mjs",
     "bossmind:recovery:suggest": "node scripts/bossmind-recovery-suggest.mjs",

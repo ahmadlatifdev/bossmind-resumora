@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-05-15T01:06:34.808Z",
+  "projectRoot": "D:/BossMind/resumora-fresh",
+  "backupRoot": "D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d",
+  "memoryCorrection": {
+    "databaseAuthorityInRepo": "Neon Postgres (shared memory / event_log). Supabase is not the Resumora authority in this tree."
+  },
+  "localDiskEvidence": {
+    "manifestPresent": true,
+    "dailyBackupLogPresent": true,
+    "logStats": {
+      "totalLines": 8,
+      "verifyOkCount": 7,
+      "verifyFailCount": 1,
+      "parseErrorCount": 0,
+      "lastEntry": {
+        "runId": "2026-05-15T01-02-04-950Z-a1",
+        "verifyOk": true,
+        "fileCount": 99,
+        "missingCount": 0,
+        "backupRoot": "D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d",
+        "attempt": 1,
+        "projectRoot": "D:/BossMind/resumora-fresh"
+      },
+      "oldestOkDayUtc": "2026-05-12",
+      "newestOkDayUtc": "2026-05-15"
+    },
+    "runsSummary": {
+      "totalRunDirs": 8,
+      "verifiedRunDirs": 7,
+      "verifiedDirsWithMtimeOlderThanRetentionWindow": 0
+    },
+    "latestPreservationValidate": null
+  },
+  "schedulerDefinition": {
+    "present": true,
+    "path": "D:/BossMind/resumora-fresh/.github/workflows/bossmind-daily-backup.yml",
+    "hasScheduleCron": true,
+    "runsActivateFull": true,
+    "githubSnapshotBranchAutomation": false
+  },
+  "confirmedVsNot": {
+    "backupStrategyAndScriptsInRepo": true,
+    "dailySchedulerDefinedInGitHubWorkflow": true,
+    "activateFullStepPresent": true,
+    "localVerifyOkOnDemand": false,
+    "dailyBackupsExecutingSuccessfullyOnGitHub": "NOT_PROVEN_HERE — requires Actions run history or exported logs",
+    "thirtyDayRetentionContinuouslyVerified": "NOT_PROVEN_HERE — see retentionPolicyInCode + disk sample only",
+    "autoRestoreVerificationRanThisInvocation": false,
+    "backupLogsValidatingAutomatically": true,
+    "rollbackSnapshotsRotatingDaily": "NOT_IMPLEMENTED_AS_GIT_BRANCHES — rolling run dirs under .bossmind/backups only",
+    "githubSnapshotAutomation": false,
+    "neonSqlDumpBackup": "NOT_IN_REPO — use Neon branch / pg_dump operationally",
+    "renderRailwayConfigSecretExport": "NOT_IN_REPO — dashboard export only"
+  },
+  "honestStatusTable": {
+    "backupStrategy": "active_in_repo",
+    "backupArchitecture": "defined",
+    "dailyExecutionProof": "needs_github_actions_ui_or_api",
+    "thirtyDayRetentionProof": "needs_long_window_audit",
+    "autoRestoreVerification": "failed_or_skipped",
+    "productionGradeGuarantee": "not_claimed"
+  }
+}

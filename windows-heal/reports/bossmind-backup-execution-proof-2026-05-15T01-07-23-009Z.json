@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-05-15T01:07:23.009Z",
+  "projectRoot": "D:/BossMind/resumora-fresh",
+  "backupRoot": "D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d",
+  "memoryCorrection": {
+    "databaseAuthorityInRepo": "Neon Postgres (shared memory / event_log). Supabase is not the Resumora authority in this tree."
+  },
+  "localDiskEvidence": {
+    "manifestPresent": true,
+    "dailyBackupLogPresent": true,
+    "logStats": {
+      "totalLines": 8,
+      "verifyOkCount": 7,
+      "verifyFailCount": 1,
+      "parseErrorCount": 0,
+      "lastEntry": {
+        "runId": "2026-05-15T01-02-04-950Z-a1",
+        "verifyOk": true,
+        "fileCount": 99,
+        "missingCount": 0,
+        "backupRoot": "D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d",
+        "attempt": 1,
+        "projectRoot": "D:/BossMind/resumora-fresh"
+      },
+      "oldestOkDayUtc": "2026-05-12",
+      "newestOkDayUtc": "2026-05-15"
+    },
+    "runsSummary": {
+      "totalRunDirs": 8,
+      "verifiedRunDirs": 7,
+      "verifiedDirsWithMtimeOlderThanRetentionWindow": 0
+    },
+    "latestPreservationValidate": {
+      "ok": false,
+      "manifestRunId": "2026-05-15T01-02-04-950Z-a1",
+      "manifestTs": "2026-05-15T01:02:04.956Z",
+      "driftCount": 2,
+      "drift": [
+        {
+          "path": "package.json",
+          "reason": "hash_mismatch",
+          "expected": "7e8b585a87524a3671c9e4b30f7332455b4670dee8c530d09558cfa090060bcd",
+          "actual": "11bd50bf4c462d654a05e93182b90c0de031ed4b52e480d83d45824a7c12d8e7"
+        },
+        {
+          "path": "scripts/bossmind-multi-project-backup-orchestrator.mjs",
+          "reason": "hash_mismatch",
+          "expected": "ff91a0679905d2349434d958edad60ff59f4632194d7f546545ba6c22dc9c990",
+          "actual": "56d35726c220aa9f9ccb6e8fb5c1b7ec1ddd46811f6fdb41dd1b3288086447d5"
+        }
+      ]
+    }
+  },
+  "schedulerDefinition": {
+    "present": true,
+    "path": "D:/BossMind/resumora-fresh/.github/workflows/bossmind-daily-backup.yml",
+    "hasScheduleCron": true,
+    "runsActivateFull": true,
+    "githubSnapshotBranchAutomation": false
+  },
+  "confirmedVsNot": {
+    "backupStrategyAndScriptsInRepo": true,
+    "dailySchedulerDefinedInGitHubWorkflow": true,
+    "activateFullStepPresent": true,
+    "localVerifyOkOnDemand": false,
+    "manifestIntegrityMatchesBackup": false,
+    "manifestDriftCount": 2,
+    "dailyBackupsExecutingSuccessfullyOnGitHub": "NOT_PROVEN_HERE — requires Actions run history or exported logs",
+    "thirtyDayRetentionContinuouslyVerified": "NOT_PROVEN_HERE — see retentionPolicyInCode + disk sample only",
+    "autoRestoreVerificationRanThisInvocation": false,
+    "backupLogsValidatingAutomatically": true,
+    "rollbackSnapshotsRotatingDaily": "NOT_IMPLEMENTED_AS_GIT_BRANCHES — rolling run dirs under .bossmind/backups only",
+    "githubSnapshotAutomation": false,
+    "neonSqlDumpBackup": "NOT_IN_REPO — use Neon branch / pg_dump operationally",
+    "renderRailwayConfigSecretExport": "NOT_IN_REPO — dashboard export only"
+  },
+  "honestStatusTable": {
+    "backupStrategy": "active_in_repo",
+    "backupArchitecture": "defined",
+    "dailyExecutionProof": "needs_github_actions_ui_or_api",
+    "thirtyDayRetentionProof": "needs_long_window_audit",
+    "autoRestoreVerification": "drift_2",
+    "productionGradeGuarantee": "not_claimed"
+  }
+}
