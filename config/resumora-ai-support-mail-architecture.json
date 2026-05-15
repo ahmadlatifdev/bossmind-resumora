@@ -1,6 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "supportMailbox": "support@resumora.net",
+  "runtimeApi": {
+    "supportMailDedupePost": "/api/orchestration/support-mail-dedupe",
+    "webhookAuthEnvPrimary": "BOSSMIND_SUPPORT_WEBHOOK_SECRET",
+    "webhookAuthEnvFallback": ["BOSSMIND_ORCHESTRATION_SECRET", "BOSSMIND_RAILWAY_WEBHOOK_SECRET"]
+  },
+  "brandedTemplatesFile": "config/resumora-support-branded-reply-templates.json",
+  "verification": {
+    "npmScript": "resumora:support:mail:verify",
+    "domainEnv": "RESUMORA_MAIL_DOMAIN",
+    "notes": "DNS/MX lock + Neon checkpoint; Gmail auto-reply and n8n remain external."
+  },
   "stack": {
     "inbox": "Google Workspace Gmail (support@resumora.net)",
     "automationEngine": "n8n (self-hosted or n8n Cloud — secrets only on Railway / n8n credentials store)",
@@ -78,7 +89,10 @@
       "support_mail.sent_auto",
       "support_mail.sent_approved",
       "support_mail.held_human_review",
-      "support_mail.spam_archived"
+      "support_mail.spam_archived",
+      "support_mail.verification_report",
+      "support_mail.dedupe_claimed",
+      "support_mail.dedupe_replay_blocked"
     ],
     "recommendedFields": [
       "client_email_hash",

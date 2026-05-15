@@ -1,0 +1,155 @@
+﻿{
+    "phase":  "post-repair",
+    "incident":  {
+                     "ts":  "2026-05-14T19:55:17.5025076-04:00",
+                     "mode":  "AutoHeal",
+                     "initial":  {
+                                     "lookbackMinutes":  10,
+                                     "gpuVendor":  "amd",
+                                     "criticalCount":  0,
+                                     "displayEventCount":  0,
+                                     "kernelPnpDisplayCount":  0,
+                                     "blackScreenIndicatorCount":  0,
+                                     "explorerCrashCount":  0,
+                                     "displayTimeoutCount":  0,
+                                     "currentRefreshRate":  60,
+                                     "memoryPressurePercent":  63.92,
+                                     "cpuSpikePercent":  3.27,
+                                     "diskQueueLength":  0,
+                                     "diskHealth":  [
+                                                        {
+                                                            "drive":  "C:",
+                                                            "freePct":  52.57,
+                                                            "lowSpace":  false
+                                                        },
+                                                        {
+                                                            "drive":  "D:",
+                                                            "freePct":  79.88,
+                                                            "lowSpace":  false
+                                                        }
+                                                    ],
+                                     "cpuTemperatureC":  92.1,
+                                     "adaptiveBrightnessSignalPresent":  true,
+                                     "startupHeavyCount":  0,
+                                     "startupConflictCandidates":  {
+
+                                                                   },
+                                     "serviceIssueCount":  6,
+                                     "serviceIssueCandidates":  [
+                                                                    {
+                                                                        "Name":  "AppXSvc",
+                                                                        "DisplayName":  "AppX Deployment Service (AppXSVC)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "edgeupdate",
+                                                                        "DisplayName":  "Microsoft Edge Update Service (edgeupdate)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "GoogleUpdaterInternalService149.0.7814.0",
+                                                                        "DisplayName":  "Google Updater Internal Service (GoogleUpdaterInternalService149.0.7814.0)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "GoogleUpdaterService149.0.7814.0",
+                                                                        "DisplayName":  "Google Updater Service (GoogleUpdaterService149.0.7814.0)",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "MapsBroker",
+                                                                        "DisplayName":  "Downloaded Maps Manager",
+                                                                        "Status":  1
+                                                                    },
+                                                                    {
+                                                                        "Name":  "sppsvc",
+                                                                        "DisplayName":  "Software Protection",
+                                                                        "Status":  1
+                                                                    }
+                                                                ],
+                                     "events":  {
+
+                                                }
+                                 },
+                     "repairedActions":  [
+                                             "thermal_protection",
+                                             "service_repair"
+                                         ],
+                     "verify":  {
+                                    "lookbackMinutes":  10,
+                                    "gpuVendor":  "amd",
+                                    "criticalCount":  0,
+                                    "displayEventCount":  0,
+                                    "kernelPnpDisplayCount":  0,
+                                    "blackScreenIndicatorCount":  0,
+                                    "explorerCrashCount":  0,
+                                    "displayTimeoutCount":  0,
+                                    "currentRefreshRate":  60,
+                                    "memoryPressurePercent":  65.71,
+                                    "cpuSpikePercent":  11.87,
+                                    "diskQueueLength":  0.01,
+                                    "diskHealth":  [
+                                                       {
+                                                           "drive":  "C:",
+                                                           "freePct":  52.57,
+                                                           "lowSpace":  false
+                                                       },
+                                                       {
+                                                           "drive":  "D:",
+                                                           "freePct":  79.88,
+                                                           "lowSpace":  false
+                                                       }
+                                                   ],
+                                    "cpuTemperatureC":  92.1,
+                                    "adaptiveBrightnessSignalPresent":  true,
+                                    "startupHeavyCount":  0,
+                                    "startupConflictCandidates":  {
+
+                                                                  },
+                                    "serviceIssueCount":  6,
+                                    "serviceIssueCandidates":  [
+                                                                   {
+                                                                       "Name":  "AppXSvc",
+                                                                       "DisplayName":  "AppX Deployment Service (AppXSVC)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "edgeupdate",
+                                                                       "DisplayName":  "Microsoft Edge Update Service (edgeupdate)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "GoogleUpdaterInternalService149.0.7814.0",
+                                                                       "DisplayName":  "Google Updater Internal Service (GoogleUpdaterInternalService149.0.7814.0)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "GoogleUpdaterService149.0.7814.0",
+                                                                       "DisplayName":  "Google Updater Service (GoogleUpdaterService149.0.7814.0)",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "MapsBroker",
+                                                                       "DisplayName":  "Downloaded Maps Manager",
+                                                                       "Status":  1
+                                                                   },
+                                                                   {
+                                                                       "Name":  "sppsvc",
+                                                                       "DisplayName":  "Software Protection",
+                                                                       "Status":  1
+                                                                   }
+                                                               ],
+                                    "events":  {
+
+                                               }
+                                },
+                     "remainingTriggers":  [
+                                               "thermal_protection",
+                                               "service_repair"
+                                           ],
+                     "warnings":  {
+
+                                  }
+                 },
+    "mode":  "AutoHeal"
+}

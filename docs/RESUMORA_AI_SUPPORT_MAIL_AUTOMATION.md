@@ -62,22 +62,34 @@ This document is the **safe professional architecture** for hands-free *operatio
 After Gmail + n8n + Neon are verified in production:
 
 ```bash
+npm run resumora:support:mail:verify
 npm run resumora:support:ai:arch-lock -- --i-understand-external-ops-manual --notes="Gmail+n8n live; human approval on legal; auto-send pricing/status only"
 ```
 
-Requires `NEON_DATABASE_URL`. Writes `task_state`, `event_log`, and `last_confirmed_checkpoint` for **`resumora_ai_support_mail_stack`**.
+`resumora:support:mail:verify` resolves **MX / SPF / DMARC / common DKIM selectors** for `RESUMORA_MAIL_DOMAIN` (default `resumora.net`), writes `windows-heal/reports/resumora-support-mail-verification-*.json`, and (when `NEON_DATABASE_URL` is set) locks **`resumora_support_mail_verification`** in `last_confirmed_checkpoint` plus `event_log` row `support_mail.verification_report`. It does **not** send mail or toggle Workspace auto-reply.
+
+## Duplicate / loop prevention (n8n + Neon)
+
+1. Before sending an auto-reply, n8n calls **`POST /api/orchestration/support-mail-dedupe`** with JSON `{ "messageId": "<Gmail RFC822 Message-ID>", "threadId": "..." }` and header **`Authorization: Bearer $BOSSMIND_SUPPORT_WEBHOOK_SECRET`** (or fallback orchestration secret).
+2. Response `{ "sendAutoReply": true }` means this worker **won** the idempotency claim; `{ "duplicate": true }` means **do not send** (replay / double trigger).
+
+## Branded templates (copy into n8n or Workspace canned response)
+
+- **`config/resumora-support-branded-reply-templates.json`** — EN/FR acknowledgment text and attachment policy notes.
 
 ## Verification checklist (operator)
 
-- [ ] Gmail API healthy; **support@** receives and sends test.  
-- [ ] n8n flows active; **no duplicate sends** on replay.  
-- [ ] Emergency stop webhook tested.  
-- [ ] Refund/legal path **never** auto-sent without human.  
-- [ ] EN/FR (and AR if enabled) reply smoke tests.  
+- [ ] `npm run resumora:support:mail:verify` — DNS band pass/warn; JSON report under `windows-heal/reports/`.
+- [ ] Gmail API healthy; **support@** receives and sends test (Workspace / n8n).
+- [ ] n8n calls dedupe API before send; **no duplicate sends** on replay.
+- [ ] Emergency stop (`BOSSMIND_SUPPORT_AI_EMERGENCY_STOP`) tested.
+- [ ] Refund/legal path **never** auto-sent without human.
+- [ ] EN/FR (and AR if enabled) reply smoke tests.
 - [ ] Neon rows appear per `eventTypes` in JSON.
 
 ## References
 
-- `config/resumora-ai-support-mail-architecture.json`  
-- `pages/api/support-intake.js` (site chat acknowledgment — separate from Gmail)  
+- `config/resumora-ai-support-mail-architecture.json`
+- `pages/api/orchestration/support-mail-dedupe.js`
+- `pages/api/support-intake.js` (site chat acknowledgment — separate from Gmail)
 - `docs/BOSSMIND_CAPITAL_CORE_STACK.md` (general n8n + AI governance patterns)

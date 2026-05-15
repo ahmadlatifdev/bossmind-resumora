@@ -1,0 +1,90 @@
+{
+  "domain": "resumora.net",
+  "checkedAt": "2026-05-15T00:50:40.829Z",
+  "mx": [],
+  "spf": {
+    "found": false,
+    "raw": "",
+    "includesGoogle": false,
+    "includesSendgrid": false,
+    "includesMicrosoft": false
+  },
+  "dmarc": {
+    "host": "_dmarc.resumora.net",
+    "found": false,
+    "raw": "",
+    "policy": "unknown"
+  },
+  "dkim": {
+    "google": {
+      "host": "google._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "selector1": {
+      "host": "selector1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "selector2": {
+      "host": "selector2._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "k1": {
+      "host": "k1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "default": {
+      "host": "default._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "s1": {
+      "host": "s1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "smtp": {
+      "host": "smtp._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    }
+  },
+  "spamHeuristic": {
+    "score": 0,
+    "band": "fail",
+    "issues": [
+      "no_mx",
+      "no_spf_txt",
+      "no_dmarc",
+      "no_dkim_selector_matched"
+    ]
+  },
+  "autoResponse": {
+    "note": "Gmail / Workspace auto-reply and n8n flows are configured in Google Admin and n8n, not in this repository.",
+    "dedupeApiPath": "/api/orchestration/support-mail-dedupe",
+    "killSwitches": [
+      "BOSSMIND_SUPPORT_AI_EMERGENCY_STOP=1",
+      "BOSSMIND_SUPPORT_AI_AUTO_SEND=0"
+    ]
+  },
+  "synchronization": {
+    "note": "Gmail mobile/desktop sync is a Google client feature; no Resumora server toggle."
+  },
+  "delivery": {
+    "note": "Inbox vs spam depends on sender reputation, content, and recipient filters — DNS hygiene below reduces technical rejects only."
+  },
+  "brandedTemplates": {
+    "path": "config/resumora-support-branded-reply-templates.json",
+    "sha256": "b845cf2bc4b60600d27b027fbf516def95238f0257e59c84252c8ff4ab59c875"
+  },
+  "architecture": {
+    "path": "config/resumora-ai-support-mail-architecture.json",
+    "sha256": "04dec229743f7a115728ef6723c7837e95bc132d1610c610043560cca12477f1"
+  },
+  "neonLock": {
+    "skipped": true
+  }
+}

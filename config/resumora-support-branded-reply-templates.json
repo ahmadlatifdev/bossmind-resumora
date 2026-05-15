@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "supportMailbox": "support@resumora.net",
+  "brand": {
+    "name": "Resumora",
+    "site": "https://resumora.net",
+    "pricingPath": "/pricing",
+    "supportPath": "/support"
+  },
+  "autoAcknowledgment": {
+    "en": {
+      "subject": "We received your message — Resumora Support",
+      "bodyText": "Thank you for contacting Resumora.\n\nWe received your email and will review it shortly. For pricing and delivery options, see https://resumora.net/pricing — for help topics, see https://resumora.net/support\n\nPlease do not reply to automated notices with the same request multiple times; it may delay our response.\n\n— Resumora Support\nsupport@resumora.net"
+    },
+    "fr": {
+      "subject": "Nous avons bien reçu votre message — Support Resumora",
+      "bodyText": "Merci d'avoir contacté Resumora.\n\nNous avons bien reçu votre e-mail et l'examinerons sous peu. Pour les tarifs et options de livraison : https://resumora.net/pricing — pour l'aide : https://resumora.net/support\n\nÉvitez d'envoyer plusieurs fois la même demande aux accusés automatiques ; cela peut retarder notre réponse.\n\n— Support Resumora\nsupport@resumora.net"
+    }
+  },
+  "attachmentPolicy": {
+    "resumeUploads": "Store in Google Drive or secure bucket via n8n; virus-scan before LLM; never echo raw files in auto-replies.",
+    "maxAutoReplyBytes": 20000
+  }
+}

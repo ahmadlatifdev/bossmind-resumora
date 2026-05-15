@@ -33,6 +33,10 @@
     "scripts/bossmind-deploy-checkpoint.mjs",
     "scripts/bossmind-recovery-suggest.mjs",
     "scripts/bossmind-recovery-apply.mjs",
+    "scripts/resumora-support-mail-verification.mjs",
+    "scripts/resumora-ai-support-mail-confirm.mjs",
+    "config/resumora-ai-support-mail-architecture.json",
+    "config/resumora-support-branded-reply-templates.json",
     ".github/workflows/bossmind-daily-backup.yml",
     ".github/workflows/hosting-policy-guard.yml"
   ],
