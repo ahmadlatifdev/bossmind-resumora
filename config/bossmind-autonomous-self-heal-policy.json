@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "title": "BossMind autonomous self-heal — policy bounds (Resumora)",
+  "truth": "Detection + Neon memory + optional Railway redeploy are in-repo. Unsupervised filesystem writes, auto-merge to main, and blind production deploys are intentionally OFF unless separately approved.",
+  "tiers": {
+    "T0_runtime_detection": {
+      "components": ["@sentry/nextjs", "NEXT_PUBLIC_SENTRY_DSN or SENTRY_DSN"],
+      "status": "operator_configures_dsn"
+    },
+    "T1_repair_ingress": {
+      "components": ["POST /api/orchestration/sentry-ingest", "Bearer BOSSMIND_ORCHESTRATION_SECRET"],
+      "enqueueOnly": "BOSSMIND_SENTRY_ENQUEUE_ONLY=1 queues task_state for supervisor without inline runRepairFlow"
+    },
+    "T2_planner_memory": {
+      "components": ["lib/orchestration/langgraph-repair-flow.js", "Neon event_log / error_memory / task_state"],
+      "note": "Produces repair pattern text; does not write source files."
+    },
+    "T3_human_or_cursor_apply": {
+      "components": ["IDE / PR review", "npm run bossmind:antileak", "branch protection"],
+      "required": true
+    },
+    "T4_ci_git_deploy": {
+      "components": ["GitHub Actions", "Render/Railway deploy hooks"],
+      "note": "Not performed by Next.js API with repo write token in this policy."
+    }
+  },
+  "railwayClosedLoopOptional": {
+    "worker": "scripts/bossmind-supervisor-worker.mjs",
+    "webhook": "POST /api/orchestration/railway-incident-webhook",
+    "buildGuardEnv": "BOSSMIND_RAILWAY_RUN_BUILD_GUARD=1",
+    "autoRedeployEnv": "BOSSMIND_RAILWAY_AUTO_REDEPLOY=1",
+    "healthProbeEnv": "BOSSMIND_RAILWAY_HEALTH_ORIGIN or BOSSMIND_COMPLETION_PROBE_ORIGIN",
+    "autoPushEnv": "BOSSMIND_RAILWAY_AUTO_PUSH=1",
+    "autoPushBehavior": "logged_as_not_implemented_use_ci — see lib/orchestration/railway-closed-loop-worker.js"
+  },
+  "killSwitches": [
+    "BOSSMIND_RAILWAY_REPAIR_EMERGENCY_STOP=1",
+    "BOSSMIND_SENTRY_ENQUEUE_ONLY=1 (prefer queue over immediate runRepairFlow)"
+  ]
+}
