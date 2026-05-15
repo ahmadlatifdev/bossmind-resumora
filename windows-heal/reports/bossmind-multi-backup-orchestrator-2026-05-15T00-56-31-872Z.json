@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "hub": null,
+  "anchorRoot": "D:/BossMind/resumora-fresh",
+  "projectsTotal": 7,
+  "attempted": 1,
+  "okCount": 1,
+  "coveragePercent": 100,
+  "results": [
+    {
+      "id": "resumora",
+      "projectRoot": "D:\\BossMind\\resumora-fresh",
+      "ok": true,
+      "status": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"runId\": \"2026-05-15T00-56-31-380Z-a1\",\n  \"backupRoot\": \"D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d\",\n  \"fileCount\": 98,\n  \"missing\": [],\n  \"verifyErrors\": [],\n  \"pruned\": [],\n  \"attempt\": 1,\n  \"projectRoot\": \"D:/BossMind/resumora-fresh\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "elegancyart",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    },
+    {
+      "id": "ai_video_generator",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    },
+    {
+      "id": "tiktok_ai",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    },
+    {
+      "id": "global_stock",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    },
+    {
+      "id": "bossmind_shared",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    },
+    {
+      "id": "master_admin",
+      "skipped": true,
+      "reason": "hub_unset_or_missing",
+      "expectedPath": null
+    }
+  ]
+}

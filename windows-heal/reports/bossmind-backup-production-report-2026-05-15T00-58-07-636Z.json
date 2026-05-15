@@ -1,0 +1,51 @@
+{
+  "ts": "2026-05-15T00:58:07.632Z",
+  "hub": null,
+  "retentionDaysDefault": 30,
+  "productionReadinessPercent": 14,
+  "manifestsPresentCount": 1,
+  "antiLeakNote": "Secrets never in rolling file trees; use env + Secret Manager.",
+  "closedLoopNote": "Neon error_memory receives bossmind.backup.daily.final_failure from anchor script when configured.",
+  "projects": [
+    {
+      "id": "resumora",
+      "projectRoot": "D:/BossMind/resumora-fresh",
+      "manifestPresent": true,
+      "lastVerifiedRun": "2026-05-15T00-56-31-380Z-a1",
+      "lastVerifyOk": true,
+      "logTailLines": 7,
+      "runsVerified": 6,
+      "runsTotal": 7
+    },
+    {
+      "id": "elegancyart",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    },
+    {
+      "id": "ai_video_generator",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    },
+    {
+      "id": "tiktok_ai",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    },
+    {
+      "id": "global_stock",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    },
+    {
+      "id": "bossmind_shared",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    },
+    {
+      "id": "master_admin",
+      "status": "unavailable",
+      "reason": "hub_unset"
+    }
+  ]
+}

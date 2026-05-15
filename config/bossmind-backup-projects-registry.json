@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "description": "BossMind multi-project rolling backup targets. CI runs anchor-only unless BOSSMIND_BOSSMIND_ROOT points at a local hub (e.g. D:/BossMind). Each project uses scripts/bossmind-backup-daily.mjs from this repo with BOSSMIND_BACKUP_PROJECT_ROOT set.",
+  "defaultBossMindRootEnv": "BOSSMIND_BOSSMIND_ROOT",
+  "retentionDaysDefault": 30,
+  "projects": [
+    { "id": "resumora", "relativePath": ".", "anchor": true },
+    { "id": "elegancyart", "relativePath": "bossmind-elegancyart" },
+    { "id": "ai_video_generator", "relativePath": "bossmind-ai-video-generator" },
+    { "id": "tiktok_ai", "relativePath": "bossmind-tiktok-ai" },
+    { "id": "global_stock", "relativePath": "bossmind-global-stock" },
+    { "id": "bossmind_shared", "relativePath": "bossmind-shared" },
+    { "id": "master_admin", "relativePath": "bossmind-master-admin" }
+  ]
+}

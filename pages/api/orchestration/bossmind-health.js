@@ -14,6 +14,58 @@ const {
   getBossMindCodexLayerStatus,
 } = require("../../../lib/orchestration/bossmind-codex-status");
 const { getRailwayRepairOverview } = require("../../../lib/orchestration/railway-repair-status");
+const fs = require("fs");
+const path = require("path");
+
+function readBackupPreservationWidget() {
+  const cwd = process.cwd();
+  const base = path.join(cwd, ".bossmind", "backups", "rolling-30d");
+  const manifestPath = path.join(base, "protected", "latest-verified-manifest.json");
+  if (!fs.existsSync(manifestPath)) {
+    return {
+      manifestPresent: false,
+      note: "No rolling backup manifest at cwd/.bossmind/backups/rolling-30d/protected/",
+    };
+  }
+  let manifest = {};
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  } catch {
+    manifest = {};
+  }
+  const runsDir = path.join(base, "runs");
+  let rollingRunCount = 0;
+  let verifiedRunCount = 0;
+  try {
+    for (const e of fs.readdirSync(runsDir, { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      rollingRunCount += 1;
+      if (fs.existsSync(path.join(runsDir, e.name, ".verified"))) verifiedRunCount += 1;
+    }
+  } catch {
+    /* noop */
+  }
+  const logPath = path.join(base, "daily-backup.log.jsonl");
+  let lastLog = null;
+  try {
+    const lines = fs.readFileSync(logPath, "utf8").trim().split("\n").filter(Boolean);
+    lastLog = JSON.parse(lines[lines.length - 1] || "{}");
+  } catch {
+    /* noop */
+  }
+  return {
+    manifestPresent: true,
+    projectId: manifest.projectId || null,
+    fileCount: manifest.files?.length ?? 0,
+    lastManifestRunId: manifest.runId || null,
+    rollingRunCount,
+    verifiedRunCount,
+    lastLogVerifyOk: lastLog?.verifyOk ?? null,
+    lastLogRunId: lastLog?.runId || null,
+    retentionDaysNominal: 30,
+    recoverySimulationHint: "npm run bossmind:backup:simulate",
+  };
+}
 
 function authorize(req) {
   const dev = process.env.NODE_ENV === "development";
@@ -67,6 +119,8 @@ export default async function handler(req, res) {
       neonEnabled: neonOk,
     });
 
+    const backupPreservation = readBackupPreservationWidget();
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
@@ -94,6 +148,7 @@ export default async function handler(req, res) {
         buildId: overview.build?.buildId || null,
       },
       overview,
+      backupPreservation,
       scores: {
         performanceScore,
         automationCoveragePercent,

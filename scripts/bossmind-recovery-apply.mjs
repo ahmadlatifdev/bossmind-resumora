@@ -12,7 +12,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, "..");
+const root = process.env.BOSSMIND_BACKUP_PROJECT_ROOT
+  ? path.resolve(process.env.BOSSMIND_BACKUP_PROJECT_ROOT)
+  : path.join(__dirname, "..");
 const backupRoot = path.resolve(
   root,
   process.env.BOSSMIND_BACKUP_ROOT || path.join(".bossmind", "backups", "rolling-30d")

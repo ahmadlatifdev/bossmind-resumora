@@ -27,14 +27,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Daily verified backup (30-day prune policy in script)
+      - name: Multi-project verified backup (anchor-only on GitHub-hosted runner)
         env:
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
           BOSSMIND_PROJECT_KEY: ${{ vars.BOSSMIND_PROJECT_KEY }}
-        run: npm run bossmind:backup:daily
+          BOSSMIND_BOSSMIND_ROOT: ${{ secrets.BOSSMIND_BOSSMIND_ROOT }}
+        run: npm run bossmind:backup:multi
 
       - name: Read-only preservation validate
         run: npm run bossmind:preservation:validate
+
+      - name: Restore simulation (no writes)
+        run: npm run bossmind:backup:simulate
+
+      - name: Production backup coverage report
+        env:
+          BOSSMIND_BOSSMIND_ROOT: ${{ secrets.BOSSMIND_BOSSMIND_ROOT }}
+        run: npm run bossmind:backup:production-report
 
       - name: Recovery suggest (dry report)
         run: npm run bossmind:recovery:suggest
