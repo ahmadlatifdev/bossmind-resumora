@@ -96,7 +96,24 @@ function collectPaths() {
       }
     }
   }
-  return [...set].sort();
+  return [...set].filter((r) => !isAntiLeakExcluded(r)).sort();
+}
+
+/** Never copy live secrets or dependency trees into rolling backups (Anti-Leak). */
+function isAntiLeakExcluded(rel) {
+  const s = String(rel).replace(/\\/g, "/");
+  const low = s.toLowerCase();
+  if (low === ".env" || low.startsWith(".env.")) return true;
+  if (low.includes("/.env") || low.includes("/.env.")) return true;
+  if (low.includes("node_modules")) return true;
+  if (low.endsWith(".pem") || low.endsWith(".p12") || low.endsWith(".pfx")) return true;
+  if (
+    low.includes("google-credentials") ||
+    (low.includes("service-account") && low.endsWith(".json"))
+  )
+    return true;
+  if (low.includes("id_rsa") || low.endsWith(".ppk")) return true;
+  return false;
 }
 
 function ensureDir(d) {
@@ -128,7 +145,7 @@ async function neonLog(eventType, severity, payload) {
 
 function runBackupForCwd(cwd, runId, destBase) {
   const filesDir = path.join(destBase, "files");
-  const relPaths = collectPaths();
+  const relPaths = collectPaths().filter((r) => !isAntiLeakExcluded(r));
 
   const manifest = {
     version: 1,

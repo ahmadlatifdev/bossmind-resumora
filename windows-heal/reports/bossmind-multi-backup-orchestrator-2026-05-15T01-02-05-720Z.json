@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "hub": "D:\\BossMind",
+  "anchorRoot": "D:/BossMind/resumora-fresh",
+  "projectsTotal": 7,
+  "attempted": 2,
+  "okCount": 2,
+  "skippedNoHub": 0,
+  "lastRunSuccessPercent": 100,
+  "fleetCoveragePercent": 100,
+  "fleetCoverageNote": "All registered hub projects were attempted.",
+  "results": [
+    {
+      "id": "resumora",
+      "projectRoot": "D:\\BossMind\\resumora-fresh",
+      "ok": true,
+      "status": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"runId\": \"2026-05-15T01-02-04-950Z-a1\",\n  \"backupRoot\": \"D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d\",\n  \"fileCount\": 99,\n  \"missing\": [],\n  \"verifyErrors\": [],\n  \"pruned\": [],\n  \"attempt\": 1,\n  \"projectRoot\": \"D:/BossMind/resumora-fresh\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "id": "elegancyart",
+      "skipped": true,
+      "reason": "no_package_json",
+      "projectRoot": "D:\\BossMind\\bossmind-elegancyart"
+    },
+    {
+      "id": "ai_video_generator",
+      "skipped": true,
+      "reason": "no_package_json",
+      "projectRoot": "D:\\BossMind\\bossmind-ai-video-generator"
+    },
+    {
+      "id": "tiktok_ai",
+      "skipped": true,
+      "reason": "no_package_json",
+      "projectRoot": "D:\\BossMind\\bossmind-tiktok-ai"
+    },
+    {
+      "id": "global_stock",
+      "skipped": true,
+      "reason": "no_package_json",
+      "projectRoot": "D:\\BossMind\\bossmind-global-stock"
+    },
+    {
+      "id": "bossmind_shared",
+      "skipped": true,
+      "reason": "no_package_json",
+      "projectRoot": "D:\\BossMind\\bossmind-shared"
+    },
+    {
+      "id": "master_admin",
+      "projectRoot": "D:\\BossMind\\bossmind-master-admin",
+      "ok": true,
+      "status": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"runId\": \"2026-05-15T01-02-05-629Z-a1\",\n  \"backupRoot\": \"D:/BossMind/bossmind-master-admin/.bossmind/backups/rolling-30d\",\n  \"fileCount\": 3,\n  \"missing\": [],\n  \"verifyErrors\": [],\n  \"pruned\": [],\n  \"attempt\": 1,\n  \"projectRoot\": \"D:/BossMind/bossmind-master-admin\"\n}\n",
+      "stderr": ""
+    }
+  ]
+}

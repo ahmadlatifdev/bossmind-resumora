@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "stamp": "2026-05-15T01-02-03-234Z",
+  "hub": "D:\\BossMind",
+  "overallOk": true,
+  "antiLeak": {
+    "note": ".env and secret material paths are never copied by bossmind-backup-daily.",
+    "neonDump": "Database dumps: use Neon branches / pg_dump outside this repo.",
+    "renderRailwayExport": "Host env exports: Railway/Render dashboards; never commit."
+  },
+  "selfHealing": {
+    "note": "bossmind-backup-daily retries verify failures; final failure writes Neon error_memory when configured."
+  },
+  "closedLoop": {
+    "scheduler": ".github/workflows/bossmind-daily-backup.yml cron 06:15 UTC",
+    "duplicatePrevention": "Concurrency group bossmind-backup-${{ github.repository }} cancel-in-progress: false"
+  },
+  "phases": {
+    "phase1_multiBackup": {
+      "ok": true,
+      "status": 0,
+      "stdout": "\n> resumora-fresh@0.1.0 bossmind:backup:multi\n> node scripts/bossmind-multi-project-backup-orchestrator.mjs\n\n{\n  \"ok\": true,\n  \"hub\": \"D:\\\\BossMind\",\n  \"anchorRoot\": \"D:/BossMind/resumora-fresh\",\n  \"projectsTotal\": 7,\n  \"attempted\": 2,\n  \"okCount\": 2,\n  \"skippedNoHub\": 0,\n  \"lastRunSuccessPercent\": 100,\n  \"fleetCoveragePercent\": 100,\n  \"fleetCoverageNote\": \"All registered hub projects were attempted.\",\n  \"results\": [\n    {\n      \"id\": \"resumora\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\resumora-fresh\",\n      \"ok\": true,\n      \"status\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"runId\\\": \\\"2026-05-15T01-02-04-950Z-a1\\\",\\n  \\\"backupRoot\\\": \\\"D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d\\\",\\n  \\\"fileCount\\\": 99,\\n  \\\"missing\\\": [],\\n  \\\"verifyErrors\\\": [],\\n  \\\"pruned\\\": [],\\n  \\\"attempt\\\": 1,\\n  \\\"projectRoot\\\": \\\"D:/BossMind/resumora-fresh\\\"\\n}\\n\",\n      \"stderr\": \"\"\n    },\n    {\n      \"id\": \"elegancyart\",\n      \"skipped\": true,\n      \"reason\": \"no_package_json\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-elegancyart\"\n    },\n    {\n      \"id\": \"ai_video_generator\",\n      \"skipped\": true,\n      \"reason\": \"no_package_json\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-ai-video-generator\"\n    },\n    {\n      \"id\": \"tiktok_ai\",\n      \"skipped\": true,\n      \"reason\": \"no_package_json\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-tiktok-ai\"\n    },\n    {\n      \"id\": \"global_stock\",\n      \"skipped\": true,\n      \"reason\": \"no_package_json\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-global-stock\"\n    },\n    {\n      \"id\": \"bossmind_shared\",\n      \"skipped\": true,\n      \"reason\": \"no_package_json\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-shared\"\n    },\n    {\n      \"id\": \"master_admin\",\n      \"projectRoot\": \"D:\\\\BossMind\\\\bossmind-master-admin\",\n      \"ok\": true,\n      \"status\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"runId\\\": \\\"2026-05-15T01-02-05-629Z-a1\\\",\\n  \\\"backupRoot\\\": \\\"D:/BossMind/bossmind-master-admin/.bossmind/backups/rolling-30d\\\",\\n  \\\"fileCount\\\": 3,\\n  \\\"missing\\\": [],\\n  \\\"verifyErrors\\\": [],\\n  \\\"pruned\\\": [],\\n  \\\"attempt\\\": 1,\\n  \\\"projectRoot\\\": \\\"D:/BossMind/bossmind-master-admin\\\"\\n}\\n\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"reportFile\": \"D:/BossMind/resumora-fresh/windows-heal/reports/bossmind-multi-backup-orchestrator-2026-05-15T01-02-05-720Z.json\"\n}\n",
+      "stderr": ""
+    },
+    "phase5_preservationValidateFleet": [
+      {
+        "id": "resumora",
+        "projectRoot": "D:/BossMind/resumora-fresh",
+        "ok": true,
+        "status": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"manifestRunId\": \"2026-05-15T01-02-04-950Z-a1\",\n  \"manifestTs\": \"2026-05-15T01:02:04.956Z\",\n  \"driftCount\": 0,\n  \"drift\": []\n}\n",
+        "stderr": "",
+        "parsed": {
+          "ok": true,
+          "manifestRunId": "2026-05-15T01-02-04-950Z-a1",
+          "manifestTs": "2026-05-15T01:02:04.956Z",
+          "driftCount": 0,
+          "drift": []
+        }
+      },
+      {
+        "id": "elegancyart",
+        "skipped": true
+      },
+      {
+        "id": "ai_video_generator",
+        "skipped": true
+      },
+      {
+        "id": "tiktok_ai",
+        "skipped": true
+      },
+      {
+        "id": "global_stock",
+        "skipped": true
+      },
+      {
+        "id": "bossmind_shared",
+        "skipped": true
+      },
+      {
+        "id": "master_admin",
+        "projectRoot": "D:/BossMind/bossmind-master-admin",
+        "ok": true,
+        "status": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"manifestRunId\": \"2026-05-15T01-02-05-629Z-a1\",\n  \"manifestTs\": \"2026-05-15T01:02:05.635Z\",\n  \"driftCount\": 0,\n  \"drift\": []\n}\n",
+        "stderr": "",
+        "parsed": {
+          "ok": true,
+          "manifestRunId": "2026-05-15T01-02-05-629Z-a1",
+          "manifestTs": "2026-05-15T01:02:05.635Z",
+          "driftCount": 0,
+          "drift": []
+        }
+      }
+    ],
+    "phase6_restoreSimulateAnchor": {
+      "ok": true,
+      "status": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"simulation\": true,\n  \"manifestPath\": \"D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d/protected/latest-verified-manifest.json\",\n  \"runId\": \"2026-05-15T01-02-04-950Z-a1\",\n  \"projectId\": \"resumora\",\n  \"driftCount\": 0,\n  \"drift\": [],\n  \"restoreReadinessPercent\": 100\n}\n",
+      "stderr": "",
+      "parsed": {
+        "ok": true,
+        "simulation": true,
+        "manifestPath": "D:/BossMind/resumora-fresh/.bossmind/backups/rolling-30d/protected/latest-verified-manifest.json",
+        "runId": "2026-05-15T01-02-04-950Z-a1",
+        "projectId": "resumora",
+        "driftCount": 0,
+        "drift": [],
+        "restoreReadinessPercent": 100
+      }
+    },
+    "phase9_productionReport": {
+      "ok": true,
+      "status": 0,
+      "stdout": "{\n  \"ts\": \"2026-05-15T01:02:06.809Z\",\n  \"hub\": \"D:\\\\BossMind\",\n  \"retentionDaysDefault\": 30,\n  \"productionReadinessPercent\": 29,\n  \"manifestsPresentCount\": 2,\n  \"antiLeakNote\": \"Secrets never in rolling file trees; use env + Secret Manager.\",\n  \"closedLoopNote\": \"Neon error_memory receives bossmind.backup.daily.final_failure from anchor script when configured.\",\n  \"projects\": [\n    {\n      \"id\": \"resumora\",\n      \"projectRoot\": \"D:/BossMind/resumora-fresh\",\n      \"manifestPresent\": true,\n      \"lastVerifiedRun\": \"2026-05-15T01-02-04-950Z-a1\",\n      \"lastVerifyOk\": true,\n      \"logTailLines\": 8,\n      \"runsVerified\": 7,\n      \"runsTotal\": 8\n    },\n    {\n      \"id\": \"elegancyart\",\n      \"projectRoot\": \"D:/BossMind/bossmind-elegancyart\",\n      \"manifestPresent\": false,\n      \"lastVerifiedRun\": null,\n      \"lastVerifyOk\": null,\n      \"logTailLines\": 0,\n      \"runsVerified\": 0,\n      \"runsTotal\": 0\n    },\n    {\n      \"id\": \"ai_video_generator\",\n      \"projectRoot\": \"D:/BossMind/bossmind-ai-video-generator\",\n      \"manifestPresent\": false,\n      \"lastVerifiedRun\": null,\n      \"lastVerifyOk\": null,\n      \"logTailLines\": 0,\n      \"runsVerified\": 0,\n      \"runsTotal\": 0\n    },\n    {\n      \"id\": \"tiktok_ai\",\n      \"projectRoot\": \"D:/BossMind/bossmind-tiktok-ai\",\n      \"manifestPresent\": false,\n      \"lastVerifiedRun\": null,\n      \"lastVerifyOk\": null,\n      \"logTailLines\": 0,\n      \"runsVerified\": 0,\n      \"runsTotal\": 0\n    },\n    {\n      \"id\": \"global_stock\",\n      \"projectRoot\": \"D:/BossMind/bossmind-global-stock\",\n      \"manifestPresent\": false,\n      \"lastVerifiedRun\": null,\n      \"lastVerifyOk\": null,\n      \"logTailLines\": 0,\n      \"runsVerified\": 0,\n      \"runsTotal\": 0\n    },\n    {\n      \"id\": \"bossmind_shared\",\n      \"projectRoot\": \"D:/BossMind/bossmind-shared\",\n      \"manifestPresent\": false,\n      \"lastVerifiedRun\": null,\n      \"lastVerifyOk\": null,\n      \"logTailLines\": 0,\n      \"runsVerified\": 0,\n      \"runsTotal\": 0\n    },\n    {\n      \"id\": \"master_admin\",\n      \"projectRoot\": \"D:/BossMind/bossmind-master-admin\",\n      \"manifestPresent\": true,\n      \"lastVerifiedRun\": \"2026-05-15T01-02-05-629Z-a1\",\n      \"lastVerifyOk\": true,\n      \"logTailLines\": 1,\n      \"runsVerified\": 1,\n      \"runsTotal\": 1\n    }\n  ],\n  \"reportFile\": \"D:/BossMind/resumora-fresh/windows-heal/reports/bossmind-backup-production-report-2026-05-15T01-02-06-812Z.json\"\n}\n",
+      "stderr": "",
+      "parsed": {
+        "ts": "2026-05-15T01:02:06.809Z",
+        "hub": "D:\\BossMind",
+        "retentionDaysDefault": 30,
+        "productionReadinessPercent": 29,
+        "manifestsPresentCount": 2,
+        "antiLeakNote": "Secrets never in rolling file trees; use env + Secret Manager.",
+        "closedLoopNote": "Neon error_memory receives bossmind.backup.daily.final_failure from anchor script when configured.",
+        "projects": [
+          {
+            "id": "resumora",
+            "projectRoot": "D:/BossMind/resumora-fresh",
+            "manifestPresent": true,
+            "lastVerifiedRun": "2026-05-15T01-02-04-950Z-a1",
+            "lastVerifyOk": true,
+            "logTailLines": 8,
+            "runsVerified": 7,
+            "runsTotal": 8
+          },
+          {
+            "id": "elegancyart",
+            "projectRoot": "D:/BossMind/bossmind-elegancyart",
+            "manifestPresent": false,
+            "lastVerifiedRun": null,
+            "lastVerifyOk": null,
+            "logTailLines": 0,
+            "runsVerified": 0,
+            "runsTotal": 0
+          },
+          {
+            "id": "ai_video_generator",
+            "projectRoot": "D:/BossMind/bossmind-ai-video-generator",
+            "manifestPresent": false,
+            "lastVerifiedRun": null,
+            "lastVerifyOk": null,
+            "logTailLines": 0,
+            "runsVerified": 0,
+            "runsTotal": 0
+          },
+          {
+            "id": "tiktok_ai",
+            "projectRoot": "D:/BossMind/bossmind-tiktok-ai",
+            "manifestPresent": false,
+            "lastVerifiedRun": null,
+            "lastVerifyOk": null,
+            "logTailLines": 0,
+            "runsVerified": 0,
+            "runsTotal": 0
+          },
+          {
+            "id": "global_stock",
+            "projectRoot": "D:/BossMind/bossmind-global-stock",
+            "manifestPresent": false,
+            "lastVerifiedRun": null,
+            "lastVerifyOk": null,
+            "logTailLines": 0,
+            "runsVerified": 0,
+            "runsTotal": 0
+          },
+          {
+            "id": "bossmind_shared",
+            "projectRoot": "D:/BossMind/bossmind-shared",
+            "manifestPresent": false,
+            "lastVerifiedRun": null,
+            "lastVerifyOk": null,
+            "logTailLines": 0,
+            "runsVerified": 0,
+            "runsTotal": 0
+          },
+          {
+            "id": "master_admin",
+            "projectRoot": "D:/BossMind/bossmind-master-admin",
+            "manifestPresent": true,
+            "lastVerifiedRun": "2026-05-15T01-02-05-629Z-a1",
+            "lastVerifyOk": true,
+            "logTailLines": 1,
+            "runsVerified": 1,
+            "runsTotal": 1
+          }
+        ],
+        "reportFile": "D:/BossMind/resumora-fresh/windows-heal/reports/bossmind-backup-production-report-2026-05-15T01-02-06-812Z.json"
+      }
+    }
+  },
+  "productionReadinessPercent": 29,
+  "restoreSimulationOk": true,
+  "restoreDriftCount": 0
+}

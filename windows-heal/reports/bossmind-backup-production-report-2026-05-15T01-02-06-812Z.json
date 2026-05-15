@@ -1,0 +1,81 @@
+{
+  "ts": "2026-05-15T01:02:06.809Z",
+  "hub": "D:\\BossMind",
+  "retentionDaysDefault": 30,
+  "productionReadinessPercent": 29,
+  "manifestsPresentCount": 2,
+  "antiLeakNote": "Secrets never in rolling file trees; use env + Secret Manager.",
+  "closedLoopNote": "Neon error_memory receives bossmind.backup.daily.final_failure from anchor script when configured.",
+  "projects": [
+    {
+      "id": "resumora",
+      "projectRoot": "D:/BossMind/resumora-fresh",
+      "manifestPresent": true,
+      "lastVerifiedRun": "2026-05-15T01-02-04-950Z-a1",
+      "lastVerifyOk": true,
+      "logTailLines": 8,
+      "runsVerified": 7,
+      "runsTotal": 8
+    },
+    {
+      "id": "elegancyart",
+      "projectRoot": "D:/BossMind/bossmind-elegancyart",
+      "manifestPresent": false,
+      "lastVerifiedRun": null,
+      "lastVerifyOk": null,
+      "logTailLines": 0,
+      "runsVerified": 0,
+      "runsTotal": 0
+    },
+    {
+      "id": "ai_video_generator",
+      "projectRoot": "D:/BossMind/bossmind-ai-video-generator",
+      "manifestPresent": false,
+      "lastVerifiedRun": null,
+      "lastVerifyOk": null,
+      "logTailLines": 0,
+      "runsVerified": 0,
+      "runsTotal": 0
+    },
+    {
+      "id": "tiktok_ai",
+      "projectRoot": "D:/BossMind/bossmind-tiktok-ai",
+      "manifestPresent": false,
+      "lastVerifiedRun": null,
+      "lastVerifyOk": null,
+      "logTailLines": 0,
+      "runsVerified": 0,
+      "runsTotal": 0
+    },
+    {
+      "id": "global_stock",
+      "projectRoot": "D:/BossMind/bossmind-global-stock",
+      "manifestPresent": false,
+      "lastVerifiedRun": null,
+      "lastVerifyOk": null,
+      "logTailLines": 0,
+      "runsVerified": 0,
+      "runsTotal": 0
+    },
+    {
+      "id": "bossmind_shared",
+      "projectRoot": "D:/BossMind/bossmind-shared",
+      "manifestPresent": false,
+      "lastVerifiedRun": null,
+      "lastVerifyOk": null,
+      "logTailLines": 0,
+      "runsVerified": 0,
+      "runsTotal": 0
+    },
+    {
+      "id": "master_admin",
+      "projectRoot": "D:/BossMind/bossmind-master-admin",
+      "manifestPresent": true,
+      "lastVerifiedRun": "2026-05-15T01-02-05-629Z-a1",
+      "lastVerifyOk": true,
+      "logTailLines": 1,
+      "runsVerified": 1,
+      "runsTotal": 1
+    }
+  ]
+}

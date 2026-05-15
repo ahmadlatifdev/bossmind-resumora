@@ -32,6 +32,7 @@
     "scripts/bossmind-backup-recovery-simulate.mjs",
     "scripts/bossmind-backup-production-report.mjs",
     "scripts/bossmind-backup-architecture-lock.mjs",
+    "scripts/bossmind-backup-full-activation.mjs",
     "config/bossmind-backup-projects-registry.json",
     "scripts/bossmind-preservation-validate.mjs",
     "scripts/bossmind-memory-recovery-preservation.mjs",

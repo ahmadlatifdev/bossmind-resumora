@@ -27,23 +27,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Multi-project verified backup (anchor-only on GitHub-hosted runner)
+      - name: Full backup activation (multi + fleet validate + strict simulate + report)
         env:
           NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
           BOSSMIND_PROJECT_KEY: ${{ vars.BOSSMIND_PROJECT_KEY }}
           BOSSMIND_BOSSMIND_ROOT: ${{ secrets.BOSSMIND_BOSSMIND_ROOT }}
-        run: npm run bossmind:backup:multi
-
-      - name: Read-only preservation validate
-        run: npm run bossmind:preservation:validate
-
-      - name: Restore simulation (no writes)
-        run: npm run bossmind:backup:simulate
-
-      - name: Production backup coverage report
-        env:
-          BOSSMIND_BOSSMIND_ROOT: ${{ secrets.BOSSMIND_BOSSMIND_ROOT }}
-        run: npm run bossmind:backup:production-report
+          BOSSMIND_BACKUP_CONFIRM_PRODUCTION_LOCK: ${{ vars.BOSSMIND_BACKUP_CONFIRM_PRODUCTION_LOCK }}
+        run: npm run bossmind:backup:activate-full
 
       - name: Recovery suggest (dry report)
         run: npm run bossmind:recovery:suggest

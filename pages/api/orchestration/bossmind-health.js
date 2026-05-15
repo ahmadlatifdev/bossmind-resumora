@@ -47,9 +47,20 @@ function readBackupPreservationWidget() {
   }
   const logPath = path.join(base, "daily-backup.log.jsonl");
   let lastLog = null;
+  let recentVerifyFailures = 0;
+  let recentVerifyOks = 0;
   try {
     const lines = fs.readFileSync(logPath, "utf8").trim().split("\n").filter(Boolean);
     lastLog = JSON.parse(lines[lines.length - 1] || "{}");
+    for (const line of lines.slice(-60)) {
+      try {
+        const j = JSON.parse(line);
+        if (j.verifyOk === false) recentVerifyFailures += 1;
+        if (j.verifyOk === true) recentVerifyOks += 1;
+      } catch {
+        /* skip */
+      }
+    }
   } catch {
     /* noop */
   }
@@ -62,8 +73,11 @@ function readBackupPreservationWidget() {
     verifiedRunCount,
     lastLogVerifyOk: lastLog?.verifyOk ?? null,
     lastLogRunId: lastLog?.runId || null,
+    recentVerifyFailuresInTail: recentVerifyFailures,
+    recentVerifyOksInTail: recentVerifyOks,
     retentionDaysNominal: 30,
     recoverySimulationHint: "npm run bossmind:backup:simulate",
+    fullActivationHint: "npm run bossmind:backup:activate-full",
   };
 }
 

@@ -86,10 +86,11 @@ function main() {
   const okCount = attempted.filter((x) => x.ok).length;
   const totalRegistered = registry.projects?.length || 0;
   const skippedNoHub = results.filter((x) => x.skipped && x.reason === "hub_unset_or_missing").length;
+  const lastRunSuccessPercent =
+    attempted.length > 0 ? Math.round((okCount / Math.max(1, attempted.length)) * 100) : 0;
+  const fleetReachPercent = Math.round((attempted.length / Math.max(1, totalRegistered)) * 100);
   const fleetCoveragePercent = hub
-    ? attempted.length > 0
-      ? Math.round((okCount / Math.max(1, attempted.length)) * 100)
-      : 0
+    ? fleetReachPercent
     : Math.round((1 / Math.max(1, totalRegistered)) * 100);
   const out = {
     ok: attempted.length > 0 && okCount === attempted.length,
@@ -99,11 +100,11 @@ function main() {
     attempted: attempted.length,
     okCount,
     skippedNoHub: hub ? 0 : skippedNoHub,
-    lastRunSuccessPercent:
-      attempted.length > 0 ? Math.round((okCount / Math.max(1, attempted.length)) * 100) : 0,
+    lastRunSuccessPercent,
+    fleetReachPercent,
     fleetCoveragePercent,
     fleetCoverageNote: hub
-      ? "All registered hub projects were attempted."
+      ? `${attempted.length}/${totalRegistered} registry projects had package.json and were backed up.`
       : "Only anchor project ran; set BOSSMIND_BOSSMIND_ROOT for full fleet backups.",
     results,
   };
