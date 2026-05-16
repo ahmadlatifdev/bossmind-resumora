@@ -49,9 +49,18 @@ async function main() {
   }
 
   const cfgPath = join(root, "config", "resumora-ai-support-mail-architecture.json");
+  const dnsPath = join(root, "config", "resumora-support-mail-dns-authority.json");
   const raw = fs.readFileSync(cfgPath, "utf8");
   const cfg = JSON.parse(raw);
   const archHash = sha256Hex(raw);
+  let dnsAuthoritySha256 = "";
+  try {
+    if (fs.existsSync(dnsPath)) {
+      dnsAuthoritySha256 = sha256Hex(fs.readFileSync(dnsPath, "utf8"));
+    }
+  } catch {
+    dnsAuthoritySha256 = "";
+  }
   const notes = arg("notes", "").slice(0, 2000);
   const projectKey = process.env.BOSSMIND_PROJECT_KEY || "resumora";
   const confirmedAt = new Date().toISOString();
@@ -61,6 +70,7 @@ async function main() {
   const payload = {
     architectureVersion: cfg.version ?? 0,
     architectureSha256: archHash,
+    dnsAuthoritySha256: dnsAuthoritySha256 || undefined,
     supportMailbox: cfg.supportMailbox,
     notes,
     confirmedAt,

@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "domain": "resumora.net",
+  "supportMailbox": "support@resumora.net",
+  "stackAssumption": "Google Workspace Gmail for inbound support@resumora.net",
+  "disclaimer": "Apply these records at your DNS registrar for resumora.net. Values marked PLACEHOLDER must be copied from Google Admin (DKIM) or adjusted for your sending stack. This file does not change live DNS.",
+  "records": [
+    {
+      "type": "MX",
+      "host": "@",
+      "priority": 1,
+      "value": "smtp.google.com",
+      "notes": "Google Workspace MX — verify exact values in Admin console DNS setup wizard (Google may list ASPMX.L.GOOGLE.COM etc.)."
+    },
+    {
+      "type": "TXT",
+      "host": "@",
+      "name": "SPF (Workspace send only)",
+      "value": "v=spf1 include:_spf.google.com ~all",
+      "notes": "If you also send via n8n/SMTP relay, merge includes per your provider; avoid duplicate SPF TXT records."
+    },
+    {
+      "type": "TXT",
+      "host": "_dmarc",
+      "name": "DMARC (start monitoring)",
+      "value": "v=DMARC1; p=none; rua=mailto:dmarc-reports@resumora.net; pct=100; adkim=s; aspf=s",
+      "notes": "After 2–4 weeks of reports with no legitimate loss, tighten to p=quarantine then p=reject. Use a real mailbox for rua."
+    },
+    {
+      "type": "TXT",
+      "host": "google._domainkey",
+      "name": "DKIM (placeholder host)",
+      "value": "PASTE_GOOGLE_GENERATED_DKIM_ONE_LINE_FROM_ADMIN_CONSOLE",
+      "notes": "Actual selector may be google, selector1, or selector2 — Google Admin shows the exact host + TXT. Do not invent keys."
+    }
+  ],
+  "verification": {
+    "inRepoCommand": "npm run resumora:support:mail:verify",
+    "optionalFailGate": "node scripts/resumora-support-mail-verification.mjs --fail-on-bad-dns",
+    "postmaster": "https://postmaster.google.com/ — domain reputation after traffic exists"
+  },
+  "delivery": {
+    "inboxVsSpam": "Content, list hygiene, and recipient engagement matter; DNS authentication removes many technical failures only.",
+    "attachments": "Workspace malware scanning + n8n policy: metadata only to LLM unless explicitly approved."
+  }
+}

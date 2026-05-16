@@ -15,6 +15,10 @@ const {
 } = require("../../../lib/orchestration/bossmind-codex-status");
 const { getRailwayRepairOverview } = require("../../../lib/orchestration/railway-repair-status");
 const { getAutonomousSelfHealStatus } = require("../../../lib/orchestration/bossmind-autonomous-self-heal-status");
+const {
+  getSupportMailBossMindSummary,
+  computeSupportMailReadinessPercent,
+} = require("../../../lib/orchestration/resumora-support-mail-status");
 const fs = require("fs");
 const path = require("path");
 
@@ -136,6 +140,8 @@ export default async function handler(req, res) {
 
     const backupPreservation = readBackupPreservationWidget();
     const autonomousSelfHeal = getAutonomousSelfHealStatus();
+    const supportMail = getSupportMailBossMindSummary(process.cwd());
+    supportMail.proofBasedProductionReadinessPercent = computeSupportMailReadinessPercent(supportMail, null);
 
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
@@ -166,6 +172,7 @@ export default async function handler(req, res) {
       overview,
       backupPreservation,
       autonomousSelfHeal,
+      supportMail,
       scores: {
         performanceScore,
         automationCoveragePercent,

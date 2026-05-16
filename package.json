@@ -110,6 +110,7 @@
     "bossmind:chrome:official-repair-assist": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/chrome-official-repair-assist.ps1",
     "resumora:support:ai:arch-lock": "node scripts/resumora-ai-support-mail-confirm.mjs",
     "resumora:support:mail:verify": "node scripts/resumora-support-mail-verification.mjs",
+    "resumora:support:production-report": "node scripts/resumora-support-mail-production-report.mjs",
     "resumora:support:activate": "npm run resumora:support:mail:verify"
   },
   "dependencies": {

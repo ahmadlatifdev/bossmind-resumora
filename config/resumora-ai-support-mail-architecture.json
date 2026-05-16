@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "supportMailbox": "support@resumora.net",
   "runtimeApi": {
     "supportMailDedupePost": "/api/orchestration/support-mail-dedupe",
@@ -40,6 +40,14 @@
       "autoSendAllowed": true,
       "humanReviewRequired": false,
       "templateRef": "status_intake_needs_session_or_email"
+    },
+    {
+      "id": "resume_cv",
+      "matchHints": ["curriculum vitae", "c.v.", "curriculum", "mon cv", "cover letter", "lettre de motivation"],
+      "autoSendAllowed": false,
+      "humanReviewRequired": true,
+      "gmailLabel": "Resumora/Resume-CV",
+      "notes": "Prefer Workspace attachment scan + n8n metadata-only to LLM unless policy explicitly allows file text extraction."
     },
     {
       "id": "interview_coaching",
@@ -90,6 +98,7 @@
       "support_mail.sent_approved",
       "support_mail.held_human_review",
       "support_mail.spam_archived",
+      "support_mail.classified_heuristic",
       "support_mail.verification_report",
       "support_mail.dedupe_claimed",
       "support_mail.dedupe_replay_blocked"
@@ -151,5 +160,13 @@
     ],
     "storeIn": ["Google Secret Manager", "Railway", "n8n credentials"]
   },
-  "workspaceChromeNote": "Chrome profile isolation is client-side only; mail automation is server-side (n8n). Do not mix personal Gmail OAuth into managed Chrome profiles."
+  "workspaceChromeNote": "Chrome profile isolation is client-side only; mail automation is server-side (n8n). Do not mix personal Gmail OAuth into managed Chrome profiles.",
+  "bossmindProduction": {
+    "healthApiField": "supportMail",
+    "healthEndpoint": "/api/orchestration/bossmind-health",
+    "verificationScript": "npm run resumora:support:mail:verify",
+    "productionReportScript": "npm run resumora:support:production-report",
+    "dnsAuthorityConfig": "config/resumora-support-mail-dns-authority.json",
+    "classifyApiPath": "/api/orchestration/support-mail-classify"
+  }
 }

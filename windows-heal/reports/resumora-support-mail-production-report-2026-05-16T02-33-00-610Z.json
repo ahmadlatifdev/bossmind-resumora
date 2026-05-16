@@ -1,0 +1,210 @@
+{
+  "generatedAt": "2026-05-16T02:33:00.610Z",
+  "domain": "resumora.net",
+  "spf": {
+    "found": false,
+    "raw": "",
+    "includesGoogle": false,
+    "includesSendgrid": false,
+    "includesMicrosoft": false
+  },
+  "dmarc": {
+    "host": "_dmarc.resumora.net",
+    "found": false,
+    "raw": "",
+    "policy": "unknown"
+  },
+  "dkimSelectors": {
+    "google": {
+      "host": "google._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "selector1": {
+      "host": "selector1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "selector2": {
+      "host": "selector2._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "k1": {
+      "host": "k1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "default": {
+      "host": "default._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "s1": {
+      "host": "s1._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    },
+    "smtp": {
+      "host": "smtp._domainkey.resumora.net",
+      "found": false,
+      "recordChars": 0
+    }
+  },
+  "authenticationSummary": {
+    "spfPass": false,
+    "dmarcPass": false,
+    "dmarcStrict": false,
+    "dkimPass": false,
+    "allTechnicalPass": false,
+    "aggregate": "fail",
+    "notes": [
+      "SPF/DKIM/DMARC must be set at your DNS host (not in this repo). DKIM public key is generated in Google Admin > Apps > Google Workspace > Gmail > Authenticate email.",
+      "DMARC p=none is monitoring-only; move to quarantine/reject after monitoring."
+    ]
+  },
+  "spamHeuristic": {
+    "score": 0,
+    "band": "fail",
+    "issues": [
+      "no_mx",
+      "no_spf_txt",
+      "no_dmarc",
+      "no_dkim_selector_matched"
+    ]
+  },
+  "dnsAuthorityTemplate": {
+    "path": "config/resumora-support-mail-dns-authority.json",
+    "recommendations": {
+      "version": 1,
+      "domain": "resumora.net",
+      "supportMailbox": "support@resumora.net",
+      "stackAssumption": "Google Workspace Gmail for inbound support@resumora.net",
+      "disclaimer": "Apply these records at your DNS registrar for resumora.net. Values marked PLACEHOLDER must be copied from Google Admin (DKIM) or adjusted for your sending stack. This file does not change live DNS.",
+      "records": [
+        {
+          "type": "MX",
+          "host": "@",
+          "priority": 1,
+          "value": "smtp.google.com",
+          "notes": "Google Workspace MX — verify exact values in Admin console DNS setup wizard (Google may list ASPMX.L.GOOGLE.COM etc.)."
+        },
+        {
+          "type": "TXT",
+          "host": "@",
+          "name": "SPF (Workspace send only)",
+          "value": "v=spf1 include:_spf.google.com ~all",
+          "notes": "If you also send via n8n/SMTP relay, merge includes per your provider; avoid duplicate SPF TXT records."
+        },
+        {
+          "type": "TXT",
+          "host": "_dmarc",
+          "name": "DMARC (start monitoring)",
+          "value": "v=DMARC1; p=none; rua=mailto:dmarc-reports@resumora.net; pct=100; adkim=s; aspf=s",
+          "notes": "After 2–4 weeks of reports with no legitimate loss, tighten to p=quarantine then p=reject. Use a real mailbox for rua."
+        },
+        {
+          "type": "TXT",
+          "host": "google._domainkey",
+          "name": "DKIM (placeholder host)",
+          "value": "PASTE_GOOGLE_GENERATED_DKIM_ONE_LINE_FROM_ADMIN_CONSOLE",
+          "notes": "Actual selector may be google, selector1, or selector2 — Google Admin shows the exact host + TXT. Do not invent keys."
+        }
+      ],
+      "verification": {
+        "inRepoCommand": "npm run resumora:support:mail:verify",
+        "optionalFailGate": "node scripts/resumora-support-mail-verification.mjs --fail-on-bad-dns",
+        "postmaster": "https://postmaster.google.com/ — domain reputation after traffic exists"
+      },
+      "delivery": {
+        "inboxVsSpam": "Content, list hygiene, and recipient engagement matter; DNS authentication removes many technical failures only.",
+        "attachments": "Workspace malware scanning + n8n policy: metadata only to LLM unless explicitly approved."
+      }
+    }
+  },
+  "bossmindIntegration": {
+    "generatedAt": "2026-05-16T02:33:00.608Z",
+    "supportMailbox": "support@resumora.net",
+    "architecture": {
+      "present": true,
+      "version": 3,
+      "sha256": "985c26db90665c49fd199839a81b2665ee8dd1ac245b3fefb8123bd211a8709d",
+      "routingRulesCount": 7,
+      "classifyApiPath": "/api/orchestration/support-mail-classify",
+      "dedupeApiPath": "/api/orchestration/support-mail-dedupe"
+    },
+    "dnsAuthorityTemplate": {
+      "present": true,
+      "path": "config/resumora-support-mail-dns-authority.json"
+    },
+    "brandedTemplates": {
+      "present": true,
+      "path": "config/resumora-support-branded-reply-templates.json"
+    },
+    "integration": {
+      "webhookBearerConfigured": false,
+      "neonSharedMemoryConfigured": false
+    },
+    "lastDnsVerificationReport": {
+      "file": "D:/BossMind/resumora-fresh/windows-heal/reports/resumora-support-mail-verification-2026-05-15T00-51-26-304Z.json",
+      "checkedAt": "2026-05-15T00:51:26.298Z",
+      "spamHeuristic": {
+        "score": 0,
+        "band": "fail",
+        "issues": [
+          "no_mx",
+          "no_spf_txt",
+          "no_dmarc",
+          "no_dkim_selector_matched"
+        ]
+      },
+      "authenticationSummary": null
+    },
+    "recovery": {
+      "killSwitches": [
+        "BOSSMIND_SUPPORT_AI_EMERGENCY_STOP=1",
+        "BOSSMIND_SUPPORT_AI_AUTO_SEND=0"
+      ],
+      "notes": "Gmail session reconnect is Google client / OAuth refresh — not controlled in this repo."
+    }
+  },
+  "aiRouting": {
+    "engine": "heuristic_v1_in_repo",
+    "classifyApiPath": "/api/orchestration/support-mail-classify",
+    "sampleClassification": {
+      "routeId": "pricing",
+      "priority": "normal",
+      "urgent": false,
+      "suggestedLabels": [
+        "Resumora/pricing"
+      ],
+      "templateRef": "pricing_faq_link_resumora_net",
+      "autoSendAllowed": true,
+      "humanReviewRequired": false,
+      "engine": "heuristic_v1",
+      "tags": [
+        "resume_cv_mention"
+      ]
+    },
+    "notes": [
+      "LLM-based routing stays in n8n (DeepSeek/OpenAI) per config/resumora-ai-support-mail-architecture.json.",
+      "This report's sample is deterministic only."
+    ]
+  },
+  "deliveryAndInbox": {
+    "status": "not_probed_from_repo",
+    "notes": "Use lastDnsVerificationReport + Google Postmaster for reputation."
+  },
+  "recoveryReadiness": {
+    "killSwitches": [
+      "BOSSMIND_SUPPORT_AI_EMERGENCY_STOP=1",
+      "BOSSMIND_SUPPORT_AI_AUTO_SEND=0"
+    ],
+    "notes": "Gmail session reconnect is Google client / OAuth refresh — not controlled in this repo."
+  },
+  "proofBasedProductionReadinessPercent": 50,
+  "memoryLockCommands": {
+    "architecture": "npm run resumora:support:ai:arch-lock -- --i-understand-external-ops-manual --notes=\"...\"",
+    "dnsVerification": "npm run resumora:support:mail:verify"
+  }
+}
