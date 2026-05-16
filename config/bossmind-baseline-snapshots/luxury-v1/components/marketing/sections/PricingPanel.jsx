@@ -100,7 +100,8 @@ export default function PricingPanel() {
     <section
       id="pricing"
       className="rs-section rs-pricing-section"
-      data-rs-pricing-ui="20260517-ea-v2"
+      data-rs-pricing-ui="20260517-ea-v3-img2"
+      data-rs-pricing-order="basic,professional,elite,essential_advanced"
       data-rs-trust-removed="1"
     >
       <div className="rs-container">
@@ -208,9 +209,9 @@ export default function PricingPanel() {
               <tr>
                 <th scope="col">{t.pricingCompareHint}</th>
                 <th scope="col">{t.svcTierBasic}</th>
-                <th scope="col">{t.svcTierEssentialAdvanced}</th>
                 <th scope="col">{t.svcTierProfessional}</th>
                 <th scope="col">{t.svcTierElite}</th>
+                <th scope="col">{t.svcTierEssentialAdvanced}</th>
               </tr>
             </thead>
             <tbody>
@@ -218,9 +219,9 @@ export default function PricingPanel() {
                 <tr key={row.key}>
                   <th scope="row">{row.label[lang]}</th>
                   <td>{formatCompareCell(row.basic)}</td>
-                  <td>{formatCompareCell(row.essential_advanced)}</td>
                   <td>{formatCompareCell(row.professional)}</td>
                   <td>{formatCompareCell(row.elite)}</td>
+                  <td>{formatCompareCell(row.essential_advanced)}</td>
                 </tr>
               ))}
             </tbody>

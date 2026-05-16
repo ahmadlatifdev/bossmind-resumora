@@ -54,7 +54,7 @@ async function main() {
     liveHtml = { ok: false, error: e.message || String(e) };
   }
 
-  const planOrderOk = /id: "basic"[\s\S]*?id: "essential_advanced"[\s\S]*?id: "professional"[\s\S]*?id: "elite"/.test(
+  const planOrderOk = /id: "basic"[\s\S]*?id: "professional"[\s\S]*?id: "elite"[\s\S]*?id: "essential_advanced"/.test(
     siteCopyRaw
   );
   const homeNoTrust = !fs

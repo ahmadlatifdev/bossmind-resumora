@@ -65,7 +65,9 @@ function readHead() {
   }
 }
 
-const PRICING_UI_MARKER = 'data-rs-pricing-ui="20260517-ea-v2"';
+const PRICING_UI_MARKER = 'data-rs-pricing-ui="20260517-ea-v3-img2"';
+const PLAN_ORDER_RE =
+  /id: "basic"[\s\S]*id: "professional"[\s\S]*id: "elite"[\s\S]*id: "essential_advanced"/;
 
 async function probeLive(origin) {
   const out = {};
@@ -129,7 +131,7 @@ async function main() {
       homeImportsTrustPanel: home.includes("TrustMetricsPanel"),
       trustPanelIsNoOp: trustPanel.includes("return null"),
       essentialAdvancedInSiteCopy: /id:\s*"essential_advanced"/.test(siteCopy),
-      planOrderBasicEaProElite: /id: "basic"[\s\S]*essential_advanced[\s\S]*professional[\s\S]*elite/.test(siteCopy),
+      planOrderImage2: PLAN_ORDER_RE.test(siteCopy),
       luxuryV1SnapshotStillHasTrust: snapshotStale,
     },
     stringScanHits: hits.filter((h) => !h.file.startsWith("config/bossmind-baseline-snapshots")),

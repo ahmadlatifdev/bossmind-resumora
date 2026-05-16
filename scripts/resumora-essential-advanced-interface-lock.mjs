@@ -36,7 +36,7 @@ async function main() {
 
   const siteCopyRaw = fs.readFileSync(path.join(root, "lib/marketing/site-copy.js"), "utf8");
   const planOrderMatch = siteCopyRaw.match(
-    /id: "basic"[\s\S]*?id: "essential_advanced"[\s\S]*?id: "professional"[\s\S]*?id: "elite"/
+    /id: "basic"[\s\S]*?id: "professional"[\s\S]*?id: "elite"[\s\S]*?id: "essential_advanced"/
   );
 
   const payload = {
@@ -48,10 +48,10 @@ async function main() {
     stripePriceId: resolveStripePriceId("essential_advanced") || null,
     stripeEnv: config.stripeEnv,
     deliverables: config.deliverables,
-    pricingCardOrder: config.pricingCardOrder || ["basic", "essential_advanced", "professional", "elite"],
+    pricingCardOrder: config.pricingCardOrder || ["basic", "professional", "elite", "essential_advanced"],
     pricingCardOrderVerified: Boolean(planOrderMatch),
     trustAtAGlanceRemoved: config.uiRemovals?.trustAtAGlanceSection === true,
-    pricingUiMarker: "20260517-ea-v2",
+    pricingUiMarker: "20260517-ea-v3-img2",
     pwaCachePolicy: "network-first-html-20260517-rs2",
     uiPlanSnapshot: { id: "essential_advanced", priceUsd: config.priceUsd, env: config.stripeEnv },
     notes: arg("notes", "").slice(0, 2000),

@@ -1904,7 +1904,7 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 .rs-topbar-brand {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .rs-topbar-actions {

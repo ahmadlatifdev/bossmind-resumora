@@ -3,12 +3,14 @@
   "targetProductionSafetyPercent": 98,
   "description": "Proof-based autonomous deployment safety — scores reflect passed checks only (no fabricated %).",
   "productionOrigin": "https://resumora.net",
-  "pricingUiMarker": "20260517-ea-v2",
+  "pricingUiMarker": "20260517-ea-v3-img2",
+  "pricingCardOrder": ["basic", "professional", "elite", "essential_advanced"],
   "requiredLiveMarkers": [
     "id=\"top\"",
     "id=\"home-intake\"",
     "id=\"pricing\"",
-    "data-rs-pricing-ui=\"20260517-ea-v2\"",
+    "data-rs-pricing-ui=\"20260517-ea-v3-img2\"",
+    "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
     "data-tier=\"essential_advanced\"",
     "rs-week-main",
     "rs-pricing-grid"

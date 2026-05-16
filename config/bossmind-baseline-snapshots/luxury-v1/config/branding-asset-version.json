@@ -1,4 +1,4 @@
 {
-  "version": "20260516-rs3",
-  "notes": "Bump 20260516-rs3: force SW cache bust + pricing/PWA interaction guards. Run: npm run bossmind:branding:icons"
+  "version": "20260516-rs4",
+  "notes": "Bump 20260516-rs4: Image 2 pricing order (EA far right) + approved logo cache bust. Run: npm run bossmind:branding:icons"
 }

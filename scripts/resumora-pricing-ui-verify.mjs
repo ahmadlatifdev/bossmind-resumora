@@ -12,6 +12,9 @@ const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const ORIGIN = (process.env.RESUMORA_GOOGLE_AUDIT_ORIGIN || "https://resumora.net").replace(/\/$/, "");
+const PRICING_UI_MARKER = 'data-rs-pricing-ui="20260517-ea-v3-img2"';
+const PLAN_ORDER_RE =
+  /id: "basic"[\s\S]*?id: "professional"[\s\S]*?id: "elite"[\s\S]*?id: "essential_advanced"/;
 
 function probeHtml(html, label) {
   return {
@@ -19,7 +22,9 @@ function probeHtml(html, label) {
     trustAtAGlance: html.includes("Trust at a glance"),
     rsTrustPanel: html.includes("rs-trust-panel"),
     greenhouseStrip: /Greenhouse · Lever · Workday/i.test(html),
-    pricingUiMarker: html.includes('data-rs-pricing-ui="20260517-ea-v2"'),
+    pricingUiMarker: html.includes(PRICING_UI_MARKER),
+    pricingOrderAttr: html.includes('data-rs-pricing-order="basic,professional,elite,essential_advanced"'),
+    tierSequence: [...html.matchAll(/data-tier="([^"]+)"/g)].map((m) => m[1]),
     essentialAdvanced: html.includes("Essential Advanced"),
     tiers: {
       basic: html.includes('data-tier="basic"'),
@@ -40,9 +45,7 @@ async function main() {
   );
 
   const repo = {
-    planOrderOk: /id: "basic"[\s\S]*?id: "essential_advanced"[\s\S]*?id: "professional"[\s\S]*?id: "elite"/.test(
-      siteCopy
-    ),
+    planOrderOk: PLAN_ORDER_RE.test(siteCopy),
     homeNoTrustImport: !home.includes("TrustMetricsPanel"),
     trustPanelNoOp: trustStub.includes("return null"),
     swNetworkFirstHtml: sw.includes("isHtmlNavigation") && !sw.includes('"/",'),
@@ -64,6 +67,16 @@ async function main() {
     { id: "live_no_trust_home", pass: !live["/"].trustAtAGlance && !live["/"].rsTrustPanel },
     { id: "live_ea_home", pass: live["/"].tiers.essential_advanced },
     { id: "live_pricing_marker", pass: live["/pricing"].pricingUiMarker || live["/"].pricingUiMarker },
+    {
+      id: "live_ea_far_right",
+      pass: (() => {
+        const seq = live["/pricing"].tierSequence.length ? live["/pricing"].tierSequence : live["/"].tierSequence;
+        const pricingSlice = seq.filter((t) =>
+          ["basic", "professional", "elite", "essential_advanced"].includes(t)
+        );
+        return pricingSlice.length >= 4 && pricingSlice[pricingSlice.length - 1] === "essential_advanced";
+      })(),
+    },
     { id: "live_four_tiers_pricing", pass: Object.values(live["/pricing"].tiers).every(Boolean) },
   ];
 

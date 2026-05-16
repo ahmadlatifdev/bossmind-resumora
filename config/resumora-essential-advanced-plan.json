@@ -7,7 +7,7 @@
   "stripeEnv": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
   "checkoutMode": "payment",
   "oneTime": true,
-  "pricingCardOrder": ["basic", "essential_advanced", "professional", "elite"],
+  "pricingCardOrder": ["basic", "professional", "elite", "essential_advanced"],
   "deliverables": {
     "atsOptimization": true,
     "resumeEnhancement": true,
@@ -33,7 +33,7 @@
     "removedFrom": ["HomePage", "services"]
   },
   "notes": [
-    "Card sits between Basic and Professional in pricingPlans.",
+    "Card is the 4th column (far right): Basic, Professional, Elite, Essential Advanced.",
     "Create a one-time Stripe Price at $110 USD and set NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED on Render.",
     "Lock after deploy: npm run resumora:essential-advanced:interface-lock -- --i-understand-production --notes=\"...\""
   ]

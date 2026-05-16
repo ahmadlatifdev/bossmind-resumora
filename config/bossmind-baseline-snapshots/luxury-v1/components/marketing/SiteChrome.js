@@ -5,6 +5,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
+import { withBrandingQuery } from "@/lib/marketing/branding-assets";
 import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
@@ -89,7 +90,7 @@ export default function SiteChrome({ children }) {
         <div className="rs-sidebar-brand">
           <Link href="/" className="rs-brand rs-brand-sidebar" onClick={() => setSidebarOpen(false)}>
             <Image
-              src="/resumora-logo.png"
+              src={withBrandingQuery("/resumora-logo.png")}
               alt="Resumora — RESUMORA wordmark"
               width={315}
               height={72}
@@ -141,7 +142,7 @@ export default function SiteChrome({ children }) {
 
           <Link href="/" className="rs-topbar-brand hide-desktop-flex" aria-label="Resumora home">
             <Image
-              src="/resumora-logo.png"
+              src={withBrandingQuery("/resumora-logo.png")}
               alt="Resumora — RESUMORA wordmark"
               width={200}
               height={46}

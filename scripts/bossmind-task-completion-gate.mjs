@@ -95,7 +95,8 @@ async function liveHomeProbe() {
     'id="home-intake"',
     'id="pricing"',
     'data-tier="essential_advanced"',
-    'data-rs-pricing-ui="20260517-ea-v2"',
+    'data-rs-pricing-ui="20260517-ea-v3-img2"',
+    'data-rs-pricing-order="basic,professional,elite,essential_advanced"',
     "rs-footer-engage-dock",
     'id="footer-official-social"',
   ];

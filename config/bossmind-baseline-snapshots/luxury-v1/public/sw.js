@@ -2,8 +2,8 @@
  * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
  * HTML/navigation: network-first (never serve stale homepage/pricing from cache).
  */
-const BRANDING_ASSET_QUERY = "?v=20260516-rs3";
-const CACHE = "resumora-shell-20260516-rs3";
+const BRANDING_ASSET_QUERY = "?v=20260516-rs4";
+const CACHE = "resumora-shell-20260516-rs4";
 
 const q = () => BRANDING_ASSET_QUERY;
 

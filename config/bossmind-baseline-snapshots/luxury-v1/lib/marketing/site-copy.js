@@ -110,7 +110,7 @@ export const translations = {
     pricingEliteHighlight:
       "Elite — premium concierge delivery for leadership-level positioning.",
     pricingEssentialAdvancedHighlight:
-      "Essential Advanced ($110) — ATS-ready résumé upgrade between Basic and Professional: structured formatting, keywords, cover letter support, faster turnaround, and limited revisions.",
+      "Essential Advanced ($110) — fourth studio lane (far right): ATS-ready résumé upgrade with structured formatting, keywords, cover letter support, faster turnaround, and limited revisions.",
     badgeInterviewStudio: "Interview studio",
     badgeEssentialAdvanced: "Advanced studio",
     footerTagline:
@@ -427,7 +427,7 @@ export const translations = {
     pricingEliteHighlight:
       "Élite — livraison concierge premium pour un positionnement directionnel.",
     pricingEssentialAdvancedHighlight:
-      "Essential Advanced (110 $) — CV prêt ATS entre Basic et Professionnel : mise en forme, mots-clés, lettre, délai accéléré et révisions limitées.",
+      "Essential Advanced (110 $) — quatrième palier (à droite) : CV prêt ATS avec mise en forme, mots-clés, lettre, délai accéléré et révisions limitées.",
     badgeInterviewStudio: "Studio entretien",
     badgeEssentialAdvanced: "Studio avancé",
     footerTagline:
@@ -621,7 +621,7 @@ export const translations = {
     svcTierBasic: "Basic",
     svcTierProfessional: "Professionnel",
     svcTierElite: "Élite",
-    svcTierEssentialAdvanced: "Essential Advanced",
+    svcTierEssentialAdvanced: "Essential Avancé",
     pricingCompareInterviewPack: "Forfait préparation entretien",
     pricingCompareSimulations: "Simulations d'entretien réalistes",
     pricingCompareTrainingVideos: "Vidéos de formation pro",
@@ -924,32 +924,6 @@ export const pricingPlans = [
     },
   },
   {
-    id: "essential_advanced",
-    name: { en: "Essential Advanced", fr: "Essential Advanced" },
-    price: `$${ESSENTIAL_ADVANCED_PRICE_USD}`,
-    env: "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
-    featured: false,
-    badge: "advanced",
-    features: {
-      en: [
-        "ATS optimization pass with parser-safe export discipline",
-        "Résumé enhancement + structured formatting hierarchy",
-        "Industry keyword optimization scaffolding",
-        "Cover letter support aligned to your target role",
-        "Faster studio turnaround vs Basic tier",
-        "Limited revisions — two structured edit sprints included",
-      ],
-      fr: [
-        "Optimisation ATS avec export compatible parseurs",
-        "Amélioration CV + hiérarchie de mise en forme structurée",
-        "Échafaudage mots-clés secteur",
-        "Lettre de motivation alignée au poste visé",
-        "Délai studio accéléré vs palier Basic",
-        "Révisions limitées — deux sprints d'édition inclus",
-      ],
-    },
-  },
-  {
     id: "professional",
     name: { en: "Professional", fr: "Professionnel" },
     price: `$${PRO_PRICE_USD}`,
@@ -1000,6 +974,32 @@ export const pricingPlans = [
         "Répétitions entretien enregistrées avec retours annotés",
         "3 modifications gratuites incluses",
         "Stratège concierge attitré avec file prioritaire",
+      ],
+    },
+  },
+  {
+    id: "essential_advanced",
+    name: { en: "Essential Advanced", fr: "Essential Avancé" },
+    price: `$${ESSENTIAL_ADVANCED_PRICE_USD}`,
+    env: "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+    featured: false,
+    badge: "advanced",
+    features: {
+      en: [
+        "ATS optimization pass with parser-safe export discipline",
+        "Résumé enhancement + structured formatting hierarchy",
+        "Industry keyword optimization scaffolding",
+        "Cover letter support aligned to your target role",
+        "Faster studio turnaround vs Basic tier",
+        "Limited revisions — two structured edit sprints included",
+      ],
+      fr: [
+        "Optimisation ATS avec export compatible parseurs",
+        "Amélioration CV + hiérarchie de mise en forme structurée",
+        "Échafaudage mots-clés secteur",
+        "Lettre de motivation alignée au poste visé",
+        "Délai studio accéléré vs palier Basic",
+        "Révisions limitées — deux sprints d'édition inclus",
       ],
     },
   },
