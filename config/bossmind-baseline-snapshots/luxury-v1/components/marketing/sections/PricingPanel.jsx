@@ -6,8 +6,15 @@ import {
   getPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
-import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
+import { pricingComparisonRows, SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
+
+function formatCompareCell(value) {
+  if (value === true) return "✓";
+  if (value === false) return "—";
+  if (value === "partial") return "◐";
+  return String(value);
+}
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -90,12 +97,18 @@ export default function PricingPanel() {
   };
 
   return (
-    <section id="pricing" className="rs-section rs-pricing-section">
+    <section
+      id="pricing"
+      className="rs-section rs-pricing-section"
+      data-rs-pricing-ui="20260517-ea-v2"
+      data-rs-trust-removed="1"
+    >
       <div className="rs-container">
         <p className="rs-eyebrow">{t.navPricing}</p>
         <h2 className="rs-h2">{t.pricingTitle}</h2>
         <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
         <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
+        <p className="rs-pricing-elite-hint">{t.pricingEssentialAdvancedHighlight}</p>
         <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
 
         {checkoutError ? (
@@ -110,7 +123,15 @@ export default function PricingPanel() {
               <p className="rs-pricing-saved-eyebrow">{t.pricingFromConfigurator}</p>
               <p className="rs-pricing-saved-main">
                 {labels[savedQuote.serviceKey] || savedQuote.serviceKey} ·{" "}
-                <strong>{savedQuote.quote.tier === "basic" ? t.svcTierBasic : savedQuote.quote.tier === "elite" ? t.svcTierElite : t.svcTierProfessional}</strong>
+                <strong>
+                  {savedQuote.quote.tier === "basic"
+                    ? t.svcTierBasic
+                    : savedQuote.quote.tier === "essential_advanced"
+                      ? t.svcTierEssentialAdvanced
+                      : savedQuote.quote.tier === "elite"
+                        ? t.svcTierElite
+                        : t.svcTierProfessional}
+                </strong>
                 {" — "}
                 <span className="rs-pricing-saved-est">${savedQuote.quote.indicativeTotal}</span>{" "}
                 <span className="rs-pricing-saved-muted">({t.svcQuoteEstimated})</span>
@@ -132,13 +153,19 @@ export default function PricingPanel() {
               data-tier={plan.id}
               data-quote-match={savedQuote?.quote?.tier === plan.id ? "true" : "false"}
             >
-              {(plan.badge === "flagship" || plan.badge === "balanced" || plan.id === "professional") && (
+              {(plan.badge === "flagship" ||
+                plan.badge === "balanced" ||
+                plan.badge === "advanced" ||
+                plan.id === "professional") && (
                 <div className="rs-price-flag-row">
                   {plan.badge === "flagship" ? (
                     <span className="rs-price-flag">{t.badgeBestValue}</span>
                   ) : null}
                   {plan.badge === "balanced" ? (
                     <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
+                  ) : null}
+                  {plan.badge === "advanced" ? (
+                    <span className="rs-price-flag rs-price-flag--advanced">{t.badgeEssentialAdvanced}</span>
                   ) : null}
                   {plan.id === "professional" ? (
                     <span className="rs-price-flag rs-price-flag--popular">{t.badgeMostPopular}</span>
@@ -159,7 +186,13 @@ export default function PricingPanel() {
               </ul>
               <button
                 type="button"
-                className={`rs-price-btn${plan.id === "elite" ? " rs-price-btn--elite" : ""}`}
+                className={`rs-price-btn${
+                  plan.id === "elite"
+                    ? " rs-price-btn--elite"
+                    : plan.id === "essential_advanced"
+                      ? " rs-price-btn--essential-advanced"
+                      : ""
+                }`}
                 disabled={busyPlan === plan.id}
                 onClick={() => handleCheckout(plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
               >
@@ -167,6 +200,31 @@ export default function PricingPanel() {
               </button>
             </article>
           ))}
+        </div>
+
+        <div className="rs-pricing-compare" aria-label={t.pricingCompareHint}>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">{t.pricingCompareHint}</th>
+                <th scope="col">{t.svcTierBasic}</th>
+                <th scope="col">{t.svcTierEssentialAdvanced}</th>
+                <th scope="col">{t.svcTierProfessional}</th>
+                <th scope="col">{t.svcTierElite}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pricingComparisonRows.map((row) => (
+                <tr key={row.key}>
+                  <th scope="row">{row.label[lang]}</th>
+                  <td>{formatCompareCell(row.basic)}</td>
+                  <td>{formatCompareCell(row.essential_advanced)}</td>
+                  <td>{formatCompareCell(row.professional)}</td>
+                  <td>{formatCompareCell(row.elite)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

@@ -36,6 +36,19 @@ if (!fs.existsSync(snapRoot)) {
   process.exit(1);
 }
 
+const snapHome = path.join(snapRoot, "components/marketing/HomePage.jsx");
+if (
+  fs.existsSync(snapHome) &&
+  fs.readFileSync(snapHome, "utf8").includes("TrustMetricsPanel") &&
+  process.env.BOSSMIND_BASELINE_RESTORE_ALLOW_STALE !== "1"
+) {
+  console.error(
+    "bossmind-baseline-restore: refused — luxury-v1 snapshot still mounts TrustMetricsPanel (stale pricing UI). " +
+      "Run npm run bossmind:baseline:snapshot-sync then bossmind:baseline:seal, or set BOSSMIND_BASELINE_RESTORE_ALLOW_STALE=1 to override."
+  );
+  process.exit(1);
+}
+
 let n = 0;
 for (const rel of ifacePaths) {
   const src = path.join(snapRoot, ...rel.split("/"));

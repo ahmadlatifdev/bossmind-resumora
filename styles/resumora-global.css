@@ -1703,6 +1703,11 @@ body {
   font-size: 0.8125rem !important;
 }
 
+body[data-rs-pricing-active="1"] .rs-install-banner {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 /* —— App shell: left sidebar + main column —— */
 .rs-app-layout {
   display: flex;

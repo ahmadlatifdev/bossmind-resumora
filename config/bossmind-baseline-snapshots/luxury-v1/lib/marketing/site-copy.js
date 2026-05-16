@@ -12,6 +12,7 @@ import {
 import {
   BASIC_PRICE_USD,
   ELITE_PRICE_USD,
+  ESSENTIAL_ADVANCED_PRICE_USD,
   PRO_PRICE_USD,
 } from "./service-quote-pricing";
 
@@ -49,7 +50,7 @@ export const translations = {
     servicesPageSubtitle: "Begin with encrypted upload or explore each delivery lane.",
     pricingTitle: "Transparent pricing",
     pricingSubtitle:
-      "Three clear tiers—deeper revisions and senior oversight as you move up. Same USD pricing worldwide.",
+      "Four clear tiers—résumé studio lanes plus the Essential Advanced interview-preparation package ($110). Same USD pricing worldwide.",
     popular: "Most selected",
     selectPlan: "Select plan",
     processing: "Processing…",
@@ -108,6 +109,10 @@ export const translations = {
       "All tiers deliver ATS-safe collateral. Elite adds concierge depth, LinkedIn relaunch, and rehearsal assets when the mandate is visible and time-sensitive.",
     pricingEliteHighlight:
       "Elite — premium concierge delivery for leadership-level positioning.",
+    pricingEssentialAdvancedHighlight:
+      "Essential Advanced ($110) — ATS-ready résumé upgrade between Basic and Professional: structured formatting, keywords, cover letter support, faster turnaround, and limited revisions.",
+    badgeInterviewStudio: "Interview studio",
+    badgeEssentialAdvanced: "Advanced studio",
     footerTagline:
       "Resumora crafts institutional-grade career collateral for leaders who cannot afford generic.",
     footerColProduct: "Product",
@@ -295,6 +300,12 @@ export const translations = {
     svcTierBasic: "Basic",
     svcTierProfessional: "Professional",
     svcTierElite: "Elite",
+    svcTierEssentialAdvanced: "Essential Advanced",
+    pricingCompareInterviewPack: "Interview prep bundle",
+    pricingCompareSimulations: "Live-style interview simulations",
+    pricingCompareTrainingVideos: "Professional training videos",
+    pricingCompareQaBank: "Recruiter Q&A library",
+    pricingCompareSuccessTips: "Success tips playbook",
     svcPages1: "1 page",
     svcPages2: "2 pages",
     svcPages3: "3 pages",
@@ -354,7 +365,7 @@ export const translations = {
     servicesPageSubtitle: "Commencez par un téléversement sécurisé ou explorez chaque volet.",
     pricingTitle: "Tarification transparente",
     pricingSubtitle:
-      "Trois paliers nets—révisions et supervision senior renforcées en montant. Même tarification USD partout.",
+      "Quatre paliers nets—studio CV plus le forfait Essential Advanced préparation entretien (110 $ USD). Même tarification USD partout.",
     popular: "Le plus choisi",
     selectPlan: "Sélectionner le plan",
     processing: "Traitement…",
@@ -415,6 +426,10 @@ export const translations = {
       "Chaque palier livre des livrables compatibles ATS. Élite ajoute profondeur concierge, relance LinkedIn et assets de répétition lorsque le mandat est visible et urgent.",
     pricingEliteHighlight:
       "Élite — livraison concierge premium pour un positionnement directionnel.",
+    pricingEssentialAdvancedHighlight:
+      "Essential Advanced (110 $) — CV prêt ATS entre Basic et Professionnel : mise en forme, mots-clés, lettre, délai accéléré et révisions limitées.",
+    badgeInterviewStudio: "Studio entretien",
+    badgeEssentialAdvanced: "Studio avancé",
     footerTagline:
       "Resumora produit des dossiers carrière de niveau institutionnel pour les leaders qui refusent le générique.",
     footerColProduct: "Produit",
@@ -606,6 +621,12 @@ export const translations = {
     svcTierBasic: "Basic",
     svcTierProfessional: "Professionnel",
     svcTierElite: "Élite",
+    svcTierEssentialAdvanced: "Essential Advanced",
+    pricingCompareInterviewPack: "Forfait préparation entretien",
+    pricingCompareSimulations: "Simulations d'entretien réalistes",
+    pricingCompareTrainingVideos: "Vidéos de formation pro",
+    pricingCompareQaBank: "Banque Q&R recruteur",
+    pricingCompareSuccessTips: "Playbook conseils succès",
     svcPages1: "1 page",
     svcPages2: "2 pages",
     svcPages3: "3 pages",
@@ -903,6 +924,32 @@ export const pricingPlans = [
     },
   },
   {
+    id: "essential_advanced",
+    name: { en: "Essential Advanced", fr: "Essential Advanced" },
+    price: `$${ESSENTIAL_ADVANCED_PRICE_USD}`,
+    env: "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+    featured: false,
+    badge: "advanced",
+    features: {
+      en: [
+        "ATS optimization pass with parser-safe export discipline",
+        "Résumé enhancement + structured formatting hierarchy",
+        "Industry keyword optimization scaffolding",
+        "Cover letter support aligned to your target role",
+        "Faster studio turnaround vs Basic tier",
+        "Limited revisions — two structured edit sprints included",
+      ],
+      fr: [
+        "Optimisation ATS avec export compatible parseurs",
+        "Amélioration CV + hiérarchie de mise en forme structurée",
+        "Échafaudage mots-clés secteur",
+        "Lettre de motivation alignée au poste visé",
+        "Délai studio accéléré vs palier Basic",
+        "Révisions limitées — deux sprints d'édition inclus",
+      ],
+    },
+  },
+  {
     id: "professional",
     name: { en: "Professional", fr: "Professionnel" },
     price: `$${PRO_PRICE_USD}`,
@@ -955,6 +1002,73 @@ export const pricingPlans = [
         "Stratège concierge attitré avec file prioritaire",
       ],
     },
+  },
+];
+
+export const pricingComparisonRows = [
+  {
+    key: "ats",
+    label: { en: "ATS optimization", fr: "Optimisation ATS" },
+    basic: "partial",
+    essential_advanced: true,
+    professional: true,
+    elite: true,
+  },
+  {
+    key: "resume_enhancement",
+    label: { en: "Résumé enhancement", fr: "Amélioration CV" },
+    basic: "partial",
+    essential_advanced: true,
+    professional: true,
+    elite: true,
+  },
+  {
+    key: "formatting",
+    label: { en: "Structured formatting", fr: "Mise en forme structurée" },
+    basic: true,
+    essential_advanced: true,
+    professional: true,
+    elite: true,
+  },
+  {
+    key: "keywords",
+    label: { en: "Keyword optimization", fr: "Optimisation mots-clés" },
+    basic: "partial",
+    essential_advanced: true,
+    professional: true,
+    elite: true,
+  },
+  {
+    key: "cover_letter",
+    label: { en: "Cover letter support", fr: "Lettre de motivation" },
+    basic: false,
+    essential_advanced: true,
+    professional: true,
+    elite: true,
+  },
+  {
+    key: "turnaround",
+    label: { en: "Faster turnaround", fr: "Délai accéléré" },
+    basic: false,
+    essential_advanced: true,
+    professional: "partial",
+    elite: true,
+  },
+  {
+    key: "revisions",
+    label: { en: "Revision sprints", fr: "Sprints révision" },
+    basic: "1",
+    essential_advanced: "2 limited",
+    professional: "2",
+    elite: "3",
+  },
+  {
+    key: "interview_pack",
+    label: { en: "Interview preparation bundle", fr: "Forfait préparation entretien" },
+    basic: false,
+    essential_advanced: true,
+    professional: false,
+    elite: "partial",
   },
 ];
 

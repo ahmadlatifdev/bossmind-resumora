@@ -2,14 +2,13 @@ import Link from "next/link";
 import Head from "next/head";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
-import TrustMetricsPanel from "@/components/marketing/sections/TrustMetricsPanel";
 import UploadPanel from "@/components/marketing/sections/UploadPanel";
 import { useLanguage } from "@/context/LanguageContext";
 import { getSiteUrl } from "@/lib/marketing/seo-config";
 import { brandAbsoluteUrl } from "@/lib/marketing/branding-assets";
 import { translations } from "@/lib/marketing/site-copy";
 
-/** Luxury navy/gold homepage — full hero, trust metrics, encrypted intake, pricing, closing strip (EN/FR). */
+/** Luxury navy/gold homepage — hero, encrypted intake, pricing, closing strip (EN/FR). */
 export default function HomePage() {
   const { lang } = useLanguage();
   const t = translations[lang];
@@ -75,7 +74,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <TrustMetricsPanel sectionId="trust" />
         <UploadPanel sectionId="home-intake" />
         <PricingPanel />
 

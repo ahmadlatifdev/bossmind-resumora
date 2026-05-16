@@ -1,0 +1,376 @@
+{
+  "generatedAt": "2026-05-16T23:08:42.605Z",
+  "brandingAssetVersion": "20260516-rs3",
+  "activeDeployedCommitId": "9e404279010f8e7a982f02839b45b9f902fa1777",
+  "activeProductionRoutes": {
+    "homepage": "pages/index.js → components/marketing/HomePage.jsx",
+    "pricingPage": "pages/pricing.js → components/marketing/sections/PricingPanel.jsx",
+    "pricingSection": "components/marketing/sections/PricingPanel.jsx",
+    "siteChrome": "components/marketing/SiteChrome.js (InstallPrompt)",
+    "pwaPopup": "components/marketing/InstallPrompt.jsx",
+    "trustStub": "components/marketing/sections/TrustMetricsPanel.jsx (no-op)",
+    "plansData": "lib/marketing/site-copy.js → pricingPlans"
+  },
+  "repoSourceValidation": {
+    "homeImportsTrustPanel": false,
+    "trustPanelIsNoOp": true,
+    "essentialAdvancedInSiteCopy": true,
+    "planOrderBasicEaProElite": true,
+    "luxuryV1SnapshotStillHasTrust": false
+  },
+  "stringScanHits": [
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": ".bossmind/anti-leak/snapshots/2026-05-16T22-59-50-864Z/lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-14T07-47-44-745Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-14T07-47-44-745Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-16T22-59-50-343Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-16T22-59-50-343Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-16T22-59-50-343Z/files/config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": ".bossmind/backups/pre-deploy/2026-05-16T22-59-50-343Z/files/config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-46-50-231Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-46-50-231Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-18-036Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-18-036Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-35-625Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-35-625Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-55-459Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-12T01-47-55-459Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-14T23-25-46-978Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-14T23-25-46-978Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-14T23-26-41-754Z/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-14T23-26-41-754Z/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-15T00-56-31-380Z-a1/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-15T00-56-31-380Z-a1/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-15T01-02-04-950Z-a1/files/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/backups/rolling-30d/runs/2026-05-15T01-02-04-950Z-a1/files/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/2026-W19.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/2026-W20.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/google-organic/2026-W20.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/social-growth/2026-W19.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/social-growth/2026-W20.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": ".bossmind/campaigns/social-growth/2026-W99.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": "components/marketing/LanguageSwitcher.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-ultra-antileak-policy.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-ultra-antileak-policy.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/resumora-google-business-profile-checklist.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/resumora-organic-marketing.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/google-organic-engine.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/legal-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/resumora-deepseek-seo-brain.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/resumora-google-traffic-engine-lib.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/seo-config.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/seo-data.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": "lib/marketing/social-growth-engine.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/weekly-organic-bundle.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/orchestration/bossmind-ultra-antileak-lib.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "windows-heal/reports/bossmind-seo-ai-visibility-audit.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T20-59-26.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T21-52-01.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T23-24-32.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T23-26-49.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-gbp-visibility-audit-latest.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-ecosystem-audit-2026-05-16T03-17-36-054Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-ecosystem-audit-2026-05-16T03-18-10-566Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-traffic-engine-2026-05-16T22-31-13-209Z.json",
+      "string": "EN/FR"
+    }
+  ],
+  "snapshotArchiveHits": [
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/LanguageSwitcher.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-ultra-antileak-policy.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-ultra-antileak-policy.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    }
+  ],
+  "liveProbe": {
+    "/": {
+      "status": 200,
+      "trustAtAGlance": false,
+      "trustPanel": false,
+      "essentialAdvanced": true,
+      "pricingMarker": true,
+      "deployUiMeta": null,
+      "tierCount": 4,
+      "deployMeta": null
+    },
+    "/pricing": {
+      "status": 200,
+      "trustAtAGlance": false,
+      "trustPanel": false,
+      "essentialAdvanced": true,
+      "pricingMarker": true,
+      "deployUiMeta": null,
+      "tierCount": 4,
+      "deployMeta": null
+    }
+  },
+  "runtimeChecksum": "b0d73d339f4addfbcfdbf8e832682cdf5ac7278214ac495ad98d93b27a9c8269",
+  "rootCauseHints": [
+    "Client PWA may cache old HTML until service worker updates to network-first + new CACHE name",
+    "User browser hard refresh / uninstall PWA required if live probe passes but screenshots show old UI"
+  ]
+}

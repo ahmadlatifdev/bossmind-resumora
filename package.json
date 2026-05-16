@@ -53,6 +53,7 @@
     "bossmind:reality:gate": "node scripts/bossmind-production-reality-gate.mjs",
     "bossmind:closed-loop:record": "node scripts/bossmind-closed-loop-record.mjs",
     "bossmind:baseline:restore": "node scripts/bossmind-baseline-restore.mjs",
+    "bossmind:baseline:snapshot-sync": "node scripts/bossmind-baseline-snapshot-sync.mjs",
     "bossmind:autonomous:runtime": "node scripts/bossmind-autonomous-runtime.mjs",
     "bossmind:autonomous:runtime:once": "node scripts/bossmind-autonomous-runtime.mjs --once",
     "bossmind:marketing:activate": "node scripts/bossmind-marketing-activation.mjs",
@@ -127,6 +128,8 @@
     "resumora:essential-advanced:production-report": "node scripts/resumora-essential-advanced-production-report.mjs",
     "resumora:essential-advanced:interface-lock": "node scripts/resumora-essential-advanced-interface-lock.mjs",
     "resumora:pricing:ui-verify": "node scripts/resumora-pricing-ui-verify.mjs",
+    "resumora:deployment:route-audit": "node scripts/resumora-deployment-route-audit.mjs",
+    "resumora:deployment:force-sync": "node scripts/resumora-deployment-force-sync.mjs",
     "resumora:support:activate": "npm run resumora:support:mail:verify"
   },
   "dependencies": {

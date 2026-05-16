@@ -738,9 +738,15 @@ body {
   z-index: 2;
   isolation: isolate;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.85rem;
   margin-top: 1.35rem;
+}
+
+@media (max-width: 1200px) {
+  .rs-pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {
@@ -1658,11 +1664,11 @@ body {
 /* —— PWA install banner —— */
 .rs-install-banner {
   position: fixed;
-  z-index: 60;
-  left: 50%;
-  bottom: 1.25rem;
-  transform: translateX(-50%);
-  width: min(520px, calc(100% - 2rem));
+  z-index: 35;
+  left: auto;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  width: min(320px, calc(100vw - 2rem));
   padding: 1rem 1.15rem;
   border-radius: var(--rs-radius-lg);
   border: 1px solid var(--rs-border-strong);
@@ -1671,10 +1677,10 @@ body {
   -webkit-backdrop-filter: blur(14px);
   box-shadow: var(--rs-shadow-card);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.75rem;
+  pointer-events: auto;
 }
 
 .rs-install-banner-text {
@@ -1695,6 +1701,11 @@ body {
 .rs-install-btn {
   padding: 0.55rem 0.85rem !important;
   font-size: 0.8125rem !important;
+}
+
+body[data-rs-pricing-active="1"] .rs-install-banner {
+  display: none !important;
+  pointer-events: none !important;
 }
 
 /* —— App shell: left sidebar + main column —— */
@@ -2772,6 +2783,14 @@ body {
 /* —— Pricing section (minimal luxury hero + cards) —— */
 .rs-pricing-section {
   padding-top: clamp(0.35rem, 1.2vw, 0.75rem);
+  scroll-margin-bottom: 6rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 960px) {
+  .rs-pricing-section .rs-price-btn {
+    margin-bottom: 0.15rem;
+  }
 }
 
 .rs-pricing-hero-lead {
@@ -3077,6 +3096,67 @@ body {
   background: rgba(201, 162, 39, 0.12);
   color: var(--rs-gold-soft);
   border: 1px solid rgba(201, 162, 39, 0.38);
+}
+
+.rs-price-card[data-tier="essential_advanced"] {
+  border-color: rgba(120, 180, 255, 0.35);
+  background: radial-gradient(circle at 50% -20%, rgba(100, 160, 255, 0.1), transparent 55%),
+    rgba(10, 18, 40, 0.6);
+}
+
+.rs-price-flag--interview {
+  background: linear-gradient(135deg, #6b9fff, #4a7fd4);
+  color: #0a0f1f;
+}
+
+.rs-price-flag--advanced {
+  background: rgba(100, 160, 255, 0.14);
+  color: #9ec5ff;
+  border: 1px solid rgba(120, 180, 255, 0.42);
+}
+
+.rs-price-btn--essential-advanced {
+  border-color: rgba(120, 180, 255, 0.45);
+  background: linear-gradient(180deg, rgba(74, 127, 212, 0.35), rgba(42, 72, 140, 0.55));
+}
+
+.rs-price-btn--essential-advanced:hover:not(:disabled) {
+  border-color: rgba(160, 200, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(120, 180, 255, 0.25), var(--rs-shadow-card);
+}
+
+.rs-pricing-compare {
+  margin-top: 2rem;
+  overflow-x: auto;
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-lg);
+  background: rgba(8, 14, 32, 0.55);
+}
+
+.rs-pricing-compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.rs-pricing-compare th,
+.rs-pricing-compare td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.rs-pricing-compare th:first-child,
+.rs-pricing-compare td:first-child {
+  text-align: left;
+  min-width: 10rem;
+}
+
+.rs-pricing-compare thead th {
+  color: var(--rs-gold-soft);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .rs-price-card[data-tier="elite"] {
