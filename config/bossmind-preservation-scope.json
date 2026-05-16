@@ -61,7 +61,11 @@
     "lib/orchestration/bossmind-ai-video-store.js",
     "lib/orchestration/bossmind-ai-video-auth.js",
     "scripts/bossmind-ai-video-ensure-tables.mjs",
-    "config/bossmind-ai-video-stack.json",
+    "config/vibevoyage-brand.json",
+    "lib/orchestration/vibevoyage-brand.js",
+    "styles/vibevoyage-master-dashboard.module.css",
+    "scripts/bossmind-ai-video-orchestrator.mjs",
+    "pages/api/orchestration/ai-video/job/[id].js",
     ".github/workflows/bossmind-daily-backup.yml",
     ".github/workflows/hosting-policy-guard.yml"
   ],

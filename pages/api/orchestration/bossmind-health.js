@@ -148,7 +148,7 @@ export default async function handler(req, res) {
       auditCommand: "npm run resumora:google:ecosystem:audit",
     };
 
-    aiVideo = {
+    let aiVideo = {
       dashboardPath: "/bossmind-ai-video",
       projectKeyDefault: process.env.BOSSMIND_AI_VIDEO_PROJECT_KEY || "ai-video-generator",
       channelName: (() => {
@@ -156,6 +156,13 @@ export default async function handler(req, res) {
           return require("../../../lib/orchestration/bossmind-ai-video-store").channelName();
         } catch {
           return process.env.BOSSMIND_AI_VIDEO_CHANNEL_NAME || "VibeVoyage";
+        }
+      })(),
+      brand: (() => {
+        try {
+          return require("../../../lib/orchestration/vibevoyage-brand.js").getBrandSummary();
+        } catch {
+          return null;
         }
       })(),
     };

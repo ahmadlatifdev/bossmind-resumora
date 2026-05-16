@@ -1,11 +1,15 @@
 {
   "version": 1,
   "projectId": "ai-video-generator",
-  "displayName": "BossMind AI Video Generator",
+  "displayName": "BossMind AI Video · VibeVoyage",
+  "brandKit": "config/vibevoyage-brand.json",
   "channel": {
     "name": "VibeVoyage",
     "nameEnv": "BOSSMIND_AI_VIDEO_CHANNEL_NAME",
-    "note": "Public channel / series name for prompts, publish webhooks, and metadata."
+    "tagline": "Cinematic Adventures Around the World",
+    "taglineEnv": "BOSSMIND_AI_VIDEO_TAGLINE",
+    "missionEnv": "BOSSMIND_AI_VIDEO_MISSION",
+    "note": "Canonical brand also in config/vibevoyage-brand.json"
   },
   "isolationNote": "State + APIs live in this repo under project_key ai-video-generator; FFmpeg/providers/n8n run on Railway/n8n. Not merged into Resumora product routes.",
   "neon": {
@@ -53,6 +57,8 @@
     "BOSSMIND_AI_VIDEO_PUBLISH_WEBHOOK_SECRET": "optional secret for publish webhook",
     "BOSSMIND_AI_VIDEO_WORKSPACE": "optional persistent workspace dir for concat inputs",
     "BOSSMIND_AI_VIDEO_CHANNEL_NAME": "public channel name (default VibeVoyage)",
+    "BOSSMIND_AI_VIDEO_TAGLINE": "optional override; default from vibevoyage-brand.json",
+    "BOSSMIND_AI_VIDEO_MISSION": "optional mission override for prompts + publish manifest",
     "FFMPEG_PATH": "ffmpeg binary on worker PATH or absolute path",
     "DEEPSEEK_API_KEY": "n8n / Railway worker only",
     "OPENAI_API_KEY": "TTS / polish — workers only",

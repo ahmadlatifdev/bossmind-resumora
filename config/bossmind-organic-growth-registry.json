@@ -46,8 +46,9 @@
     },
     {
       "id": "ai-video-generator",
-      "displayName": "AI Video Generator · VibeVoyage",
+      "displayName": "VibeVoyage",
       "channelName": "VibeVoyage",
+      "tagline": "Cinematic Adventures Around the World",
       "siteUrl": null,
       "repoRootEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO",
       "bossmindDashboardPath": "/bossmind-ai-video",

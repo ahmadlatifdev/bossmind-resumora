@@ -44,6 +44,7 @@
     "pages/api/orchestration/ai-video/queue/[id].js",
     "pages/api/orchestration/ai-video/n8n-webhook.js",
     "pages/api/orchestration/ai-video/self-heal-report.js",
+    "pages/api/orchestration/ai-video/job/[id].js",
     "pages/bossmind-ai-video.js",
     "pages/api/stripe/status.js",
     "pages/api/support-intake.js",

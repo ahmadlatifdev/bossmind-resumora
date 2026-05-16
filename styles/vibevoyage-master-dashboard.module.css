@@ -1,0 +1,246 @@
+/* VibeVoyage Master Dashboard — dark cinematic luxury (scoped via CSS modules) */
+
+.vvShell {
+  min-height: 100%;
+  background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(212, 175, 55, 0.12), transparent 55%),
+    linear-gradient(165deg, #0a0a0c 0%, #121218 45%, #0d0d12 100%);
+  color: #e8e6e3;
+  padding: 1.75rem 1.25rem 3rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.vvHero {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.vvEyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #c9a227;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.vvTitle {
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(110deg, #f5f0e6 0%, #d4af37 38%, #f0e8d8 72%, #c9a227 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.vvTagline {
+  margin: 0.65rem 0 0;
+  font-size: 1.05rem;
+  color: rgba(232, 230, 227, 0.88);
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.vvMission {
+  margin-top: 0.85rem;
+  max-width: 52rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(200, 196, 188, 0.92);
+}
+
+.vvGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  margin-top: 1.25rem;
+}
+
+.vvCard {
+  background: rgba(18, 18, 24, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+}
+
+.vvCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #c9a227;
+}
+
+.vvCard p,
+.vvCard li {
+  font-size: 0.8rem;
+  color: rgba(210, 206, 198, 0.9);
+  line-height: 1.45;
+}
+
+.vvCard ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.vvAuthRow {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.vvLabel {
+  flex: 1 1 16rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: rgba(200, 196, 188, 0.95);
+}
+
+.vvInput,
+.vvTextarea,
+.vvSelect {
+  background: rgba(8, 8, 12, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: #f0ebe4;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.vvInput:focus,
+.vvTextarea:focus,
+.vvSelect:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+}
+
+.vvBtn {
+  padding: 0.55rem 1rem;
+  border-radius: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(30, 28, 22, 0.95);
+  color: #e8e4dc;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.vvBtn:hover:not(:disabled) {
+  background: rgba(45, 42, 32, 0.98);
+  border-color: rgba(212, 175, 55, 0.55);
+}
+
+.vvBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vvBtnPrimary {
+  padding: 0.55rem 1rem;
+  border-radius: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  background: linear-gradient(145deg, #3d3428 0%, #2a241c 50%, #1a1814 100%);
+  color: #faf6ef;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.vvBtnPrimary:hover:not(:disabled) {
+  background: linear-gradient(145deg, #4a4034 0%, #352e24 100%);
+}
+
+.vvBtnPrimary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vvError {
+  margin-top: 1rem;
+  color: #f87171;
+  font-size: 0.9rem;
+}
+
+.vvSectionTitle {
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+  color: #ebe6de;
+  letter-spacing: 0.04em;
+}
+
+.vvDivider {
+  margin: 2rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.vvTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.vvTable th,
+.vvTable td {
+  text-align: left;
+  padding: 0.45rem 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vvTable th {
+  color: #c9a227;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vvPre {
+  font-size: 0.75rem;
+  overflow: auto;
+  max-height: 12rem;
+  background: rgba(6, 6, 10, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 0.35rem;
+  padding: 0.65rem;
+  color: rgba(210, 205, 195, 0.95);
+}
+
+.vvCounts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vvCounts li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+}
+
+.vvHint {
+  font-size: 0.75rem;
+  color: rgba(180, 176, 168, 0.88);
+  margin-top: 0.35rem;
+}
+
+.vvStackRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "project": {
+    "name": "VibeVoyage",
+    "slug": "vibevoyage",
+    "bossmindProjectKey": "ai-video-generator",
+    "isolationNote": "Neon project_key ai-video-generator; channel display BOSSMIND_AI_VIDEO_CHANNEL_NAME (default VibeVoyage). BossMind Master Admin monitors via /api/orchestration/bossmind-health and /bossmind-ai-video."
+  },
+  "brand": {
+    "tagline": "Cinematic Adventures Around the World",
+    "mission": "Fully automated global cinematic adventure media: generate, optimize, distribute, index, and grow organic social + Google surfaces — no paid ads, no fake engagement.",
+    "voice": "cinematic, adventurous, premium, globally curious",
+    "visualTheme": "dark cinematic luxury, modern adventure, high-contrast gold accents on deep charcoal"
+  },
+  "channel": {
+    "primaryIdentity": "AI-powered cinematic adventures, global stories, viral moments, immersive journeys, and social exploration from around the world.",
+    "primaryContent": [
+      "cinematic adventure videos",
+      "social storytelling",
+      "global exploration",
+      "travel-style viral hooks",
+      "AI cinematic experiences",
+      "immersive shorts and reels",
+      "multilingual global content"
+    ]
+  },
+  "multilingual": {
+    "languages": [
+      { "code": "en", "label": "English" },
+      { "code": "ar", "label": "Arabic" },
+      { "code": "fr", "label": "French" },
+      { "code": "es", "label": "Spanish" },
+      { "code": "de", "label": "German" },
+      { "code": "ru", "label": "Russian" },
+      { "code": "sq", "label": "Albanian" }
+    ],
+    "autoFields": ["titles", "descriptions", "subtitles", "hashtags", "tags", "pinned_comments", "ctas"]
+  },
+  "distribution": {
+    "organicOnly": true,
+    "organicPlatforms": [
+      "youtube",
+      "youtube_shorts",
+      "tiktok",
+      "instagram_reels",
+      "facebook_reels",
+      "pinterest",
+      "linkedin",
+      "x",
+      "threads",
+      "vimeo",
+      "dailymotion"
+    ],
+    "notes": "Staggered scheduling, dedupe publishes, and OAuth refresh belong in n8n/Railway publish webhooks — not mass simultaneous spam."
+  },
+  "google": {
+    "marketingServices": [
+      "Google Search Console",
+      "video sitemaps",
+      "VideoObject schema",
+      "RSS feeds",
+      "Discover-oriented titles/thumbnails",
+      "Google Images thumbnail hygiene",
+      "indexing requests where policy allows"
+    ]
+  },
+  "automation": {
+    "stack": [
+      "BossMind orchestration",
+      "DeepSeek scenario reasoning",
+      "n8n workflows",
+      "Neon memory and video_* tables",
+      "FFmpeg rendering",
+      "Runway / Luma / Kling / Pika (via webhooks)",
+      "ElevenLabs / OpenAI TTS",
+      "Whisper / AssemblyAI captions",
+      "Railway workers",
+      "Render dashboard",
+      "GitHub",
+      "Sentry"
+    ]
+  },
+  "dashboard": {
+    "title": "VibeVoyage Master Dashboard",
+    "path": "/bossmind-ai-video"
+  }
+}
