@@ -97,7 +97,12 @@ export default function PricingPanel() {
   };
 
   return (
-    <section id="pricing" className="rs-section rs-pricing-section">
+    <section
+      id="pricing"
+      className="rs-section rs-pricing-section"
+      data-rs-pricing-ui="20260517-ea-v2"
+      data-rs-trust-removed="1"
+    >
       <div className="rs-container">
         <p className="rs-eyebrow">{t.navPricing}</p>
         <h2 className="rs-h2">{t.pricingTitle}</h2>

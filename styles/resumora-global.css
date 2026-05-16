@@ -1664,11 +1664,11 @@ body {
 /* —— PWA install banner —— */
 .rs-install-banner {
   position: fixed;
-  z-index: 60;
-  left: 50%;
-  bottom: 1.25rem;
-  transform: translateX(-50%);
-  width: min(520px, calc(100% - 2rem));
+  z-index: 35;
+  left: auto;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  width: min(320px, calc(100vw - 2rem));
   padding: 1rem 1.15rem;
   border-radius: var(--rs-radius-lg);
   border: 1px solid var(--rs-border-strong);
@@ -1677,10 +1677,10 @@ body {
   -webkit-backdrop-filter: blur(14px);
   box-shadow: var(--rs-shadow-card);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.75rem;
+  pointer-events: auto;
 }
 
 .rs-install-banner-text {
@@ -2778,6 +2778,14 @@ body {
 /* —— Pricing section (minimal luxury hero + cards) —— */
 .rs-pricing-section {
   padding-top: clamp(0.35rem, 1.2vw, 0.75rem);
+  scroll-margin-bottom: 6rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 960px) {
+  .rs-pricing-section .rs-price-btn {
+    margin-bottom: 0.15rem;
+  }
 }
 
 .rs-pricing-hero-lead {

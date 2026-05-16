@@ -1,11 +1,17 @@
 /**
  * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
- * npm run bossmind:branding:icons patches BRANDING_ASSET_QUERY + CACHE from that file.
+ * HTML/navigation: network-first (never serve stale homepage/pricing from cache).
  */
-const BRANDING_ASSET_QUERY = "?v=20260610-rs1";
-const CACHE = "resumora-shell-20260610-rs1";
+const BRANDING_ASSET_QUERY = "?v=20260517-rs2";
+const CACHE = "resumora-shell-20260517-rs2";
 
 const q = () => BRANDING_ASSET_QUERY;
+
+function isHtmlNavigation(request) {
+  if (request.mode === "navigate") return true;
+  const accept = request.headers.get("accept") || "";
+  return accept.includes("text/html");
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,7 +32,6 @@ self.addEventListener("install", (event) => {
           "/resumora-logo.png" + q(),
           "/og-resumora-brand.png" + q(),
           "/manifest.webmanifest",
-          "/",
         ]).catch(() => {})
       )
   );
@@ -57,6 +62,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (isHtmlNavigation(request)) {
+    event.respondWith(
+      fetch(request, { cache: "no-store" }).catch(() =>
+        caches.match(request).then((cached) => cached || caches.match("/"))
+      )
+    );
+    return;
+  }
+
   const path = url.pathname;
   const isBrandAsset =
     path.startsWith("/favicon") ||
@@ -85,17 +99,8 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          if (res.ok && (request.destination === "image" || path === "/" || path.endsWith(".css"))) {
-            caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match("/"));
-    })
+    fetch(request)
+      .then((res) => res)
+      .catch(() => caches.match(request))
   );
 });

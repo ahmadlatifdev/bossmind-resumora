@@ -51,6 +51,8 @@ async function main() {
     pricingCardOrder: config.pricingCardOrder || ["basic", "essential_advanced", "professional", "elite"],
     pricingCardOrderVerified: Boolean(planOrderMatch),
     trustAtAGlanceRemoved: config.uiRemovals?.trustAtAGlanceSection === true,
+    pricingUiMarker: "20260517-ea-v2",
+    pwaCachePolicy: "network-first-html-20260517-rs2",
     uiPlanSnapshot: { id: "essential_advanced", priceUsd: config.priceUsd, env: config.stripeEnv },
     notes: arg("notes", "").slice(0, 2000),
   };
