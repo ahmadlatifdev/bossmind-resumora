@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "projectId": "ai-video-generator",
+  "displayName": "BossMind AI Video Generator",
+  "isolationNote": "State + APIs live in this repo under project_key ai-video-generator; FFmpeg/providers/n8n run on Railway/n8n. Not merged into Resumora product routes.",
+  "neon": {
+    "projectKeyEnv": "BOSSMIND_AI_VIDEO_PROJECT_KEY",
+    "defaultProjectKey": "ai-video-generator",
+    "tables": [
+      "video_queue",
+      "video_scripts",
+      "video_scenarios",
+      "video_scenes",
+      "video_assets",
+      "video_renders",
+      "video_publish_logs",
+      "video_error_logs",
+      "video_performance",
+      "api_usage_logs",
+      "automation_memory"
+    ]
+  },
+  "dashboard": {
+    "renderPath": "/bossmind-ai-video",
+    "authNote": "Bearer BOSSMIND_ORCHESTRATION_SECRET or BOSSMIND_AI_VIDEO_ADMIN_SECRET (stored in browser localStorage by operator — prefer SSO in production)."
+  },
+  "api": {
+    "queue": "/api/orchestration/ai-video/queue",
+    "queueItem": "/api/orchestration/ai-video/queue/:id",
+    "dashboard": "/api/orchestration/ai-video/dashboard",
+    "n8nWebhook": "/api/orchestration/ai-video/n8n-webhook",
+    "selfHealReport": "/api/orchestration/ai-video/self-heal-report"
+  },
+  "envSecrets": {
+    "NEON_DATABASE_URL": "shared or dedicated Neon branch — never commit",
+    "BOSSMIND_ORCHESTRATION_SECRET": "admin API auth (optional overlap)",
+    "BOSSMIND_AI_VIDEO_ADMIN_SECRET": "dedicated admin Bearer for AI Video APIs only (recommended)",
+    "BOSSMIND_AI_VIDEO_N8N_SECRET": "n8n + worker webhook Bearer",
+    "DEEPSEEK_API_KEY": "n8n / Railway worker only",
+    "OPENAI_API_KEY": "TTS / polish — workers only",
+    "ELEVENLABS_API_KEY": "voice — workers only",
+    "ASSEMBLYAI_API_KEY": "captions — workers only",
+    "RUNWAY_API_KEY": "video provider — workers only",
+    "LUMA_API_KEY": "video provider — workers only",
+    "KLING_API_KEY": "video provider — workers only",
+    "PIKA_API_KEY": "video provider — workers only",
+    "YOUTUBE_OAUTH": "publish — workers only",
+    "TIKTOK_UPLOAD_TOKEN": "publish — workers only",
+    "META_PAGE_TOKEN": "Instagram — workers only"
+  },
+  "n8nWebhookActions": [
+    "ingest_row — Google Sheets row → video_queue + optional video_scripts",
+    "queue_status — update queue status + payload merge",
+    "log_api_usage — api_usage_logs row",
+    "automation_memory — upsert automation_memory"
+  ],
+  "selfHealFlow": [
+    "Worker failure → POST /api/orchestration/ai-video/self-heal-report with step, message, optional root_cause/fix_pattern from DeepSeek",
+    "Neon video_error_logs + error_memory dedupe",
+    "n8n branches on retry_recommended + cap retries (anti-infinite-loop)"
+  ],
+  "automationReality": {
+    "inRepoToday": "Schema, queue CRUD, operator dashboard, n8n hooks, self-heal logging, BossMind health summary.",
+    "outOfRepoRequired": "FFmpeg render bin, provider SDK calls, OAuth uploads, Sheets poll, full 95% hands-free pipeline with human policy gates."
+ }
+}

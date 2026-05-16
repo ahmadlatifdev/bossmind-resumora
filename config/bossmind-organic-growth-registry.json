@@ -49,11 +49,14 @@
       "displayName": "AI Video Generator",
       "siteUrl": null,
       "repoRootEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO",
+      "bossmindDashboardPath": "/bossmind-ai-video",
+      "stackConfig": "config/bossmind-ai-video-stack.json",
       "pipelines": {
         "weeklyOrganic": false,
         "googleOrganicBundle": false,
         "socialGrowthBundle": false,
-        "marketingActivationBundle": false
+        "marketingActivationBundle": false,
+        "aiVideoQueue": true
       }
     },
     {

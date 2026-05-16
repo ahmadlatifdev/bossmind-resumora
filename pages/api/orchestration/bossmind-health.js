@@ -148,6 +148,19 @@ export default async function handler(req, res) {
       auditCommand: "npm run resumora:google:ecosystem:audit",
     };
 
+    let aiVideo = {
+      dashboardPath: "/bossmind-ai-video",
+      projectKeyDefault: process.env.BOSSMIND_AI_VIDEO_PROJECT_KEY || "ai-video-generator",
+    };
+    if (neonOk) {
+      try {
+        const av = require("../../../lib/orchestration/bossmind-ai-video-store");
+        aiVideo.neon = await av.getDashboardSummary();
+      } catch (e) {
+        aiVideo.neonError = e.message || String(e);
+      }
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
@@ -179,6 +192,7 @@ export default async function handler(req, res) {
       autonomousSelfHeal,
       supportMail,
       googleEcosystem,
+      aiVideo,
       scores: {
         performanceScore,
         automationCoveragePercent,

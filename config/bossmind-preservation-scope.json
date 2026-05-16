@@ -58,6 +58,10 @@
     "lib/marketing/resumora-google-ecosystem-audit-lib.js",
     "scripts/resumora-google-ecosystem-audit.mjs",
     "scripts/resumora-google-ecosystem-architecture-lock.mjs",
+    "lib/orchestration/bossmind-ai-video-store.js",
+    "lib/orchestration/bossmind-ai-video-auth.js",
+    "scripts/bossmind-ai-video-ensure-tables.mjs",
+    "config/bossmind-ai-video-stack.json",
     ".github/workflows/bossmind-daily-backup.yml",
     ".github/workflows/hosting-policy-guard.yml"
   ],
