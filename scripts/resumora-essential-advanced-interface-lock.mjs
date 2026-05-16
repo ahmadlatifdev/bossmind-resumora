@@ -34,6 +34,11 @@ async function main() {
   const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
   const { resolveStripePriceId } = require(path.join(root, "lib/marketing/stripe-plan-map.js"));
 
+  const siteCopyRaw = fs.readFileSync(path.join(root, "lib/marketing/site-copy.js"), "utf8");
+  const planOrderMatch = siteCopyRaw.match(
+    /id: "basic"[\s\S]*?id: "essential_advanced"[\s\S]*?id: "professional"[\s\S]*?id: "elite"/
+  );
+
   const payload = {
     lockedAt: new Date().toISOString(),
     memoryType: "LOCKED_PRODUCTION_CLIENT_INTERFACE_CONFIGURATION",
@@ -43,6 +48,9 @@ async function main() {
     stripePriceId: resolveStripePriceId("essential_advanced") || null,
     stripeEnv: config.stripeEnv,
     deliverables: config.deliverables,
+    pricingCardOrder: config.pricingCardOrder || ["basic", "essential_advanced", "professional", "elite"],
+    pricingCardOrderVerified: Boolean(planOrderMatch),
+    trustAtAGlanceRemoved: config.uiRemovals?.trustAtAGlanceSection === true,
     uiPlanSnapshot: { id: "essential_advanced", priceUsd: config.priceUsd, env: config.stripeEnv },
     notes: arg("notes", "").slice(0, 2000),
   };

@@ -3096,6 +3096,22 @@ body {
   color: #0a0f1f;
 }
 
+.rs-price-flag--advanced {
+  background: rgba(100, 160, 255, 0.14);
+  color: #9ec5ff;
+  border: 1px solid rgba(120, 180, 255, 0.42);
+}
+
+.rs-price-btn--essential-advanced {
+  border-color: rgba(120, 180, 255, 0.45);
+  background: linear-gradient(180deg, rgba(74, 127, 212, 0.35), rgba(42, 72, 140, 0.55));
+}
+
+.rs-price-btn--essential-advanced:hover:not(:disabled) {
+  border-color: rgba(160, 200, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(120, 180, 255, 0.25), var(--rs-shadow-card);
+}
+
 .rs-pricing-compare {
   margin-top: 2rem;
   overflow-x: auto;

@@ -15,12 +15,12 @@ export default function PricingPage() {
   const ogImage = brandAbsoluteUrl(siteUrl, "/og-resumora-brand.png");
   const metaTitle =
     lang === "fr"
-      ? "Tarifs · Préparation entretien Essential Advanced | Resumora"
-      : "Pricing · Essential Advanced Interview Prep | Resumora";
+      ? "Tarifs · Essential Advanced (110 $) | Resumora"
+      : "Pricing · Essential Advanced Résumé Studio | Resumora";
   const metaDescription =
     lang === "fr"
-      ? "Paliers CV premium et forfait Essential Advanced (110 $ USD) : simulations d'entretien, vidéos pro, banque Q&R recruteur et conseils succès. Paiement Stripe sécurisé."
-      : "Premium résumé tiers plus Essential Advanced ($110): interview simulations, training videos, recruiter Q&A bank, and success playbooks. Stripe-secure checkout.";
+      ? "Quatre paliers : Basic, Essential Advanced (110 $ ATS + CV), Professionnel et Élite. Paiement Stripe sécurisé."
+      : "Four tiers: Basic, Essential Advanced ($110 ATS résumé upgrade), Professional, and Elite. Stripe-secure checkout.";
 
   return (
     <SiteChrome>

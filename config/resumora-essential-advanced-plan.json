@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "planId": "essential_advanced",
   "displayName": "Essential Advanced Plan",
   "priceUsd": 110,
@@ -7,35 +7,18 @@
   "stripeEnv": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
   "checkoutMode": "payment",
   "oneTime": true,
+  "pricingCardOrder": ["basic", "essential_advanced", "professional", "elite"],
   "deliverables": {
-    "interviewSimulations": {
-      "count": 3,
-      "description": "Recruiter-style interviews — behavioral, technical, situational with hiring-manager flow and answer guidance"
-    },
-    "trainingVideos": {
-      "count": 3,
-      "description": "Professional interview-training videos — examples, body language, recruiter expectations, mistake prevention"
-    },
-    "qaPackage": {
-      "countRange": "50-60",
-      "topics": [
-        "leadership",
-        "teamwork",
-        "problem-solving",
-        "salary",
-        "career-goals"
-      ]
-    },
-    "successTips": {
-      "count": 20,
-      "topics": [
-        "psychological-preparation",
-        "confidence",
-        "communication",
-        "resume-sync",
-        "recruiter-mindset",
-        "follow-up"
-      ]
+    "atsOptimization": true,
+    "resumeEnhancement": true,
+    "structuredFormatting": true,
+    "keywordOptimization": true,
+    "coverLetterSupport": true,
+    "fasterTurnaround": true,
+    "limitedRevisions": { "count": 2, "note": "structured edit sprints" },
+    "interviewPrepBundle": {
+      "simulations": 3,
+      "trainingVideos": 3
     }
   },
   "uiSurfaces": [
@@ -45,7 +28,12 @@
     "ServiceOfferingsGrid",
     "pricingComparisonRows"
   ],
+  "uiRemovals": {
+    "trustAtAGlanceSection": true,
+    "removedFrom": ["HomePage", "services"]
+  },
   "notes": [
+    "Card sits between Basic and Professional in pricingPlans.",
     "Create a one-time Stripe Price at $110 USD and set NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED on Render.",
     "Lock after deploy: npm run resumora:essential-advanced:interface-lock -- --i-understand-production --notes=\"...\""
   ]

@@ -2,7 +2,6 @@ import Head from "next/head";
 import Link from "next/link";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import ServiceOfferingsGrid from "@/components/marketing/sections/ServiceOfferingsGrid";
-import TrustMetricsPanel from "@/components/marketing/sections/TrustMetricsPanel";
 import UploadPanel from "@/components/marketing/sections/UploadPanel";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
@@ -38,7 +37,6 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
-        <TrustMetricsPanel />
         <UploadPanel />
         <ServiceOfferingsGrid variant="services" />
       </main>

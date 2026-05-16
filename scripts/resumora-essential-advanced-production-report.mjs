@@ -54,8 +54,17 @@ async function main() {
     liveHtml = { ok: false, error: e.message || String(e) };
   }
 
+  const planOrderOk = /id: "basic"[\s\S]*?id: "essential_advanced"[\s\S]*?id: "professional"[\s\S]*?id: "elite"/.test(
+    siteCopyRaw
+  );
+  const homeNoTrust = !fs
+    .readFileSync(path.join(root, "components/marketing/HomePage.jsx"), "utf8")
+    .includes("TrustMetricsPanel");
+
   const checks = [
     { id: "plan_in_site_copy", pass: planInSiteCopy },
+    { id: "plan_order_basic_ea_pro_elite", pass: planOrderOk },
+    { id: "trust_section_removed_home", pass: homeNoTrust },
     { id: "price_110_usd", pass: ESSENTIAL_ADVANCED_PRICE_USD === 110 && siteCopyRaw.includes("$110") },
     { id: "stripe_price_env_resolved", pass: Boolean(priceId) },
     { id: "allowed_checkout_plan", pass: ALLOWED_PLAN_IDS.includes("essential_advanced") },
