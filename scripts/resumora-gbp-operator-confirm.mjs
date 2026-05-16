@@ -122,7 +122,11 @@ async function main() {
   await neon.upsertLastConfirmedCheckpoint({
     projectKey,
     checkpointKey: "google_business_profile_optimized_state",
-    commitHash: process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || "",
+    commitHash:
+      process.env.GITHUB_SHA ||
+      process.env.RAILWAY_GIT_COMMIT_SHA ||
+      process.env.RENDER_GIT_COMMIT ||
+      "",
     baselineHash: checklistSha256 || "",
     payload: {
       checklistVersion,

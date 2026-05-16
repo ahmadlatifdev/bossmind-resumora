@@ -1,0 +1,110 @@
+{
+  "proofId": "readiness_1778808200880_ac16d23b",
+  "generatedAt": "2026-05-15T01:23:27.264Z",
+  "profile": "structural_policy_automation_signals",
+  "policyBoundary": "BossMind safe review: no unsupervised auto-write, auto git commit/push, or auto Render/Railway deploy from this proof runner. Closed-loop repair remains human/CI-gated.",
+  "earnedPoints": 75.6,
+  "maxPoints": 100,
+  "proofBasedReadinessPercent": 75.6,
+  "targetRange95to98AutonomousClaimAllowed": false,
+  "targetClaimReason": "Re-run with --full (deploy + completion gates) and configure Neon, orchestration secret, live probe, and higher closed-loop infra score for a 95–98% evidence claim.",
+  "checks": [
+    {
+      "id": "enterprise_preflight",
+      "weight": 24,
+      "earned": 24,
+      "ok": true,
+      "evidence": {
+        "code": 0,
+        "ms": 3970,
+        "stderrTail": "warning: in the working copy of 'config/bossmind-enterprise-envelope.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'config/bossmind-preservation-scope.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/resumora-gbp-operator-confirm.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'windows-heal/reports/dashboard.html', LF will be replaced by CRLF the next time Git touches it\n"
+      }
+    },
+    {
+      "id": "locked_production_verify",
+      "weight": 26,
+      "earned": 26,
+      "ok": true,
+      "evidence": {
+        "code": 0,
+        "ms": 594,
+        "stderrTail": ""
+      }
+    },
+    {
+      "id": "antileak",
+      "weight": 12,
+      "earned": 12,
+      "ok": true,
+      "evidence": {
+        "code": 0,
+        "ms": 1623,
+        "stderrTail": "warning: in the working copy of 'config/bossmind-enterprise-envelope.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'config/bossmind-preservation-scope.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/resumora-gbp-operator-confirm.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'windows-heal/reports/dashboard.html', LF will be replaced by CRLF the next time Git touches it\n"
+      }
+    },
+    {
+      "id": "predictive_runtime_risk",
+      "weight": 10,
+      "earned": 10,
+      "ok": true,
+      "evidence": {
+        "code": 0,
+        "ms": 189,
+        "enforce": false,
+        "summary": {
+          "riskScore": 75,
+          "factors": [
+            "runtime_sync_hasDrift",
+            "recent_autonomous_degraded_runs"
+          ],
+          "recommendation": "run_runtime_sync_and_deploy_gate_before_deploy",
+          "blockDeploySuggested": true,
+          "blockDeployEnforced": false
+        }
+      }
+    },
+    {
+      "id": "neon_database_url_configured",
+      "weight": 8,
+      "earned": 0,
+      "ok": false,
+      "evidence": {
+        "present": false
+      }
+    },
+    {
+      "id": "orchestration_secret_configured",
+      "weight": 8,
+      "earned": 0,
+      "ok": false,
+      "evidence": {
+        "present": false
+      }
+    },
+    {
+      "id": "autonomous_closed_loop_infrastructure",
+      "weight": 12,
+      "earned": 3.6,
+      "ok": false,
+      "evidence": {
+        "closedLoopInfrastructureReadinessPercent": 30,
+        "mandatoryFlowDeclaredInactive": {
+          "autoWriteCodeFixToFilesystem": false,
+          "reason": "BossMind safe review: patches require human/PR path (see scripts/bossmind-self-heal.mjs header, docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md).",
+          "autoGitCommitAndPush": false,
+          "gitPushNote": "railway-closed-loop-worker logs github_push as not_implemented even if BOSSMIND_RAILWAY_AUTO_PUSH=1 — use GitHub Actions + branch protection.",
+          "autoDeployRender": false,
+          "renderNote": "Render deploy triggers are external to this worker; use Render dashboard or GH integration.",
+          "autoDeployRailwayRedeploy": false
+        }
+      }
+    }
+  ],
+  "autonomousSelfHealNote": "fullAutonomousChainPercent remains 0 by policy; infrastructure score reflects wiring + env only.",
+  "ledgerFile": "D:/BossMind/resumora-fresh/.bossmind/ledger/production-readiness-proof.jsonl",
+  "neon": {
+    "saved": false,
+    "reason": "set BOSSMIND_READINESS_PERSIST_NEON=1 to append event_log"
+  },
+  "reportFile": "D:/BossMind/resumora-fresh/windows-heal/reports/bossmind-production-readiness-proof-readiness_1778808200880_ac16d23b.json"
+}

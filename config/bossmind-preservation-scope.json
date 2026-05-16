@@ -16,6 +16,7 @@
     "lib/orchestration/bossmind-autonomous-self-heal-status.js",
     "scripts/bossmind-autonomous-self-heal-status.mjs",
     "scripts/bossmind-autonomous-self-heal-architecture-lock.mjs",
+    "scripts/bossmind-production-readiness-proof.mjs",
     "docs/BOSSMIND_AUTONOMOUS_RUNTIME_SYNC.md",
     "docs/BOSSMIND_PRESERVATION_AND_BACKUP.md",
     "docs/PROTECTED_COMPONENTS_REGISTRY.md",
