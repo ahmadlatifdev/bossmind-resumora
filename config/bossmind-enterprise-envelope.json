@@ -47,6 +47,11 @@
       "scripts": ["scripts/bossmind-production-readiness-proof.mjs"],
       "npm": ["npm run bossmind:readiness:proof", "npm run bossmind:readiness:proof:full"],
       "note": "Evidence-weighted score from executed gates; 95–98% autonomous claim only when --full + live probe + env signals pass (still excludes unsupervised git/deploy)."
+    },
+    "google_ecosystem_audit": {
+      "scripts": ["scripts/resumora-google-ecosystem-audit.mjs", "lib/marketing/resumora-google-ecosystem-audit-lib.js"],
+      "npm": ["npm run resumora:google:ecosystem:audit", "npm run resumora:google:ecosystem:arch-lock"],
+      "note": "Live HTML + SEO audit lib + email DNS; GSC/GA4/Ads/Merchant dashboards external. Optional GOOGLE_PAGESPEED_API_KEY."
     }
   }
 }

@@ -19,6 +19,7 @@ const {
   getSupportMailBossMindSummary,
   computeSupportMailReadinessPercent,
 } = require("../../../lib/orchestration/resumora-support-mail-status");
+const { readLatestGoogleEcosystemReport } = require("../../../lib/marketing/resumora-google-ecosystem-audit-lib");
 const fs = require("fs");
 const path = require("path");
 
@@ -142,6 +143,10 @@ export default async function handler(req, res) {
     const autonomousSelfHeal = getAutonomousSelfHealStatus();
     const supportMail = getSupportMailBossMindSummary(process.cwd());
     supportMail.proofBasedProductionReadinessPercent = computeSupportMailReadinessPercent(supportMail, null);
+    const googleEcosystem = {
+      lastReport: readLatestGoogleEcosystemReport(process.cwd()),
+      auditCommand: "npm run resumora:google:ecosystem:audit",
+    };
 
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
@@ -173,6 +178,7 @@ export default async function handler(req, res) {
       backupPreservation,
       autonomousSelfHeal,
       supportMail,
+      googleEcosystem,
       scores: {
         performanceScore,
         automationCoveragePercent,

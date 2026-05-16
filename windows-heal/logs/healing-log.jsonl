@@ -568,3 +568,16 @@
 {"ts":"2026-05-15T22:35:02.5305901-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-15T22:35:12.4491523-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260515-2235"}}
 {"ts":"2026-05-15T22:35:18.5563108-04:00","level":"info","message":"Runner completed","data":{"postActions":"service_repair","displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":"service_repair"}}
+{"ts":"2026-05-15T22:40:02.7013060-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T22:45:02.4580547-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T22:50:02.5158105-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T22:55:02.5966906-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-15T22:55:02.6304677-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T22:55:13.2557757-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260515-2255"}}
+{"ts":"2026-05-15T22:55:19.2941201-04:00","level":"info","message":"Runner completed","data":{"postActions":"service_repair","displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":"service_repair"}}
+{"ts":"2026-05-15T23:00:02.7099044-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T23:05:02.4954500-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T23:10:02.4743037-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T23:15:02.4542858-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-15T23:15:02.5113318-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-15T23:20:02.4500356-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}

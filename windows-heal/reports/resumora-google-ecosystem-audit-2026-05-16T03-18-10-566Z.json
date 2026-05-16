@@ -1,0 +1,456 @@
+{
+  "generatedAt": "2026-05-16T03:18:10.566Z",
+  "origin": "https://resumora.net",
+  "domain": "resumora.net",
+  "disclaimer": "Proof-based automated slice only. Google Ads, Merchant Center, GSC performance, GA4 realtime, and policy state require authenticated dashboards.",
+  "liveHtmlSignals": {
+    "ga4Ids": [],
+    "gtmIds": [],
+    "googleAdsConversionIds": [],
+    "googleSiteVerificationMeta": false,
+    "duplicateGtagLoaderCount": 0,
+    "microsoftClarityInDocument": false
+  },
+  "seoAudit": {
+    "generatedAt": "2026-05-16T03:18:10.360Z",
+    "stackVersion": 1,
+    "stackSha256": "9646f0d2cf7d878109849b03dc2c828fc1988668e72860dabb9aaddf443a33b0",
+    "origin": "https://resumora.net",
+    "visibilityScore": 89,
+    "scoreBreakdown": {
+      "earned": 89,
+      "max": 100
+    },
+    "homepageAudit": {
+      "generatedAt": "2026-05-16T03:18:09.816Z",
+      "checklistVersion": 3,
+      "checklistSha256": "7d11e65ae2682f2f7d54e702db9fa5cda35f879866f13bb77d8cfb80c0f8370f",
+      "canonicalSite": "https://resumora.net",
+      "originRequested": "https://resumora.net",
+      "originFinal": "https://www.resumora.net/",
+      "finalHost": "www.resumora.net",
+      "expectedHost": "resumora.net",
+      "httpStatus": 200,
+      "title": "Resumora | Executive resume studio — ATS-safe, bilingual EN/FR",
+      "checks": {
+        "https": true,
+        "titleHasBrand": true,
+        "bodyHasBrand": true,
+        "keywordHits": {
+          "resumora": true,
+          "resume": true,
+          "ats": true,
+          "bilingual": true,
+          "career": true
+        },
+        "canonicalHostOk": true,
+        "viewportMobile": true,
+        "jsonLdStructuredData": true
+      },
+      "socialEnvSummary": {
+        "configuredKeyCount": 0,
+        "hostnames": []
+      },
+      "gbpOperatorTodo": [
+        {
+          "key": "onlineAppointments",
+          "recommended": true,
+          "hint": "Yes — link to https://resumora.net/contact (or live booking URL). Match primary CTA on site."
+        },
+        {
+          "key": "onlineEstimates",
+          "recommended": true,
+          "hint": "Yes — scoped quotes aligned with /pricing; avoid unbounded promises."
+        },
+        {
+          "key": "virtualOrRemoteServices",
+          "recommended": true,
+          "hint": "Yes — primary delivery is remote; service area: online / worldwide plus any real local areas."
+        },
+        {
+          "key": "appointmentRequired",
+          "recommended": true,
+          "hint": "Yes — concierge intake; avoids walk-in mismatch with studio positioning."
+        },
+        {
+          "key": "multilingualSupport",
+          "recommended": true,
+          "hint": "Enable multilingual + EN/FR explicitly where GBP allows both."
+        },
+        {
+          "key": "englishSupport",
+          "recommended": true,
+          "hint": "List English under languages / attributes."
+        },
+        {
+          "key": "frenchSupport",
+          "recommended": true,
+          "hint": "List French; align with bilingual solution pages on resumora.net."
+        },
+        {
+          "key": "professionalResumeConsulting",
+          "recommended": true,
+          "hint": "Categories + services: resume writer / career counselor taxonomy closest to region; services mirror /services + /solutions/*."
+        },
+        {
+          "key": "careerCoachingRelevance",
+          "recommended": true,
+          "hint": "Include career coaching where offered (e.g. /solutions/career-coaching); do not over-claim outside scope."
+        },
+        {
+          "key": "globalOnlineServiceOptimization",
+          "recommended": true,
+          "hint": "Service area: worldwide/online; hours accurate; website UTM optional: ?utm_source=gmb&utm_medium=organic"
+        },
+        {
+          "key": "aiSeoDiscoverability",
+          "recommended": true,
+          "hint": "Site: JSON-LD Organization/WebSite + factual GBP description; GSC sitemap; no keyword stuffing."
+        },
+        {
+          "key": "trustAndAuthority",
+          "recommended": true,
+          "hint": "Reviews + owner replies; photos; Q&A; consistent NAP with site footer; no duplicate listings."
+        }
+      ],
+      "missingOptimizationPoints": [
+        "No NEXT_PUBLIC_SOCIAL_* / NEXT_PUBLIC_ORG_SAME_AS in env — cross-channel parity with GBP social links unverified locally."
+      ],
+      "weakVisibilitySignals": [],
+      "recommendedRepoActions": [],
+      "brandingConsistency": {
+        "ok": true,
+        "issues": []
+      },
+      "conflictHits": [],
+      "overallStatus": "pass",
+      "disclaimer": "This audit does not call Google Business Profile APIs or modify Maps. Apply attributes in GBP UI or Business Profile API after OAuth."
+    },
+    "robots": {
+      "status": 200,
+      "ok": true,
+      "sitemapAlignment": {
+        "ok": true,
+        "bad": [],
+        "sm": [
+          "Sitemap: https://resumora.net/sitemap.xml",
+          "Sitemap: https://resumora.net/sitemap-images.xml"
+        ]
+      }
+    },
+    "sitemap": {
+      "status": 200,
+      "ok": true
+    },
+    "seoMetadataRisk": {
+      "duplicateCanonicalTags": 1,
+      "duplicateGtagLoaderCount": 0
+    },
+    "envSignals": {
+      "NEXT_PUBLIC_SITE_URL": false,
+      "NEXT_PUBLIC_GA_MEASUREMENT_ID": false,
+      "NEXT_PUBLIC_GSC_VERIFICATION": false,
+      "NEXT_PUBLIC_ORG_SAME_AS": false,
+      "NEXT_PUBLIC_CLARITY_PROJECT_ID": false,
+      "NEXT_PUBLIC_BING_SITE_VERIFICATION": false
+    },
+    "issues": [
+      "NEXT_PUBLIC_GA_MEASUREMENT_ID not set in this environment (GA4 snippet will not load in dev).",
+      "NEXT_PUBLIC_GSC_VERIFICATION not set (GSC HTML tag verification will not emit).",
+      "NEXT_PUBLIC_ORG_SAME_AS not set (JSON-LD sameAs may be empty)."
+    ],
+    "weakAuthorityPaths": [
+      "/cancel",
+      "/privacy",
+      "/terms",
+      "/refund",
+      "/system-policy"
+    ],
+    "keywordOpportunityThemes": [
+      "ATS resume",
+      "bilingual resume EN FR",
+      "executive resume",
+      "career coaching remote",
+      "LinkedIn optimization"
+    ],
+    "externalPlatformsPending": [
+      "SE Ranking: connect properties + schedule audits (API key in Railway only).",
+      "NeuronWriter / LowFruits: keyword exports → human-reviewed content PRs (no auto page rewrites here).",
+      "GSC / Bing Webmaster: domain verification + sitemap submit in each dashboard.",
+      "GA4 + Clarity: confirm data collection after NEXT_PUBLIC_* ids are set on Render."
+    ],
+    "multiProject": [
+      {
+        "id": "resumora",
+        "inRepo": true,
+        "canonicalSite": "https://resumora.net",
+        "note": "Audited above."
+      },
+      {
+        "id": "elegancyart",
+        "inRepo": false,
+        "canonicalSite": null,
+        "note": "Out of repo — run same audit pattern in sibling repo after deploy."
+      },
+      {
+        "id": "bossmind-capital",
+        "inRepo": false,
+        "canonicalSite": null,
+        "note": "Out of repo — run same audit pattern in sibling repo after deploy."
+      },
+      {
+        "id": "ai-video-generator",
+        "inRepo": false,
+        "canonicalSite": null,
+        "note": "Out of repo — run same audit pattern in sibling repo after deploy."
+      },
+      {
+        "id": "global-stock",
+        "inRepo": false,
+        "canonicalSite": null,
+        "note": "Out of repo — run same audit pattern in sibling repo after deploy."
+      }
+    ],
+    "antiLeak": {
+      "neverCommit": [
+        "SE_RANKING_API_KEY",
+        "NEURONWRITER_API_KEY",
+        "LOWFRUITS_API_KEY",
+        "GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN",
+        "GOOGLE_OAUTH_CLIENT_SECRET",
+        "GA4_MEASUREMENT_PROTOCOL_SECRET",
+        "BING_WEBMASTER_API_KEY"
+      ],
+      "publicEnvAllowed": [
+        "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+        "NEXT_PUBLIC_GSC_VERIFICATION",
+        "NEXT_PUBLIC_CLARITY_PROJECT_ID",
+        "NEXT_PUBLIC_BING_SITE_VERIFICATION",
+        "NEXT_PUBLIC_SITE_URL",
+        "NEXT_PUBLIC_ORG_SAME_AS"
+      ],
+      "storeSecretsIn": [
+        "Render",
+        "Railway",
+        "Google Secret Manager"
+      ]
+    },
+    "disclaimer": "No live connection to SE Ranking, NeuronWriter, LowFruits, or authenticated Google/Bing APIs from this script."
+  },
+  "gbpAudit": {
+    "overallStatus": "pass",
+    "httpStatus": 200,
+    "checks": {
+      "https": true,
+      "titleHasBrand": true,
+      "bodyHasBrand": true,
+      "keywordHits": {
+        "resumora": true,
+        "resume": true,
+        "ats": true,
+        "bilingual": true,
+        "career": true
+      },
+      "canonicalHostOk": true,
+      "viewportMobile": true,
+      "jsonLdStructuredData": true
+    },
+    "originFinal": "https://www.resumora.net/"
+  },
+  "emailDns": {
+    "spf": {
+      "found": false,
+      "raw": "",
+      "includesGoogle": false,
+      "includesSendgrid": false,
+      "includesMicrosoft": false
+    },
+    "dmarc": {
+      "host": "_dmarc.resumora.net",
+      "found": false,
+      "raw": "",
+      "policy": "unknown"
+    },
+    "authenticationSummary": {
+      "spfPass": false,
+      "dmarcPass": false,
+      "dmarcStrict": false,
+      "dkimPass": false,
+      "allTechnicalPass": false,
+      "aggregate": "fail",
+      "notes": [
+        "SPF/DKIM/DMARC must be set at your DNS host (not in this repo). DKIM public key is generated in Google Admin > Apps > Google Workspace > Gmail > Authenticate email.",
+        "DMARC p=none is monitoring-only; move to quarantine/reject after monitoring."
+      ]
+    },
+    "spamHeuristic": {
+      "score": 0,
+      "band": "fail",
+      "issues": [
+        "no_mx",
+        "no_spf_txt",
+        "no_dmarc",
+        "no_dkim_selector_matched"
+      ]
+    }
+  },
+  "services": {
+    "google_search_console": {
+      "status": "WARN",
+      "evidence": {
+        "htmlVerificationMetaPresent": false,
+        "robotsOk": true,
+        "sitemapFetchOk": true,
+        "visibilityScoreProxy": 89
+      },
+      "notes": [
+        "Dashboard checks (ownership, Coverage, CWV, manual actions, impressions) require https://search.google.com/search-console — not available from this repo.",
+        "HTML meta google-site-verification present only proves deploy includes the tag; confirm property in GSC."
+      ]
+    },
+    "google_analytics_4": {
+      "status": "FAIL",
+      "evidence": {
+        "measurementIdsDetectedInHtml": [],
+        "envHasGaIdThisRun": false,
+        "duplicateLoaderRisk": false
+      },
+      "notes": [
+        "Realtime, conversions, cross-device, and DebugView require GA4 UI or Data API — not probed here.",
+        "Neon /api/analytics/track is complementary; it is not GA4."
+      ]
+    },
+    "google_tag_manager": {
+      "status": "EXTERNAL_REQUIRED",
+      "evidence": {
+        "containerIdsInHtml": [],
+        "alsoHasDirectGtagGa4": false
+      },
+      "notes": [
+        "If using GA4 via gtag only, GTM may be unnecessary; dual stacks can double-fire.",
+        "Tag Assistant / preview mode validates GTM in-browser — not automated here."
+      ]
+    },
+    "google_ads": {
+      "status": "EXTERNAL_REQUIRED",
+      "evidence": {
+        "conversionIdsInHtml": []
+      },
+      "notes": [
+        "Account health, billing, policy, and delivery require ads.google.com — not available from this repo.",
+        "AW- in HTML suggests Ads tags; absence does not mean Ads is off (server-side or off-site)."
+      ]
+    },
+    "google_business_profile": {
+      "status": "PASS",
+      "evidence": {
+        "overallStatus": "pass",
+        "httpStatus": 200,
+        "checklistSha256": "7d11e65ae2682f2f7d54e702db9fa5cda35f879866f13bb77d8cfb80c0f8370f"
+      },
+      "notes": [
+        "Maps verification, review flow, and live Maps pack rank require operator checks + GBP UI.",
+        "Run: npm run resumora:gbp:audit — Neon: resumora:gbp:confirm after manual work."
+      ]
+    },
+    "google_workspace_email": {
+      "status": "FAIL",
+      "evidence": {
+        "authenticationSummary": {
+          "spfPass": false,
+          "dmarcPass": false,
+          "dmarcStrict": false,
+          "dkimPass": false,
+          "allTechnicalPass": false,
+          "aggregate": "fail",
+          "notes": [
+            "SPF/DKIM/DMARC must be set at your DNS host (not in this repo). DKIM public key is generated in Google Admin > Apps > Google Workspace > Gmail > Authenticate email.",
+            "DMARC p=none is monitoring-only; move to quarantine/reject after monitoring."
+          ]
+        },
+        "spamHeuristic": {
+          "score": 0,
+          "band": "fail",
+          "issues": [
+            "no_mx",
+            "no_spf_txt",
+            "no_dmarc",
+            "no_dkim_selector_matched"
+          ]
+        }
+      },
+      "notes": [
+        "Inbox placement and Gmail Postmaster require Google dashboards + seed tests."
+      ]
+    },
+    "google_merchant_center": {
+      "status": "EXTERNAL_REQUIRED",
+      "evidence": {},
+      "notes": [
+        "No Merchant Center feed is defined in this audit; confirm in merchants.google.com if used."
+      ]
+    },
+    "seo_indexing": {
+      "status": "PASS",
+      "evidence": {
+        "visibilityScore": 89,
+        "issues": [
+          "NEXT_PUBLIC_GA_MEASUREMENT_ID not set in this environment (GA4 snippet will not load in dev).",
+          "NEXT_PUBLIC_GSC_VERIFICATION not set (GSC HTML tag verification will not emit).",
+          "NEXT_PUBLIC_ORG_SAME_AS not set (JSON-LD sameAs may be empty)."
+        ],
+        "duplicateCanonicalTags": 1
+      },
+      "notes": [
+        "Indexing and duplicate URL issues: use GSC Coverage + URL Inspection."
+      ]
+    },
+    "performance_lighthouse_via_pagespeed": {
+      "status": "EXTERNAL_REQUIRED",
+      "evidence": {
+        "mobile": {
+          "skipped": true,
+          "reason": "GOOGLE_PAGESPEED_API_KEY unset"
+        },
+        "desktop": {
+          "skipped": true,
+          "reason": "GOOGLE_PAGESPEED_API_KEY unset"
+        }
+      },
+      "notes": [
+        "Set GOOGLE_PAGESPEED_API_KEY for automated Lighthouse scores (Pagespeed Insights API).",
+        "Alternatively run Lighthouse locally or in CI."
+      ]
+    },
+    "bossmind_runtime": {
+      "status": "PASS",
+      "evidence": {
+        "healthUrl": "https://resumora.net/api/health",
+        "httpStatus": 200
+      },
+      "notes": [
+        "Event consistency across Google vs BossMind requires worker wiring + GSC/GA exports to Neon — partial only."
+      ]
+    },
+    "neon_analytics_track": {
+      "status": "FAIL",
+      "evidence": {
+        "ok": false,
+        "reason": "NEON_DATABASE_URL unset"
+      },
+      "notes": [
+        "Counts BossMind analytics_web_events only — not GA4 hit volume."
+      ]
+    }
+  },
+  "scoring": {
+    "seoHealthPercent": 89,
+    "trackingHealthPercent": 33.3,
+    "emailAuthPercent": 0,
+    "neonAnalyticsWebEvents7d": 0,
+    "overallGoogleEcosystemReadinessPercent": 54.4
+  },
+  "warnings": [
+    "No G- measurement ID in live HTML — GA4 may not load for visitors."
+  ]
+}
