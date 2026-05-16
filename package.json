@@ -115,6 +115,7 @@
     "resumora:support:production-report": "node scripts/resumora-support-mail-production-report.mjs",
     "resumora:google:ecosystem:audit": "node scripts/resumora-google-ecosystem-audit.mjs",
     "resumora:google:ecosystem:arch-lock": "node scripts/resumora-google-ecosystem-architecture-lock.mjs",
+    "resumora:gsc:verify-recovery": "node scripts/resumora-gsc-verification-recovery.mjs",
     "resumora:support:activate": "npm run resumora:support:mail:verify"
   },
   "dependencies": {

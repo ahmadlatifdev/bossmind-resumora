@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-05-16T19:08:32.675Z",
+  "domain": "resumora.net",
+  "origin": "https://resumora.net",
+  "waitMs": 0,
+  "preferredTokenSource": "none",
+  "preferredToken": null,
+  "activeVerificationToken": "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+  "dns": {
+    "allTxtRecords": [
+      "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+      "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+    ],
+    "googleVerificationRecords": [
+      {
+        "kind": "gsc_txt",
+        "raw": "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+        "normalized": "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+        "token": "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+        "malformed": false
+      },
+      {
+        "kind": "gsc_txt",
+        "raw": "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+        "normalized": "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+        "token": "uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+        "malformed": false
+      }
+    ],
+    "nonGoogleTxtCount": 0,
+    "conflict": {
+      "tokenCount": 2,
+      "tokens": [
+        "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+        "uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+      ],
+      "duplicateRecordCount": 0,
+      "outdatedTokens": [],
+      "hasConflict": true,
+      "preferredTokenPresent": null,
+      "recommendations": [
+        "Multiple distinct google-site-verification tokens (2). Keep only the token shown in Search Console for this property; remove stale tokens at your DNS host."
+      ],
+      "recordsToRemove": [],
+      "activeToken": "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro"
+    },
+    "propagation": {
+      "resolvers": [
+        {
+          "resolver": "system",
+          "ok": false,
+          "error": "ECONNREFUSED",
+          "records": []
+        },
+        {
+          "resolver": "google",
+          "ok": true,
+          "txtCount": 2,
+          "gscTokens": [
+            "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+            "uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+          ],
+          "allTxt": [
+            "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+            "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+          ]
+        },
+        {
+          "resolver": "cloudflare",
+          "ok": true,
+          "txtCount": 2,
+          "gscTokens": [
+            "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+            "uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+          ],
+          "allTxt": [
+            "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+            "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro"
+          ]
+        },
+        {
+          "resolver": "quad9",
+          "ok": true,
+          "txtCount": 2,
+          "gscTokens": [
+            "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+            "uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+          ],
+          "allTxt": [
+            "google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+            "google-site-verification=_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro"
+          ]
+        }
+      ],
+      "globallyConsistent": true,
+      "distinctGscTokenSets": [
+        "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro|uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)"
+      ]
+    },
+    "propagationPass": true,
+    "emailPreservationNote": "SPF/DMARC/DKIM/MX were scanned separately and are NOT modified by this workflow. Remove only stale google-site-verification TXT rows."
+  },
+  "htmlVerification": {
+    "ok": true,
+    "status": 200,
+    "finalUrl": "https://www.resumora.net/",
+    "metaContent": null,
+    "metaPresent": false
+  },
+  "htmlDnsAlignment": "none",
+  "verificationMethod": "dns_txt",
+  "alternativeMethod": null,
+  "activation": {
+    "ownershipVerified": false,
+    "domainPropertyActive": false,
+    "indexingAccessActive": false,
+    "searchAnalyticsActive": false,
+    "sitemapAccessActive": false,
+    "apiProbe": "skipped_no_oauth"
+  },
+  "emailDnsSummary": {
+    "spfPass": false,
+    "dmarcPass": false,
+    "dmarcStrict": false,
+    "dkimPass": false,
+    "allTechnicalPass": false,
+    "aggregate": "fail",
+    "notes": [
+      "SPF/DKIM/DMARC must be set at your DNS host (not in this repo). DKIM public key is generated in Google Admin > Apps > Google Workspace > Gmail > Authenticate email.",
+      "DMARC p=none is monitoring-only; move to quarantine/reject after monitoring."
+    ]
+  },
+  "authorityTemplate": "config/resumora-gsc-verification-authority.json",
+  "recommendations": [
+    "Multiple distinct google-site-verification tokens (2). Keep only the token shown in Search Console for this property; remove stale tokens at your DNS host.",
+    "Set GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN + GOOGLE_OAUTH_CLIENT_ID/SECRET to auto-probe GSC API.",
+    "Until then: open Search Console → property → Verify after DNS shows single correct TXT globally."
+  ],
+  "overallStatus": "FAIL",
+  "disclaimer": "This script cannot delete DNS records at your registrar. It reports conflicts; apply removals in Cloudflare/Route53/etc. GSC dashboard Verify button may lag DNS by minutes."
+}

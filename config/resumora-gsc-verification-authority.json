@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "domain": "resumora.net",
+  "propertyTypes": {
+    "domain": "sc-domain:resumora.net",
+    "urlPrefix": "https://resumora.net/"
+  },
+  "activeDnsToken": null,
+  "activeHtmlMetaTokenEnv": "NEXT_PUBLIC_GSC_VERIFICATION",
+  "notes": [
+    "Set activeDnsToken to the exact token Search Console shows for DNS TXT verification after cleanup.",
+    "Only one google-site-verification= token should remain at the zone apex.",
+    "Do not remove SPF, DKIM, DMARC, or Google Workspace verification TXT records.",
+    "Lock confirmed state: npm run resumora:gsc:verify-recovery -- --lock --notes=\"...\""
+  ],
+  "preserveTxtPrefixes": ["v=spf1", "v=DMARC1", "v=dkim1", "google-site-verification="]
+}
