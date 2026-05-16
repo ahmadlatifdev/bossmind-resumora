@@ -1,10 +1,10 @@
 /**
  * Single queue item: GET / PATCH (status, script review, flags).
  */
-const { initializeSharedMemory } = require("../../../lib/shared/neon-memory");
-const store = require("../../../lib/orchestration/bossmind-ai-video-store");
-const { authorizeAdmin } = require("../../../lib/orchestration/bossmind-ai-video-auth");
-const neon = require("../../../lib/shared/neon-memory");
+const { initializeSharedMemory } = require("../../../../../lib/shared/neon-memory");
+const store = require("../../../../../lib/orchestration/bossmind-ai-video-store");
+const { authorizeAdmin } = require("../../../../../lib/orchestration/bossmind-ai-video-auth");
+const neon = require("../../../../../lib/shared/neon-memory");
 
 export default async function handler(req, res) {
   if (!authorizeAdmin(req)) {
@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === "object" && req.body ? req.body : {};
     const patch = {};
     if (typeof body.status === "string") patch.status = body.status.slice(0, 80);
+    if (body.review_status === "approved" && !patch.status) patch.status = "scenario_build";
     if (typeof body.priority === "number") patch.priority = body.priority;
     if (typeof body.auto_publish === "boolean") patch.auto_publish = body.auto_publish;
     if (Array.isArray(body.target_platforms)) patch.target_platforms = body.target_platforms.map(String).slice(0, 8);

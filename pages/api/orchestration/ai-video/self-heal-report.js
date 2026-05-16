@@ -2,10 +2,10 @@
  * Self-heal hook: log step failure + Neon error_memory pattern (DeepSeek analysis in n8n / worker).
  */
 const crypto = require("crypto");
-const { initializeSharedMemory } = require("../../../lib/shared/neon-memory");
-const store = require("../../../lib/orchestration/bossmind-ai-video-store");
-const { authorizeN8n, authorizeAdmin } = require("../../../lib/orchestration/bossmind-ai-video-auth");
-const neon = require("../../../lib/shared/neon-memory");
+const { initializeSharedMemory } = require("../../../../lib/shared/neon-memory");
+const store = require("../../../../lib/orchestration/bossmind-ai-video-store");
+const { authorizeN8n, authorizeAdmin } = require("../../../../lib/orchestration/bossmind-ai-video-auth");
+const neon = require("../../../../lib/shared/neon-memory");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

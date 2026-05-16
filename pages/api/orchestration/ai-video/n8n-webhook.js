@@ -2,10 +2,10 @@
  * n8n / Railway worker callbacks — Bearer BOSSMIND_AI_VIDEO_N8N_SECRET.
  * Body: { action, ... } — see config/bossmind-ai-video-stack.json
  */
-const { initializeSharedMemory } = require("../../../lib/shared/neon-memory");
-const store = require("../../../lib/orchestration/bossmind-ai-video-store");
-const { authorizeN8n } = require("../../../lib/orchestration/bossmind-ai-video-auth");
-const neon = require("../../../lib/shared/neon-memory");
+const { initializeSharedMemory } = require("../../../../lib/shared/neon-memory");
+const store = require("../../../../lib/orchestration/bossmind-ai-video-store");
+const { authorizeN8n } = require("../../../../lib/orchestration/bossmind-ai-video-auth");
+const neon = require("../../../../lib/shared/neon-memory");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

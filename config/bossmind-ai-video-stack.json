@@ -27,15 +27,27 @@
   "api": {
     "queue": "/api/orchestration/ai-video/queue",
     "queueItem": "/api/orchestration/ai-video/queue/:id",
+    "job": "/api/orchestration/ai-video/job/:id",
     "dashboard": "/api/orchestration/ai-video/dashboard",
     "n8nWebhook": "/api/orchestration/ai-video/n8n-webhook",
     "selfHealReport": "/api/orchestration/ai-video/self-heal-report"
+  },
+  "railwayWorker": {
+    "script": "npm run bossmind:ai-video:orchestrator",
+    "cronAlternative": "npm run bossmind:ai-video:orchestrator:once",
+    "note": "Separate Render (UI) from Railway (orchestrator + FFmpeg); orchestrator reads NEON_DATABASE_URL and advances video_queue rows."
   },
   "envSecrets": {
     "NEON_DATABASE_URL": "shared or dedicated Neon branch — never commit",
     "BOSSMIND_ORCHESTRATION_SECRET": "admin API auth (optional overlap)",
     "BOSSMIND_AI_VIDEO_ADMIN_SECRET": "dedicated admin Bearer for AI Video APIs only (recommended)",
     "BOSSMIND_AI_VIDEO_N8N_SECRET": "n8n + worker webhook Bearer",
+    "BOSSMIND_AI_VIDEO_SCENE_WEBHOOK_URL": "n8n or Railway handler returning scene video URL",
+    "BOSSMIND_AI_VIDEO_SCENE_WEBHOOK_SECRET": "optional HMAC/Bearer for scene webhook",
+    "BOSSMIND_AI_VIDEO_PUBLISH_WEBHOOK_URL": "n8n publish step (YouTube/TikTok/IG)",
+    "BOSSMIND_AI_VIDEO_PUBLISH_WEBHOOK_SECRET": "optional secret for publish webhook",
+    "BOSSMIND_AI_VIDEO_WORKSPACE": "optional persistent workspace dir for concat inputs",
+    "FFMPEG_PATH": "ffmpeg binary on worker PATH or absolute path",
     "DEEPSEEK_API_KEY": "n8n / Railway worker only",
     "OPENAI_API_KEY": "TTS / polish — workers only",
     "ELEVENLABS_API_KEY": "voice — workers only",
@@ -60,7 +72,7 @@
     "n8n branches on retry_recommended + cap retries (anti-infinite-loop)"
   ],
   "automationReality": {
-    "inRepoToday": "Schema, queue CRUD, operator dashboard, n8n hooks, self-heal logging, BossMind health summary.",
-    "outOfRepoRequired": "FFmpeg render bin, provider SDK calls, OAuth uploads, Sheets poll, full 95% hands-free pipeline with human policy gates."
- }
+    "inRepoToday": "Schema, queue CRUD, orchestrator worker (DeepSeek → scenes → webhooks → TTS/Whisper → ffmpeg concat → publish webhook), job detail API, dashboard, n8n hooks, self-heal logging.",
+    "outOfRepoRequired": "Live provider accounts + OAuth refresh in n8n, Sheets inputs, public CDN for scene clips if webhooks return ephemeral URLs, production SSO on dashboard."
+  }
 }

@@ -1,9 +1,9 @@
 /**
  * AI Video dashboard aggregate (counts, recent errors, publishes).
  */
-const { initializeSharedMemory } = require("../../../lib/shared/neon-memory");
-const store = require("../../../lib/orchestration/bossmind-ai-video-store");
-const { authorizeAdmin } = require("../../../lib/orchestration/bossmind-ai-video-auth");
+const { initializeSharedMemory } = require("../../../../lib/shared/neon-memory");
+const store = require("../../../../lib/orchestration/bossmind-ai-video-store");
+const { authorizeAdmin } = require("../../../../lib/orchestration/bossmind-ai-video-auth");
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {

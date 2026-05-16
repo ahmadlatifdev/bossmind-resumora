@@ -17,11 +17,13 @@ export default function BossMindAiVideoDashboardPage() {
     auto_publish: false,
     platforms: "youtube,tiktok,instagram",
   });
+  const [jobDetail, setJobDetail] = useState(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const t = window.localStorage.getItem(LS_KEY) || "";
-    if (t) setToken(t);
+    if (!t) return;
+    queueMicrotask(() => setToken(t));
   }, []);
 
   const authHeader = useCallback(() => {
@@ -29,6 +31,21 @@ export default function BossMindAiVideoDashboardPage() {
     if (token) headers.Authorization = `Bearer ${token}`;
     return headers;
   }, [token]);
+
+  const loadJob = useCallback(
+    async (id) => {
+      setError("");
+      try {
+        const r = await fetch(`/api/orchestration/ai-video/job/${id}`, { headers: authHeader() });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || `job ${r.status}`);
+        setJobDetail(j);
+      } catch (e) {
+        setError(e.message || "job load failed");
+      }
+    },
+    [authHeader]
+  );
 
   const saveToken = () => {
     if (typeof window === "undefined") return;
@@ -58,7 +75,10 @@ export default function BossMindAiVideoDashboardPage() {
   }, [authHeader]);
 
   useEffect(() => {
-    if (token) load();
+    if (!token) return;
+    queueMicrotask(() => {
+      void load();
+    });
   }, [token, load]);
 
   const patchQueue = async (id, body) => {
@@ -169,6 +189,10 @@ export default function BossMindAiVideoDashboardPage() {
               <pre style={{ fontSize: "0.8rem", overflow: "auto", maxHeight: "12rem" }}>
                 {JSON.stringify(dashboard.recentPublishes || [], null, 2)}
               </pre>
+              <h3 style={{ marginTop: "1rem" }}>API usage (30d)</h3>
+              <pre style={{ fontSize: "0.85rem", overflow: "auto", maxHeight: "10rem" }}>
+                {JSON.stringify(dashboard.apiUsage30dByProvider || [], null, 2)}
+              </pre>
             </div>
           ) : null}
 
@@ -236,8 +260,23 @@ export default function BossMindAiVideoDashboardPage() {
                     <tr key={row.id}>
                       <td style={{ padding: "0.35rem" }}>{row.id}</td>
                       <td style={{ padding: "0.35rem" }}>{row.status}</td>
-                      <td style={{ padding: "0.35rem" }}>{row.title || "—"}</td>
                       <td style={{ padding: "0.35rem" }}>
+                        {row.title || "—"}
+                        {row.payload?.error ? (
+                          <span style={{ display: "block", color: "#f87171", fontSize: "0.75rem" }}>
+                            {String(row.payload.error).slice(0, 120)}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td style={{ padding: "0.35rem" }}>
+                        <button
+                          type="button"
+                          className="rs-btn"
+                          disabled={busy}
+                          onClick={() => loadJob(row.id)}
+                        >
+                          Detail
+                        </button>{" "}
                         <button
                           type="button"
                           className="rs-btn"
@@ -261,6 +300,36 @@ export default function BossMindAiVideoDashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : null}
+
+          {jobDetail?.ok ? (
+            <div style={{ marginTop: "2rem" }}>
+              <h2>
+                Job {jobDetail.queue?.id}{" "}
+                <button type="button" className="rs-btn" onClick={() => setJobDetail(null)}>
+                  Close
+                </button>
+              </h2>
+              <p style={{ fontSize: "0.85rem", color: "var(--rs-text-secondary)" }}>
+                Pipeline tree (scenes, assets, renders, publish logs). Run{" "}
+                <code>npm run bossmind:ai-video:orchestrator</code> on Railway to advance jobs.
+              </p>
+              <pre style={{ fontSize: "0.75rem", overflow: "auto", maxHeight: "24rem" }}>
+                {JSON.stringify(
+                  {
+                    queue: jobDetail.queue,
+                    script: jobDetail.script,
+                    scenario: jobDetail.scenario,
+                    scenes: jobDetail.scenes,
+                    assets: jobDetail.assets,
+                    renders: jobDetail.renders,
+                    publishes: jobDetail.publishes,
+                  },
+                  null,
+                  2
+                )}
+              </pre>
             </div>
           ) : null}
         </section>

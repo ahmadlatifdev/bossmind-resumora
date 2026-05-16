@@ -1,9 +1,9 @@
 /**
  * AI Video queue + dashboard aggregate (BossMind controller surface).
  */
-const { initializeSharedMemory } = require("../../../lib/shared/neon-memory");
-const store = require("../../../lib/orchestration/bossmind-ai-video-store");
-const { authorizeAdmin } = require("../../../lib/orchestration/bossmind-ai-video-auth");
+const { initializeSharedMemory } = require("../../../../lib/shared/neon-memory");
+const store = require("../../../../lib/orchestration/bossmind-ai-video-store");
+const { authorizeAdmin } = require("../../../../lib/orchestration/bossmind-ai-video-auth");
 
 export default async function handler(req, res) {
   if (!authorizeAdmin(req)) {
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       await store.updateQueue(sql, q.id, { status: "script_review" });
     }
 
-    const nm = require("../../../lib/shared/neon-memory");
+    const nm = require("../../../../lib/shared/neon-memory");
     await nm.saveEvent({
       projectKey: store.projectKey(),
       eventType: "ai_video.queue_created",
