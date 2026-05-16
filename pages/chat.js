@@ -6,6 +6,7 @@ import SiteChrome from "@/components/marketing/SiteChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { chatPageCopy } from "@/lib/marketing/legal-copy";
 import { translations } from "@/lib/marketing/site-copy";
+import { trackGa4 } from "@/lib/marketing/resumora-ga4-events";
 
 export default function ChatPage() {
   const { lang } = useLanguage();
@@ -25,6 +26,7 @@ export default function ChatPage() {
         body: JSON.stringify({ email, message, lang }),
       });
       if (!res.ok) throw new Error("fail");
+      trackGa4("generate_lead", { form: "support_intake", lang });
       setStatus("ok");
       setMessage("");
     } catch {

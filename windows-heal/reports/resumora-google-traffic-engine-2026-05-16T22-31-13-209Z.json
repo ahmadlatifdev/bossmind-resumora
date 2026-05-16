@@ -1,0 +1,350 @@
+{
+  "generatedAt": "2026-05-16T22:31:13.209Z",
+  "engineVersion": 1,
+  "domain": "resumora.net",
+  "origin": "https://resumora.net",
+  "weekId": "2026-W20",
+  "weeklySchedule": {
+    "today": "saturday",
+    "phase": {
+      "id": "keyword_expansion",
+      "scripts": [
+        "deepseek-seo-brain"
+      ],
+      "label": "Keyword clusters + gaps"
+    },
+    "fullSchedule": {
+      "monday": {
+        "id": "seo_articles",
+        "scripts": [
+          "google-organic-engine",
+          "deepseek-seo-brain"
+        ],
+        "label": "SEO articles + architecture"
+      },
+      "tuesday": {
+        "id": "linkedin",
+        "scripts": [
+          "weekly-organic-pipeline"
+        ],
+        "label": "LinkedIn organic posts"
+      },
+      "wednesday": {
+        "id": "instagram_pinterest",
+        "scripts": [
+          "weekly-organic-pipeline",
+          "social-growth-engine"
+        ],
+        "label": "Instagram / Pinterest"
+      },
+      "thursday": {
+        "id": "interview_guides",
+        "scripts": [
+          "google-organic-engine"
+        ],
+        "focus": "interview-preparation"
+      },
+      "friday": {
+        "id": "resume_optimization",
+        "scripts": [
+          "google-organic-engine"
+        ],
+        "focus": "ats-resume, executive-resume"
+      },
+      "saturday": {
+        "id": "keyword_expansion",
+        "scripts": [
+          "deepseek-seo-brain"
+        ],
+        "label": "Keyword clusters + gaps"
+      },
+      "sunday": {
+        "id": "analytics_audit",
+        "scripts": [
+          "google-ecosystem-audit",
+          "gsc-verify-recovery"
+        ],
+        "label": "SEO analytics + GSC health"
+      }
+    }
+  },
+  "integrationScores": {
+    "googleSearchConsole": 8,
+    "ga4Tracking": 0,
+    "deepSeekSeoBrain": 70,
+    "openAiContentLayer": 0,
+    "geminiEnhancement": 0,
+    "seRanking": 0
+  },
+  "overallOrganicReadinessPercent": 13,
+  "validation": {
+    "searchConsoleVerified": false,
+    "ga4TrackingActive": false,
+    "organicAutomationActive": true,
+    "weeklyAiContentGenerationActive": true,
+    "seoMonitoringActive": true,
+    "googleIndexingActive": true,
+    "sitemapActive": true,
+    "organicTrafficEngineActive": false
+  },
+  "gsc": {
+    "summary": "FAIL",
+    "activeToken": "_cWKS_urxnYrGDH7BgeaJXdfnWiWqBFkSj3FKQ9WJro",
+    "activation": {
+      "ownershipVerified": false,
+      "domainPropertyActive": false,
+      "indexingAccessActive": false,
+      "searchAnalyticsActive": false,
+      "sitemapAccessActive": false,
+      "apiProbe": "skipped_no_oauth"
+    },
+    "recommendations": [
+      "Multiple distinct google-site-verification tokens (2). Keep only the token shown in Search Console for this property; remove stale tokens at your DNS host.",
+      "Remove or fix malformed google-site-verification TXT (token_contains_invalid_characters): google-site-verification=uu5WJuNZ2MZf85IDqayb5HP0bpkDDgO-Y)",
+      "Set GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN + GOOGLE_OAUTH_CLIENT_ID/SECRET to auto-probe GSC API.",
+      "Until then: open Search Console → property → Verify after DNS shows single correct TXT globally."
+    ]
+  },
+  "sitemap": {
+    "health": {
+      "robotsUrl": "https://resumora.net/robots.txt",
+      "sitemapUrl": "https://resumora.net/sitemap.xml",
+      "robotsOk": true,
+      "sitemapOk": true,
+      "robotsStatus": 200,
+      "sitemapStatus": 200,
+      "sitemapUrlCount": 19
+    },
+    "ping": {
+      "ok": false,
+      "status": 404,
+      "url": "https://www.google.com/ping?sitemap=https%3A%2F%2Fresumora.net%2Fsitemap.xml",
+      "bodyPreview": "<HTML>\n<HEAD>\n<TITLE>Sitemaps ping is deprecated. See https://developers.google.com/search/blog/2023/06/sitemaps-lastmod-ping.</TITLE>\n</HEAD>\n<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n<!-- GSE Default Error -->\n<H1>Sitemaps ping is deprecated. See https://developers.google.com/search/blog/2023/06/sitemaps-lastmod-ping.</H1>\n<H2>Error 404</H2>\n</BODY>\n</HTML>\n"
+    },
+    "apiSubmit": {
+      "skipped": true,
+      "reason": "missing_oauth_credentials"
+    }
+  },
+  "ecosystem": {
+    "overallPercent": 54.4
+  },
+  "organicBundle": {
+    "weekId": "2026-W20",
+    "articleCount": 6,
+    "expansionTargets": 10
+  },
+  "deepSeekSeoBrain": {
+    "generatedAt": "2026-05-16T22:31:12.456Z",
+    "weekId": "2026-W20",
+    "siteUrl": "https://resumora.net",
+    "aiUsed": false,
+    "strategy": null,
+    "keywordDiscovery": [],
+    "competitorGaps": [],
+    "landingOutlines": [
+      {
+        "slug": "canada-jobs-resume",
+        "suggestedPath": "/solutions/canada-jobs-resume",
+        "seedKeywords": [
+          "Canada jobs resume",
+          "Canadian ATS resume"
+        ]
+      },
+      {
+        "slug": "ontario-jobs-resume",
+        "suggestedPath": "/solutions/ontario-jobs-resume",
+        "seedKeywords": [
+          "Ontario jobs",
+          "Toronto executive resume"
+        ]
+      },
+      {
+        "slug": "government-jobs-resume",
+        "suggestedPath": "/solutions/government-jobs-resume",
+        "seedKeywords": [
+          "government resume Canada",
+          "public sector CV"
+        ]
+      },
+      {
+        "slug": "nurse-resume",
+        "suggestedPath": "/solutions/nurse-resume",
+        "seedKeywords": [
+          "nurse resume",
+          "RN resume ATS"
+        ]
+      },
+      {
+        "slug": "it-resume",
+        "suggestedPath": "/solutions/it-resume",
+        "seedKeywords": [
+          "IT resume",
+          "software engineer resume"
+        ]
+      },
+      {
+        "slug": "project-manager-resume",
+        "suggestedPath": "/solutions/project-manager-resume",
+        "seedKeywords": [
+          "project manager resume",
+          "PM resume"
+        ]
+      },
+      {
+        "slug": "executive-resume",
+        "suggestedPath": "/solutions/executive-resume",
+        "seedKeywords": [
+          "executive resume",
+          "C-suite CV"
+        ]
+      },
+      {
+        "slug": "french-resume-services",
+        "suggestedPath": "/solutions/french-resume-services",
+        "seedKeywords": [
+          "CV français",
+          "bilingual resume EN FR"
+        ]
+      },
+      {
+        "slug": "ats-resume-optimization",
+        "suggestedPath": "/solutions/ats-resume-optimization",
+        "seedKeywords": [
+          "ATS resume optimization",
+          "ATS friendly CV"
+        ]
+      },
+      {
+        "slug": "linkedin-optimization",
+        "suggestedPath": "/solutions/linkedin-optimization",
+        "seedKeywords": [
+          "LinkedIn optimization",
+          "LinkedIn headline"
+        ]
+      }
+    ],
+    "interviewQaPages": [
+      {
+        "path": "/solutions/interview-preparation",
+        "focus": "Essential Advanced + Elite rehearsal positioning"
+      }
+    ],
+    "atsPages": [
+      {
+        "path": "/solutions/ats-resume",
+        "focus": "Parser discipline + keyword scaffolding"
+      }
+    ],
+    "multilingual": {
+      "en": true,
+      "fr": true,
+      "note": "Hreflang via sitemap; FR routes policy-safe only"
+    },
+    "aiError": "Authentication Fails, Your api key: ****6a2b is invalid"
+  },
+  "openAiContentLayer": {
+    "generatedAt": "2026-05-16T22:31:13.208Z",
+    "weekId": "2026-W20",
+    "dayTheme": "keyword_expansion",
+    "siteUrl": "https://resumora.net",
+    "aiUsed": false,
+    "blogPosts": [],
+    "linkedinPosts": [],
+    "instagramCaptions": [],
+    "pinterestText": [],
+    "youtubeDescriptions": [],
+    "faqSections": [],
+    "ctaVariants": [],
+    "note": "OPENAI_API_KEY unset"
+  },
+  "geminiEnhancement": {
+    "aiUsed": false,
+    "note": "skipped"
+  },
+  "seRanking": {
+    "generatedAt": "2026-05-16T22:31:13.208Z",
+    "apiKeyPresent": false,
+    "status": "EXTERNAL_REQUIRED",
+    "capabilities": [
+      "keyword_tracking",
+      "competitor_monitoring",
+      "site_audit",
+      "technical_seo",
+      "weekly_rank_reports"
+    ],
+    "workerNote": "Wire SE Ranking API in Railway worker with SE_RANKING_API_KEY; persist aggregates to Neon event_log — not called from Next.js bundle.",
+    "weeklyChecklist": [
+      "Export rank changes for resumora.net core keywords",
+      "Review technical audit issues vs sitemap/robots",
+      "Map new keyword opportunities to google-organic-engine outlines",
+      "Feed competitor deltas into DeepSeek SEO Brain weekly run"
+    ]
+  },
+  "trafficOptimization": {
+    "keywordClustering": [
+      {
+        "cluster": "executive_resume",
+        "phrases": [
+          "executive resume writer",
+          "résumé direction",
+          "board-ready CV"
+        ],
+        "seed": "1ab6386b"
+      },
+      {
+        "cluster": "ats",
+        "phrases": [
+          "ATS friendly resume",
+          "CV compatible ATS",
+          "keyword scaffolding"
+        ],
+        "seed": "33631a12"
+      },
+      {
+        "cluster": "linkedin",
+        "phrases": [
+          "LinkedIn headline formula",
+          "optimisation profil LinkedIn"
+        ],
+        "seed": "28bf9c51"
+      }
+    ],
+    "internalLinking": [
+      "Hub: /pricing → /solutions/* → /register",
+      "Cross-link interview-preparation ↔ ats-resume ↔ executive-resume",
+      "Province/city pages link up to /solutions/canada-jobs-resume when published"
+    ],
+    "schema": [
+      "Organization (global)",
+      "Service on solution pages",
+      "FAQPage on approved FAQs",
+      "BreadcrumbList"
+    ],
+    "faqSchema": "Generate FAQ blocks from OpenAI layer; validate JSON-LD on deploy gate only",
+    "metadataAutomation": "seo-data.js + page Head — no auto-write to protected routes without review",
+    "aiTitlesDescriptions": "DeepSeek weeklyActions + Gemini refinements → human/PR merge",
+    "imageAltAutomation": "Use media briefs from google-organic-engine; alt text on next approved asset pass",
+    "contentFreshness": "Sunday audit triggers meta refresh candidates list (not auto-deploy)"
+  },
+  "longTermGrowth": {
+    "weeklyIndexing": "Submit sitemap + Sunday GSC recovery + deploy gate",
+    "impressions": "GSC Search Analytics export → keyword clusters (manual/API)",
+    "keywordCoverage": "Saturday DeepSeek + expansion targets in config",
+    "authority": "Consistent EN/FR articles + internal links + schema on approved pages",
+    "paidAdsDependence": "minimized_by_design"
+  },
+  "operatorActions": [
+    "Remove stale/malformed google-site-verification TXT at DNS host",
+    "Set GSC OAuth secrets on Railway OR click Verify in Search Console after DNS fix",
+    "Set NEXT_PUBLIC_GA_MEASUREMENT_ID on Render",
+    "Deploy approved content; run npm run bossmind:deploy:gate before production"
+  ],
+  "commands": {
+    "optimize": "npm run resumora:google-traffic:optimize",
+    "lock": "npm run resumora:google-traffic:lock -- --i-understand-traffic-config",
+    "gscRecovery": "npm run resumora:gsc:verify-recovery",
+    "ecosystemAudit": "npm run resumora:google:ecosystem:audit",
+    "organicGrowth": "npm run bossmind:organic:growth"
+  }
+}

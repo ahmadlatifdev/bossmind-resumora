@@ -20,6 +20,7 @@ const {
   computeSupportMailReadinessPercent,
 } = require("../../../lib/orchestration/resumora-support-mail-status");
 const { readLatestGoogleEcosystemReport } = require("../../../lib/marketing/resumora-google-ecosystem-audit-lib");
+const { readLatestGoogleTrafficReport } = require("../../../lib/marketing/resumora-google-traffic-engine-lib");
 const fs = require("fs");
 const path = require("path");
 
@@ -147,6 +148,11 @@ export default async function handler(req, res) {
       lastReport: readLatestGoogleEcosystemReport(process.cwd()),
       auditCommand: "npm run resumora:google:ecosystem:audit",
     };
+    const googleTrafficEngine = {
+      lastReport: readLatestGoogleTrafficReport(process.cwd()),
+      optimizeCommand: "npm run resumora:google-traffic:optimize",
+      lockCommand: "npm run resumora:google-traffic:lock -- --i-understand-traffic-config",
+    };
 
     let aiVideo = {
       dashboardPath: "/bossmind-ai-video",
@@ -206,6 +212,7 @@ export default async function handler(req, res) {
       autonomousSelfHeal,
       supportMail,
       googleEcosystem,
+      googleTrafficEngine,
       aiVideo,
       scores: {
         performanceScore,

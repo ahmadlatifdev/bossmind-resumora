@@ -10,6 +10,7 @@ import {
   setPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { pricingPlans, translations } from "@/lib/marketing/site-copy";
+import { trackGa4 } from "@/lib/marketing/resumora-ga4-events";
 
 function firstQuery(value) {
   if (typeof value === "string") return value;
@@ -66,6 +67,7 @@ export default function RegisterPage({ initialPlan = null }) {
       else setError(typeof data.error === "string" ? data.error : t.errRegisterGeneric);
       return;
     }
+    trackGa4("sign_up", { method: "engagement_register" });
     setMessage(t.registerCreated);
     await router.push(getPostAuthRedirectPath(router));
   }

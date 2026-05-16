@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "domain": "resumora.net",
+  "canonicalOrigin": "https://resumora.net",
+  "strategy": "free_organic_first",
+  "integrations": {
+    "googleSearchConsole": {
+      "recoveryScript": "npm run resumora:gsc:verify-recovery",
+      "sitemapUrl": "https://resumora.net/sitemap.xml",
+      "sitemapImagesUrl": "https://resumora.net/sitemap-images.xml",
+      "oauthSecrets": ["GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN", "GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET"]
+    },
+    "ga4": {
+      "publicEnv": "NEXT_PUBLIC_GA_MEASUREMENT_ID",
+      "recommendedEvents": [
+        "page_view",
+        "select_plan",
+        "begin_checkout",
+        "sign_up",
+        "generate_lead",
+        "contact_submit"
+      ]
+    },
+    "deepSeekSeoBrain": {
+      "env": ["DEEPSEEK_API_KEY"],
+      "models": ["deepseek-chat", "deepseek-reasoner"]
+    },
+    "openAiContentLayer": {
+      "env": ["OPENAI_API_KEY"],
+      "model": "gpt-4o-mini"
+    },
+    "geminiEnhancement": {
+      "env": ["GEMINI_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY"],
+      "model": "gemini-2.0-flash"
+    },
+    "seRanking": {
+      "env": ["SE_RANKING_API_KEY"],
+      "note": "Worker/Railway only — sync rank snapshots to Neon when API wired"
+    }
+  },
+  "weeklySchedule": {
+    "monday": { "id": "seo_articles", "scripts": ["google-organic-engine", "deepseek-seo-brain"], "label": "SEO articles + architecture" },
+    "tuesday": { "id": "linkedin", "scripts": ["weekly-organic-pipeline"], "label": "LinkedIn organic posts" },
+    "wednesday": { "id": "instagram_pinterest", "scripts": ["weekly-organic-pipeline", "social-growth-engine"], "label": "Instagram / Pinterest" },
+    "thursday": { "id": "interview_guides", "scripts": ["google-organic-engine"], "focus": "interview-preparation" },
+    "friday": { "id": "resume_optimization", "scripts": ["google-organic-engine"], "focus": "ats-resume, executive-resume" },
+    "saturday": { "id": "keyword_expansion", "scripts": ["deepseek-seo-brain"], "label": "Keyword clusters + gaps" },
+    "sunday": { "id": "analytics_audit", "scripts": ["google-ecosystem-audit", "gsc-verify-recovery"], "label": "SEO analytics + GSC health" }
+  },
+  "seoExpansionTargets": [
+    { "slug": "canada-jobs-resume", "keywords": ["Canada jobs resume", "Canadian ATS resume"] },
+    { "slug": "ontario-jobs-resume", "keywords": ["Ontario jobs", "Toronto executive resume"] },
+    { "slug": "government-jobs-resume", "keywords": ["government resume Canada", "public sector CV"] },
+    { "slug": "nurse-resume", "keywords": ["nurse resume", "RN resume ATS"] },
+    { "slug": "it-resume", "keywords": ["IT resume", "software engineer resume"] },
+    { "slug": "project-manager-resume", "keywords": ["project manager resume", "PM resume"] },
+    { "slug": "executive-resume", "keywords": ["executive resume", "C-suite CV"] },
+    { "slug": "french-resume-services", "keywords": ["CV français", "bilingual resume EN FR"] },
+    { "slug": "ats-resume-optimization", "keywords": ["ATS resume optimization", "ATS friendly CV"] },
+    { "slug": "linkedin-optimization", "keywords": ["LinkedIn optimization", "LinkedIn headline"] }
+  ],
+  "lockMemoryKey": "resumora:locked_google_traffic_engine"
+}
