@@ -135,13 +135,13 @@ export default function BossMindAiVideoDashboardPage() {
   return (
     <MinimalAppChrome>
       <Head>
-        <title>BossMind AI Video Generator · Queue</title>
+        <title>VibeVoyage · BossMind AI Video</title>
       </Head>
       <main className="rs-app-shell rs-app-shell--minimal-main">
         <section className="rs-simple-card rs-simple-card--wide">
-          <h1>BossMind AI Video Generator</h1>
+          <h1>BossMind AI Video — VibeVoyage</h1>
           <p style={{ marginTop: "0.75rem", color: "var(--rs-text-secondary)", maxWidth: "52rem" }}>
-            Operator console for the <strong>ai-video-generator</strong> project (isolated from Resumora). Uses Neon{" "}
+            Operator console for the <strong>VibeVoyage</strong> channel (<code>ai-video-generator</code> project key, isolated from Resumora). Uses Neon{" "}
             <code>video_*</code> tables. FFmpeg, Runway/Luma/Kling, TTS, and n8n run on Railway / n8n — not in this
             process.
           </p>

@@ -46,7 +46,8 @@
     },
     {
       "id": "ai-video-generator",
-      "displayName": "AI Video Generator",
+      "displayName": "AI Video Generator · VibeVoyage",
+      "channelName": "VibeVoyage",
       "siteUrl": null,
       "repoRootEnv": "BOSSMIND_REPO_ROOT_AI_VIDEO",
       "bossmindDashboardPath": "/bossmind-ai-video",

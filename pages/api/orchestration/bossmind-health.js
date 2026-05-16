@@ -148,9 +148,16 @@ export default async function handler(req, res) {
       auditCommand: "npm run resumora:google:ecosystem:audit",
     };
 
-    let aiVideo = {
+    aiVideo = {
       dashboardPath: "/bossmind-ai-video",
       projectKeyDefault: process.env.BOSSMIND_AI_VIDEO_PROJECT_KEY || "ai-video-generator",
+      channelName: (() => {
+        try {
+          return require("../../../lib/orchestration/bossmind-ai-video-store").channelName();
+        } catch {
+          return process.env.BOSSMIND_AI_VIDEO_CHANNEL_NAME || "VibeVoyage";
+        }
+      })(),
     };
     if (neonOk) {
       try {
