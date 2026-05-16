@@ -92,19 +92,27 @@ async function liveHomeProbe() {
   console.log(`\n→ Live production homepage probe (${origin}/)`);
   const required = [
     'id="top"',
-    'id="trust"',
     'id="home-intake"',
     'id="pricing"',
+    'data-tier="essential_advanced"',
+    'data-rs-pricing-ui="20260517-ea-v2"',
     "rs-footer-engage-dock",
     'id="footer-official-social"',
   ];
+  const forbidden = ["Trust at a glance", "rs-trust-panel--slim"];
   try {
     const r = await fetchText(`${origin}/`);
     if (r.status !== 200) {
       console.error(`bossmind-task-completion-gate: live probe HTTP ${r.status}`);
       process.exit(1);
     }
+    const forbiddenHit = forbidden.filter((s) => r.body.includes(s));
     const missing = required.filter((s) => !r.body.includes(s));
+    if (forbiddenHit.length) {
+      console.error("bossmind-task-completion-gate: stale UI patterns on live homepage:");
+      for (const m of forbiddenHit) console.error(`  - ${m}`);
+      process.exit(1);
+    }
     if (missing.length) {
       console.error(
         "bossmind-task-completion-gate: live homepage missing expected markers (stale deploy or wrong origin):"

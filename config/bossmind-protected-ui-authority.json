@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "project": "resumora",
   "immutableProductionBaseline": {
     "configPath": "config/bossmind-immutable-production-baseline.json",
@@ -16,24 +16,34 @@
   },
   "requiredHomeHtmlMarkers": [
     "id=\"top\"",
-    "id=\"trust\"",
     "id=\"home-intake\"",
     "id=\"pricing\"",
+    "data-rs-pricing-ui=\"20260517-ea-v2\"",
+    "data-tier=\"essential_advanced\"",
     "rs-week-main",
     "rs-btn-accent",
     "rs-cta-strip",
+    "rs-pricing-grid",
     "--rs-gold:",
     "--rs-bg-deep:",
     "--rs-border-strong:",
     "--rs-shadow-card:"
   ],
+  "forbiddenLiveHtmlPatterns": [
+    "Trust at a glance",
+    "rs-trust-panel--slim",
+    "Greenhouse · Lever · Workday"
+  ],
   "forbiddenMinimalHomeIndicators": [],
   "fingerprintExtraPaths": [
     "config/bossmind-protected-ui-authority.json",
     "config/branding-asset-version.json",
+    "config/bossmind-ultra-antileak-policy.json",
     "lib/marketing/branding-assets.js",
     "pages/_document.js",
+    "pages/_app.js",
     "pages/api/branding-manifest.js",
-    "public/sw.js"
+    "public/sw.js",
+    "components/marketing/InstallPrompt.jsx"
   ]
 }

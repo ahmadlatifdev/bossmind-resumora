@@ -1,0 +1,317 @@
+{
+  "generatedAt": "2026-05-16T22:56:13.140Z",
+  "policyVersion": 1,
+  "targetProductionSafetyPercent": 98,
+  "overallProductionSafetyPercent": 65.7,
+  "meetsTarget": false,
+  "origin": "https://resumora.net",
+  "snapshot": {
+    "ok": false,
+    "skipped": true
+  },
+  "snapshotIntegrity": {
+    "ok": false,
+    "reason": "no_golden_snapshot"
+  },
+  "sourceFingerprint": {
+    "hash": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+    "missing": [],
+    "fileCount": 7
+  },
+  "immutableBaseline": {
+    "enabled": true,
+    "ok": false
+  },
+  "cachePolicy": {
+    "ok": true,
+    "checks": {
+      "networkFirstHtml": true,
+      "noHomePrecache": true,
+      "skipWaiting": true,
+      "clientsClaim": true,
+      "brandingVersionInSw": true
+    },
+    "score": 100
+  },
+  "pwaPopupSafety": {
+    "ok": true,
+    "checks": {
+      "cornerBannerClass": true,
+      "delayedTrigger": true,
+      "pricingSectionGuard": true,
+      "checkoutPathGuard": true
+    },
+    "score": 100
+  },
+  "deployGuard": {
+    "ok": false,
+    "steps": [
+      {
+        "id": "antileak",
+        "ok": false,
+        "code": 1,
+        "stderrTail": "warning: in the working copy of 'config/bossmind-protected-ui-authority.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'lib/orchestration/bossmind-baseline-fingerprint.js', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'pages/api/orchestration/bossmind-health.js', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/bossmind-immutable-verify.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/bossmind-runtime-sync.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/bossmind-task-completion-gate.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/bossmind-ui-probe.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'windows-heal/reports/dashboard.html', LF will be replaced by CRLF the next time Git touches it\nbossmind-antileak: blocked — protected paths touched:\n  config/bossmind-protected-ui-authority.json\n  lib/orchestration/bossmind-baseline-fingerprint.js\n  pages/api/orchestration/bossmind-health.js\nSet BOSSMIND_PROTECTED_EDIT_OK=1 only with explicit owner approval.\n",
+        "stdoutTail": ""
+      },
+      {
+        "id": "protected_surface",
+        "ok": true,
+        "code": 0,
+        "stderrTail": "",
+        "stdoutTail": "bossmind-protected-surface-verify: ok (68 modules present, project=resumora).\n"
+      },
+      {
+        "id": "build",
+        "ok": true,
+        "code": 0,
+        "stderrTail": "Turbopack build encountered 1 warnings:\n./next.config.ts\nEncountered unexpected file in NFT list\nA file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace below, there are:\n- filesystem operations (like path.join, path.resolve or fs.readFile), or\n- very dynamic requires (like require('./' + foo)).\nTo resolve this, you can\n- remove them if possible, or\n- only use them in development, or\n- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or\n- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)\n\nImport trace:\n  Route:\n    ./next.config.ts\n    ./lib/orchestration/bossmind-autonomous-self-heal-status.js\n    ./pages/api/orchestration/bossmind-health.js\n\n\n"
+      },
+      {
+        "id": "structural_authority",
+        "ok": true,
+        "detail": {
+          "manifestLoaded": true,
+          "duplicateHomePageFiles": [
+            "components/marketing/HomePage.jsx"
+          ],
+          "duplicateHomeSources": false,
+          "singleHomeAuthority": true,
+          "indexBootstrapsCanonical": true,
+          "indexReport": {
+            "ok": true,
+            "canonical": "components/marketing/HomePage.jsx",
+            "idx": "pages/index.js"
+          },
+          "appRouterConflicts": [],
+          "appRouterOk": true,
+          "ok": true
+        }
+      }
+    ]
+  },
+  "live": {
+    "home": {
+      "forbiddenHits": [],
+      "requiredMissing": [],
+      "tiers": [
+        {
+          "tier": "basic",
+          "found": true
+        },
+        {
+          "tier": "essential_advanced",
+          "found": true
+        },
+        {
+          "tier": "professional",
+          "found": true
+        },
+        {
+          "tier": "elite",
+          "found": true
+        }
+      ],
+      "trustRemoved": true,
+      "essentialAdvancedVisible": true,
+      "pricingMarker": true,
+      "pass": true
+    },
+    "pricing": {
+      "forbiddenHits": [],
+      "requiredMissing": [
+        {
+          "marker": "id=\"top\"",
+          "found": false
+        },
+        {
+          "marker": "id=\"home-intake\"",
+          "found": false
+        },
+        {
+          "marker": "rs-week-main",
+          "found": false
+        }
+      ],
+      "tiers": [
+        {
+          "tier": "basic",
+          "found": true
+        },
+        {
+          "tier": "essential_advanced",
+          "found": true
+        },
+        {
+          "tier": "professional",
+          "found": true
+        },
+        {
+          "tier": "elite",
+          "found": true
+        }
+      ],
+      "trustRemoved": true,
+      "essentialAdvancedVisible": true,
+      "pricingMarker": true,
+      "pass": false
+    }
+  },
+  "reconciliation": {
+    "ok": false,
+    "score": 59,
+    "mismatches": 2
+  },
+  "dimensionScores": {
+    "antiLeakActivation": {
+      "percent": 33.3,
+      "weight": 12,
+      "checks": [
+        {
+          "id": "deploy_checkpoint_script",
+          "pass": true
+        },
+        {
+          "id": "antileak_guard",
+          "pass": false
+        },
+        {
+          "id": "golden_snapshot",
+          "pass": false
+        }
+      ]
+    },
+    "runtimeSynchronization": {
+      "percent": 50,
+      "weight": 18,
+      "checks": [
+        {
+          "id": "live_home_http",
+          "pass": true
+        },
+        {
+          "id": "live_home_ui",
+          "pass": true
+        },
+        {
+          "id": "live_pricing_ui",
+          "pass": false
+        },
+        {
+          "id": "reconcile_ok",
+          "pass": false
+        }
+      ]
+    },
+    "deploymentReconciliation": {
+      "percent": 33.3,
+      "weight": 14,
+      "checks": [
+        {
+          "id": "structural",
+          "pass": true
+        },
+        {
+          "id": "reconcile_score",
+          "pass": false
+        },
+        {
+          "id": "immutable_enabled",
+          "pass": false
+        }
+      ]
+    },
+    "staleCacheProtection": {
+      "percent": 100,
+      "weight": 16,
+      "checks": [
+        {
+          "id": "sw_policy",
+          "pass": true
+        },
+        {
+          "id": "branding_version_file",
+          "pass": true
+        },
+        {
+          "id": "live_pricing_marker",
+          "pass": true
+        }
+      ]
+    },
+    "autonomousRollbackSafety": {
+      "percent": 33.3,
+      "weight": 12,
+      "checks": [
+        {
+          "id": "snapshot_integrity",
+          "pass": false
+        },
+        {
+          "id": "baseline_restore_script",
+          "pass": true
+        },
+        {
+          "id": "restore_manifest",
+          "pass": false
+        }
+      ]
+    },
+    "uiIntegrityValidation": {
+      "percent": 100,
+      "weight": 20,
+      "checks": [
+        {
+          "id": "trust_removed_live",
+          "pass": true
+        },
+        {
+          "id": "ea_visible",
+          "pass": true
+        },
+        {
+          "id": "source_trust_stub",
+          "pass": true
+        },
+        {
+          "id": "four_tiers",
+          "pass": true
+        }
+      ]
+    },
+    "pwaPopupSafety": {
+      "percent": 100,
+      "weight": 8,
+      "checks": [
+        {
+          "id": "pwa_checks",
+          "pass": true
+        },
+        {
+          "id": "app_sw_update",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "repairActions": [
+    "Resolve deploy-guard failures before ship",
+    "Overall 65.7% < target 98% — run full deploy gate + Render deploy"
+  ],
+  "closedLoop": {
+    "stages": [
+      "immutable_snapshot",
+      "build_validation",
+      "deploy_guard",
+      "live_ui_probe",
+      "cache_policy",
+      "reconciliation",
+      "golden_lock"
+    ],
+    "completed": [
+      "build_validation",
+      "live_ui_probe",
+      "cache_policy"
+    ]
+  },
+  "disclaimer": "Scores are proof-based from in-repo checks + live HTML fetch. Auto-redeploy/CDN purge require external hooks (Render/CI). Pixel screenshot diff not included."
+}

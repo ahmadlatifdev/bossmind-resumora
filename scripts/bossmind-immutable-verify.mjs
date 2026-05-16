@@ -44,22 +44,23 @@ function fetchText(urlString, timeoutMs = 15000) {
 async function verifyProductionProbe(probeOrigin) {
   const origin = (probeOrigin || "").replace(/\/$/, "");
   if (!origin) return { skipped: true };
-  const markers = loadManifest(root)?.requiredHomeHtmlMarkers || [
+  const manifest = loadManifest(root);
+  const markers = manifest?.requiredHomeHtmlMarkers || [
     'id="top"',
-    'id="trust"',
     'id="home-intake"',
     'id="pricing"',
+    'data-tier="essential_advanced"',
   ];
+  const forbidden = manifest?.forbiddenLiveHtmlPatterns || ["Trust at a glance", "rs-trust-panel--slim"];
   try {
     const first = await fetchText(`${origin}/`);
     const body = first.body;
+    const forbiddenHit = forbidden.some((p) => body.includes(p));
     const markersOk =
       first.status === 200 &&
       markers.every((m) => body.includes(m)) &&
-      !(
-        body.includes('id="pricing"') &&
-        !body.includes('id="home-intake"')
-      );
+      !forbiddenHit &&
+      !(body.includes('id="pricing"') && !body.includes('id="home-intake"'));
     const footerCheck = assertApprovedFooterInHtml(body);
     const ok = markersOk && footerCheck.ok;
     return {

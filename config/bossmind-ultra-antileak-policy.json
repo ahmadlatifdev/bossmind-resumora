@@ -1,0 +1,69 @@
+{
+  "version": 2,
+  "targetProductionSafetyPercent": 98,
+  "description": "Proof-based autonomous deployment safety — scores reflect passed checks only (no fabricated %).",
+  "productionOrigin": "https://resumora.net",
+  "pricingUiMarker": "20260517-ea-v2",
+  "requiredLiveMarkers": [
+    "id=\"top\"",
+    "id=\"home-intake\"",
+    "id=\"pricing\"",
+    "data-rs-pricing-ui=\"20260517-ea-v2\"",
+    "data-tier=\"essential_advanced\"",
+    "rs-week-main",
+    "rs-pricing-grid"
+  ],
+  "forbiddenLivePatterns": [
+    "Trust at a glance",
+    "rs-trust-panel--slim",
+    "Greenhouse · Lever · Workday"
+  ],
+  "sourceFingerprintPaths": [
+    "components/marketing/HomePage.jsx",
+    "components/marketing/sections/PricingPanel.jsx",
+    "components/marketing/sections/TrustMetricsPanel.jsx",
+    "components/marketing/InstallPrompt.jsx",
+    "lib/marketing/site-copy.js",
+    "public/sw.js",
+    "config/branding-asset-version.json"
+  ],
+  "componentLockPaths": [
+    "components/marketing/sections/PricingPanel.jsx",
+    "styles/resumora-global.css",
+    "lib/marketing/site-copy.js",
+    "components/marketing/HomePage.jsx"
+  ],
+  "pwaSafetyPaths": ["components/marketing/InstallPrompt.jsx", "public/sw.js", "pages/_app.js"],
+  "closedLoopStages": [
+    "immutable_snapshot",
+    "build_validation",
+    "deploy_guard",
+    "extended_deploy_guard",
+    "live_ui_probe",
+    "visual_structural_validation",
+    "cache_policy",
+    "reconciliation",
+    "self_heal",
+    "golden_lock"
+  ],
+  "scoreWeights": {
+    "antiLeakActivation": 12,
+    "runtimeSynchronization": 18,
+    "deploymentReconciliation": 14,
+    "staleCacheProtection": 16,
+    "autonomousRollbackSafety": 12,
+    "uiIntegrityValidation": 20,
+    "pwaPopupSafety": 8
+  },
+  "multiProjectRegistry": "config/bossmind-organic-growth-registry.json",
+  "externalHooks": {
+    "redeploy": "BOSSMIND_ULTRA_REDEPLOY_HOOK_URL or BOSSMIND_RECONCILE_DEPLOY_HOOK_URL",
+    "cdnPurge": "Render manual deploy / cache-bust via branding-asset-version",
+    "pixelDiff": "Optional Playwright pipeline (not in-repo)"
+  },
+  "notes": [
+    "Golden snapshot restore: npm run bossmind:ultra:antileak:restore",
+    "Self-heal: npm run bossmind:ultra:antileak:self-heal",
+    "Reach 98%: baseline seal + deploy + snapshot-lock + live marker on production"
+  ]
+}

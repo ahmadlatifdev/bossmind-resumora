@@ -15,14 +15,16 @@ const PATHS = [
     path: "/",
     expect: [
       'id="top"',
-      'id="trust"',
       'id="home-intake"',
       'id="pricing"',
+      'data-tier="essential_advanced"',
+      'data-rs-pricing-ui="20260517-ea-v2"',
       "rs-footer-engage-dock",
       'id="footer-official-social"',
       "Resumora",
       "</html>",
     ],
+    forbid: ["Trust at a glance", "rs-trust-panel--slim"],
     minBytes: 1200,
   },
   /* Mis-typed /client → luxury homepage (matches next.config.ts redirect). */
@@ -131,8 +133,10 @@ async function main() {
         });
         continue;
       }
+      const forbidHit = (probe.forbid || []).some((s) => r.body.includes(s));
       const ok =
         r.status === 200 &&
+        !forbidHit &&
         probe.expect.every((s) => r.body.includes(s)) &&
         r.body.length > (probe.minBytes || 400);
       results.push({ url, ok, status: r.status, bytes: r.body.length });

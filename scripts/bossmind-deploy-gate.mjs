@@ -86,5 +86,19 @@ if (process.env.BOSSMIND_DEPLOY_GATE_UI_PROBE === "1") {
   run("UI probe (set BOSSMIND_PROBE_ORIGIN)", npm, ["run", "bossmind:ui-probe"], continueEnv);
 }
 
+if (process.env.BOSSMIND_DEPLOY_GATE_ULTRA === "1") {
+  const ultraOrigin =
+    process.env.BOSSMIND_IMMUTABLE_PROBE_ORIGIN ||
+    process.env.BOSSMIND_PRODUCTION_PUBLIC_ORIGIN ||
+    process.env.BOSSMIND_REALITY_LIVE_URL ||
+    "";
+  const ultraArgs = ["scripts/bossmind-ultra-antileak.mjs", "--skip-build"];
+  if (ultraOrigin) ultraArgs.push(`--origin=${ultraOrigin}`);
+  run("Ultra anti-leak validation", "node", ultraArgs, {
+    ...continueEnv,
+    BOSSMIND_ULTRA_SKIP_ANTILEAK: process.env.BOSSMIND_SKIP_ANTILEAK || "1",
+  });
+}
+
 console.log("\nbossmind-deploy-gate: ok — safe to deploy (Render frontend / Railway backend / Neon memory).");
 process.exit(0);

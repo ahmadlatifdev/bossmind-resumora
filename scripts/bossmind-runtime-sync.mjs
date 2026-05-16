@@ -132,7 +132,12 @@ function markersPass(body, markers) {
   return markers.every((s) => body.includes(s));
 }
 
-async function runtimeProbe(markers) {
+function forbiddenPass(body, patterns) {
+  if (!patterns?.length) return true;
+  return !patterns.some((p) => body.includes(p));
+}
+
+async function runtimeProbe(markers, forbiddenPatterns = []) {
   const [homeRaw, frRaw, client] = await Promise.all([
     requestText(`${origin}/`),
     requestText(`${origin}/?lang=fr`),
@@ -146,6 +151,7 @@ async function runtimeProbe(markers) {
   const homeOk =
     home.status === 200 &&
     markersPass(home.body, requiredSnippets) &&
+    forbiddenPass(home.body, forbiddenPatterns) &&
     home.body.includes("</html>");
   const frOk =
     fr.status === 200 &&
@@ -308,7 +314,10 @@ async function syncOnce() {
     }
   }
 
-  const probe = await runtimeProbe(markersCfg.requiredHomeHtmlMarkers).catch((error) => ({
+  const probe = await runtimeProbe(
+    markersCfg.requiredHomeHtmlMarkers,
+    markersCfg.forbiddenLiveHtmlPatterns || []
+  ).catch((error) => ({
     ok: false,
     error: error.message,
     homeOk: false,

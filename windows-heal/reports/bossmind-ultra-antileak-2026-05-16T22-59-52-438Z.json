@@ -1,0 +1,491 @@
+{
+  "generatedAt": "2026-05-16T22:59:52.438Z",
+  "policyVersion": 2,
+  "targetProductionSafetyPercent": 98,
+  "overallProductionSafetyPercent": 85.4,
+  "meetsTarget": false,
+  "origin": "https://resumora.net",
+  "snapshot": {
+    "ok": true,
+    "snapshotId": "2026-05-16T22-59-50-864Z",
+    "base": "D:\\BossMind\\resumora-fresh\\.bossmind\\anti-leak\\snapshots\\2026-05-16T22-59-50-864Z",
+    "manifest": {
+      "version": 1,
+      "snapshotId": "2026-05-16T22-59-50-864Z",
+      "createdAt": "2026-05-16T22:59:50.904Z",
+      "files": [
+        {
+          "relativePath": "components/marketing/HomePage.jsx",
+          "sha256": "b86527a42b1b4291bc982a095161726b11995ce1e67da56e27e5c94499892345"
+        },
+        {
+          "relativePath": "components/marketing/sections/PricingPanel.jsx",
+          "sha256": "59cdc451cbf34e4577d4a2482a383ea677c20a8cb1e807f0c2a9051b26622c35"
+        },
+        {
+          "relativePath": "components/marketing/sections/TrustMetricsPanel.jsx",
+          "sha256": "d13b2aaa1848dbf7289fcd91dfd77b12f5e82b9d2bba0bf1c58d34a558151422"
+        },
+        {
+          "relativePath": "components/marketing/InstallPrompt.jsx",
+          "sha256": "6ddc50c41dbf2bf3c7988a4741fca82f45f46af66d24c86d2fd237447035f814"
+        },
+        {
+          "relativePath": "lib/marketing/site-copy.js",
+          "sha256": "efe847158a98ea85a58e6d4693fb549709dd1d3c8052e4fb48f0c53b8a83260a"
+        },
+        {
+          "relativePath": "public/sw.js",
+          "sha256": "0667c8acb733f0b31e1e4eac595154d52e26cdaa6f656c3349f33088b122eccf"
+        },
+        {
+          "relativePath": "config/branding-asset-version.json",
+          "sha256": "31fd634b25a40ae97a38e55c2bc313730115c0972a6d6cc4640b1e1a9f69ae39"
+        }
+      ],
+      "aggregateChecksum": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+      "pricingUiMarker": "20260517-ea-v2"
+    }
+  },
+  "snapshotIntegrity": {
+    "ok": true,
+    "goldenChecksum": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+    "liveChecksum": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+    "missing": [],
+    "snapshotId": "2026-05-16T22-59-50-864Z"
+  },
+  "sourceFingerprint": {
+    "hash": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+    "missing": [],
+    "fileCount": 7
+  },
+  "immutableBaseline": {
+    "enabled": true,
+    "ok": false
+  },
+  "cachePolicy": {
+    "ok": true,
+    "checks": {
+      "networkFirstHtml": true,
+      "noHomePrecache": true,
+      "skipWaiting": true,
+      "clientsClaim": true,
+      "brandingVersionInSw": true
+    },
+    "score": 100
+  },
+  "pwaPopupSafety": {
+    "ok": true,
+    "checks": {
+      "cornerBannerClass": true,
+      "delayedTrigger": true,
+      "pricingSectionGuard": true,
+      "checkoutPathGuard": true
+    },
+    "score": 100
+  },
+  "deployGuard": {
+    "ok": true,
+    "steps": [
+      {
+        "id": "antileak",
+        "ok": true,
+        "skipped": true
+      },
+      {
+        "id": "protected_surface",
+        "ok": true,
+        "code": 0,
+        "stderrTail": "",
+        "stdoutTail": "bossmind-protected-surface-verify: ok (68 modules present, project=resumora).\n"
+      },
+      {
+        "id": "structural_authority",
+        "ok": true,
+        "detail": {
+          "manifestLoaded": true,
+          "duplicateHomePageFiles": [
+            "components/marketing/HomePage.jsx"
+          ],
+          "duplicateHomeSources": false,
+          "singleHomeAuthority": true,
+          "indexBootstrapsCanonical": true,
+          "indexReport": {
+            "ok": true,
+            "canonical": "components/marketing/HomePage.jsx",
+            "idx": "pages/index.js"
+          },
+          "appRouterConflicts": [],
+          "appRouterOk": true,
+          "ok": true
+        }
+      }
+    ]
+  },
+  "extendedDeployGuard": {
+    "ok": true,
+    "score": 100,
+    "checks": [
+      {
+        "id": "home_no_trust_import",
+        "pass": true
+      },
+      {
+        "id": "pricing_panel_marker",
+        "pass": true
+      },
+      {
+        "id": "trust_stub_noop",
+        "pass": true
+      },
+      {
+        "id": "single_home_authority",
+        "pass": true
+      },
+      {
+        "id": "route_pages/pricing.js",
+        "pass": true
+      },
+      {
+        "id": "route_pages/index.js",
+        "pass": true
+      },
+      {
+        "id": "route_pages/services.js",
+        "pass": true
+      },
+      {
+        "id": "essential_advanced_in_plans",
+        "pass": true
+      },
+      {
+        "id": "four_column_pricing_grid",
+        "pass": true
+      },
+      {
+        "id": "checkout_api_essential",
+        "pass": true
+      }
+    ]
+  },
+  "visualStructural": {
+    "pass": true,
+    "score": 88,
+    "checks": [
+      {
+        "id": "no_trust_panel",
+        "pass": true
+      },
+      {
+        "id": "four_price_cards",
+        "pass": true
+      },
+      {
+        "id": "pricing_grid",
+        "pass": true
+      },
+      {
+        "id": "luxury_theme_tokens",
+        "pass": false
+      },
+      {
+        "id": "select_plan_buttons",
+        "pass": true
+      },
+      {
+        "id": "no_center_install_overlap",
+        "pass": true
+      },
+      {
+        "id": "pricing_page_ea",
+        "pass": true
+      },
+      {
+        "id": "pricing_ui_marker",
+        "pass": true
+      }
+    ],
+    "homeDomHash": "0f096c3c8e64a7b2",
+    "pricingDomHash": "0f096c3c8e64a7b2"
+  },
+  "deploymentLayers": {
+    "gitHead": "c6e796dec7ea0b4395343c28f8f9d028fb36fb5d",
+    "buildId": "qzT5apj2A10ul3RvjYlve",
+    "sourceFingerprintHash": "2a129b27c68eb988a6e0b27b45ad5ac00d89f3687e866d9e9126a7ae2ed8090a",
+    "liveDomStructuralHash": "0f096c3c8e64a7b2",
+    "origin": "https://resumora.net",
+    "note": "Full GitHub↔deploy commit match requires CI metadata (RENDER_GIT_COMMIT / Railway). In-repo compares source files vs live DOM structure."
+  },
+  "sourceVsLiveMatch": true,
+  "selfHeal": {
+    "skipped": true
+  },
+  "redeployHook": {
+    "skipped": true,
+    "reason": "no_hook_url"
+  },
+  "live": {
+    "home": {
+      "forbiddenHits": [],
+      "requiredMissing": [],
+      "tiers": [
+        {
+          "tier": "basic",
+          "found": true
+        },
+        {
+          "tier": "essential_advanced",
+          "found": true
+        },
+        {
+          "tier": "professional",
+          "found": true
+        },
+        {
+          "tier": "elite",
+          "found": true
+        }
+      ],
+      "trustRemoved": true,
+      "essentialAdvancedVisible": true,
+      "pricingMarker": true,
+      "pass": true
+    },
+    "pricing": {
+      "forbiddenHits": [],
+      "requiredMissing": [
+        {
+          "marker": "id=\"top\"",
+          "found": false
+        },
+        {
+          "marker": "id=\"home-intake\"",
+          "found": false
+        },
+        {
+          "marker": "rs-week-main",
+          "found": false
+        }
+      ],
+      "tiers": [
+        {
+          "tier": "basic",
+          "found": true
+        },
+        {
+          "tier": "essential_advanced",
+          "found": true
+        },
+        {
+          "tier": "professional",
+          "found": true
+        },
+        {
+          "tier": "elite",
+          "found": true
+        }
+      ],
+      "trustRemoved": true,
+      "essentialAdvancedVisible": true,
+      "pricingMarker": true,
+      "pass": false
+    }
+  },
+  "reconciliation": {
+    "ok": false,
+    "score": 59,
+    "mismatches": 2
+  },
+  "dimensionScores": {
+    "antiLeakActivation": {
+      "percent": 100,
+      "weight": 12,
+      "checks": [
+        {
+          "id": "deploy_checkpoint_script",
+          "pass": true
+        },
+        {
+          "id": "antileak_guard",
+          "pass": true
+        },
+        {
+          "id": "golden_snapshot",
+          "pass": true
+        },
+        {
+          "id": "restore_engine",
+          "pass": true
+        },
+        {
+          "id": "closed_loop_script",
+          "pass": true
+        }
+      ]
+    },
+    "runtimeSynchronization": {
+      "percent": 50,
+      "weight": 18,
+      "checks": [
+        {
+          "id": "live_home_http",
+          "pass": true
+        },
+        {
+          "id": "live_home_ui",
+          "pass": true
+        },
+        {
+          "id": "live_pricing_ui",
+          "pass": false
+        },
+        {
+          "id": "reconcile_ok",
+          "pass": false
+        }
+      ]
+    },
+    "deploymentReconciliation": {
+      "percent": 60,
+      "weight": 14,
+      "checks": [
+        {
+          "id": "structural",
+          "pass": true
+        },
+        {
+          "id": "extended_deploy_guard",
+          "pass": true
+        },
+        {
+          "id": "reconcile_score",
+          "pass": false
+        },
+        {
+          "id": "immutable_enabled",
+          "pass": false
+        },
+        {
+          "id": "source_live_match",
+          "pass": true
+        }
+      ]
+    },
+    "staleCacheProtection": {
+      "percent": 100,
+      "weight": 16,
+      "checks": [
+        {
+          "id": "sw_policy",
+          "pass": true
+        },
+        {
+          "id": "branding_version_file",
+          "pass": true
+        },
+        {
+          "id": "live_pricing_marker",
+          "pass": true
+        }
+      ]
+    },
+    "autonomousRollbackSafety": {
+      "percent": 100,
+      "weight": 12,
+      "checks": [
+        {
+          "id": "snapshot_integrity",
+          "pass": true
+        },
+        {
+          "id": "baseline_restore_script",
+          "pass": true
+        },
+        {
+          "id": "restore_manifest",
+          "pass": true
+        }
+      ]
+    },
+    "uiIntegrityValidation": {
+      "percent": 100,
+      "weight": 20,
+      "checks": [
+        {
+          "id": "trust_removed_live",
+          "pass": true
+        },
+        {
+          "id": "ea_visible",
+          "pass": true
+        },
+        {
+          "id": "source_trust_stub",
+          "pass": true
+        },
+        {
+          "id": "four_tiers",
+          "pass": true
+        },
+        {
+          "id": "visual_structural",
+          "pass": true
+        },
+        {
+          "id": "stripe_checkout_path",
+          "pass": true
+        }
+      ]
+    },
+    "pwaPopupSafety": {
+      "percent": 100,
+      "weight": 8,
+      "checks": [
+        {
+          "id": "pwa_checks",
+          "pass": true
+        },
+        {
+          "id": "app_sw_update",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "rates": {
+    "antiLeakActivationRate": 100,
+    "runtimeSynchronizationRate": 50,
+    "deploymentReconciliationRate": 60,
+    "staleCacheProtectionRate": 100,
+    "autonomousRollbackSafetyRate": 100,
+    "uiIntegrityValidationRate": 100,
+    "pwaPopupSafetyRate": 100
+  },
+  "repairActions": [
+    "Re-seal immutable baseline: npm run bossmind:baseline:seal (after approved UI)",
+    "Overall 85.4% < target 98% — deploy Render + run bossmind:deploy:gate"
+  ],
+  "closedLoop": {
+    "stages": [
+      "immutable_snapshot",
+      "build_validation",
+      "deploy_guard",
+      "extended_deploy_guard",
+      "live_ui_probe",
+      "visual_structural_validation",
+      "cache_policy",
+      "reconciliation",
+      "self_heal",
+      "golden_lock"
+    ],
+    "completed": [
+      "immutable_snapshot",
+      "deploy_guard",
+      "extended_deploy_guard",
+      "live_ui_probe",
+      "visual_structural_validation",
+      "cache_policy"
+    ]
+  },
+  "disclaimer": "Scores are proof-based from in-repo checks + live HTML fetch. Auto-redeploy/CDN purge require external hooks (Render/CI). Pixel screenshot diff uses structural HTML signals (not Playwright pixels)."
+}
