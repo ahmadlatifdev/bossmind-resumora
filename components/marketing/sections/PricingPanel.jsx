@@ -6,8 +6,15 @@ import {
   getPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
-import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
+import { pricingComparisonRows, SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
+
+function formatCompareCell(value) {
+  if (value === true) return "✓";
+  if (value === false) return "—";
+  if (value === "partial") return "◐";
+  return String(value);
+}
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -96,6 +103,7 @@ export default function PricingPanel() {
         <h2 className="rs-h2">{t.pricingTitle}</h2>
         <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
         <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
+        <p className="rs-pricing-elite-hint">{t.pricingEssentialAdvancedHighlight}</p>
         <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
 
         {checkoutError ? (
@@ -132,13 +140,19 @@ export default function PricingPanel() {
               data-tier={plan.id}
               data-quote-match={savedQuote?.quote?.tier === plan.id ? "true" : "false"}
             >
-              {(plan.badge === "flagship" || plan.badge === "balanced" || plan.id === "professional") && (
+              {(plan.badge === "flagship" ||
+                plan.badge === "balanced" ||
+                plan.badge === "interview_studio" ||
+                plan.id === "professional") && (
                 <div className="rs-price-flag-row">
                   {plan.badge === "flagship" ? (
                     <span className="rs-price-flag">{t.badgeBestValue}</span>
                   ) : null}
                   {plan.badge === "balanced" ? (
                     <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
+                  ) : null}
+                  {plan.badge === "interview_studio" ? (
+                    <span className="rs-price-flag rs-price-flag--interview">{t.badgeInterviewStudio}</span>
                   ) : null}
                   {plan.id === "professional" ? (
                     <span className="rs-price-flag rs-price-flag--popular">{t.badgeMostPopular}</span>
@@ -167,6 +181,31 @@ export default function PricingPanel() {
               </button>
             </article>
           ))}
+        </div>
+
+        <div className="rs-pricing-compare" aria-label={t.pricingCompareHint}>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">{t.pricingCompareHint}</th>
+                <th scope="col">{t.svcTierBasic}</th>
+                <th scope="col">{t.svcTierProfessional}</th>
+                <th scope="col">{t.svcTierElite}</th>
+                <th scope="col">{t.svcTierEssentialAdvanced}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pricingComparisonRows.map((row) => (
+                <tr key={row.key}>
+                  <th scope="row">{row.label[lang]}</th>
+                  <td>{formatCompareCell(row.basic)}</td>
+                  <td>{formatCompareCell(row.professional)}</td>
+                  <td>{formatCompareCell(row.elite)}</td>
+                  <td>{formatCompareCell(row.essential_advanced)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

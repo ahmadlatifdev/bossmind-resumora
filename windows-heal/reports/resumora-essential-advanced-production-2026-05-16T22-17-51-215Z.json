@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-05-16T22:17:51.211Z",
+  "planId": "essential_advanced",
+  "priceUsd": 110,
+  "stripePriceId": null,
+  "checkoutReady": false,
+  "pricingResolution": {
+    "planId": "essential_advanced",
+    "resolved": false,
+    "winningKey": null,
+    "canonicalKey": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+    "tried": [
+      {
+        "key": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+        "status": "missing"
+      },
+      {
+        "key": "NEXT_PUBLIC_STRIPE_PRICE_INTERVIEW_ADVANCED",
+        "status": "missing"
+      },
+      {
+        "key": "STRIPE_PRICE_ESSENTIAL_ADVANCED",
+        "status": "missing"
+      },
+      {
+        "key": "STRIPE_PRICE_ID_ESSENTIAL_ADVANCED",
+        "status": "missing"
+      }
+    ]
+  },
+  "liveHtml": {
+    "ok": true,
+    "status": 200,
+    "mentionsEssentialAdvanced": false,
+    "mentions110": false,
+    "hasPricingGrid": true
+  },
+  "checks": [
+    {
+      "id": "plan_in_site_copy",
+      "pass": true
+    },
+    {
+      "id": "price_110_usd",
+      "pass": true
+    },
+    {
+      "id": "stripe_price_env_resolved",
+      "pass": false
+    },
+    {
+      "id": "allowed_checkout_plan",
+      "pass": true
+    },
+    {
+      "id": "config_authority_present",
+      "pass": true
+    },
+    {
+      "id": "live_pricing_page",
+      "pass": false
+    }
+  ],
+  "productionReadinessPercent": 66.7,
+  "operatorActions": [
+    "Create Stripe one-time Price $110 USD for Essential Advanced.",
+    "Set NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED=price_xxx on Render and redeploy."
+  ]
+}

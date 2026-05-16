@@ -45,7 +45,7 @@ const strict =
   process.env.STRIPE_PRICING_STRICT === "1" || process.env.STRIPE_CI_STRICT === "1";
 if (strict && !pricesOk) {
   console.error(
-    "stripe-pricing-anti-regression: FAILED — set NEXT_PUBLIC_STRIPE_PRICE_BASIC, NEXT_PUBLIC_STRIPE_PRICE_PRO, NEXT_PUBLIC_STRIPE_PRICE_ELITE to valid price_* IDs"
+    "stripe-pricing-anti-regression: FAILED — set NEXT_PUBLIC_STRIPE_PRICE_BASIC, NEXT_PUBLIC_STRIPE_PRICE_PRO, NEXT_PUBLIC_STRIPE_PRICE_ELITE, NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED to valid price_* IDs"
   );
   process.exit(1);
 }

@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     if (!isPlanId(planId)) {
       return res.status(400).json({
         error: "Invalid or missing planId",
-        hint: "Expected planId: basic | professional | elite",
+        hint: "Expected planId: basic | professional | elite | essential_advanced",
       });
     }
 

@@ -3,19 +3,45 @@ import Link from "next/link";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
 import { useLanguage } from "@/context/LanguageContext";
+import { getSiteUrl } from "@/lib/marketing/seo-config";
+import { brandAbsoluteUrl } from "@/lib/marketing/branding-assets";
 import { translations } from "@/lib/marketing/site-copy";
 
 export default function PricingPage() {
   const { lang } = useLanguage();
   const t = translations[lang];
+  const siteUrl = getSiteUrl();
+  const canonical = `${siteUrl}/pricing`;
+  const ogImage = brandAbsoluteUrl(siteUrl, "/og-resumora-brand.png");
+  const metaTitle =
+    lang === "fr"
+      ? "Tarifs · Préparation entretien Essential Advanced | Resumora"
+      : "Pricing · Essential Advanced Interview Prep | Resumora";
+  const metaDescription =
+    lang === "fr"
+      ? "Paliers CV premium et forfait Essential Advanced (110 $ USD) : simulations d'entretien, vidéos pro, banque Q&R recruteur et conseils succès. Paiement Stripe sécurisé."
+      : "Premium résumé tiers plus Essential Advanced ($110): interview simulations, training videos, recruiter Q&A bank, and success playbooks. Stripe-secure checkout.";
 
   return (
     <SiteChrome>
       <Head>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={canonical} />
         <meta
           name="robots"
           content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
         />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Resumora" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={ogImage} />
       </Head>
       <main>
         <section className="rs-section rs-pricing-page-hero">

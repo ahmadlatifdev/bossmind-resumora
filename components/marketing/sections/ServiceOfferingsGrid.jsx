@@ -17,6 +17,7 @@ function tierOptions(t) {
     { value: "basic", label: t.svcTierBasic },
     { value: "professional", label: t.svcTierProfessional },
     { value: "elite", label: t.svcTierElite },
+    { value: "essential_advanced", label: t.svcTierEssentialAdvanced },
   ];
 }
 

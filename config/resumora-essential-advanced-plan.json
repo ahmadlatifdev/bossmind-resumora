@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "planId": "essential_advanced",
+  "displayName": "Essential Advanced Plan",
+  "priceUsd": 110,
+  "currency": "USD",
+  "stripeEnv": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+  "checkoutMode": "payment",
+  "oneTime": true,
+  "deliverables": {
+    "interviewSimulations": {
+      "count": 3,
+      "description": "Recruiter-style interviews — behavioral, technical, situational with hiring-manager flow and answer guidance"
+    },
+    "trainingVideos": {
+      "count": 3,
+      "description": "Professional interview-training videos — examples, body language, recruiter expectations, mistake prevention"
+    },
+    "qaPackage": {
+      "countRange": "50-60",
+      "topics": [
+        "leadership",
+        "teamwork",
+        "problem-solving",
+        "salary",
+        "career-goals"
+      ]
+    },
+    "successTips": {
+      "count": 20,
+      "topics": [
+        "psychological-preparation",
+        "confidence",
+        "communication",
+        "resume-sync",
+        "recruiter-mindset",
+        "follow-up"
+      ]
+    }
+  },
+  "uiSurfaces": [
+    "/pricing",
+    "/#pricing",
+    "PricingPanel",
+    "ServiceOfferingsGrid",
+    "pricingComparisonRows"
+  ],
+  "notes": [
+    "Create a one-time Stripe Price at $110 USD and set NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED on Render.",
+    "Lock after deploy: npm run resumora:essential-advanced:interface-lock -- --i-understand-production --notes=\"...\""
+  ]
+}

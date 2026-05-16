@@ -68,6 +68,9 @@
     "lib/orchestration/vibevoyage-brand.js",
     "styles/vibevoyage-master-dashboard.module.css",
     "scripts/bossmind-ai-video-orchestrator.mjs",
+    "config/resumora-essential-advanced-plan.json",
+    "scripts/resumora-essential-advanced-production-report.mjs",
+    "scripts/resumora-essential-advanced-interface-lock.mjs",
     "pages/api/orchestration/ai-video/job/[id].js",
     ".github/workflows/bossmind-daily-backup.yml",
     ".github/workflows/hosting-policy-guard.yml"

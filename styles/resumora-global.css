@@ -738,9 +738,15 @@ body {
   z-index: 2;
   isolation: isolate;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.85rem;
   margin-top: 1.35rem;
+}
+
+@media (max-width: 1200px) {
+  .rs-pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {
@@ -3077,6 +3083,51 @@ body {
   background: rgba(201, 162, 39, 0.12);
   color: var(--rs-gold-soft);
   border: 1px solid rgba(201, 162, 39, 0.38);
+}
+
+.rs-price-card[data-tier="essential_advanced"] {
+  border-color: rgba(120, 180, 255, 0.35);
+  background: radial-gradient(circle at 50% -20%, rgba(100, 160, 255, 0.1), transparent 55%),
+    rgba(10, 18, 40, 0.6);
+}
+
+.rs-price-flag--interview {
+  background: linear-gradient(135deg, #6b9fff, #4a7fd4);
+  color: #0a0f1f;
+}
+
+.rs-pricing-compare {
+  margin-top: 2rem;
+  overflow-x: auto;
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-lg);
+  background: rgba(8, 14, 32, 0.55);
+}
+
+.rs-pricing-compare table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.rs-pricing-compare th,
+.rs-pricing-compare td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.rs-pricing-compare th:first-child,
+.rs-pricing-compare td:first-child {
+  text-align: left;
+  min-width: 10rem;
+}
+
+.rs-pricing-compare thead th {
+  color: var(--rs-gold-soft);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .rs-price-card[data-tier="elite"] {
