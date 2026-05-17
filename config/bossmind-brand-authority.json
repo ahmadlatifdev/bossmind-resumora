@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "officialBrand": "Resumora",
+  "domain": "resumora.net",
+  "luxuryTone": "executive",
+  "forbiddenVariants": [
+    { "id": "resumero", "pattern": "Resumero", "flags": "gi" },
+    { "id": "resume_colon_brand", "pattern": "^Resume:\\s*", "flags": "i" },
+    { "id": "resume_service", "pattern": "Resume Service", "flags": "gi" },
+    { "id": "resume_package", "pattern": "Resume Package", "flags": "gi" }
+  ],
+  "textReplacements": [
+    { "from": "Resumero", "to": "Resumora" },
+    { "from": "Resume Service", "to": "Career Optimization" },
+    { "from": "Resume Package", "to": "Executive Career Package" },
+    { "from": "Professional Resume Service", "to": "Professional Career Optimization" },
+    { "from": "Complete Career Package", "to": "Executive Career Package" }
+  ],
+  "planStripeNames": {
+    "basic": "Resumora: Essential Career Foundation",
+    "professional": "Resumora: Professional Career Optimization",
+    "elite": "Resumora: Executive Career Package",
+    "essential_advanced": "Resumora: Essential Advanced Career Upgrade"
+  },
+  "catalogProducts": [
+    {
+      "match": ["linkedin optimization", "linkedin"],
+      "name": "Resumora: LinkedIn Optimization",
+      "description": "LinkedIn authority enhancement — headline, featured media, and recruiter discoverability under the Resumora executive studio."
+    },
+    {
+      "match": ["professional resume", "professional career", "resume service"],
+      "name": "Resumora: Professional Career Optimization",
+      "description": "Professional-tier luxury résumé strategy, ATS intelligence, and concierge presentation — Resumora official."
+    },
+    {
+      "match": ["complete career", "career package", "executive package"],
+      "name": "Resumora: Executive Career Package",
+      "description": "Executive career package — full repositioning, LinkedIn relaunch, and white-glove delivery from Resumora."
+    }
+  ],
+  "metadataKeys": {
+    "brand": "brand_name",
+    "planId": "plan_id",
+    "planName": "plan_name",
+    "officialProduct": "official_product_name"
+  },
+  "scanPaths": [
+    "lib/marketing",
+    "components/marketing",
+    "pages/api",
+    "config",
+    "scripts"
+  ],
+  "lock": {
+    "memoryKey": "brand_authority:naming",
+    "snapshotKey": "bossmind-brand-authority-v1",
+    "verifyCommand": "bossmind:brand:authority:scan -- --stripe"
+  }
+}

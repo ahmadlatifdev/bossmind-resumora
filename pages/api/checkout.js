@@ -6,6 +6,7 @@ const {
 const { pricingSetupHintForPlan } = require("../../lib/marketing/stripe-pricing-guard");
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
+const { checkoutMetadata } = require("../../lib/marketing/bossmind-brand-authority");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -126,6 +127,12 @@ export default async function handler(req, res) {
     const summaryStr =
       typeof serviceDraftSummary === "string" ? serviceDraftSummary : "";
     /* One-time payment only — never subscription mode. */
+    const brandMeta = checkoutMetadata({
+      planId,
+      planName,
+      planPrice,
+      utm: { utm_source: utmSource, utm_medium: utmMedium, utm_campaign: utmCampaign },
+    });
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
@@ -133,13 +140,7 @@ export default async function handler(req, res) {
       success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/cancel`,
       metadata: {
-        billing_mode: metaSlice("payment_one_time"),
-        plan_id: metaSlice(planId),
-        plan_name: metaSlice(planName),
-        plan_price: metaSlice(planPrice),
-        utm_source: metaSlice(utmSource),
-        utm_medium: metaSlice(utmMedium),
-        utm_campaign: metaSlice(utmCampaign),
+        ...Object.fromEntries(Object.entries(brandMeta).map(([k, v]) => [k, metaSlice(v)])),
         service_scope: metaSlice(summaryStr),
         ...quoteMetaFromSummary(summaryStr),
       },

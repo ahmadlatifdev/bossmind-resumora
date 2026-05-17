@@ -43,7 +43,7 @@ async function main() {
   const dnsAuth = loadDnsAuthorityRecommendations(root);
   const bossmind = getSupportMailBossMindSummary(root);
   const sampleClassify = classifySupportIntake(root, {
-    subject: "Question about pricing for resume package",
+    subject: "Question about pricing for Resumora executive career package",
     body: "Hello, what is the cost?",
     hasAttachment: false,
   });
