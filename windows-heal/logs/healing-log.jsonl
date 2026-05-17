@@ -767,3 +767,4 @@
 {"ts":"2026-05-17T11:35:15.0147485-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260517-1135"}}
 {"ts":"2026-05-17T11:35:15.0633565-04:00","level":"warn","message":"Thermal pressure detected; applying balanced power mode","data":{"tempC":93.1}}
 {"ts":"2026-05-17T11:35:21.6102866-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["thermal_protection","service_repair"]}}
+{"ts":"2026-05-17T11:40:02.8319727-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
