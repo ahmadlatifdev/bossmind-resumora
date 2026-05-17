@@ -4,7 +4,6 @@ import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
-import { withBrandingQuery } from "@/lib/marketing/branding-assets";
 
 /**
  * Slim shell for auth/checkout/legal-simple pages: luxury bar with EN/FR top-right + optional footer lang.
@@ -20,7 +19,7 @@ export default function MinimalAppChrome({ children }) {
       <header className="rs-minimal-topbar">
         <Link href="/" className="rs-minimal-topbar-brand" aria-label={t.minimalHomeAria}>
           <Image
-            src={withBrandingQuery("/resumora-logo.png")}
+            src="/resumora-logo.png"
             alt="Resumora — RESUMORA wordmark"
             width={160}
             height={37}

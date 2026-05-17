@@ -12,7 +12,7 @@ const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const ORIGIN = (process.env.RESUMORA_GOOGLE_AUDIT_ORIGIN || "https://resumora.net").replace(/\/$/, "");
-const PRICING_UI_MARKER = 'data-rs-pricing-ui="20260517-ea-v3-img2"';
+const PRICING_UI_MARKER = 'data-rs-pricing-ui="20260517-lux-v4"';
 const PLAN_ORDER_RE =
   /id: "basic"[\s\S]*?id: "professional"[\s\S]*?id: "elite"[\s\S]*?id: "essential_advanced"/;
 

@@ -3,6 +3,7 @@ import Head from "next/head";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
 import UploadPanel from "@/components/marketing/sections/UploadPanel";
+import TrustAuthorityStrip from "@/components/marketing/sections/TrustAuthorityStrip";
 import { useLanguage } from "@/context/LanguageContext";
 import { getSiteUrl } from "@/lib/marketing/seo-config";
 import { brandAbsoluteUrl } from "@/lib/marketing/branding-assets";
@@ -39,13 +40,14 @@ export default function HomePage() {
         <link rel="alternate" hrefLang="x-default" href={canonical} />
       </Head>
       <main className="rs-week-main">
-        <section id="top" className="rs-section rs-week-hero">
-          <div className="rs-container">
+        <section id="top" className="rs-section rs-week-hero rs-week-hero--lux">
+          <div className="rs-container rs-hero-lux-wrap">
             <p className="rs-eyebrow">{t.homeEyebrow}</p>
             <h1 className="rs-h1 rs-week-headline">{t.homeHeadline}</h1>
-            <p className="rs-lead">{t.homeLead}</p>
-            <div className="rs-hero-ctas">
-              <Link href="/#pricing" className="rs-btn-accent">
+            <p className="rs-lead rs-lead--lux">{t.homeLead}</p>
+            <TrustAuthorityStrip variant="hero" />
+            <div className="rs-hero-ctas rs-hero-ctas--lux">
+              <Link href="/#pricing" className="rs-btn-accent rs-btn-accent--hero">
                 {t.navPricing}
               </Link>
               <Link href="/#home-intake" className="rs-btn-ghost">
@@ -55,7 +57,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rs-section rs-section-muted">
+        <TrustAuthorityStrip variant="strip" />
+
+        <section className="rs-section rs-section-muted rs-section--compact">
           <div className="rs-container">
             <div className="rs-cta-strip rs-cta-strip--compact">
               <div>
