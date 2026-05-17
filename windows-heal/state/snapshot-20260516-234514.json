@@ -1,0 +1,77 @@
+﻿{
+    "phase":  "pre-repair",
+    "diagnostics":  {
+                        "lookbackMinutes":  10,
+                        "gpuVendor":  "amd",
+                        "criticalCount":  0,
+                        "displayEventCount":  0,
+                        "kernelPnpDisplayCount":  0,
+                        "blackScreenIndicatorCount":  0,
+                        "explorerCrashCount":  0,
+                        "displayTimeoutCount":  0,
+                        "currentRefreshRate":  60,
+                        "memoryPressurePercent":  74.04,
+                        "cpuSpikePercent":  80.67,
+                        "diskQueueLength":  0.02,
+                        "diskHealth":  [
+                                           {
+                                               "drive":  "C:",
+                                               "freePct":  53.14,
+                                               "lowSpace":  false
+                                           },
+                                           {
+                                               "drive":  "D:",
+                                               "freePct":  79.88,
+                                               "lowSpace":  false
+                                           }
+                                       ],
+                        "cpuTemperatureC":  87.1,
+                        "adaptiveBrightnessSignalPresent":  true,
+                        "startupHeavyCount":  0,
+                        "startupConflictCandidates":  {
+
+                                                      },
+                        "serviceIssueCount":  5,
+                        "serviceIssueCandidates":  [
+                                                       {
+                                                           "Name":  "edgeupdate",
+                                                           "DisplayName":  "Microsoft Edge Update Service (edgeupdate)",
+                                                           "Status":  1
+                                                       },
+                                                       {
+                                                           "Name":  "GoogleUpdaterInternalService149.0.7814.0",
+                                                           "DisplayName":  "Google Updater Internal Service (GoogleUpdaterInternalService149.0.7814.0)",
+                                                           "Status":  1
+                                                       },
+                                                       {
+                                                           "Name":  "GoogleUpdaterService149.0.7814.0",
+                                                           "DisplayName":  "Google Updater Service (GoogleUpdaterService149.0.7814.0)",
+                                                           "Status":  1
+                                                       },
+                                                       {
+                                                           "Name":  "MapsBroker",
+                                                           "DisplayName":  "Downloaded Maps Manager",
+                                                           "Status":  1
+                                                       },
+                                                       {
+                                                           "Name":  "sppsvc",
+                                                           "DisplayName":  "Software Protection",
+                                                           "Status":  1
+                                                       }
+                                                   ],
+                        "events":  {
+
+                                   }
+                    },
+    "driverAudit":  {
+                        "device":  "AMD Radeon(TM) RX Vega 10 Graphics",
+                        "version":  "27.20.11044.5003",
+                        "date":  "\/Date(1605744000000)\/",
+                        "manufacturer":  "Advanced Micro Devices, Inc.",
+                        "signed":  true
+                    },
+    "warnings":  {
+
+                 },
+    "mode":  "Detect"
+}
