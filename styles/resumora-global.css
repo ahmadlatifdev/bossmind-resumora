@@ -215,17 +215,17 @@ body {
 }
 
 .rs-logo-sidebar {
-  max-height: 72px;
-  max-width: min(72px, 18vw);
+  max-height: 108px;
+  max-width: min(108px, 22vw);
 }
 
 .rs-logo-topbar {
-  max-height: 46px;
+  max-height: 69px;
   max-width: min(220px, 55vw);
 }
 
 .rs-logo-footer {
-  max-height: 54px;
+  max-height: 81px;
   max-width: min(270px, 70vw);
 }
 
@@ -3650,8 +3650,39 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 
 .rs-lead--lux {
-  max-width: 40ch;
-  margin-top: 0.65rem;
+  max-width: min(58ch, 100%);
+  margin-top: 0.75rem;
+  line-height: 1.68;
+  font-size: clamp(1.02rem, 1.45vw, 1.14rem);
+}
+
+.rs-week-hero--lux .rs-week-headline {
+  max-width: min(42ch, 100%);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+@media (max-width: 640px) {
+  .rs-week-hero--lux .rs-week-headline {
+    font-size: clamp(1.45rem, 5.2vw, 1.85rem);
+    line-height: 1.18;
+  }
+
+  .rs-lead--lux {
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.62;
+  }
+
+  .rs-logo-sidebar {
+    max-height: 84px;
+    max-width: min(84px, 24vw);
+  }
+
+  .rs-logo-topbar {
+    max-height: 56px;
+  }
 }
 
 .rs-trust-authority {
