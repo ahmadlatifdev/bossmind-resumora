@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "patterns": [
+    {
+      "id": "utf_bom",
+      "errorType": "encoding",
+      "severity": "high",
+      "fixPattern": "Remove UTF-8 BOM; save as UTF-8 without BOM.",
+      "command": null
+    },
+    {
+      "id": "duplicate_home_router",
+      "errorType": "routing",
+      "severity": "critical",
+      "fixPattern": "Remove parallel app/pages home bootstrap; keep pages/index.js → HomePage.jsx.",
+      "command": "npm run bossmind:reconcile"
+    },
+    {
+      "id": "immutable_drift",
+      "errorType": "baseline",
+      "severity": "high",
+      "fixPattern": "npm run bossmind:baseline:snapshot-sync && npm run bossmind:baseline:seal",
+      "command": "npm run bossmind:baseline:snapshot-sync"
+    },
+    {
+      "id": "pricing_ui_drift",
+      "errorType": "ui_deploy",
+      "severity": "critical",
+      "fixPattern": "Deploy lux-v4 pricing; clear PWA cache; npm run resumora:pricing:ui-verify",
+      "command": "npm run resumora:pricing:ui-verify"
+    },
+    {
+      "id": "stale_live_pricing_marker",
+      "errorType": "runtime_drift",
+      "severity": "critical",
+      "fixPattern": "Production HTML missing locked pricing marker — redeploy Render + SW bump.",
+      "command": null
+    },
+    {
+      "id": "trust_section_resurrection",
+      "errorType": "anti_leak",
+      "severity": "critical",
+      "fixPattern": "Remove TrustMetricsPanel mount; verify forbidden patterns absent on live.",
+      "command": "npm run bossmind:ultra:antileak:restore"
+    },
+    {
+      "id": "broken_home_import",
+      "errorType": "import",
+      "severity": "critical",
+      "fixPattern": "Fix HomePage import graph — PricingPanel/UploadPanel paths must resolve.",
+      "command": null
+    },
+    {
+      "id": "hydration_window_misuse",
+      "errorType": "hydration",
+      "severity": "medium",
+      "fixPattern": "Guard browser-only APIs with useEffect or typeof window checks in marketing components.",
+      "command": null
+    }
+  ]
+}

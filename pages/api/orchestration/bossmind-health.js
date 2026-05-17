@@ -168,6 +168,42 @@ export default async function handler(req, res) {
       targetPercent: 98,
     };
 
+    let productionAutonomous = { lastReport: null };
+    try {
+      const prodPath = path.join(process.cwd(), ".bossmind", "production-autonomous", "latest.json");
+      if (fs.existsSync(prodPath)) {
+        productionAutonomous = {
+          lastReport: JSON.parse(fs.readFileSync(prodPath, "utf8")),
+          runCommand: "npm run bossmind:production:autonomous",
+          closedLoopCommand: "npm run bossmind:production:autonomous:closed-loop",
+          monitorLoopCommand: "npm run bossmind:production:autonomous:loop",
+          postDeployValidation: "npm run bossmind:production:post-deploy-validation",
+        };
+      }
+    } catch {
+      productionAutonomous = { lastReport: null, error: "read_failed" };
+    }
+
+    let continuousMonitor = null;
+    try {
+      const monPath = path.join(process.cwd(), ".bossmind", "continuous-monitor", "last-cycle.json");
+      if (fs.existsSync(monPath)) {
+        continuousMonitor = JSON.parse(fs.readFileSync(monPath, "utf8"));
+      }
+    } catch {
+      continuousMonitor = null;
+    }
+
+    let postDeployValidation = null;
+    try {
+      const valPath = path.join(process.cwd(), ".bossmind", "validation", "latest-post-deploy.json");
+      if (fs.existsSync(valPath)) {
+        postDeployValidation = JSON.parse(fs.readFileSync(valPath, "utf8"));
+      }
+    } catch {
+      postDeployValidation = null;
+    }
+
     let aiVideo = {
       dashboardPath: "/bossmind-ai-video",
       projectKeyDefault: process.env.BOSSMIND_AI_VIDEO_PROJECT_KEY || "ai-video-generator",
@@ -229,6 +265,9 @@ export default async function handler(req, res) {
       googleTrafficEngine,
       ultraAntileak,
       coreOptimization,
+      productionAutonomous,
+      continuousMonitor,
+      postDeployValidation,
       aiVideo,
       scores: {
         performanceScore,

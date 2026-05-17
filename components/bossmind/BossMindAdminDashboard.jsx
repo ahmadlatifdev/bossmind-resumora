@@ -10,10 +10,11 @@ const DOMAIN_LABELS = {
   autoRecovery: "Auto-Recovery Loops",
   deploymentVerification: "Deployment Verification",
   runtimeSync: "Runtime Synchronization",
-  crossProjectMemory: "Cross-Project Memory",
+  crossProjectMemory: "Cross-Project Intelligence",
   autonomousValidation: "Autonomous Validation",
   predictivePrevention: "Predictive Prevention",
-  selfHealingChain: "Self-Healing Chain",
+  selfHealingChain: "Self-Healing Orchestrator",
+  continuousMonitoring: "Continuous Monitoring",
 };
 
 function scoreClass(pct, target = 98) {
@@ -26,6 +27,7 @@ export default function BossMindAdminDashboard() {
   const [token, setToken] = useState("");
   const [health, setHealth] = useState(null);
   const [core, setCore] = useState(null);
+  const [production, setProduction] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -55,6 +57,7 @@ export default function BossMindAdminDashboard() {
       if (!cRes.ok) throw new Error(cJson.error || `core ${cRes.status}`);
       setHealth(hJson);
       setCore(cJson.latest || null);
+      setProduction(hJson.productionAutonomous?.lastReport || null);
     } catch (e) {
       setError(e.message || "Failed to load orchestration data");
     } finally {
@@ -95,6 +98,10 @@ export default function BossMindAdminDashboard() {
   const overall = core?.overallAutonomousReliabilityPercent ?? null;
   const domains = core?.domains || {};
   const projects = core?.domains?.crossProjectMemory?.projects || [];
+  const blockDeploy = core?.blockDeploy ?? production?.blockDeploy;
+  const memoryIntegrity = domains.sharedMemory?.memoryIntegrity;
+  const validationLive = domains.autonomousValidation?.liveValidation;
+  const monitor = domains.continuousMonitoring;
 
   return (
     <div className={styles.shell}>
@@ -134,8 +141,38 @@ export default function BossMindAdminDashboard() {
             <p className={`${styles.score} ${scoreClass(overall, target)}`}>{overall}%</p>
             <p className={styles.scoreTarget}>
               Target {target}% · {core.meetsTarget ? "Meets target" : "Below target"}
+              {blockDeploy ? " · Deploy blocked" : ""}
             </p>
           </article>
+
+          {memoryIntegrity ? (
+            <article className={styles.card}>
+              <h3>Memory integrity</h3>
+              <p className={`${styles.score} ${scoreClass(memoryIntegrity.percent, 95)}`}>
+                {memoryIntegrity.percent}%
+              </p>
+              <p className={styles.scoreTarget}>
+                {memoryIntegrity.staleOverwriteRisk ? "Stale overwrite risk" : "Fingerprint aligned"}
+              </p>
+            </article>
+          ) : null}
+
+          {validationLive ? (
+            <article className={styles.card}>
+              <h3>Live validation</h3>
+              <p className={`${styles.score} ${scoreClass(validationLive.percent, 92)}`}>
+                {validationLive.percent}%
+              </p>
+            </article>
+          ) : null}
+
+          {monitor ? (
+            <article className={styles.card}>
+              <h3>Continuous monitor</h3>
+              <p className={`${styles.score} ${scoreClass(monitor.percent, 92)}`}>{monitor.percent}%</p>
+              <p className={styles.scoreTarget}>Cycle {monitor.cycle ?? "—"}</p>
+            </article>
+          ) : null}
 
           {Object.entries(DOMAIN_LABELS).map(([key, label]) => {
             const pct = domains[key]?.percent ?? 0;
@@ -167,6 +204,17 @@ export default function BossMindAdminDashboard() {
               <p className={styles.score}>
                 {health.ultraAntileak.lastLock.overallProductionSafetyPercent ?? "—"}%
               </p>
+            </article>
+          ) : null}
+
+          {core?.repairActions?.length ? (
+            <article className={`${styles.card} ${styles.wide}`}>
+              <h3>Repair actions</h3>
+              <ul className={styles.projectList}>
+                {core.repairActions.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
             </article>
           ) : null}
         </div>

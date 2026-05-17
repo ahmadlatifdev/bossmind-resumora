@@ -52,8 +52,10 @@ const gateCoverageEveryCycles = Number(process.env.BOSSMIND_GATE_COVERAGE_EVERY_
 
 /** Evidence-only optimization snapshot cadence (0 = disabled). */
 const optimizationEveryCycles = Number(process.env.BOSSMIND_AUTONOMOUS_OPTIMIZATION_EVERY_CYCLES || 0);
-/** Unified core optimization (10-domain scoring) cadence (0 = disabled). */
+/** Unified core optimization (11-domain scoring) cadence (0 = disabled). */
 const coreOptimizationEveryCycles = Number(process.env.BOSSMIND_CORE_OPTIMIZATION_EVERY_CYCLES || 0);
+/** Production autonomous monitor cadence (0 = disabled). */
+const productionMonitorEveryCycles = Number(process.env.BOSSMIND_PRODUCTION_MONITOR_EVERY_CYCLES || 0);
 
 const {
   loadContinuePoint,
@@ -372,6 +374,20 @@ async function runCycle(neonApi) {
     };
   }
 
+  let productionMonitorCycle = { skipped: true, reason: "BOSSMIND_PRODUCTION_MONITOR_EVERY_CYCLES=0" };
+  if (productionMonitorEveryCycles > 0 && cycle > 0 && cycle % productionMonitorEveryCycles === 0) {
+    productionMonitorCycle = runNodeScript(
+      "scripts/bossmind-production-autonomous.mjs",
+      ["--monitor-only"],
+      continueEnv
+    );
+    productionMonitorCycle = {
+      skipped: false,
+      ok: productionMonitorCycle.ok,
+      code: productionMonitorCycle.code,
+    };
+  }
+
   const hasDrift = Boolean(localSyncStatus?.hasDrift);
   const healed = Boolean(localSyncStatus?.healSucceeded);
   const autonomyScore = Number(localSyncStatus?.scores?.compositeAutonomyScore || 0);
@@ -423,6 +439,7 @@ async function runCycle(neonApi) {
         : { ok: enterpriseEnvelope.ok, code: enterpriseEnvelope.code },
       optimizationCycle,
       coreOptimizationCycle,
+      productionMonitorCycle,
     },
     latestRuntimeSync: localSyncStatus
       ? {

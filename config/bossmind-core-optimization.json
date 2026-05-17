@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "targetAutonomousReliabilityPercent": 98,
   "description": "Proof-based BossMind Core Optimization — scores reflect passed checks only (no fabricated %).",
   "primaryProjectKey": "resumora",
@@ -7,16 +7,17 @@
   "multiProjectRegistry": "config/bossmind-organic-growth-registry.json",
   "backupProjectsRegistry": "config/bossmind-backup-projects-registry.json",
   "domainWeights": {
-    "sharedMemory": 12,
-    "errorMemory": 10,
-    "antiLeak": 14,
-    "autoRecovery": 10,
-    "deploymentVerification": 12,
-    "runtimeSync": 12,
-    "crossProjectMemory": 8,
-    "autonomousValidation": 10,
+    "sharedMemory": 11,
+    "errorMemory": 9,
+    "antiLeak": 13,
+    "autoRecovery": 9,
+    "deploymentVerification": 11,
+    "runtimeSync": 11,
+    "crossProjectMemory": 7,
+    "autonomousValidation": 9,
     "predictivePrevention": 6,
-    "selfHealingChain": 6
+    "selfHealingChain": 6,
+    "continuousMonitoring": 8
   },
   "neonPersistence": {
     "taskKey": "core_optimization:latest",

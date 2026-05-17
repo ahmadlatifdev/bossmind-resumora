@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "canonicalHome": {
+    "bootstrap": "pages/index.js",
+    "component": "components/marketing/HomePage.jsx"
+  },
+  "pricing": {
+    "section": "components/marketing/sections/PricingPanel.jsx",
+    "page": "pages/pricing.js"
+  },
+  "forbiddenDuplicateComponents": [
+    "components/marketing/sections/TrustMetricsPanel.jsx"
+  ],
+  "activePricingMarker": "data-rs-pricing-ui=\"20260517-lux-v4\""
+}

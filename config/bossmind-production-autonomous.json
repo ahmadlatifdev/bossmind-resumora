@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "targetOverallPercent": 98,
+  "domainTargets": {
+    "sharedMemory": 96,
+    "errorMemory": 94,
+    "antiLeak": 96,
+    "runtimeSync": 94,
+    "autoRecovery": 93,
+    "deploymentVerification": 94,
+    "crossProjectMemory": 94,
+    "autonomousValidation": 94,
+    "predictivePrevention": 90,
+    "selfHealingChain": 90,
+    "continuousMonitoring": 92
+  },
+  "errorPatternRegistry": "config/bossmind-error-pattern-registry.json",
+  "routeOwnershipRegistry": "config/bossmind-route-ownership.json",
+  "validation": {
+    "postDeployRequired": true,
+    "paths": ["/", "/pricing", "/services", "/capabilities"],
+    "pricingUiMarker": "data-rs-pricing-ui=\"20260517-lux-v4\"",
+    "pricingOrder": ["basic", "professional", "elite", "essential_advanced"],
+    "logoPath": "/resumora-logo.png",
+    "forbiddenPatterns": ["Trust at a glance", "rs-trust-panel--slim"]
+  },
+  "predictive": {
+    "blockDeployRiskThreshold": 75,
+    "requireEnv": [
+      "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+      "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+      "NEXT_PUBLIC_STRIPE_PRICE_ELITE"
+    ]
+  },
+  "continuousMonitor": {
+    "defaultIntervalMs": 300000,
+    "screenshotAuditEveryCycles": 12,
+    "fullOptimizationEveryCycles": 4
+  },
+  "projects": [
+    "resumora",
+    "bossmind-capital",
+    "ai-video-generator",
+    "elegancyart",
+    "tiktok-ai"
+  ]
+}
