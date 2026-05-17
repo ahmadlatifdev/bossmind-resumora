@@ -24,17 +24,26 @@
     "rs-week-main",
     "rs-btn-accent",
     "rs-cta-strip",
-    "rs-pricing-grid",
-    "--rs-gold:",
-    "--rs-bg-deep:",
-    "--rs-border-strong:",
-    "--rs-shadow-card:"
+    "rs-pricing-grid"
   ],
   "forbiddenLiveHtmlPatterns": [
     "Trust at a glance",
     "rs-trust-panel--slim",
     "Greenhouse · Lever · Workday"
   ],
+  "requiredPricingHtmlMarkers": [
+    "data-rs-pricing-ui=\"20260517-lux-v4\"",
+    "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
+    "rs-pricing-grid--final",
+    "resumora-logo.png",
+    "data-rs-trust-removed=\"1\""
+  ],
+  "forbiddenPricingHtmlPatterns": [
+    "rs-pricing-compare",
+    "rs-compare-exec",
+    "At-a-glance studio depth"
+  ],
+  "pricingHeadingMaxCount": 1,
   "forbiddenMinimalHomeIndicators": [],
   "fingerprintExtraPaths": [
     "config/bossmind-protected-ui-authority.json",

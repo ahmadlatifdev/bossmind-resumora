@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "description": "Approved Resumora UI components — changes require bossmind:immutable:execution-chain pass + baseline seal",
+  "frozenComponents": [
+    "components/marketing/SiteChrome.js",
+    "components/marketing/sections/PricingPanel.jsx",
+    "components/marketing/sections/PriceTierCard.jsx",
+    "lib/marketing/resumora-logo.js",
+    "pages/pricing.js",
+    "styles/resumora-global.css"
+  ],
+  "frozenThemes": ["dark_luxury_navy_gold", "pricing_grid_final", "resumora_logo_png"],
+  "verifyBeforeDeploy": "npm run bossmind:immutable:execution-chain"
+}

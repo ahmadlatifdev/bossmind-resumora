@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "protectedBranch": "resumora-production-locked",
+  "productionOrigin": "https://resumora.net",
+  "snapshotDir": "config/bossmind-baseline-snapshots/luxury-v1",
+  "baselineConfig": "config/bossmind-immutable-production-baseline.json",
+  "uiAuthority": "config/bossmind-protected-ui-authority.json",
+  "livePaths": ["/", "/pricing"],
+  "screenshotOutputDir": ".bossmind/immutable-lock/screenshots",
+  "neonCheckpointKey": "immutable_ui_execution_lock",
+  "neonTaskKey": "immutable_execution_chain:latest",
+  "autoRollbackCommand": "npm run bossmind:baseline:restore",
+  "verifyCommands": [
+    "npm run bossmind:immutable:verify",
+    "npm run bossmind:locked-production:verify",
+    "npm run resumora:pricing:ui-verify"
+  ]
+}

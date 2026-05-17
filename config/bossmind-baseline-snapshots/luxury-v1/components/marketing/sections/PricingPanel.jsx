@@ -6,17 +6,15 @@ import {
   getPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
-import { pricingComparisonRows, SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
+import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
+import PriceTierCard from "@/components/marketing/sections/PriceTierCard";
 
-function formatCompareCell(value) {
-  if (value === true) return "✓";
-  if (value === false) return "—";
-  if (value === "partial") return "◐";
-  return String(value);
-}
-
-export default function PricingPanel() {
+/**
+ * @param {{ showHeader?: boolean }} props
+ * showHeader=false on /pricing (page provides single hero). Default true for homepage #pricing.
+ */
+export default function PricingPanel({ showHeader = true }) {
   const router = useRouter();
   const resumeCheckoutOnce = useRef(false);
   const { lang } = useLanguage();
@@ -37,7 +35,6 @@ export default function PricingPanel() {
     return () => window.clearTimeout(id);
   }, []);
 
-  /* After Register/Login with ?continueCheckout=1 — resume Stripe Checkout for pending tier. */
   useEffect(() => {
     if (!router.isReady || router.query.continueCheckout !== "1") return;
     if (resumeCheckoutOnce.current) return;
@@ -78,14 +75,7 @@ export default function PricingPanel() {
     return () => {
       cancelled = true;
     };
-  }, [
-    router.isReady,
-    router.query.continueCheckout,
-    router,
-    dynamicPlans,
-    lang,
-    handleCheckout,
-  ]);
+  }, [router.isReady, router.query.continueCheckout, router, dynamicPlans, lang, handleCheckout]);
 
   const clearSaved = () => {
     try {
@@ -100,17 +90,19 @@ export default function PricingPanel() {
     <section
       id="pricing"
       className="rs-section rs-pricing-section"
-      data-rs-pricing-ui="20260517-ea-v3-img2"
+      data-rs-pricing-ui="20260517-lux-v4"
       data-rs-pricing-order="basic,professional,elite,essential_advanced"
       data-rs-trust-removed="1"
     >
       <div className="rs-container">
-        <p className="rs-eyebrow">{t.navPricing}</p>
-        <h2 className="rs-h2">{t.pricingTitle}</h2>
-        <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
-        <p className="rs-pricing-elite-hint">{t.pricingEliteHighlight}</p>
-        <p className="rs-pricing-elite-hint">{t.pricingEssentialAdvancedHighlight}</p>
-        <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
+        {showHeader ? (
+          <header className="rs-pricing-header">
+            <p className="rs-eyebrow">{t.navPricing}</p>
+            <h2 className="rs-h2 rs-pricing-title">{t.pricingTitle}</h2>
+            <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
+            <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
+          </header>
+        ) : null}
 
         {checkoutError ? (
           <p className="rs-pricing-checkout-msg" role="status">
@@ -145,87 +137,17 @@ export default function PricingPanel() {
           </aside>
         ) : null}
 
-        <div className="rs-pricing-grid rs-pricing-grid--spaced">
+        <div className="rs-pricing-grid rs-pricing-grid--lux rs-pricing-grid--final">
           {dynamicPlans.map((plan) => (
-            <article
+            <PriceTierCard
               key={plan.id}
-              className={`rs-price-card rs-price-card--${plan.id}`}
-              data-featured={plan.featured}
-              data-tier={plan.id}
-              data-quote-match={savedQuote?.quote?.tier === plan.id ? "true" : "false"}
-            >
-              {(plan.badge === "flagship" ||
-                plan.badge === "balanced" ||
-                plan.badge === "advanced" ||
-                plan.id === "professional") && (
-                <div className="rs-price-flag-row">
-                  {plan.badge === "flagship" ? (
-                    <span className="rs-price-flag">{t.badgeBestValue}</span>
-                  ) : null}
-                  {plan.badge === "balanced" ? (
-                    <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span>
-                  ) : null}
-                  {plan.badge === "advanced" ? (
-                    <span className="rs-price-flag rs-price-flag--advanced">{t.badgeEssentialAdvanced}</span>
-                  ) : null}
-                  {plan.id === "professional" ? (
-                    <span className="rs-price-flag rs-price-flag--popular">{t.badgeMostPopular}</span>
-                  ) : null}
-                </div>
-              )}
-              <div>
-                <h3 className="rs-price-tier-name">{plan.name[lang]}</h3>
-                <div className="rs-price-amount rs-price-amount--spaced">
-                  {plan.price}
-                  <span className="rs-price-one-time">· {t.pricingOneTimeNote}</span>
-                </div>
-              </div>
-              <ul className="rs-price-features">
-                {plan.features[lang].map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                className={`rs-price-btn${
-                  plan.id === "elite"
-                    ? " rs-price-btn--elite"
-                    : plan.id === "essential_advanced"
-                      ? " rs-price-btn--essential-advanced"
-                      : ""
-                }`}
-                disabled={busyPlan === plan.id}
-                onClick={() => handleCheckout(plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
-              >
-                {busyPlan === plan.id ? t.processing : t.selectPlan}
-              </button>
-            </article>
+              plan={plan}
+              lang={lang}
+              busyPlan={busyPlan}
+              onCheckout={handleCheckout}
+              quoteMatch={savedQuote?.quote?.tier === plan.id}
+            />
           ))}
-        </div>
-
-        <div className="rs-pricing-compare" aria-label={t.pricingCompareHint}>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t.pricingCompareHint}</th>
-                <th scope="col">{t.svcTierBasic}</th>
-                <th scope="col">{t.svcTierProfessional}</th>
-                <th scope="col">{t.svcTierElite}</th>
-                <th scope="col">{t.svcTierEssentialAdvanced}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pricingComparisonRows.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row">{row.label[lang]}</th>
-                  <td>{formatCompareCell(row.basic)}</td>
-                  <td>{formatCompareCell(row.professional)}</td>
-                  <td>{formatCompareCell(row.elite)}</td>
-                  <td>{formatCompareCell(row.essential_advanced)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </section>

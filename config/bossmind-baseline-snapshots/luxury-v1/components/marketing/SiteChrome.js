@@ -5,10 +5,10 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
-import { withBrandingQuery } from "@/lib/marketing/branding-assets";
 import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
+import { RESUMORA_LOGO_ALT, RESUMORA_LOGO_SIDEBAR, RESUMORA_LOGO_TOPBAR } from "@/lib/marketing/resumora-logo";
 
 function NavGroup({ title, open, onToggle, children }) {
   return (
@@ -29,10 +29,10 @@ export default function SiteChrome({ children }) {
   const pathname = router.pathname || "";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sections, setSections] = useState({
-    overview: true,
+    overview: false,
     product: true,
     experience: false,
-    support: true,
+    support: false,
   });
 
   useEffect(() => {
@@ -86,17 +86,20 @@ export default function SiteChrome({ children }) {
 
       <div className={`rs-sidebar-backdrop ${sidebarOpen ? "rs-sidebar-backdrop--open" : ""}`} onClick={() => setSidebarOpen(false)} aria-hidden />
 
-      <aside className={`rs-sidebar ${sidebarOpen ? "rs-sidebar--open" : ""}`} aria-label={t.sidebarNavLabel}>
+      <aside
+        className={`rs-sidebar rs-sidebar--executive ${sidebarOpen ? "rs-sidebar--open" : ""}`}
+        aria-label={t.sidebarNavLabel}
+      >
         <div className="rs-sidebar-brand">
-          <Link href="/" className="rs-brand rs-brand-sidebar" onClick={() => setSidebarOpen(false)}>
+          <Link href="/" className="rs-brand rs-brand-sidebar rs-brand--protected" onClick={() => setSidebarOpen(false)}>
             <Image
-              src={withBrandingQuery("/resumora-logo.png")}
-              alt="Resumora — RESUMORA wordmark"
-              width={315}
-              height={72}
+              src={RESUMORA_LOGO_SIDEBAR.src}
+              alt={RESUMORA_LOGO_ALT}
+              width={RESUMORA_LOGO_SIDEBAR.width}
+              height={RESUMORA_LOGO_SIDEBAR.height}
               priority
-              className="rs-logo rs-logo-sidebar"
-              sizes="(max-width: 1024px) 240px, 315px"
+              className={RESUMORA_LOGO_SIDEBAR.className}
+              sizes={RESUMORA_LOGO_SIDEBAR.sizes}
             />
           </Link>
         </div>
@@ -140,14 +143,14 @@ export default function SiteChrome({ children }) {
             {sidebarOpen ? <X className="rs-icon-gold" size={22} strokeWidth={1.5} /> : <Menu className="rs-icon-gold" size={22} strokeWidth={1.5} />}
           </button>
 
-          <Link href="/" className="rs-topbar-brand hide-desktop-flex" aria-label="Resumora home">
+          <Link href="/" className="rs-topbar-brand rs-brand--protected hide-desktop-flex" aria-label="Resumora home">
             <Image
-              src={withBrandingQuery("/resumora-logo.png")}
-              alt="Resumora — RESUMORA wordmark"
-              width={200}
-              height={46}
-              className="rs-logo rs-logo-topbar"
-              sizes="200px"
+              src={RESUMORA_LOGO_TOPBAR.src}
+              alt={RESUMORA_LOGO_ALT}
+              width={RESUMORA_LOGO_TOPBAR.width}
+              height={RESUMORA_LOGO_TOPBAR.height}
+              className={RESUMORA_LOGO_TOPBAR.className}
+              sizes={RESUMORA_LOGO_TOPBAR.sizes}
             />
           </Link>
 

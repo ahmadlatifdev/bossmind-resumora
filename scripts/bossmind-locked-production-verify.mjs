@@ -52,6 +52,7 @@ const probeEnv =
   "";
 
 run("Immutable luxury baseline (checksums + optional prod probe)", "node", ["scripts/bossmind-immutable-verify.mjs"], probeEnv ? { BOSSMIND_IMMUTABLE_PROBE_ORIGIN: probeEnv } : {});
+run("Immutable execution chain (snapshot + live /pricing)", "node", ["scripts/bossmind-immutable-execution-chain.mjs"], probeEnv ? { BOSSMIND_IMMUTABLE_PROBE_ORIGIN: probeEnv, BOSSMIND_REALITY_LIVE_URL: probeEnv } : {});
 
 console.log(
   "\n=== OK — locked production design lock verified ===\n" +
