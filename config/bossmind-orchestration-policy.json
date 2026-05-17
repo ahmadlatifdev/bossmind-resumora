@@ -95,8 +95,11 @@
     "bossmind_task_state",
     "bossmind_event_log",
     "bossmind_deploy_verification",
-    "bossmind_shortcut_processes"
+    "bossmind_shortcut_processes",
+    "bossmind_visual_validation",
+    "bossmind_runtime_authority"
   ],
+  "runtimeAuthorityEngine": "lib/orchestration/bossmind-runtime-authority-engine.js",
   "sharedMemoryStrategy": "config/bossmind-shared-memory-strategy.json",
   "sharedMemoryHub": "lib/orchestration/bossmind-shared-memory-hub.js",
   "orchestrationFlow": [

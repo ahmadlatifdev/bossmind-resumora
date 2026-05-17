@@ -260,12 +260,22 @@ export default async function handler(req, res) {
       sharedMemoryHub = { enabled: false, error: e.message || String(e) };
     }
 
+    let runtimeAuthority = { enabled: false };
+    try {
+      const { getRuntimeAuthorityStatus } = require("../../../lib/orchestration/bossmind-runtime-authority-engine");
+      runtimeAuthority = await getRuntimeAuthorityStatus(process.cwd());
+      runtimeAuthority.apiPath = "/api/orchestration/bossmind-runtime-authority";
+    } catch (e) {
+      runtimeAuthority = { enabled: false, error: e.message || String(e) };
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
       ts: Date.now(),
       neonConfigured: neonOk,
       sharedMemoryHub,
+      runtimeAuthority,
       sentryConfigured: Boolean(
         process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
       ),

@@ -42,8 +42,11 @@
     "bossmind_task_state",
     "bossmind_event_log",
     "bossmind_deploy_verification",
-    "bossmind_shortcut_processes"
+    "bossmind_shortcut_processes",
+    "bossmind_visual_validation",
+    "bossmind_runtime_authority"
   ],
+  "runtimeAuthority": "lib/orchestration/bossmind-runtime-authority-engine.js",
   "configRefs": {
     "safetyRules": "config/bossmind-safety-rules.json",
     "marketingRules": "config/bossmind-marketing-rules.json",

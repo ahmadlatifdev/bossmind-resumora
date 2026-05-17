@@ -86,6 +86,8 @@
     "bossmind:ultra:antileak:restore": "node scripts/bossmind-ultra-antileak-restore.mjs",
     "bossmind:ultra:antileak:self-heal": "node scripts/bossmind-ultra-antileak-self-heal.mjs",
     "bossmind:ultra:antileak:closed-loop": "node scripts/bossmind-ultra-antileak-closed-loop.mjs",
+    "bossmind:runtime:authority": "node scripts/bossmind-runtime-authority.mjs",
+    "bossmind:runtime:authority:status": "node scripts/bossmind-runtime-authority.mjs --status",
     "bossmind:brand:verify": "node scripts/bossmind-brand-asset-verify.mjs",
     "bossmind:brand:forbidden-scan": "node scripts/bossmind-brand-asset-forbidden-scan.mjs",
     "bossmind:shared-memory:ensure": "node scripts/bossmind-shared-memory-ensure.mjs",

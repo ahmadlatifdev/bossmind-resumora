@@ -29,6 +29,7 @@ export default function BossMindAdminDashboard() {
   const [core, setCore] = useState(null);
   const [production, setProduction] = useState(null);
   const [hub, setHub] = useState(null);
+  const [runtime, setRuntime] = useState(null);
   const [projectKey, setProjectKey] = useState("resumora");
   const [shortcutLog, setShortcutLog] = useState("");
   const [error, setError] = useState("");
@@ -50,12 +51,13 @@ export default function BossMindAdminDashboard() {
     setError("");
     setBusy(true);
     try {
-      const [hRes, cRes, mRes] = await Promise.all([
+      const [hRes, cRes, mRes, rRes] = await Promise.all([
         fetch("/api/orchestration/bossmind-health", { headers: headers() }),
         fetch("/api/orchestration/bossmind-core-optimization", { headers: headers() }),
         fetch(`/api/orchestration/bossmind-shared-memory?projectKey=${encodeURIComponent(projectKey)}`, {
           headers: headers(),
         }),
+        fetch("/api/orchestration/bossmind-runtime-authority", { headers: headers() }),
       ]);
       const hJson = await hRes.json();
       const cJson = await cRes.json();
@@ -65,13 +67,43 @@ export default function BossMindAdminDashboard() {
       setHealth(hJson);
       setCore(cJson.latest || null);
       setProduction(hJson.productionAutonomous?.lastReport || null);
+      const rJson = await rRes.json();
       setHub(mRes.ok ? mJson : hJson.sharedMemoryHub || null);
+      setRuntime(rRes.ok ? rJson : hJson.runtimeAuthority || null);
     } catch (e) {
       setError(e.message || "Failed to load orchestration data");
     } finally {
       setBusy(false);
     }
   }, [headers, projectKey]);
+
+  const runRuntimeCycle = async () => {
+    setError("");
+    setBusy(true);
+    setShortcutLog("");
+    try {
+      const r = await fetch("/api/orchestration/bossmind-runtime-authority", {
+        method: "POST",
+        headers: {
+          ...headers(),
+          "X-Bossmind-Writer-Agent": "master_admin_shortcut",
+        },
+        body: JSON.stringify({
+          projectKey,
+          captureScreenshot: true,
+          writerAgent: "master_admin_shortcut",
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok && r.status !== 207) throw new Error(j.error || `runtime ${r.status}`);
+      setShortcutLog(JSON.stringify(j, null, 2));
+      await load();
+    } catch (e) {
+      setError(e.message || "Runtime authority cycle failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const runShortcut = async (shortcutId, dryRun = false) => {
     setError("");
@@ -260,6 +292,17 @@ export default function BossMindAdminDashboard() {
         <p className={styles.sub}>Connect with orchestration secret, then run optimization.</p>
       )}
 
+      {runtime?.latestCycle ? (
+        <article className={`${styles.card} ${styles.wide}`}>
+          <h3>Runtime authority</h3>
+          <p className={styles.scoreTarget}>
+            Orchestration {runtime.latestCycle.orchestrationPercent}% ·{" "}
+            {runtime.latestCycle.meetsTarget ? "Meets target" : "Below target"} · Mode{" "}
+            {runtime.latestCycle.executionMode}
+          </p>
+        </article>
+      ) : null}
+
       {hub?.shortcuts?.length ? (
         <section className={styles.shortcutSection}>
           <h2 className={styles.shortcutTitle}>Shared memory shortcuts</h2>
@@ -303,6 +346,9 @@ export default function BossMindAdminDashboard() {
       ) : null}
 
       <div className={styles.actions}>
+        <button type="button" className={styles.btn} onClick={runRuntimeCycle} disabled={busy || !token}>
+          Run runtime authority
+        </button>
         <button type="button" className={styles.btn} onClick={runOptimization} disabled={busy || !token}>
           Run core optimization
         </button>

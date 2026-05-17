@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "name": "BossMind Advanced Autonomous Runtime Strategy",
+  "executionMode": "live_production_only",
+  "closedLoop": ["detect", "analyze", "fix", "verify", "lock", "monitor"],
+  "projects": [
+    { "id": "resumora", "displayName": "Resumora", "productionUrl": "https://resumora.net", "immutableLock": true, "brandAuthority": true },
+    { "id": "elegancyart", "displayName": "ElegancyArt", "productionUrl": null, "immutableLock": false, "brandAuthority": false },
+    { "id": "ai-video-generator", "displayName": "AI Video Generator", "productionUrl": null, "immutableLock": false, "brandAuthority": false },
+    { "id": "tiktok-ai", "displayName": "TikTok AI", "productionUrl": null, "immutableLock": false, "brandAuthority": false },
+    { "id": "global-stock", "displayName": "Global Stock", "productionUrl": null, "immutableLock": false, "brandAuthority": false }
+  ],
+  "stack": {
+    "deepseek": { "role": "master_reasoning_repair", "env": ["DEEPSEEK_API_KEY"] },
+    "langgraph": { "role": "orchestration_supervisor", "routes": ["/api/orchestration/run-repair"] },
+    "neon": { "role": "shared_memory_authority", "env": ["NEON_DATABASE_URL"] },
+    "sentry": { "role": "error_detection", "env": ["SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN"] },
+    "github": { "role": "source_truth", "env": ["GITHUB_TOKEN"] },
+    "playwright": { "role": "runtime_verification", "optional": true },
+    "applitools": { "role": "visual_drift", "env": ["APPLITOOLS_API_KEY"], "optional": true },
+    "n8n": { "role": "workflow_orchestration", "env": ["N8N_WEBHOOK_URL"], "optional": true },
+    "railway": { "role": "backend_workers", "env": ["RAILWAY_ENVIRONMENT"] },
+    "render": { "role": "frontend_deploy", "env": ["RENDER"] }
+  },
+  "engines": {
+    "runtimeAuthority": "lib/orchestration/bossmind-runtime-authority-engine.js",
+    "sharedMemoryHub": "lib/orchestration/bossmind-shared-memory-hub.js",
+    "immutableChain": "lib/orchestration/bossmind-immutable-execution-chain.js",
+    "brandVerify": "lib/orchestration/bossmind-brand-asset-verify.js",
+    "visualValidation": "lib/orchestration/bossmind-visual-validation-engine.js",
+    "productionTruth": "lib/orchestration/bossmind-production-truth-validator.js"
+  },
+  "targetOrchestrationPercent": { "min": 95, "max": 98 },
+  "contextInjectionOrder": [
+    "locked_production_state",
+    "design_baseline",
+    "safety_rules",
+    "marketing_rules",
+    "error_patterns",
+    "deploy_verification",
+    "runtime_authority"
+  ]
+}
