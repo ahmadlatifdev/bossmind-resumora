@@ -6,16 +6,10 @@ import {
   getPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
-import { pricingComparisonRows, SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
+import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
 import PriceTierCard from "@/components/marketing/sections/PriceTierCard";
-
-function formatCompareCell(value) {
-  if (value === true) return <span className="rs-compare-val rs-compare-val--yes">✓</span>;
-  if (value === false) return <span className="rs-compare-val rs-compare-val--no">—</span>;
-  if (value === "partial") return <span className="rs-compare-val rs-compare-val--partial">◐</span>;
-  return <span className="rs-compare-val">{String(value)}</span>;
-}
+import PricingCompareExecutive from "@/components/marketing/sections/PricingCompareExecutive";
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -151,30 +145,7 @@ export default function PricingPanel() {
           ))}
         </div>
 
-        <div className="rs-pricing-compare rs-pricing-compare--lux" aria-label={t.pricingCompareHint}>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t.pricingCompareHint}</th>
-                <th scope="col">{t.svcTierBasic}</th>
-                <th scope="col">{t.svcTierProfessional}</th>
-                <th scope="col">{t.svcTierElite}</th>
-                <th scope="col">{t.svcTierEssentialAdvanced}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pricingComparisonRows.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row">{row.label[lang]}</th>
-                  <td>{formatCompareCell(row.basic)}</td>
-                  <td>{formatCompareCell(row.professional)}</td>
-                  <td>{formatCompareCell(row.elite)}</td>
-                  <td>{formatCompareCell(row.essential_advanced)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PricingCompareExecutive />
       </div>
     </section>
   );

@@ -85,16 +85,19 @@ export default function SiteChrome({ children }) {
 
       <div className={`rs-sidebar-backdrop ${sidebarOpen ? "rs-sidebar-backdrop--open" : ""}`} onClick={() => setSidebarOpen(false)} aria-hidden />
 
-      <aside className={`rs-sidebar ${sidebarOpen ? "rs-sidebar--open" : ""}`} aria-label={t.sidebarNavLabel}>
+      <aside
+        className={`rs-sidebar rs-sidebar--executive ${sidebarOpen ? "rs-sidebar--open" : ""}`}
+        aria-label={t.sidebarNavLabel}
+      >
         <div className="rs-sidebar-brand">
-          <Link href="/" className="rs-brand rs-brand-sidebar" onClick={() => setSidebarOpen(false)}>
+          <Link href="/" className="rs-brand rs-brand-sidebar rs-brand--protected" onClick={() => setSidebarOpen(false)}>
             <Image
               src="/resumora-logo.png"
               alt="Resumora — RESUMORA wordmark"
               width={315}
               height={72}
               priority
-              className="rs-logo rs-logo-sidebar"
+              className="rs-logo rs-logo-sidebar rs-logo--protected"
               sizes="(max-width: 1024px) 240px, 315px"
             />
           </Link>
@@ -139,13 +142,13 @@ export default function SiteChrome({ children }) {
             {sidebarOpen ? <X className="rs-icon-gold" size={22} strokeWidth={1.5} /> : <Menu className="rs-icon-gold" size={22} strokeWidth={1.5} />}
           </button>
 
-          <Link href="/" className="rs-topbar-brand hide-desktop-flex" aria-label="Resumora home">
+          <Link href="/" className="rs-topbar-brand rs-brand--protected hide-desktop-flex" aria-label="Resumora home">
             <Image
               src="/resumora-logo.png"
               alt="Resumora — RESUMORA wordmark"
               width={200}
               height={46}
-              className="rs-logo rs-logo-topbar"
+              className="rs-logo rs-logo-topbar rs-logo--protected"
               sizes="200px"
             />
           </Link>

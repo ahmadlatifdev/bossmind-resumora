@@ -9,10 +9,17 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? features : features.slice(0, VISIBLE_FEATURES);
   const hasMore = features.length > VISIBLE_FEATURES;
+  const ctaByTier = {
+    basic: t.ctaSelectBasic,
+    professional: t.ctaSelectProfessional,
+    elite: t.ctaSelectElite,
+    essential_advanced: t.ctaSelectEssentialAdvanced,
+  };
+  const ctaLabel = ctaByTier[plan.id] || t.selectPlan;
 
   return (
     <article
-      className={`rs-price-card rs-price-card--${plan.id}`}
+      className={`rs-price-card rs-price-card--lux rs-price-card--${plan.id}`}
       data-featured={plan.featured}
       data-tier={plan.id}
       data-quote-match={quoteMatch ? "true" : "false"}
@@ -75,7 +82,7 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
         disabled={busyPlan === plan.id}
         onClick={() => onCheckout(plan.id, plan.name[lang], plan.price.replace(/[^\d]/g, ""))}
       >
-        {busyPlan === plan.id ? t.processing : t.selectPlan}
+        {busyPlan === plan.id ? t.processing : ctaLabel}
       </button>
     </article>
   );
