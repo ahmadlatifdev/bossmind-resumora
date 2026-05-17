@@ -448,6 +448,9 @@ export default function BossMindAdminDashboard() {
       ) : null}
 
       <div className={styles.actions}>
+        <button type="button" className={styles.btn} onClick={runMarketingCycle} disabled={busy || !token}>
+          Run marketing engine
+        </button>
         <button type="button" className={styles.btn} onClick={runRuntimeCycle} disabled={busy || !token}>
           Run runtime authority
         </button>
