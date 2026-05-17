@@ -4196,67 +4196,152 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   }
 }
 
-/* —— Final pricing alignment (compare removed, equal cards) —— */
-[data-rs-pricing-compare-removed="1"] .rs-pricing-compare,
-[data-rs-pricing-compare-removed="1"] .rs-pricing-compare--lux,
-[data-rs-pricing-compare-removed="1"] .rs-compare-exec {
-  display: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
+/* —— Final pricing alignment (subgrid baselines, no compare block) —— */
+.rs-pricing-section {
+  padding-bottom: clamp(0.35rem, 1vw, 0.75rem);
 }
 
-.rs-pricing-section[data-rs-pricing-compare-removed="1"] {
-  padding-bottom: clamp(0.5rem, 1.2vw, 1rem);
-  scroll-margin-bottom: 4rem;
+.rs-pricing-page-hero .rs-pricing-trust-line--hero {
+  margin: 0.65rem 0 0;
+  max-width: 36rem;
 }
 
 .rs-pricing-grid--final {
+  margin-top: clamp(1rem, 2vw, 1.5rem);
   margin-bottom: 0;
-  align-items: stretch;
+  column-gap: 0.85rem;
+  row-gap: 0.35rem;
 }
 
-.rs-price-card--aligned {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 22.5rem;
-  padding: 1rem 0.95rem 1rem;
-  gap: 0;
+@supports (grid-template-rows: subgrid) {
+  .rs-pricing-grid--final {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows:
+      2.75rem
+      minmax(2.5rem, auto)
+      2.85rem
+      2.35rem
+      minmax(7.5rem, 1fr)
+      1.35rem
+      auto;
+    align-items: stretch;
+  }
+
+  .rs-price-card--aligned {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: 1 / -1;
+    grid-column: auto;
+    height: auto;
+    min-height: 0;
+    padding: 0.85rem 0.95rem 1rem;
+    gap: 0;
+    margin: 0;
+  }
+
+  .rs-price-card--aligned .rs-price-flag-row {
+    margin: 0;
+    min-height: 0;
+    max-height: none;
+    align-self: start;
+  }
+
+  .rs-price-card--aligned .rs-price-tier-name {
+    margin: 0;
+    min-height: 0;
+    display: block;
+    align-self: end;
+  }
+
+  .rs-price-card--aligned .rs-price-amount-block {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    align-self: end;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.35rem;
+  }
+
+  .rs-price-card--aligned .rs-price-tagline-slot {
+    margin: 0;
+    min-height: 0;
+    max-height: none;
+    align-self: start;
+  }
+
+  .rs-price-card--aligned .rs-price-features--compact {
+    margin: 0;
+    align-self: start;
+  }
+
+  .rs-price-card--aligned .rs-price-expand,
+  .rs-price-card--aligned .rs-price-expand-spacer {
+    margin: 0;
+    min-height: 0;
+    align-self: center;
+  }
+
+  .rs-price-card--aligned .rs-price-card-footer {
+    margin: 0;
+    padding: 0;
+    align-self: end;
+  }
 }
 
-.rs-price-card--aligned .rs-price-flag-row {
-  flex: 0 0 2.75rem;
-  min-height: 2.75rem;
-  max-height: 2.75rem;
-  align-items: flex-start;
-  margin: 0 0 0.5rem;
-  overflow: hidden;
-}
+@supports not (grid-template-rows: subgrid) {
+  .rs-pricing-grid--final {
+    align-items: stretch;
+  }
 
-.rs-price-card--aligned .rs-price-card-head {
-  flex: 0 0 auto;
-  margin: 0;
-  padding: 0;
-}
+  .rs-price-card--aligned {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 22.5rem;
+    padding: 1rem 0.95rem 1rem;
+    gap: 0;
+  }
 
-.rs-price-card--aligned .rs-price-tier-name {
-  min-height: 2.6rem;
-  display: flex;
-  align-items: flex-end;
-  line-height: 1.2;
-  margin-bottom: 0.35rem;
-}
+  .rs-price-card--aligned .rs-price-flag-row {
+    flex: 0 0 2.75rem;
+    min-height: 2.75rem;
+    max-height: 2.75rem;
+    margin: 0 0 0.35rem;
+  }
 
-.rs-price-card--aligned .rs-price-amount-block {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.35rem;
-  min-height: 2.85rem;
-  margin: 0;
-  padding: 0;
+  .rs-price-card--aligned .rs-price-tier-name {
+    min-height: 2.6rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .rs-price-card--aligned .rs-price-amount-block {
+    min-height: 2.85rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .rs-price-card--aligned .rs-price-tagline-slot {
+    flex: 0 0 2.35rem;
+    min-height: 2.35rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .rs-price-card--aligned .rs-price-features--compact {
+    flex: 1 1 auto;
+  }
+
+  .rs-price-card--aligned .rs-price-expand,
+  .rs-price-card--aligned .rs-price-expand-spacer {
+    flex: 0 0 1.35rem;
+    min-height: 1.35rem;
+  }
+
+  .rs-price-card--aligned .rs-price-card-footer {
+    margin-top: auto;
+    padding-top: 0.65rem;
+  }
 }
 
 .rs-price-card--aligned .rs-price-amount-value {
@@ -4273,50 +4358,14 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   line-height: 1.2;
 }
 
-.rs-price-card--aligned .rs-price-tagline-slot {
-  flex: 0 0 2.35rem;
-  min-height: 2.35rem;
-  max-height: 2.35rem;
-  display: flex;
-  align-items: flex-start;
-  margin: 0.15rem 0 0.35rem;
-}
-
 .rs-price-card--aligned .rs-price-tier-tagline {
   margin: 0;
   font-size: 0.7rem;
   line-height: 1.35;
 }
 
-.rs-price-card--aligned .rs-price-card-body {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-}
-
-.rs-price-card--aligned .rs-price-features--compact {
-  flex: 1 1 auto;
-  margin: 0;
-}
-
-.rs-price-card--aligned .rs-price-expand,
-.rs-price-card--aligned .rs-price-expand-spacer {
-  flex: 0 0 1.35rem;
-  min-height: 1.35rem;
-  margin-top: 0.25rem;
-}
-
 .rs-price-card--aligned .rs-price-expand-spacer {
   display: block;
-}
-
-.rs-price-card--aligned .rs-price-card-footer {
-  flex: 0 0 auto;
-  margin-top: auto;
-  padding-top: 0.65rem;
 }
 
 .rs-price-card--aligned .rs-price-btn {
@@ -4331,18 +4380,35 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 
 @media (max-width: 1200px) {
-  .rs-price-card--aligned {
-    min-height: 21rem;
+  @supports (grid-template-rows: subgrid) {
+    .rs-pricing-grid--final {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rs-price-card--aligned {
+      grid-row: auto;
+      grid-template-rows: none;
+      display: flex;
+      flex-direction: column;
+      min-height: 21rem;
+    }
   }
 }
 
 @media (max-width: 960px) {
   .rs-pricing-grid--final {
+    grid-template-columns: 1fr;
     max-width: 420px;
     margin-inline: auto;
   }
 
-  .rs-price-card--aligned {
-    min-height: 0;
+  @supports (grid-template-rows: subgrid) {
+    .rs-price-card--aligned {
+      grid-row: auto;
+      grid-template-rows: none;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
   }
 }

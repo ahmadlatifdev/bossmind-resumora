@@ -8,6 +8,7 @@ import { translations } from "@/lib/marketing/site-copy";
 import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
+import { RESUMORA_LOGO_ALT, RESUMORA_LOGO_SIDEBAR, RESUMORA_LOGO_TOPBAR } from "@/lib/marketing/resumora-logo";
 
 function NavGroup({ title, open, onToggle, children }) {
   return (
@@ -92,13 +93,13 @@ export default function SiteChrome({ children }) {
         <div className="rs-sidebar-brand">
           <Link href="/" className="rs-brand rs-brand-sidebar rs-brand--protected" onClick={() => setSidebarOpen(false)}>
             <Image
-              src="/resumora-logo.png"
-              alt="Resumora — RESUMORA wordmark"
-              width={315}
-              height={72}
+              src={RESUMORA_LOGO_SIDEBAR.src}
+              alt={RESUMORA_LOGO_ALT}
+              width={RESUMORA_LOGO_SIDEBAR.width}
+              height={RESUMORA_LOGO_SIDEBAR.height}
               priority
-              className="rs-logo rs-logo-sidebar rs-logo--protected"
-              sizes="(max-width: 1024px) 240px, 315px"
+              className={RESUMORA_LOGO_SIDEBAR.className}
+              sizes={RESUMORA_LOGO_SIDEBAR.sizes}
             />
           </Link>
         </div>
@@ -144,12 +145,12 @@ export default function SiteChrome({ children }) {
 
           <Link href="/" className="rs-topbar-brand rs-brand--protected hide-desktop-flex" aria-label="Resumora home">
             <Image
-              src="/resumora-logo.png"
-              alt="Resumora — RESUMORA wordmark"
-              width={200}
-              height={46}
-              className="rs-logo rs-logo-topbar rs-logo--protected"
-              sizes="200px"
+              src={RESUMORA_LOGO_TOPBAR.src}
+              alt={RESUMORA_LOGO_ALT}
+              width={RESUMORA_LOGO_TOPBAR.width}
+              height={RESUMORA_LOGO_TOPBAR.height}
+              className={RESUMORA_LOGO_TOPBAR.className}
+              sizes={RESUMORA_LOGO_TOPBAR.sizes}
             />
           </Link>
 

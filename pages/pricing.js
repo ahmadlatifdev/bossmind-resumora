@@ -49,9 +49,10 @@ export default function PricingPage() {
             <p className="rs-eyebrow">{t.navPricing}</p>
             <h1 className="rs-page-title">{t.pricingTitle}</h1>
             <p className="rs-lead rs-lead--pricing-tight">{t.pricingSubtitle}</p>
+            <p className="rs-pricing-trust-line rs-pricing-trust-line--hero">{t.pricingTrustSecureLine}</p>
           </div>
         </section>
-        <PricingPanel />
+        <PricingPanel showHeader={false} />
         <section className="rs-section">
           <div className="rs-container">
             <div className="rs-cta-strip">

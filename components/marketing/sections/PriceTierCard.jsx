@@ -22,20 +22,19 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
       data-tier={plan.id}
       data-quote-match={quoteMatch ? "true" : "false"}
     >
-      <div className="rs-price-flag-row" aria-hidden={!showFlagship && !showBalanced && !showAdvanced && !showPopular}>
+      <div className="rs-price-flag-row">
         {showFlagship ? <span className="rs-price-flag">{t.badgeBestValue}</span> : null}
         {showBalanced ? <span className="rs-price-flag rs-price-flag--balanced">{t.badgeBalanced}</span> : null}
         {showAdvanced ? <span className="rs-price-flag rs-price-flag--upgrade">{t.badgeEssentialAdvanced}</span> : null}
         {showPopular ? <span className="rs-price-flag rs-price-flag--popular">{t.badgeMostPopular}</span> : null}
       </div>
 
-      <header className="rs-price-card-head">
-        <h3 className="rs-price-tier-name">{plan.name[lang]}</h3>
-        <div className="rs-price-amount-block">
-          <span className="rs-price-amount-value">{plan.price}</span>
-          <span className="rs-price-one-time">· {t.pricingOneTimeNote}</span>
-        </div>
-      </header>
+      <h3 className="rs-price-tier-name">{plan.name[lang]}</h3>
+
+      <div className="rs-price-amount-block">
+        <span className="rs-price-amount-value">{plan.price}</span>
+        <span className="rs-price-one-time">· {t.pricingOneTimeNote}</span>
+      </div>
 
       <div className="rs-price-tagline-slot">
         {plan.id === "essential_advanced" ? (
@@ -43,26 +42,24 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
         ) : null}
       </div>
 
-      <div className="rs-price-card-body">
-        <ul className="rs-price-features rs-price-features--compact">
-          {visible.map((f) => (
-            <li key={f}>{f}</li>
-          ))}
-        </ul>
+      <ul className="rs-price-features rs-price-features--compact">
+        {visible.map((f) => (
+          <li key={f}>{f}</li>
+        ))}
+      </ul>
 
-        {hasMore ? (
-          <button
-            type="button"
-            className="rs-price-expand"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-          >
-            {expanded ? t.pricingHideFeatures : t.pricingViewAllFeatures}
-          </button>
-        ) : (
-          <span className="rs-price-expand-spacer" aria-hidden />
-        )}
-      </div>
+      {hasMore ? (
+        <button
+          type="button"
+          className="rs-price-expand"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          {expanded ? t.pricingHideFeatures : t.pricingViewAllFeatures}
+        </button>
+      ) : (
+        <span className="rs-price-expand-spacer" aria-hidden />
+      )}
 
       <footer className="rs-price-card-footer">
         <button

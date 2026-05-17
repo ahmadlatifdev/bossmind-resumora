@@ -10,7 +10,11 @@ import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
 import PriceTierCard from "@/components/marketing/sections/PriceTierCard";
 
-export default function PricingPanel() {
+/**
+ * @param {{ showHeader?: boolean }} props
+ * showHeader=false on /pricing (page provides single hero). Default true for homepage #pricing.
+ */
+export default function PricingPanel({ showHeader = true }) {
   const router = useRouter();
   const resumeCheckoutOnce = useRef(false);
   const { lang } = useLanguage();
@@ -89,15 +93,16 @@ export default function PricingPanel() {
       data-rs-pricing-ui="20260517-lux-v4"
       data-rs-pricing-order="basic,professional,elite,essential_advanced"
       data-rs-trust-removed="1"
-      data-rs-pricing-compare-removed="1"
     >
       <div className="rs-container">
-        <header className="rs-pricing-header">
-          <p className="rs-eyebrow">{t.navPricing}</p>
-          <h2 className="rs-h2 rs-pricing-title">{t.pricingTitle}</h2>
-          <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
-          <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
-        </header>
+        {showHeader ? (
+          <header className="rs-pricing-header">
+            <p className="rs-eyebrow">{t.navPricing}</p>
+            <h2 className="rs-h2 rs-pricing-title">{t.pricingTitle}</h2>
+            <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
+            <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
+          </header>
+        ) : null}
 
         {checkoutError ? (
           <p className="rs-pricing-checkout-msg" role="status">
