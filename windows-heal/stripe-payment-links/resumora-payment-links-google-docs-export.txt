@@ -1,0 +1,13 @@
+RESUMORA STRIPE PAYMENT LINKS — GOOGLE DOCS PASTE EXPORT
+Last sync: 2026-05-17T20:23:47.806Z
+
+| Service | Plan IDs | Amount USD | Payment link |
+|---|---|---:|---|
+| Resumora Essential Career Foundation | basic | 19 | https://buy.stripe.com/test_00w9ATgCp0151atfE40Fi07 |
+| Resumora Essential Career Package | essential_advanced | 110 | https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00 |
+| Resumora Professional Career Package | professional | 49 | https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01 |
+| Resumora Executive Career Package | elite | 99 | https://buy.stripe.com/test_14AeVd99X9BFcTbeA00Fi02 |
+| Resumora LinkedIn Optimization | addon_linkedin | 35 | https://buy.stripe.com/test_cNi8wP4THcNRdXf77y0Fi03 |
+| Resumora Interview Preparation | addon_interview | 40 | https://buy.stripe.com/test_8x2fZhcm99BF4mF77y0Fi04 |
+| Resumora Custom Cover Letter | addon_cover_letter | 25 | https://buy.stripe.com/test_14A28r71P1596uN0Ja0Fi05 |
+| Resumora Translation/TLS Service | addon_translation | 25 | https://buy.stripe.com/test_aFa8wP3PDg034mFdvW0Fi06 |

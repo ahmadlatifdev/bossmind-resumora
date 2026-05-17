@@ -1,0 +1,67 @@
+Resumora Stripe Payment Links — Secure Backup
+Generated: 2026-05-17T20:23:47.806Z
+Official brand: Resumora
+
+Resumora Essential Career Foundation
+  service_key: essential_foundation
+  plan_ids: basic
+  url: https://buy.stripe.com/test_00w9ATgCp0151atfE40Fi07
+  product: prod_UXFjm6w98cL4TP
+  price: price_1TYBDuGjsXTaeZBgFRYpbSuy
+  link_id: plink_1TYBDvGjsXTaeZBgHucwATH6
+
+Resumora Essential Career Package
+  service_key: essential_career
+  plan_ids: essential_advanced
+  url: https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00
+  product: prod_UXFh1kz3QyUEpc
+  price: price_1TYBCQGjsXTaeZBg2q8BLeGv
+  link_id: plink_1TYBCRGjsXTaeZBgrUTkTSI1
+
+Resumora Professional Career Package
+  service_key: professional_career
+  plan_ids: professional
+  url: https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01
+  product: prod_UXFhyljDHj092l
+  price: price_1TYBCSGjsXTaeZBgt9c9wB02
+  link_id: plink_1TYBCSGjsXTaeZBgfOm2bmKU
+
+Resumora Executive Career Package
+  service_key: executive_career
+  plan_ids: elite
+  url: https://buy.stripe.com/test_14AeVd99X9BFcTbeA00Fi02
+  product: prod_UXFhUykFe8nw1S
+  price: price_1TYBCTGjsXTaeZBgE4R4BSan
+  link_id: plink_1TYBCUGjsXTaeZBg9NIBnCQO
+
+Resumora LinkedIn Optimization
+  service_key: linkedin_optimization
+  plan_ids: addon_linkedin
+  url: https://buy.stripe.com/test_cNi8wP4THcNRdXf77y0Fi03
+  product: prod_UXFhKM6bKRY9Zw
+  price: price_1TYBCUGjsXTaeZBgECP0g9ew
+  link_id: plink_1TYBCVGjsXTaeZBgNWZ6t62m
+
+Resumora Interview Preparation
+  service_key: interview_preparation
+  plan_ids: addon_interview
+  url: https://buy.stripe.com/test_8x2fZhcm99BF4mF77y0Fi04
+  product: prod_UXFh4yqGlaCT9Q
+  price: price_1TYBCWGjsXTaeZBgBF7CPhUx
+  link_id: plink_1TYBCXGjsXTaeZBg82L8hTS3
+
+Resumora Custom Cover Letter
+  service_key: custom_cover_letter
+  plan_ids: addon_cover_letter
+  url: https://buy.stripe.com/test_14A28r71P1596uN0Ja0Fi05
+  product: prod_UXFhtOxTkWGDvf
+  price: price_1TYBCXGjsXTaeZBgvxZCHrnZ
+  link_id: plink_1TYBCYGjsXTaeZBgbo8l7Ahd
+
+Resumora Translation/TLS Service
+  service_key: translation_tls
+  plan_ids: addon_translation
+  url: https://buy.stripe.com/test_aFa8wP3PDg034mFdvW0Fi06
+  product: prod_UXFhehZnTXtHbi
+  price: price_1TYBCZGjsXTaeZBga7gcf1V7
+  link_id: plink_1TYBCaGjsXTaeZBgzAZEsJO6

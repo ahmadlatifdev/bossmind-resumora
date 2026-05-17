@@ -1,0 +1,62 @@
+{
+  "ok": true,
+  "probes": [
+    {
+      "serviceKey": "essential_career",
+      "name": "Resumora Essential Career Package",
+      "paymentLinkUrl": "https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "professional_career",
+      "name": "Resumora Professional Career Package",
+      "paymentLinkUrl": "https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "executive_career",
+      "name": "Resumora Executive Career Package",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14AeVd99X9BFcTbeA00Fi02",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "linkedin_optimization",
+      "name": "Resumora LinkedIn Optimization",
+      "paymentLinkUrl": "https://buy.stripe.com/test_cNi8wP4THcNRdXf77y0Fi03",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "interview_preparation",
+      "name": "Resumora Interview Preparation",
+      "paymentLinkUrl": "https://buy.stripe.com/test_8x2fZhcm99BF4mF77y0Fi04",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "custom_cover_letter",
+      "name": "Resumora Custom Cover Letter",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14A28r71P1596uN0Ja0Fi05",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    },
+    {
+      "serviceKey": "translation_tls",
+      "name": "Resumora Translation/TLS Service",
+      "paymentLinkUrl": "https://buy.stripe.com/test_aFa8wP3PDg034mFdvW0Fi06",
+      "linkOk": true,
+      "pageStatus": 200,
+      "publicAccessible": true
+    }
+  ],
+  "manifestHash": "60581ada850f1372684e55edf87f61e07913ded8d393ff7fbe07a5af6bf8f81f"
+}
