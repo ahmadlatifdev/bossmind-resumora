@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "projectId": "elegancyart",
+  "displayName": "ElegancyArt",
+  "isolationNote": "Storefront, CJ/AliExpress sync, product UI, and Stripe checkout live in BOSSMIND_REPO_ROOT_ELEGANCYART (separate Next.js repo on Render). Resumora registers this contract for Neon shared memory, orchestration health, and cross-project intelligence only.",
+  "positioning": {
+    "summary": "Luxury-looking, AI-assisted, multilingual, mobile-first, trend-reactive dropshipping ecosystem.",
+    "mandatoryUi": [
+      "luxury minimal design",
+      "fast mobile load",
+      "dark/light intelligent mode",
+      "sticky CTAs",
+      "animated product cards",
+      "AI recommendations",
+      "live cart preview",
+      "multilingual EN/FR",
+      "ultra-simple checkout"
+    ]
+  },
+  "lockedProductionStack": {
+    "frontend": "Next.js + React",
+    "publicHosting": "Render",
+    "automationCore": "BossMind Orchestrator",
+    "sharedMemory": "Neon",
+    "aiBrain": "DeepSeek",
+    "workflowAutomation": ["n8n", "Make"],
+    "productSources": ["CJdropshipping", "AliExpress"],
+    "payments": "Stripe",
+    "analytics": ["Google Analytics", "Google Search Console"],
+    "imageCdn": "Bunny.net",
+    "repoCicd": "GitHub",
+    "errorTracking": "Sentry",
+    "forbiddenHosting": ["Vercel"]
+  },
+  "neon": {
+    "projectKeyEnv": "BOSSMIND_PROJECT_KEY",
+    "defaultProjectKey": "elegancyart",
+    "sharedMemoryKeys": [
+      "trend_memory",
+      "product_performance",
+      "failed_ads",
+      "successful_ads",
+      "seo_winners",
+      "supplier_reliability",
+      "customer_behavior",
+      "deployment_history",
+      "error_recovery_patterns"
+    ],
+    "note": "Use same lib/shared/neon-memory.js pattern as Resumora with project_key elegancyart — never mix Resumora UI authority rows."
+  },
+  "productIntelligence": {
+    "sources": ["CJdropshipping", "AliExpress"],
+    "signals": ["trend_velocity", "review_growth", "social_mentions", "profit_margin", "delivery_speed", "return_risk"],
+    "scoringWeights": {
+      "trendVelocity": 0.25,
+      "reviewGrowth": 0.2,
+      "socialMentions": 0.2,
+      "profitMargin": 0.15,
+      "deliverySpeed": 0.1,
+      "returnRisk": 0.1
+    },
+    "publishThresholdNote": "Only high-score products auto-publish when worker policy allows; human override required until proof gates pass."
+  },
+  "lifecyclePipeline": [
+    "supplier_apis",
+    "bossmind_ai_scanner",
+    "trend_detection",
+    "ai_product_optimization",
+    "seo_generation",
+    "category_placement",
+    "website_publishing",
+    "social_distribution",
+    "ad_campaign_trigger",
+    "performance_tracking",
+    "auto_replace_weak_products"
+  ],
+  "deepseekResponsibilities": [
+    "rewrite_titles",
+    "luxury_descriptions",
+    "seo_keywords",
+    "landing_pages",
+    "image_alt_and_copy",
+    "upsells",
+    "bundles",
+    "faq",
+    "return_policy_blocks",
+    "comparison_sections",
+    "tiktok_instagram_captions"
+  ],
+  "categories": [
+    { "id": "jewelry", "automation": "ai_trend_rotation", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "women_fashion", "automation": "weekly_refresh", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "sleepwear", "automation": "seasonal", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "pet_products", "automation": "tiktok_trend_tracking", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "kitchen_essentials", "automation": "amazon_trend_detection", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "bedroom_essentials", "automation": "pinterest_ai_targeting", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "beauty_products", "automation": "influencer_matching", "maxProducts": 30, "weeklyRotation": true },
+    { "id": "smart_gadgets", "automation": "viral_detector", "maxProducts": 30, "weeklyRotation": true }
+  ],
+  "marketingAutomation": {
+    "outputs": [
+      "tiktok_videos",
+      "pinterest_pins",
+      "instagram_posts",
+      "facebook_ads",
+      "google_shopping_feeds",
+      "seo_blogs",
+      "ai_landing_pages",
+      "email_campaigns",
+      "abandoned_cart_recovery"
+    ],
+    "orchestrators": ["n8n", "Make"]
+  },
+  "seoSystem": {
+    "artifacts": [
+      "product_schema",
+      "faq_schema",
+      "category_schema",
+      "multilingual_metadata",
+      "internal_linking",
+      "semantic_keyword_clusters",
+      "long_tail_pages",
+      "indexing_requests"
+    ],
+    "dynamicLandingExamples": [
+      "best-gifts-for-mothers",
+      "best-luxury-pet-products",
+      "best-modern-bedroom-items",
+      "top-jewelry-under-50",
+      "viral-kitchen-tools"
+    ]
+  },
+  "pricingEngine": {
+    "inputs": ["supplier_cost", "shipping", "taxes", "target_margin", "competitor_pricing", "psychological_pricing"],
+    "exampleMarginMultiplier": 2.7
+  },
+  "revenueAllocationTargets": {
+    "bossmindCapitalGrowth": 0.3,
+    "adsScaling": 0.3,
+    "emergencyReserve": 0.15,
+    "automationExpansion": 0.15,
+    "ownerWithdrawal": 0.1,
+    "note": "Policy targets for finance automation — not enforced from Resumora repo."
+  },
+  "antiLeakSelfHeal": {
+    "resumoraPatterns": [
+      "bossmind:ultra:antileak:snapshot-lock",
+      "bossmind:production:post-deploy-validation",
+      "bossmind:core:optimization"
+    ],
+    "elegancyartMustReplicate": [
+      "protected-surface.json",
+      "immutable-baseline + seal",
+      "deploy gate before Render promote"
+    ]
+  },
+  "performanceTargets": {
+    "automationLevelPercent": { "min": 95, "max": 98 },
+    "mobileOptimizationPercent": 98,
+    "seoAutomationPercent": { "min": 95, "max": 98 },
+    "selfHealingAccuracyPercent": { "min": 90, "max": 100 },
+    "productRefreshAutomationPercent": 100,
+    "multiLanguageAutomationPercent": { "min": 95, "max": 98 },
+    "marketingAutomationPercent": { "min": 90, "max": 100 },
+    "deploymentStabilityPercent": { "min": 95, "max": 98 },
+    "disclaimer": "Targets are design goals. Proof-based scores require live workers, Neon rows, and CI evidence in the ElegancyArt repo — not fabricated from this registry."
+  },
+  "expansionPhase": [
+    "ai_influencer_system",
+    "ai_affiliate_network",
+    "ai_supplier_negotiation",
+    "ai_warehouse_prediction",
+    "ai_inventory_forecasting",
+    "ai_auto_brand_generation",
+    "ai_voice_shopping_assistant"
+  ],
+  "envSecrets": {
+    "NEON_DATABASE_URL": "shared BossMind Neon — project_key elegancyart",
+    "BOSSMIND_ORCHESTRATION_SECRET": "Master Admin + orchestration webhooks",
+    "DEEPSEEK_API_KEY": "n8n / Railway workers only",
+    "STRIPE_SECRET_KEY": "ElegancyArt Render/Railway only",
+    "STRIPE_WEBHOOK_SECRET": "ElegancyArt webhook route only",
+    "CJ_API_KEY": "supplier sync worker",
+    "ALIEXPRESS_API_KEY": "supplier sync worker",
+    "BUNNY_STORAGE_API_KEY": "image CDN",
+    "SENTRY_DSN": "ElegancyArt frontend + workers",
+    "N8N_WEBHOOK_SECRET": "BossMind automation ingress",
+    "GOOGLE_ANALYTICS_ID": "public env on Render",
+    "GSC_SERVICE_ACCOUNT": "indexing worker — never commit"
+  },
+  "repoRootEnv": "BOSSMIND_REPO_ROOT_ELEGANCYART",
+  "legacyRepoRootEnv": "BOSSMIND_ELEGANCYART_ROOT"
+}

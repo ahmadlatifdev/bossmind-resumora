@@ -37,12 +37,17 @@
       "displayName": "ElegancyArt",
       "siteUrl": null,
       "repoRootEnv": "BOSSMIND_REPO_ROOT_ELEGANCYART",
+      "stackConfig": "config/bossmind-elegancyart-stack.json",
       "pipelines": {
         "weeklyOrganic": false,
         "googleOrganicBundle": false,
         "socialGrowthBundle": false,
-        "marketingActivationBundle": false
-      }
+        "marketingActivationBundle": false,
+        "productIntelligence": true,
+        "seoLandingAutomation": true,
+        "supplierSync": true
+      },
+      "note": "Pipelines are orchestration targets; activate workers in ElegancyArt repo + Railway/n8n. See bossmind-elegancyart-stack.json."
     },
     {
       "id": "ai-video-generator",

@@ -204,6 +204,26 @@ export default async function handler(req, res) {
       postDeployValidation = null;
     }
 
+    let elegancyArt = {
+      stackConfig: "config/bossmind-elegancyart-stack.json",
+      repoRootEnv: "BOSSMIND_REPO_ROOT_ELEGANCYART",
+    };
+    try {
+      const stack = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), "config/bossmind-elegancyart-stack.json"), "utf8")
+      );
+      elegancyArt = {
+        ...elegancyArt,
+        displayName: stack.displayName,
+        positioning: stack.positioning?.summary,
+        performanceTargets: stack.performanceTargets,
+        categoryCount: stack.categories?.length ?? 0,
+        isolationNote: stack.isolationNote,
+      };
+    } catch {
+      elegancyArt.loadError = "stack_config_unreadable";
+    }
+
     let aiVideo = {
       dashboardPath: "/bossmind-ai-video",
       projectKeyDefault: process.env.BOSSMIND_AI_VIDEO_PROJECT_KEY || "ai-video-generator",
@@ -268,6 +288,7 @@ export default async function handler(req, res) {
       productionAutonomous,
       continuousMonitor,
       postDeployValidation,
+      elegancyArt,
       aiVideo,
       scores: {
         performanceScore,
