@@ -22,7 +22,7 @@ async function persistToSharedMemory(report) {
   await hub.upsertProjectLock({
     projectKey: "resumora",
     lockType: "brand_logo",
-    lockKey: "resumora-logo-original",
+    lockKey: "resumora-logo-official",
     payload: { sha256: report.actualHash, publicUrl: report.lockedPath },
     lockedBy: "bossmind-brand-asset-verify",
   });

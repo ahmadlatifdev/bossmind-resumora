@@ -4,7 +4,7 @@ import {
   BRAND_LOGO_ALT,
   BRAND_LOGO_SRC,
   BRAND_LOGO_VARIANTS,
-} from "@/lib/marketing/brand-asset-authority";
+} from "@/lib/marketing/brand-asset-authority.constants";
 
 export type ResumoraLogoVariant = keyof typeof BRAND_LOGO_VARIANTS;
 
@@ -20,7 +20,7 @@ type ResumoraLogoProps = {
 };
 
 /**
- * Centralized locked Resumora wordmark — only /brand/resumora-logo-original.png.
+ * Centralized locked Resumora wordmark — only /brand/resumora-logo-official.png.
  */
 export default function ResumoraLogo({
   variant = "minimal",

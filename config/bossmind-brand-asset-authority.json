@@ -2,8 +2,8 @@
   "version": 1,
   "project": "resumora",
   "lockedLogo": {
-    "publicUrl": "/brand/resumora-logo-original.png",
-    "repoPath": "public/brand/resumora-logo-original.png",
+    "publicUrl": "/brand/resumora-logo-official.png",
+    "repoPath": "public/brand/resumora-logo-official.png",
     "component": "components/brand/ResumoraLogo.tsx",
     "authorityModule": "lib/marketing/brand-asset-authority.js",
     "sha256": "f25eec93391abd2331e6830af0cc69429e2d2c45e2287c19503eb8a681fd538d",
@@ -19,7 +19,7 @@
   ],
   "requiredHtmlMarkers": [
     "data-rs-brand-logo=\"1\"",
-    "/brand/resumora-logo-original.png"
+    "/brand/resumora-logo-official.png"
   ],
   "protection": {
     "blockReplacementWithoutApproval": true,
