@@ -12,7 +12,7 @@
     "lib/marketing/resumora-logo.js",
     "pages/pricing.js",
     "styles/resumora-global.css",
-    "public/brand/resumora-logo-official.png"
+    "public/brand/resumora-logo-official.jpg"
   ],
   "frozenThemes": ["dark_luxury_navy_gold", "pricing_grid_final", "resumora_logo_locked_original"],
   "verifyBeforeDeploy": "npm run bossmind:immutable:execution-chain"

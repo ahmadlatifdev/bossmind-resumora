@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "rules": [
+    { "id": "clear_cta_flow", "severity": "require", "text": "Every public project must have a clear CTA flow." },
+    { "id": "seo_metadata", "severity": "require", "text": "Every service or product page must have SEO metadata." },
+    { "id": "organic_social", "severity": "require", "text": "Every project must support organic social post generation." },
+    { "id": "launch_social_content", "severity": "require", "text": "Every launch or update should create social-ready content." },
+    { "id": "pricing_conversion", "severity": "require", "text": "Every pricing page must use a conversion-focused layout." },
+    { "id": "mobile_first", "severity": "require", "text": "Every page must stay mobile-first." },
+    { "id": "analytics_readiness", "severity": "require", "text": "Every project must track analytics readiness signals." },
+    { "id": "professional_voice", "severity": "require", "text": "Every project must keep a professional brand voice." }
+  ]
+}

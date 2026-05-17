@@ -20,9 +20,11 @@ const nextConfig: NextConfig = {
     return [
       /* Dynamic manifest: versioned icons + no-store (see pages/api/branding-manifest.js). */
       { source: "/manifest.webmanifest", destination: "/api/branding-manifest" },
-      /* Legacy logo URL → locked brand authority asset (single source on disk). */
-      { source: "/resumora-logo.png", destination: "/brand/resumora-logo-original.png" },
-      { source: "/resumora-logo.svg", destination: "/brand/resumora-logo-original.png" },
+      /* Legacy logo URLs → single official brand asset on disk. */
+      { source: "/resumora-logo.png", destination: "/brand/resumora-logo-official.jpg" },
+      { source: "/resumora-logo.svg", destination: "/brand/resumora-logo-official.jpg" },
+      { source: "/brand/resumora-logo-original.png", destination: "/brand/resumora-logo-official.jpg" },
+      { source: "/brand/resumora-logo-official.png", destination: "/brand/resumora-logo-official.jpg" },
     ];
   },
   async headers() {
@@ -46,6 +48,8 @@ const nextConfig: NextConfig = {
       { source: "/icon-512.png", headers: branding },
       { source: "/android-chrome-192x192.png", headers: branding },
       { source: "/android-chrome-512x512.png", headers: branding },
+      { source: "/brand/resumora-logo-official.jpg", headers: branding },
+      { source: "/brand/resumora-logo-official.png", headers: branding },
       { source: "/brand/resumora-logo-original.png", headers: branding },
       { source: "/resumora-logo.png", headers: branding },
       { source: "/og-resumora-brand.png", headers: branding },

@@ -216,7 +216,7 @@ body {
 
 .rs-logo-sidebar {
   max-height: 72px;
-  max-width: min(315px, 88vw);
+  max-width: min(72px, 18vw);
 }
 
 .rs-logo-topbar {

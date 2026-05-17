@@ -1,0 +1,155 @@
+{
+  "snapshotKey": "resumora-production-approved-v1",
+  "sealedAt": "2026-05-17T15:04:06.571Z",
+  "gitHead": "df75f69746ae686f8401d7197791b5189e8afd8b",
+  "logo": {
+    "publicUrl": "/brand/resumora-logo-official.jpg",
+    "sha256": "9a2232b70a530685714d94068cb99d03cc11e0fe6503ce0d94106fbfaca666c8",
+    "fileHash": "9a2232b70a530685714d94068cb99d03cc11e0fe6503ce0d94106fbfaca666c8"
+  },
+  "designApproved": {
+    "theme": "luxury_dark",
+    "typography": "serif_headings_sans_body",
+    "spacingSystem": "rs-luxury-grid",
+    "pricingLayout": "four_tier_centered",
+    "ctaStructure": "rs-btn-accent_select_plan",
+    "sidebarStructure": "rs-sidebar-nav",
+    "colorPalette": [
+      "#05070A",
+      "#D4AF37",
+      "#FFFFFF"
+    ],
+    "responsive": "mobile_first",
+    "cardAlignment": "centered_pricing_grid",
+    "productionRoutes": {
+      "homePath": "/",
+      "homePageSource": "components/marketing/HomePage.jsx",
+      "indexBootstrap": "pages/index.js",
+      "clientRedirectSources": [
+        "/client",
+        "/client/"
+      ]
+    },
+    "requiredHomeMarkers": [
+      "id=\"top\"",
+      "id=\"home-intake\"",
+      "id=\"pricing\"",
+      "data-rs-pricing-ui=\"20260517-lux-v4\"",
+      "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
+      "data-tier=\"essential_advanced\"",
+      "rs-week-main",
+      "rs-btn-accent",
+      "rs-cta-strip",
+      "rs-pricing-grid"
+    ],
+    "requiredPricingMarkers": [
+      "data-rs-pricing-ui=\"20260517-lux-v4\"",
+      "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
+      "rs-pricing-grid--final",
+      "/brand/resumora-logo-official.jpg",
+      "data-rs-brand-logo=\"1\"",
+      "data-rs-trust-removed=\"1\"",
+      "Professional Career Upgrade Plans"
+    ]
+  },
+  "designFingerprint": {
+    "files": [
+      "components/brand/ResumoraLogo.tsx",
+      "components/marketing/FooterEngagementDock.jsx",
+      "components/marketing/FooterSocialStrip.jsx",
+      "components/marketing/FooterUniversalDock.jsx",
+      "components/marketing/HomePage.jsx",
+      "components/marketing/LanguageSwitcher.js",
+      "components/marketing/MinimalAppChrome.js",
+      "components/marketing/SiteChrome.js",
+      "components/marketing/sections/PriceTierCard.jsx",
+      "components/marketing/sections/PricingPanel.jsx",
+      "components/marketing/sections/TrustMetricsPanel.jsx",
+      "components/marketing/sections/UploadPanel.jsx",
+      "config/bossmind-brand-asset-authority.json",
+      "config/bossmind-marketing-rules.json",
+      "config/bossmind-protected-surface.json",
+      "config/bossmind-protected-ui-authority.json",
+      "config/bossmind-safety-rules.json",
+      "context/LanguageContext.js",
+      "lib/marketing/brand-asset-authority.constants.js",
+      "lib/marketing/brand-asset-authority.js",
+      "lib/marketing/resumora-logo.js",
+      "lib/marketing/site-copy.js",
+      "next.config.ts",
+      "pages/dashboard.js",
+      "pages/index.js",
+      "pages/login.js",
+      "pages/pricing.js",
+      "pages/register.js",
+      "public/brand/resumora-logo-official.jpg",
+      "styles/resumora-global.css"
+    ],
+    "missing": [],
+    "hash": "b5470704708af9d6df6786a613144911292eaa519a81a12c08e2be415ff78c79"
+  },
+  "brandAuthority": {
+    "version": 2,
+    "project": "resumora",
+    "lockedLogo": {
+      "publicUrl": "/brand/resumora-logo-official.jpg",
+      "repoPath": "public/brand/resumora-logo-official.jpg",
+      "component": "components/brand/ResumoraLogo.tsx",
+      "authorityModule": "lib/marketing/brand-asset-authority.js",
+      "sha256": "9a2232b70a530685714d94068cb99d03cc11e0fe6503ce0d94106fbfaca666c8",
+      "approvedSource": "D:\\Shakhsy11\\Bossmind-orchestrator\\BossMind Logos\\Resumora\\_ff509979-6347-4249-b3f1-86defbc25128.jpg (official social upload; ee2c9326 alias not on disk)"
+    },
+    "legacyAliases": [
+      "/resumora-logo.png",
+      "/brand/resumora-logo-official.png",
+      "/brand/resumora-logo-original.png"
+    ],
+    "forbiddenPatterns": [
+      "resumora-logo.svg",
+      "resumora-logo-official.png",
+      "resumora-logo-original.png",
+      "logo-draft",
+      "logo-mockup",
+      "logo-generated",
+      "placeholder-logo"
+    ],
+    "requiredHtmlMarkers": [
+      "data-rs-brand-logo=\"1\"",
+      "/brand/resumora-logo-official.jpg"
+    ],
+    "protection": {
+      "blockReplacementWithoutApproval": true,
+      "blockGeneratedLogosInProduction": true,
+      "blockDuplicatedBrandAssets": true,
+      "verifyCommand": "npm run bossmind:brand:verify"
+    },
+    "sharedMemory": {
+      "memoryKey": "brand_asset_authority_resumora",
+      "projectLockType": "brand_logo"
+    }
+  },
+  "runtimeAuthority": {
+    "snapshotKey": "resumora-production-approved-v1",
+    "protectionRules": [
+      "never_overwrite_locked_ui",
+      "never_remove_real_logo",
+      "never_duplicate_sections",
+      "never_change_protected_pricing",
+      "never_push_without_build",
+      "never_deploy_without_live_verify",
+      "never_mockup_production",
+      "never_mix_code_fragments",
+      "never_cross_brand",
+      "never_damage_confirmed_setup",
+      "never_overwrite_approved_design",
+      "never_replace_official_logo",
+      "never_regenerate_branding",
+      "never_deploy_conflicting_layouts",
+      "auto_rollback_visual_drift"
+    ],
+    "logoLocked": true,
+    "autoRollbackOnDrift": true
+  },
+  "snapshotDir": "config/bossmind-baseline-snapshots/resumora-production-approved-v1",
+  "filesCopied": 17
+}

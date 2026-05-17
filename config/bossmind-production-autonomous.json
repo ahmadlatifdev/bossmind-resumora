@@ -21,7 +21,7 @@
     "paths": ["/", "/pricing", "/services", "/capabilities"],
     "pricingUiMarker": "data-rs-pricing-ui=\"20260517-lux-v4\"",
     "pricingOrder": ["basic", "professional", "elite", "essential_advanced"],
-    "logoPath": "/brand/resumora-logo-official.png",
+    "logoPath": "/brand/resumora-logo-official.jpg",
     "forbiddenPatterns": ["Trust at a glance", "rs-trust-panel--slim"]
   },
   "predictive": {

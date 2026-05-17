@@ -2,8 +2,8 @@
  * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
  * HTML/navigation: network-first (never serve stale homepage/pricing from cache).
  */
-const BRANDING_ASSET_QUERY = "?v=20260516-rs4";
-const CACHE = "resumora-shell-20260516-rs4";
+const BRANDING_ASSET_QUERY = "?v=20260517-rs5-official-jpg";
+const CACHE = "resumora-shell-20260517-rs5-official-jpg";
 
 const q = () => BRANDING_ASSET_QUERY;
 
@@ -29,7 +29,7 @@ self.addEventListener("install", (event) => {
           "/icon-512.png" + q(),
           "/android-chrome-192x192.png" + q(),
           "/android-chrome-512x512.png" + q(),
-          "/brand/resumora-logo-official.png" + q(),
+          "/brand/resumora-logo-official.jpg" + q(),
           "/og-resumora-brand.png" + q(),
           "/manifest.webmanifest",
         ]).catch(() => {})
@@ -78,6 +78,7 @@ self.addEventListener("fetch", (event) => {
     path.startsWith("/icon-") ||
     path.startsWith("/android-chrome") ||
     path === "/apple-touch-icon.png" ||
+    path === "/brand/resumora-logo-official.jpg" ||
     path === "/brand/resumora-logo-official.png" ||
     path === "/brand/resumora-logo-original.png" ||
     path === "/resumora-logo.png" ||

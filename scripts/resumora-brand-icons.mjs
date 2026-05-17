@@ -38,14 +38,18 @@ async function main() {
   const ico = await toIco([png16, png32]);
   fs.writeFileSync(path.join(pub, "favicon.ico"), ico);
 
-  const lockedLogoPath = path.join(pub, "brand", "resumora-logo-official.png");
+  const lockedLogoPath = path.join(pub, "brand", "resumora-logo-official.jpg");
   if (!fs.existsSync(lockedLogoPath)) {
-    console.error("resumora-brand-icons: missing public/brand/resumora-logo-official.png (brand authority lock)");
+    console.error("resumora-brand-icons: missing public/brand/resumora-logo-official.jpg (brand authority lock)");
     process.exit(1);
   }
-  const logoPngBuf = fs.readFileSync(lockedLogoPath);
+  const logoPngBuf = await sharp(lockedLogoPath).png().toBuffer();
 
-  const ogLogo = await sharp(logoPngBuf).resize({ width: 780 }).ensureAlpha().png().toBuffer();
+  const ogLogo = await sharp(logoPngBuf)
+    .resize({ width: 520, height: 520, fit: "inside" })
+    .ensureAlpha()
+    .png()
+    .toBuffer();
   const ogPng = await sharp({
     create: {
       width: 1200,
@@ -79,7 +83,7 @@ async function main() {
   }
 
   console.log(
-    "resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192/512, android-chrome-*, icon.svg, og-resumora-brand.png (logo source: brand/resumora-logo-official.png); synced sw.js"
+    "resumora-brand-icons: wrote favicon.ico, favicon-*.png, apple-touch-icon.png, icon-192/512, android-chrome-*, icon.svg, og-resumora-brand.png (logo source: brand/resumora-logo-official.jpg); synced sw.js"
   );
 }
 
