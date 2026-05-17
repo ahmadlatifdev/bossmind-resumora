@@ -36,7 +36,8 @@
     "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
     "rs-pricing-grid--final",
     "resumora-logo.png",
-    "data-rs-trust-removed=\"1\""
+    "data-rs-trust-removed=\"1\"",
+    "Professional Career Upgrade Plans"
   ],
   "forbiddenPricingHtmlPatterns": [
     "rs-pricing-compare",

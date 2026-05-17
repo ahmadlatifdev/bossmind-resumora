@@ -51,8 +51,9 @@ export const translations = {
     capabilitiesSubtitle: "Institutional-grade modules mapped to hiring committee expectations.",
     servicesPageTitle: "Services & intake",
     servicesPageSubtitle: "Begin with encrypted upload or explore each delivery lane.",
-    pricingTitle: "Studio tiers",
-    pricingSubtitle: "Four executive lanes—choose depth, not complexity. USD worldwide.",
+    pricingTitle: "Professional Career Upgrade Plans",
+    pricingSubtitle:
+      "Choose the right executive upgrade level for résumé, ATS, LinkedIn, and interview readiness.",
     popular: "Most selected",
     selectPlan: "Select plan",
     ctaSelectBasic: "Begin Basic studio",
@@ -386,8 +387,9 @@ export const translations = {
     capabilitiesSubtitle: "Modules niveau institutionnel alignés sur attentes de comités de recrutement.",
     servicesPageTitle: "Services & réception",
     servicesPageSubtitle: "Commencez par un téléversement sécurisé ou explorez chaque volet.",
-    pricingTitle: "Paliers studio",
-    pricingSubtitle: "Quatre voies exécutives—choisissez la profondeur, pas la complexité. USD partout.",
+    pricingTitle: "Plans d'upgrade de carrière professionnelle",
+    pricingSubtitle:
+      "Choisissez le bon niveau d'upgrade exécutif pour CV, ATS, LinkedIn et préparation aux entretiens.",
     popular: "Le plus choisi",
     selectPlan: "Sélectionner le plan",
     ctaSelectBasic: "Démarrer Basic",

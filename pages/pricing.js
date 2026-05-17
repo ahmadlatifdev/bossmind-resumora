@@ -44,7 +44,7 @@ export default function PricingPage() {
         <meta name="twitter:image" content={ogImage} />
       </Head>
       <main>
-        <section className="rs-section rs-pricing-page-hero">
+        <section className="rs-section rs-pricing-page-hero rs-pricing-page-hero--centered">
           <div className="rs-container">
             <p className="rs-eyebrow">{t.navPricing}</p>
             <h1 className="rs-page-title">{t.pricingTitle}</h1>

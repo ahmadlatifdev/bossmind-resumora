@@ -14,8 +14,8 @@
     "executionChainCommand": "npm run bossmind:immutable:execution-chain",
     "protectedBranch": "resumora-production-locked"
   },
-  "sealedAt": "2026-05-17T03:56:24.318Z",
-  "sealedGitHead": "f441e4ac6e7bf6234482c1c22a1cca13a0c30bbb",
+  "sealedAt": "2026-05-17T04:06:20.057Z",
+  "sealedGitHead": "8b6eeae2891cf121d163bdbb1fabcb88681db8e0",
   "lockFullWorkspaceFingerprint": false,
   "immutableInterfacePaths": [
     "components/marketing/HomePage.jsx",
@@ -40,6 +40,6 @@
     "next.config.ts"
   ],
   "snapshotRelativeDir": "config/bossmind-baseline-snapshots/luxury-v1",
-  "lockedLuxuryInterfaceFingerprint": "c4bd93004e246e66566865d4c23cb11f73a66559d6807a49be66a48809169fe8",
-  "lockedFullWorkspaceFingerprint": "c6bfb73b15bd5e1e4692bfec92edf2d4f1b3fe03f7a2ffec93064c3306b8cd50"
+  "lockedLuxuryInterfaceFingerprint": "51aa463b35ffd6681a56c846da54e389bfbfe54cfef0ea11bc4c0e94c85eab65",
+  "lockedFullWorkspaceFingerprint": "1cd1d6eddad0012a27918316cfad3bce1a13d729b73987699666fed58c51b2dc"
 }

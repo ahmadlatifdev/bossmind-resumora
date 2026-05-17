@@ -2784,7 +2784,7 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 .rs-pricing-section {
   padding-top: clamp(0.35rem, 1.2vw, 0.75rem);
   scroll-margin-bottom: 6rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0;
 }
 
 @media (max-width: 960px) {
@@ -2823,7 +2823,16 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 
 .rs-pricing-page-hero {
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.15rem;
+}
+
+.rs-pricing-page-hero--centered .rs-container {
+  text-align: center;
+}
+
+.rs-pricing-page-hero--centered .rs-lead--pricing-tight,
+.rs-pricing-page-hero--centered .rs-pricing-trust-line--hero {
+  margin-inline: auto;
 }
 
 .rs-lead--pricing-tight {
@@ -4207,10 +4216,41 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 
 .rs-pricing-grid--final {
-  margin-top: clamp(1rem, 2vw, 1.5rem);
+  margin-top: clamp(0.75rem, 1.5vw, 1.15rem);
   margin-bottom: 0;
   column-gap: 0.85rem;
   row-gap: 0.35rem;
+}
+
+.rs-price-card--aligned {
+  text-align: center;
+}
+
+.rs-price-card--aligned .rs-price-flag-row {
+  justify-content: center;
+}
+
+.rs-price-card--aligned .rs-price-amount-block {
+  justify-content: center;
+}
+
+.rs-price-card--aligned .rs-price-features--compact {
+  list-style-position: inside;
+  padding-left: 0;
+  text-align: center;
+}
+
+.rs-price-card--aligned .rs-price-expand {
+  align-self: center;
+  margin-inline: auto;
+}
+
+.rs-price-card--aligned .rs-price-expand-spacer {
+  margin-inline: auto;
+}
+
+.rs-price-card--aligned .rs-price-card-footer {
+  width: 100%;
 }
 
 @supports (grid-template-rows: subgrid) {
@@ -4245,6 +4285,7 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     min-height: 0;
     max-height: none;
     align-self: start;
+    justify-content: center;
   }
 
   .rs-price-card--aligned .rs-price-tier-name {
@@ -4252,6 +4293,8 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     min-height: 0;
     display: block;
     align-self: end;
+    text-align: center;
+    width: 100%;
   }
 
   .rs-price-card--aligned .rs-price-amount-block {
@@ -4261,8 +4304,10 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     align-self: end;
     display: flex;
     align-items: baseline;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 0.2rem 0.35rem;
+    width: 100%;
   }
 
   .rs-price-card--aligned .rs-price-tagline-slot {
