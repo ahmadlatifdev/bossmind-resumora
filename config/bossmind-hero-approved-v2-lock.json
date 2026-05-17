@@ -1,0 +1,76 @@
+{
+  "snapshotKey": "resumora-hero-approved-v2",
+  "sealedAt": "2026-05-17T15:48:54.417Z",
+  "heroApproved": {
+    "logo": {
+      "transparent": true,
+      "publicUrl": "/brand/resumora-logo-official-transparent.png",
+      "sha256": "4490120a348ba70b9313cf996c042594b37166900255d0e8c01929379181978f"
+    },
+    "structure": "centered_premium_hero",
+    "headline": "Elite Career Positioning For Executives, Professionals, And High-Value Talent.",
+    "spacingSystem": "rs-hero-lux-wrap--centered",
+    "typography": "rs-h1 rs-week-headline + rs-lead--lux",
+    "palette": [
+      "#05070A",
+      "#C9A227",
+      "#FFFFFF"
+    ],
+    "visualRhythm": "reduced_duplicate_trust_strip"
+  },
+  "designFingerprint": {
+    "files": [
+      "components/brand/ResumoraLogo.tsx",
+      "components/marketing/HomePage.jsx",
+      "components/marketing/SiteChrome.js",
+      "config/bossmind-brand-asset-authority.json",
+      "config/bossmind-protected-ui-authority.json",
+      "lib/marketing/brand-asset-authority.constants.js",
+      "lib/marketing/site-copy.js",
+      "public/brand/resumora-logo-official-transparent.png",
+      "styles/resumora-global.css"
+    ],
+    "missing": [],
+    "hash": "2cd584dead7484f0dc4f8d150a9f3c07ecd7bbba924cebdbef3daca22de1222f"
+  },
+  "brandAuthority": {
+    "version": 3,
+    "project": "resumora",
+    "lockedLogo": {
+      "publicUrl": "/brand/resumora-logo-official-transparent.png",
+      "repoPath": "public/brand/resumora-logo-official-transparent.png",
+      "legacyMatteUrl": "/brand/resumora-logo-official.jpg",
+      "component": "components/brand/ResumoraLogo.tsx",
+      "authorityModule": "lib/marketing/brand-asset-authority.js",
+      "sha256": "4490120a348ba70b9313cf996c042594b37166900255d0e8c01929379181978f",
+      "approvedSource": "Official transparent Resumora mark (removebg-preview) — no square container in UI"
+    },
+    "legacyAliases": [
+      "/resumora-logo.png",
+      "/brand/resumora-logo-official.jpg"
+    ],
+    "forbiddenPatterns": [
+      "resumora-logo.svg",
+      "logo-draft",
+      "logo-mockup",
+      "logo-generated",
+      "placeholder-logo"
+    ],
+    "requiredHtmlMarkers": [
+      "data-rs-brand-logo=\"1\"",
+      "/brand/resumora-logo-official-transparent.png"
+    ],
+    "protection": {
+      "blockReplacementWithoutApproval": true,
+      "blockGeneratedLogosInProduction": true,
+      "blockDuplicatedBrandAssets": true,
+      "verifyCommand": "npm run bossmind:brand:verify"
+    },
+    "sharedMemory": {
+      "memoryKey": "brand_asset_authority_resumora",
+      "projectLockType": "brand_logo"
+    }
+  },
+  "filesCopied": 9,
+  "snapshotDir": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2"
+}
