@@ -9,7 +9,6 @@ import { QUOTE_STORAGE_KEY } from "@/lib/marketing/service-quote-pricing";
 import { SERVICE_LABELS, translations } from "@/lib/marketing/site-copy";
 import { useStripeCheckout } from "@/lib/marketing/client-hooks";
 import PriceTierCard from "@/components/marketing/sections/PriceTierCard";
-import PricingCompareExecutive from "@/components/marketing/sections/PricingCompareExecutive";
 
 export default function PricingPanel() {
   const router = useRouter();
@@ -90,6 +89,7 @@ export default function PricingPanel() {
       data-rs-pricing-ui="20260517-lux-v4"
       data-rs-pricing-order="basic,professional,elite,essential_advanced"
       data-rs-trust-removed="1"
+      data-rs-pricing-compare-removed="1"
     >
       <div className="rs-container">
         <header className="rs-pricing-header">
@@ -132,7 +132,7 @@ export default function PricingPanel() {
           </aside>
         ) : null}
 
-        <div className="rs-pricing-grid rs-pricing-grid--lux">
+        <div className="rs-pricing-grid rs-pricing-grid--lux rs-pricing-grid--final">
           {dynamicPlans.map((plan) => (
             <PriceTierCard
               key={plan.id}
@@ -144,8 +144,6 @@ export default function PricingPanel() {
             />
           ))}
         </div>
-
-        <PricingCompareExecutive />
       </div>
     </section>
   );
