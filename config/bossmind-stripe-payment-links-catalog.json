@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "officialBrand": "Resumora",
+  "logoPublicPath": "/brand/resumora-logo-official-transparent.png",
+  "checkoutMode": "payment",
+  "currency": "usd",
+  "services": [
+    {
+      "serviceKey": "essential_foundation",
+      "name": "Resumora Essential Career Foundation",
+      "description": "Entry-tier ATS remediation and keyword scaffolding — Resumora executive studio (Basic tier).",
+      "amountUsd": 19,
+      "planIds": ["basic"],
+      "category": "tier"
+    },
+    {
+      "serviceKey": "essential_career",
+      "name": "Resumora Essential Career Package",
+      "description": "Luxury essential career positioning — ATS-safe résumé enhancement, keyword scaffolding, and one structured revision sprint. Resumora executive studio.",
+      "amountUsd": 110,
+      "planIds": ["essential_advanced"],
+      "category": "tier"
+    },
+    {
+      "serviceKey": "professional_career",
+      "name": "Resumora Professional Career Package",
+      "description": "Professional career optimization — full résumé rebuild, cover letter, and bilingual-ready delivery. Resumora official.",
+      "amountUsd": 49,
+      "planIds": ["professional"],
+      "category": "tier"
+    },
+    {
+      "serviceKey": "executive_career",
+      "name": "Resumora Executive Career Package",
+      "description": "Executive career package — storyline, LinkedIn relaunch, interview rehearsals, and concierge strategist. Resumora luxury delivery.",
+      "amountUsd": 99,
+      "planIds": ["elite"],
+      "category": "tier"
+    },
+    {
+      "serviceKey": "linkedin_optimization",
+      "name": "Resumora LinkedIn Optimization",
+      "description": "LinkedIn authority enhancement — headline, featured media, and recruiter discoverability calibration.",
+      "amountUsd": 35,
+      "planIds": ["addon_linkedin"],
+      "category": "addon"
+    },
+    {
+      "serviceKey": "interview_preparation",
+      "name": "Resumora Interview Preparation",
+      "description": "Executive interview preparation — scenario drills and presence coaching aligned to your Resumora dossier.",
+      "amountUsd": 40,
+      "planIds": ["addon_interview"],
+      "category": "addon"
+    },
+    {
+      "serviceKey": "custom_cover_letter",
+      "name": "Resumora Custom Cover Letter",
+      "description": "Strategic cover letter — mandate-aligned narrative with quantified proof points. Resumora bespoke delivery.",
+      "amountUsd": 25,
+      "planIds": ["addon_cover_letter"],
+      "category": "addon"
+    },
+    {
+      "serviceKey": "translation_tls",
+      "name": "Resumora Translation/TLS Service",
+      "description": "Bilingual EN/FR translation and tonal harmonisation across résumé and outreach artefacts.",
+      "amountUsd": 25,
+      "planIds": ["addon_translation"],
+      "category": "addon"
+    }
+  ],
+  "lock": {
+    "manifestPath": "config/resumora-stripe-payment-links-lock.json",
+    "memoryKey": "stripe_payment_links:production",
+    "protectedRegistry": "config/bossmind-protected-stripe-payment-links.json"
+  }
+}
