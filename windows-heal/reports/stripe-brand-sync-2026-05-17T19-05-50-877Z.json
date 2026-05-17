@@ -1,0 +1,78 @@
+{
+  "ok": true,
+  "dryRun": false,
+  "applied": [],
+  "before": {
+    "products": 3,
+    "needsUpdate": 0,
+    "paymentLinks": 0
+  },
+  "after": {
+    "products": 3,
+    "needsUpdate": 0,
+    "paymentLinks": 0
+  },
+  "catalog": {
+    "ok": true,
+    "officialBrand": "Resumora",
+    "products": [
+      {
+        "id": "prod_UUc14aQdkyp27a",
+        "currentName": "Resumora: Executive Career Package",
+        "currentDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "officialName": "Resumora: Executive Career Package",
+        "officialDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "violations": [],
+        "needsUpdate": false
+      },
+      {
+        "id": "prod_UUbyoQg60X43B4",
+        "currentName": "Resumora: Essential Career Foundation",
+        "currentDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "officialName": "Resumora: Essential Career Foundation",
+        "officialDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "violations": [],
+        "needsUpdate": false
+      },
+      {
+        "id": "prod_UUbuzCvi68ugLU",
+        "currentName": "Resumora: Professional Career Optimization",
+        "currentDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "officialName": "Resumora: Professional Career Optimization",
+        "officialDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "violations": [],
+        "needsUpdate": false
+      }
+    ],
+    "needsUpdate": [],
+    "planBindings": [
+      {
+        "planId": "basic",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "professional",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "elite",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "essential_advanced",
+        "priceId": null,
+        "error": "missing_price_env"
+      }
+    ],
+    "paymentLinks": [],
+    "paymentLinkIssues": [],
+    "counts": {
+      "products": 3,
+      "needsUpdate": 0,
+      "paymentLinks": 0
+    }
+  }
+}

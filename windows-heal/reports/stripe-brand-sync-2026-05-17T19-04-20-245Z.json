@@ -1,0 +1,140 @@
+{
+  "ok": false,
+  "dryRun": true,
+  "applied": [
+    {
+      "productId": "prod_UUc14aQdkyp27a",
+      "name": "Resumora: Executive Career Package",
+      "description": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+      "metadata": {
+        "brand_name": "Resumora",
+        "official_product_name": "Resumora: Executive Career Package",
+        "bossmind_brand_sync": "2026-05-17T19:04:20.242Z"
+      },
+      "dryRun": true
+    },
+    {
+      "productId": "prod_UUbyoQg60X43B4",
+      "name": "Resumora: Essential Career Foundation",
+      "description": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+      "metadata": {
+        "brand_name": "Resumora",
+        "official_product_name": "Resumora: Essential Career Foundation",
+        "bossmind_brand_sync": "2026-05-17T19:04:20.245Z"
+      },
+      "dryRun": true
+    },
+    {
+      "productId": "prod_UUbuzCvi68ugLU",
+      "name": "Resumora: Professional Career Optimization",
+      "description": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+      "metadata": {
+        "brand_name": "Resumora",
+        "official_product_name": "Resumora: Professional Career Optimization",
+        "bossmind_brand_sync": "2026-05-17T19:04:20.245Z"
+      },
+      "dryRun": true
+    }
+  ],
+  "before": {
+    "products": 3,
+    "needsUpdate": 3,
+    "paymentLinks": 0
+  },
+  "after": {
+    "products": 3,
+    "needsUpdate": 3,
+    "paymentLinks": 0
+  },
+  "catalog": {
+    "ok": true,
+    "officialBrand": "Resumora",
+    "products": [
+      {
+        "id": "prod_UUc14aQdkyp27a",
+        "currentName": "Resumora Elite Plan",
+        "currentDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "officialName": "Resumora: Executive Career Package",
+        "officialDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "violations": [],
+        "needsUpdate": true
+      },
+      {
+        "id": "prod_UUbyoQg60X43B4",
+        "currentName": "Resumora basic Plan",
+        "currentDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "officialName": "Resumora: Essential Career Foundation",
+        "officialDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "violations": [],
+        "needsUpdate": true
+      },
+      {
+        "id": "prod_UUbuzCvi68ugLU",
+        "currentName": "Resumora Professional Plan",
+        "currentDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "officialName": "Resumora: Professional Career Optimization",
+        "officialDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "violations": [],
+        "needsUpdate": true
+      }
+    ],
+    "needsUpdate": [
+      {
+        "id": "prod_UUc14aQdkyp27a",
+        "currentName": "Resumora Elite Plan",
+        "currentDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "officialName": "Resumora: Executive Career Package",
+        "officialDescription": "Executive-level resume transformation with premium storytelling, ATS optimization, personalized cover letter creation, LinkedIn relaunch support, interview preparation guidance, priority revisions, and dedicated concierge assistance.",
+        "violations": [],
+        "needsUpdate": true
+      },
+      {
+        "id": "prod_UUbyoQg60X43B4",
+        "currentName": "Resumora basic Plan",
+        "currentDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "officialName": "Resumora: Essential Career Foundation",
+        "officialDescription": "Professional ATS resume enhancement with keyword optimization, clean formatting, industry-aligned structure, and 1 free revision included.",
+        "violations": [],
+        "needsUpdate": true
+      },
+      {
+        "id": "prod_UUbuzCvi68ugLU",
+        "currentName": "Resumora Professional Plan",
+        "currentDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "officialName": "Resumora: Professional Career Optimization",
+        "officialDescription": "Professional resume optimization, ATS enhancement, cover letter support, LinkedIn optimization, bilingual EN/FR support, and priority assistance.",
+        "violations": [],
+        "needsUpdate": true
+      }
+    ],
+    "planBindings": [
+      {
+        "planId": "basic",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "professional",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "elite",
+        "priceId": null,
+        "error": "missing_price_env"
+      },
+      {
+        "planId": "essential_advanced",
+        "priceId": null,
+        "error": "missing_price_env"
+      }
+    ],
+    "paymentLinks": [],
+    "paymentLinkIssues": [],
+    "counts": {
+      "products": 3,
+      "needsUpdate": 3,
+      "paymentLinks": 0
+    }
+  }
+}

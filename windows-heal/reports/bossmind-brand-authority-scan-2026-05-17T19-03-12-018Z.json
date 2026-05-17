@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-05-17T19:03:12.018Z",
+  "officialBrand": "Resumora",
+  "repoIssues": [
+    {
+      "file": "lib/marketing/weekly-organic-bundle.js",
+      "violations": [
+        {
+          "id": "resume_service",
+          "match": "resume service"
+        }
+      ]
+    },
+    {
+      "file": "config/bossmind-brand-authority.json",
+      "violations": [
+        {
+          "id": "resumero",
+          "match": "resumero"
+        },
+        {
+          "id": "resume_service",
+          "match": "Resume Service"
+        },
+        {
+          "id": "resume_package",
+          "match": "Resume Package"
+        }
+      ]
+    },
+    {
+      "file": "config/resumora-google-business-profile-checklist.json",
+      "violations": [
+        {
+          "id": "resume_service",
+          "match": "Resume service"
+        }
+      ]
+    },
+    {
+      "file": "scripts/bossmind-brand-authority-lock.mjs",
+      "violations": [
+        {
+          "id": "resumero",
+          "match": "resumero"
+        }
+      ]
+    },
+    {
+      "file": "scripts/resumora-support-mail-production-report.mjs",
+      "violations": [
+        {
+          "id": "resume_package",
+          "match": "resume package"
+        }
+      ]
+    }
+  ],
+  "repoOk": false,
+  "stripe": null,
+  "stripeOk": null,
+  "ok": false
+}
