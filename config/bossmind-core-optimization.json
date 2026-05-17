@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "targetAutonomousReliabilityPercent": 98,
+  "description": "Proof-based BossMind Core Optimization — scores reflect passed checks only (no fabricated %).",
+  "primaryProjectKey": "resumora",
+  "productionOrigin": "https://resumora.net",
+  "multiProjectRegistry": "config/bossmind-organic-growth-registry.json",
+  "backupProjectsRegistry": "config/bossmind-backup-projects-registry.json",
+  "domainWeights": {
+    "sharedMemory": 12,
+    "errorMemory": 10,
+    "antiLeak": 14,
+    "autoRecovery": 10,
+    "deploymentVerification": 12,
+    "runtimeSync": 12,
+    "crossProjectMemory": 8,
+    "autonomousValidation": 10,
+    "predictivePrevention": 6,
+    "selfHealingChain": 6
+  },
+  "neonPersistence": {
+    "taskKey": "core_optimization:latest",
+    "checkpointKey": "bossmind_core_optimization",
+    "eventType": "bossmind.core_optimization.completed"
+  },
+  "selfHealingChainStages": [
+    "sentry_ingest",
+    "deepseek_analysis",
+    "langgraph_orchestration",
+    "repair_generation",
+    "powershell_execution",
+    "github_commit_push",
+    "railway_render_deploy",
+    "live_verification",
+    "screenshot_validation",
+    "memory_save",
+    "error_memory_learning",
+    "snapshot_lock"
+  ],
+  "protectedUiAuthority": "config/bossmind-protected-ui-authority.json",
+  "commands": {
+    "run": "npm run bossmind:core:optimization",
+    "closedLoop": "npm run bossmind:core:optimization:closed-loop",
+    "dashboard": "/bossmind-admin"
+  }
+}

@@ -22,6 +22,7 @@ const {
 const { readLatestGoogleEcosystemReport } = require("../../../lib/marketing/resumora-google-ecosystem-audit-lib");
 const { readLatestGoogleTrafficReport } = require("../../../lib/marketing/resumora-google-traffic-engine-lib");
 const { readLatestUltraReport } = require("../../../lib/orchestration/bossmind-ultra-antileak-lib");
+const { readLatestCoreOptimizationReport } = require("../../../lib/orchestration/bossmind-core-optimization-lib");
 const fs = require("fs");
 const path = require("path");
 
@@ -159,6 +160,13 @@ export default async function handler(req, res) {
       runCommand: "npm run bossmind:ultra:antileak",
       snapshotLockCommand: "npm run bossmind:ultra:antileak:snapshot-lock",
     };
+    const coreOptimization = {
+      lastReport: readLatestCoreOptimizationReport(process.cwd()),
+      runCommand: "npm run bossmind:core:optimization",
+      closedLoopCommand: "npm run bossmind:core:optimization:closed-loop",
+      dashboardPath: "/bossmind-admin",
+      targetPercent: 98,
+    };
 
     let aiVideo = {
       dashboardPath: "/bossmind-ai-video",
@@ -220,6 +228,7 @@ export default async function handler(req, res) {
       googleEcosystem,
       googleTrafficEngine,
       ultraAntileak,
+      coreOptimization,
       aiVideo,
       scores: {
         performanceScore,
