@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-05-17T18:44:46.386Z",
+  "proofDir": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z",
+  "screenshots": [
+    "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-.png",
+    "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-test-dashboard.png",
+    "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-products.png",
+    "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-pricing.png",
+    "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-settings-billing.png"
+  ],
+  "probes": [
+    {
+      "url": "https://dashboard.stripe.com/",
+      "redirectLoopSuspected": false,
+      "connectRedirectStuck": false,
+      "signInSuccessfulStuck": false,
+      "loginPage": true,
+      "dashboardRendered": true,
+      "blockedScripts": false,
+      "loadingStuck": false,
+      "domBytes": 168142,
+      "screenshotPath": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-.png"
+    },
+    {
+      "url": "https://dashboard.stripe.com/test/dashboard",
+      "redirectLoopSuspected": false,
+      "connectRedirectStuck": false,
+      "signInSuccessfulStuck": false,
+      "loginPage": true,
+      "dashboardRendered": true,
+      "blockedScripts": false,
+      "loadingStuck": false,
+      "domBytes": 168260,
+      "screenshotPath": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-test-dashboard.png"
+    },
+    {
+      "url": "https://dashboard.stripe.com/products",
+      "redirectLoopSuspected": false,
+      "connectRedirectStuck": false,
+      "signInSuccessfulStuck": false,
+      "loginPage": true,
+      "dashboardRendered": true,
+      "blockedScripts": false,
+      "loadingStuck": false,
+      "domBytes": 168225,
+      "screenshotPath": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-products.png"
+    },
+    {
+      "url": "https://dashboard.stripe.com/pricing",
+      "redirectLoopSuspected": false,
+      "connectRedirectStuck": false,
+      "signInSuccessfulStuck": false,
+      "loginPage": true,
+      "dashboardRendered": true,
+      "blockedScripts": false,
+      "loadingStuck": false,
+      "domBytes": 168221,
+      "screenshotPath": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-pricing.png"
+    },
+    {
+      "url": "https://dashboard.stripe.com/settings/billing",
+      "redirectLoopSuspected": false,
+      "connectRedirectStuck": false,
+      "signInSuccessfulStuck": false,
+      "loginPage": true,
+      "dashboardRendered": true,
+      "blockedScripts": false,
+      "loadingStuck": false,
+      "domBytes": 168268,
+      "screenshotPath": "D:/BossMind/resumora-fresh/windows-heal/reports/stripe-recovery/proof-2026-05-17T18-42-08-948Z/https-dashboard-stripe-com-settings-billing.png"
+    }
+  ]
+}

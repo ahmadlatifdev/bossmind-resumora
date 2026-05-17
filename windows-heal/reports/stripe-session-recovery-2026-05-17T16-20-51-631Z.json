@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-05-17T16:20:51.631Z",
+  "projectKey": "resumora",
+  "processId": "stripe_session_repair",
+  "shortcut": {
+    "id": "stripe_session_repair",
+    "label": "BossMind → Recovery → Stripe Session Repair",
+    "menuPath": [
+      "BossMind",
+      "Recovery",
+      "Stripe Session Repair"
+    ],
+    "npm": "bossmind:stripe:session-repair"
+  },
+  "apply": true,
+  "ok": false,
+  "detection": {
+    "chromeRunning": true,
+    "chromeRoot": "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data",
+    "profileCount": 5,
+    "profilesWithCookies": [
+      "Profile 1",
+      "Profile 10",
+      "Profile 3",
+      "Profile 6",
+      "Profile 9"
+    ],
+    "signals": [
+      {
+        "id": "chrome_locks_cookie_db",
+        "severity": "warn",
+        "note": "Chrome is running; repair requires brief Chrome close for Stripe-only cookie purge."
+      },
+      {
+        "id": "blocked_stripe_scripts",
+        "severity": "medium",
+        "probe": {
+          "url": "https://dashboard.stripe.com/",
+          "redirectLoopSuspected": false,
+          "loginPage": true,
+          "dashboardRendered": true,
+          "blockedScripts": true,
+          "domBytes": 168142,
+          "screenshotPath": null
+        }
+      }
+    ],
+    "primaryCause": "blocked_stripe_scripts",
+    "confidence": 0.6
+  },
+  "repair": {
+    "ok": false,
+    "exitCode": 2,
+    "stdout": "{\"chromeRoot\":\"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\User Data\",\"serviceWorkerRemoved\":0,\"profiles\":[],\"chromeClosedForRepair\":true,\"backups\":[],\"chromeRunning\":true,\"cacheRemoved\":0,\"cookiesRemoved\":0,\"indexedDbRemoved\":0,\"errors\":[\"Chrome is running. Close all Chrome windows and re-run with -Apply, or set BOSSMIND_STRIPE_CLOSE_CHROME=1.\"],\"ok\":false,\"apply\":true}",
+    "stderr": "",
+    "report": {
+      "chromeRoot": "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data",
+      "serviceWorkerRemoved": 0,
+      "profiles": [],
+      "chromeClosedForRepair": true,
+      "backups": [],
+      "chromeRunning": true,
+      "cacheRemoved": 0,
+      "cookiesRemoved": 0,
+      "indexedDbRemoved": 0,
+      "errors": [
+        "Chrome is running. Close all Chrome windows and re-run with -Apply, or set BOSSMIND_STRIPE_CLOSE_CHROME=1."
+      ],
+      "ok": false,
+      "apply": true
+    }
+  },
+  "verification": {
+    "ok": true,
+    "skipped": true
+  }
+}

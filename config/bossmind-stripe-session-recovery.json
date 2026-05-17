@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "name": "BossMind Stripe Dashboard Repair",
+  "shortcut": {
+    "id": "stripe_dashboard_repair",
+    "legacyIds": ["stripe_session_repair"],
+    "label": "BossMind → Recovery → Stripe Dashboard Repair",
+    "menuPath": ["BossMind", "Recovery", "Stripe Dashboard Repair"],
+    "npm": "bossmind:stripe:dashboard-repair",
+    "npmLegacy": "bossmind:stripe:session-repair"
+  },
+  "errorType": "stripe_dashboard_session_init_failure",
+  "isolatedProfile": {
+    "relativeDir": "windows-heal/stripe-runtime/chrome-user-data",
+    "launcherName": "launch-stripe-dashboard.ps1",
+    "manifestName": "isolated-profile-manifest.json"
+  },
+  "stripeHosts": [
+    "stripe.com",
+    ".stripe.com",
+    "dashboard.stripe.com",
+    "connect.stripe.com",
+    "billing.stripe.com",
+    "checkout.stripe.com",
+    "js.stripe.com",
+    "m.stripe.com",
+    "q.stripe.com",
+    "hooks.stripe.com"
+  ],
+  "storageGlobRoots": [
+    "IndexedDB",
+    "Session Storage",
+    "Local Storage",
+    "Service Worker",
+    "Cache",
+    "Code Cache",
+    "GPUCache",
+    "Storage"
+  ],
+  "verifyUrls": [
+    "https://dashboard.stripe.com/",
+    "https://dashboard.stripe.com/test/dashboard",
+    "https://dashboard.stripe.com/products",
+    "https://dashboard.stripe.com/pricing",
+    "https://dashboard.stripe.com/settings/billing"
+  ],
+  "redirectLoopThreshold": 6,
+  "preserve": {
+    "chromeProfile": true,
+    "bookmarks": true,
+    "extensions": true,
+    "githubSessions": true,
+    "cursorSessions": true,
+    "bossmindWorkspaces": true
+  },
+  "fixPattern": "Detect corruption → backup → purge Stripe cookies + storage + cache → open isolated BossMind Stripe profile → sign in once → verify dashboard routes.",
+  "autoDetectSignals": [
+    "corrupted_stripe_cookies",
+    "corrupted_stripe_local_storage",
+    "corrupted_stripe_session_storage",
+    "cached_redirect_loop",
+    "stuck_stripe_connect_session",
+    "blocked_stripe_scripts",
+    "extension_conflict_suspected",
+    "third_party_cookie_restriction",
+    "mixed_stripe_account_session"
+  ],
+  "autoRepairEnv": "BOSSMIND_STRIPE_AUTO_REPAIR",
+  "closeChromeEnv": "BOSSMIND_STRIPE_CLOSE_CHROME"
+}

@@ -1,0 +1,7 @@
+﻿{
+    "isolatedUserDataDir":  "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-runtime\\chrome-user-data",
+    "chromeExe":  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "launcher":  "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-runtime\\launch-stripe-dashboard.ps1",
+    "note":  "Use this profile for Stripe only to avoid corrupted main-profile session state.",
+    "createdAt":  "2026-05-17T18:42:08.6919981Z"
+}

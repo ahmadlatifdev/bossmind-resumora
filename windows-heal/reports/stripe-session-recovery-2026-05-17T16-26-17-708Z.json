@@ -1,0 +1,159 @@
+{
+  "generatedAt": "2026-05-17T16:26:17.708Z",
+  "projectKey": "resumora",
+  "processId": "stripe_session_repair",
+  "shortcut": {
+    "id": "stripe_session_repair",
+    "label": "BossMind → Recovery → Stripe Session Repair",
+    "menuPath": [
+      "BossMind",
+      "Recovery",
+      "Stripe Session Repair"
+    ],
+    "npm": "bossmind:stripe:session-repair"
+  },
+  "apply": true,
+  "ok": true,
+  "detection": {
+    "chromeRunning": false,
+    "chromeRoot": "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data",
+    "profileCount": 5,
+    "profilesWithCookies": [
+      "Profile 1",
+      "Profile 10",
+      "Profile 3",
+      "Profile 6",
+      "Profile 9"
+    ],
+    "signals": [
+      {
+        "id": "corrupted_stripe_cookies",
+        "severity": "medium",
+        "note": "Default diagnosis for post-2FA dashboard hang on acct_* routes."
+      }
+    ],
+    "primaryCause": "corrupted_stripe_cookies",
+    "confidence": 0.7
+  },
+  "repair": {
+    "ok": true,
+    "exitCode": 0,
+    "stdout": "{\"chromeRunning\":false,\"cookiesRemoved\":68,\"indexedDbRemoved\":0,\"apply\":true,\"backups\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 1-Cookies\",\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 10-Cookies\",\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 3-Cookies\",\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 6-Cookies\",\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 9-Cookies\"],\"errors\":[],\"cacheRemoved\":0,\"ok\":true,\"profiles\":[{\"profile\":\"Profile 1\",\"cookiesRemoved\":1,\"backedUp\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 1-Cookies\"],\"storageArtifactsRemoved\":0},{\"profile\":\"Profile 10\",\"cookiesRemoved\":0,\"backedUp\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 10-Cookies\"],\"storageArtifactsRemoved\":0},{\"profile\":\"Profile 3\",\"cookiesRemoved\":31,\"backedUp\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 3-Cookies\"],\"storageArtifactsRemoved\":0},{\"profile\":\"Profile 6\",\"cookiesRemoved\":36,\"backedUp\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 6-Cookies\"],\"storageArtifactsRemoved\":0},{\"profile\":\"Profile 9\",\"cookiesRemoved\":0,\"backedUp\":[\"D:\\\\BossMind\\\\resumora-fresh\\\\windows-heal\\\\stripe-recovery\\\\backups\\\\20260517-122422\\\\Profile 9-Cookies\"],\"storageArtifactsRemoved\":0}],\"serviceWorkerRemoved\":0,\"launchedDashboard\":true,\"chromeRoot\":\"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Google\\\\Chrome\\\\User Data\"}",
+    "stderr": "",
+    "report": {
+      "chromeRunning": false,
+      "cookiesRemoved": 68,
+      "indexedDbRemoved": 0,
+      "apply": true,
+      "backups": [
+        "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 1-Cookies",
+        "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 10-Cookies",
+        "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 3-Cookies",
+        "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 6-Cookies",
+        "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 9-Cookies"
+      ],
+      "errors": [],
+      "cacheRemoved": 0,
+      "ok": true,
+      "profiles": [
+        {
+          "profile": "Profile 1",
+          "cookiesRemoved": 1,
+          "backedUp": [
+            "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 1-Cookies"
+          ],
+          "storageArtifactsRemoved": 0
+        },
+        {
+          "profile": "Profile 10",
+          "cookiesRemoved": 0,
+          "backedUp": [
+            "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 10-Cookies"
+          ],
+          "storageArtifactsRemoved": 0
+        },
+        {
+          "profile": "Profile 3",
+          "cookiesRemoved": 31,
+          "backedUp": [
+            "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 3-Cookies"
+          ],
+          "storageArtifactsRemoved": 0
+        },
+        {
+          "profile": "Profile 6",
+          "cookiesRemoved": 36,
+          "backedUp": [
+            "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 6-Cookies"
+          ],
+          "storageArtifactsRemoved": 0
+        },
+        {
+          "profile": "Profile 9",
+          "cookiesRemoved": 0,
+          "backedUp": [
+            "D:\\BossMind\\resumora-fresh\\windows-heal\\stripe-recovery\\backups\\20260517-122422\\Profile 9-Cookies"
+          ],
+          "storageArtifactsRemoved": 0
+        }
+      ],
+      "serviceWorkerRemoved": 0,
+      "launchedDashboard": true,
+      "chromeRoot": "C:\\Users\\user\\AppData\\Local\\Google\\Chrome\\User Data"
+    }
+  },
+  "verification": {
+    "ok": true,
+    "loopHits": 0,
+    "anyDashboard": true,
+    "anyLogin": true,
+    "note": "Dashboard markers detected in DOM.",
+    "probes": [
+      {
+        "url": "https://dashboard.stripe.com/",
+        "redirectLoopSuspected": false,
+        "loginPage": true,
+        "dashboardRendered": true,
+        "blockedScripts": false,
+        "domBytes": 168136,
+        "screenshotPath": null
+      },
+      {
+        "url": "https://dashboard.stripe.com/test/dashboard",
+        "redirectLoopSuspected": false,
+        "loginPage": true,
+        "dashboardRendered": true,
+        "blockedScripts": false,
+        "domBytes": 168260,
+        "screenshotPath": null
+      },
+      {
+        "url": "https://dashboard.stripe.com/products",
+        "redirectLoopSuspected": false,
+        "loginPage": true,
+        "dashboardRendered": true,
+        "blockedScripts": false,
+        "domBytes": 168225,
+        "screenshotPath": null
+      },
+      {
+        "url": "https://dashboard.stripe.com/pricing",
+        "redirectLoopSuspected": false,
+        "loginPage": true,
+        "dashboardRendered": true,
+        "blockedScripts": false,
+        "domBytes": 168224,
+        "screenshotPath": null
+      },
+      {
+        "url": "https://dashboard.stripe.com/settings/billing",
+        "redirectLoopSuspected": false,
+        "loginPage": true,
+        "dashboardRendered": true,
+        "blockedScripts": false,
+        "domBytes": 168268,
+        "screenshotPath": null
+      }
+    ]
+  }
+}
