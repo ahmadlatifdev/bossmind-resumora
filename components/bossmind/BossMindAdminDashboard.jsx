@@ -28,6 +28,9 @@ export default function BossMindAdminDashboard() {
   const [health, setHealth] = useState(null);
   const [core, setCore] = useState(null);
   const [production, setProduction] = useState(null);
+  const [hub, setHub] = useState(null);
+  const [projectKey, setProjectKey] = useState("resumora");
+  const [shortcutLog, setShortcutLog] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -47,23 +50,58 @@ export default function BossMindAdminDashboard() {
     setError("");
     setBusy(true);
     try {
-      const [hRes, cRes] = await Promise.all([
+      const [hRes, cRes, mRes] = await Promise.all([
         fetch("/api/orchestration/bossmind-health", { headers: headers() }),
         fetch("/api/orchestration/bossmind-core-optimization", { headers: headers() }),
+        fetch(`/api/orchestration/bossmind-shared-memory?projectKey=${encodeURIComponent(projectKey)}`, {
+          headers: headers(),
+        }),
       ]);
       const hJson = await hRes.json();
       const cJson = await cRes.json();
+      const mJson = await mRes.json();
       if (!hRes.ok) throw new Error(hJson.error || `health ${hRes.status}`);
       if (!cRes.ok) throw new Error(cJson.error || `core ${cRes.status}`);
       setHealth(hJson);
       setCore(cJson.latest || null);
       setProduction(hJson.productionAutonomous?.lastReport || null);
+      setHub(mRes.ok ? mJson : hJson.sharedMemoryHub || null);
     } catch (e) {
       setError(e.message || "Failed to load orchestration data");
     } finally {
       setBusy(false);
     }
-  }, [headers]);
+  }, [headers, projectKey]);
+
+  const runShortcut = async (shortcutId, dryRun = false) => {
+    setError("");
+    setBusy(true);
+    setShortcutLog("");
+    try {
+      const r = await fetch("/api/orchestration/bossmind-shared-memory", {
+        method: "POST",
+        headers: {
+          ...headers(),
+          "X-Bossmind-Writer-Agent": "master_admin_shortcut",
+        },
+        body: JSON.stringify({
+          action: "run_shortcut",
+          projectKey,
+          shortcutId,
+          dryRun,
+          writerAgent: "master_admin_shortcut",
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok && r.status !== 207) throw new Error(j.error || `shortcut ${r.status}`);
+      setShortcutLog(JSON.stringify(j, null, 2));
+      await load();
+    } catch (e) {
+      setError(e.message || "Shortcut failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const runOptimization = async () => {
     setError("");
@@ -221,6 +259,48 @@ export default function BossMindAdminDashboard() {
       ) : (
         <p className={styles.sub}>Connect with orchestration secret, then run optimization.</p>
       )}
+
+      {hub?.shortcuts?.length ? (
+        <section className={styles.shortcutSection}>
+          <h2 className={styles.shortcutTitle}>Shared memory shortcuts</h2>
+          <p className={styles.sub}>
+            One Neon hub for all BossMind projects — read everywhere; write via orchestrator only.
+          </p>
+          <label className={styles.projectPick}>
+            Project{" "}
+            <select
+              value={projectKey}
+              onChange={(e) => setProjectKey(e.target.value)}
+              className={styles.authInput}
+              aria-label="Project key"
+            >
+              {(hub.projects || [{ id: "resumora" }]).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.displayName || p.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.shortcutGrid}>
+            {hub.shortcuts.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className={`${styles.btn} ${styles.btnGhost}`}
+                disabled={busy || !token}
+                onClick={() => runShortcut(s.id)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {shortcutLog ? (
+            <pre className={styles.shortcutLog} aria-live="polite">
+              {shortcutLog}
+            </pre>
+          ) : null}
+        </section>
+      ) : null}
 
       <div className={styles.actions}>
         <button type="button" className={styles.btn} onClick={runOptimization} disabled={busy || !token}>

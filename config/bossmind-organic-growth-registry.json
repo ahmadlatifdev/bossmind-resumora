@@ -17,7 +17,10 @@
   "protection": {
     "neverAutoOverwriteMarketingPages": true,
     "useDeployGateAndProtectedSurface": true,
-    "canonicalAndSitemapNote": "Next.js routes + public/robots.txt; programmatic new routes require explicit PR review per PROTECTED_COMPONENTS_REGISTRY."
+    "canonicalAndSitemapNote": "Next.js routes + public/robots.txt; programmatic new routes require explicit PR review per PROTECTED_COMPONENTS_REGISTRY.",
+    "sharedMemoryHub": "config/bossmind-shared-memory-strategy.json",
+    "sharedMemoryReadAllProjects": true,
+    "sharedMemoryWriteOrchestratorOnly": true
   },
   "projects": [
     {

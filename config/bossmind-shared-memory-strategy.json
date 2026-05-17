@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "name": "BossMind One Shared Memory Strategy",
+  "neonAuthority": "lib/shared/bossmind-hub-memory.js",
+  "hubOrchestrator": "lib/orchestration/bossmind-shared-memory-hub.js",
+  "projects": [
+    { "id": "resumora", "displayName": "Resumora", "frontend": "render", "backend": "railway", "productionUrl": "https://resumora.net" },
+    { "id": "elegancyart", "displayName": "ElegancyArt", "frontend": "render", "backend": "railway", "productionUrl": null },
+    { "id": "ai-video-generator", "displayName": "AI Video Generator", "frontend": "render", "backend": "railway", "productionUrl": null },
+    { "id": "tiktok-ai", "displayName": "TikTok AI", "frontend": "render", "backend": "railway", "productionUrl": null },
+    { "id": "global-stock", "displayName": "Global Stock", "frontend": "render", "backend": "railway", "productionUrl": null }
+  ],
+  "coreStack": {
+    "neon": "shared memory database",
+    "github": "source history",
+    "railway": "backend workers",
+    "render": "public frontends",
+    "masterAdmin": "/bossmind-admin",
+    "powershell": "local controlled execution",
+    "deepseek": "reasoning repair",
+    "sentry": "error capture",
+    "n8n": "automation shortcuts"
+  },
+  "accessPolicy": {
+    "read": ["all_registered_projects", "bossmind_agents", "master_admin"],
+    "write": ["bossmind_orchestrator", "recovery_agent", "deployment_verifier", "memory_sync_job"],
+    "block": [
+      "direct_project_to_project_overwrite",
+      "unsafe_shared_edits",
+      "unverified_design_replacement",
+      "mockup_only_production_updates",
+      "unconfirmed_destructive_updates"
+    ]
+  },
+  "requiredTables": [
+    "bossmind_memory",
+    "bossmind_error_memory",
+    "bossmind_safety_rules",
+    "bossmind_marketing_rules",
+    "bossmind_project_locks",
+    "bossmind_design_snapshots",
+    "bossmind_task_state",
+    "bossmind_event_log",
+    "bossmind_deploy_verification",
+    "bossmind_shortcut_processes"
+  ],
+  "configRefs": {
+    "safetyRules": "config/bossmind-safety-rules.json",
+    "marketingRules": "config/bossmind-marketing-rules.json",
+    "organicRegistry": "config/bossmind-organic-growth-registry.json"
+  },
+  "shortcutFlow": [
+    "load_project_key",
+    "load_locked_baseline",
+    "load_safety_rules",
+    "load_marketing_rules",
+    "load_error_patterns",
+    "compare_against_protection",
+    "block_unsafe",
+    "apply_approved_update",
+    "preflight_scan",
+    "build_validation",
+    "commit_github",
+    "deploy_render_railway",
+    "verify_live",
+    "save_shared_memory",
+    "save_error_fix_pattern"
+  ]
+}

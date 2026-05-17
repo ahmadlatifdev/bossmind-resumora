@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "rules": [
+    { "id": "never_overwrite_locked_ui", "severity": "block", "text": "Never overwrite locked UI design without explicit approval and re-seal." },
+    { "id": "never_remove_real_logo", "severity": "block", "text": "Never remove or replace the canonical project logo with placeholders." },
+    { "id": "never_duplicate_sections", "severity": "block", "text": "Never duplicate page sections or headings on a single route." },
+    { "id": "never_change_protected_pricing", "severity": "block", "text": "Never change protected pricing layout or tier order without approval." },
+    { "id": "never_push_without_build", "severity": "block", "text": "Never push without build validation passing." },
+    { "id": "never_deploy_without_live_verify", "severity": "block", "text": "Never declare production complete without live verification." },
+    { "id": "never_mockup_production", "severity": "block", "text": "Never use mockup-only mode for production fixes." },
+    { "id": "never_mix_code_fragments", "severity": "block", "text": "Never mix old and new code fragments in the same protected surface." },
+    { "id": "never_cross_brand", "severity": "block", "text": "Never apply one project's branding or business rules to another project." },
+    { "id": "never_damage_confirmed_setup", "severity": "block", "text": "Never damage a previous confirmed setup without checkpoint rollback." }
+  ]
+}

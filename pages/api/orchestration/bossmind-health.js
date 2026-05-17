@@ -251,11 +251,21 @@ export default async function handler(req, res) {
       }
     }
 
+    let sharedMemoryHub = { enabled: false };
+    try {
+      const { getHubStatus } = require("../../../lib/orchestration/bossmind-shared-memory-hub");
+      sharedMemoryHub = await getHubStatus();
+      sharedMemoryHub.apiPath = "/api/orchestration/bossmind-shared-memory";
+    } catch (e) {
+      sharedMemoryHub = { enabled: false, error: e.message || String(e) };
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
       ts: Date.now(),
       neonConfigured: neonOk,
+      sharedMemoryHub,
       sentryConfigured: Boolean(
         process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
       ),

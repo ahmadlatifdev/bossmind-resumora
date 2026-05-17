@@ -141,6 +141,45 @@
   font-size: 0.875rem;
 }
 
+.shortcutSection {
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--rs-radius-lg, 14px);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  background: rgba(8, 14, 32, 0.55);
+}
+
+.shortcutTitle {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--rs-gold-soft, #e8c96a);
+}
+
+.projectPick {
+  display: block;
+  margin: 0.75rem 0;
+  font-size: 0.8125rem;
+  color: var(--rs-text-secondary, #9aa8c7);
+}
+
+.shortcutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.45rem;
+}
+
+.shortcutLog {
+  margin-top: 0.75rem;
+  padding: 0.65rem;
+  max-height: 14rem;
+  overflow: auto;
+  font-size: 0.7rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--rs-text-secondary, #9aa8c7);
+}
+
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;

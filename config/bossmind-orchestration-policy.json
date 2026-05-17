@@ -85,8 +85,20 @@
     "missing_updates_log",
     "rollback_snapshots",
     "deployment_history",
-    "deployment_repair_log"
+    "deployment_repair_log",
+    "bossmind_memory",
+    "bossmind_error_memory",
+    "bossmind_safety_rules",
+    "bossmind_marketing_rules",
+    "bossmind_project_locks",
+    "bossmind_design_snapshots",
+    "bossmind_task_state",
+    "bossmind_event_log",
+    "bossmind_deploy_verification",
+    "bossmind_shortcut_processes"
   ],
+  "sharedMemoryStrategy": "config/bossmind-shared-memory-strategy.json",
+  "sharedMemoryHub": "lib/orchestration/bossmind-shared-memory-hub.js",
   "orchestrationFlow": [
     "sentry_issue",
     "bossmind_ingest",
