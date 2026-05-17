@@ -97,9 +97,18 @@
     "bossmind_deploy_verification",
     "bossmind_shortcut_processes",
     "bossmind_visual_validation",
-    "bossmind_runtime_authority"
+    "bossmind_runtime_authority",
+    "bossmind_marketing_campaigns",
+    "bossmind_marketing_results",
+    "bossmind_social_posts",
+    "bossmind_publish_verification",
+    "bossmind_engagement_analytics",
+    "bossmind_marketing_templates",
+    "bossmind_campaign_performance",
+    "bossmind_marketing_errors"
   ],
   "runtimeAuthorityEngine": "lib/orchestration/bossmind-runtime-authority-engine.js",
+  "autonomousMarketingEngine": "lib/orchestration/bossmind-autonomous-marketing-engine.js",
   "sharedMemoryStrategy": "config/bossmind-shared-memory-strategy.json",
   "sharedMemoryHub": "lib/orchestration/bossmind-shared-memory-hub.js",
   "orchestrationFlow": [

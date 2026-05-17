@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "name": "BossMind Verified Fully Autonomous Marketing Engine",
+  "projectKey": "resumora",
+  "targetOrchestrationPercent": { "min": 95, "max": 98 },
+  "executionLoop": ["plan", "generate", "publish", "verify", "track", "analyze", "optimize", "republish"],
+  "scheduler": {
+    "dailyMicroContent": true,
+    "weeklyPremiumCampaign": true,
+    "monthlyAuthorityCampaign": true,
+    "seoContentRotation": true,
+    "socialRepostOptimization": true
+  },
+  "platforms": [
+    { "id": "instagram", "webhookEnv": "SOCIAL_WEBHOOK_INSTAGRAM", "publish": true },
+    { "id": "facebook", "webhookEnv": "SOCIAL_WEBHOOK_FACEBOOK", "publish": true },
+    { "id": "linkedin", "webhookEnv": "SOCIAL_WEBHOOK_LINKEDIN", "publish": true },
+    { "id": "x", "webhookEnv": "SOCIAL_WEBHOOK_X", "publish": true },
+    { "id": "pinterest", "webhookEnv": "SOCIAL_WEBHOOK_PINTEREST", "publish": true },
+    { "id": "tiktok", "webhookEnv": "SOCIAL_WEBHOOK_TIKTOK", "publish": true },
+    { "id": "youtube_shorts", "webhookEnv": "SOCIAL_WEBHOOK_YOUTUBE", "alias": "youtube", "publish": true },
+    { "id": "threads", "webhookEnv": "SOCIAL_WEBHOOK_THREADS", "publish": true },
+    { "id": "google_business_profile", "verifyOnly": true, "auditKey": "googleBusinessProfile" },
+    { "id": "google_search_console", "verifyOnly": true, "auditKey": "searchConsole" },
+    { "id": "google_analytics_4", "verifyOnly": true, "auditKey": "ga4" }
+  ],
+  "stack": {
+    "deepseek": { "env": ["DEEPSEEK_API_KEY"], "role": "marketing_reasoning" },
+    "langgraph": { "route": "/api/orchestration/run-repair" },
+    "n8n": { "env": ["N8N_WEBHOOK_URL", "BOSSMIND_MARKETING_N8N_SECRET"] },
+    "neon": { "env": ["NEON_DATABASE_URL"] },
+    "playwright": { "note": "publish verification via brand + live URL probes" },
+    "applitools": { "env": ["APPLITOOLS_API_KEY"], "optional": true },
+    "sentry": { "env": ["SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN"] },
+    "github": { "role": "template_version_control" }
+  },
+  "brandProtection": {
+    "lockedLogo": "/brand/resumora-logo-official.jpg",
+    "verifyCommand": "npm run bossmind:brand:verify",
+    "blockUnverifiedPublish": true
+  },
+  "engines": {
+    "autonomousMarketing": "lib/orchestration/bossmind-autonomous-marketing-engine.js",
+    "socialGrowth": "lib/marketing/social-growth-engine.js",
+    "googleEcosystem": "lib/marketing/resumora-google-ecosystem-audit-lib.js"
+  }
+}

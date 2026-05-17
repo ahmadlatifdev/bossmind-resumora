@@ -90,6 +90,8 @@
     "bossmind:runtime:authority:status": "node scripts/bossmind-runtime-authority.mjs --status",
     "bossmind:brand:verify": "node scripts/bossmind-brand-asset-verify.mjs",
     "bossmind:production-approved:lock": "node scripts/bossmind-production-approved-v1-lock.mjs",
+    "bossmind:marketing:autonomous": "node scripts/bossmind-autonomous-marketing.mjs",
+    "bossmind:marketing:autonomous:status": "node scripts/bossmind-autonomous-marketing.mjs -- --status",
     "bossmind:brand:forbidden-scan": "node scripts/bossmind-brand-asset-forbidden-scan.mjs",
     "bossmind:shared-memory:ensure": "node scripts/bossmind-shared-memory-ensure.mjs",
     "bossmind:shared-memory:shortcut": "node scripts/bossmind-shared-memory-shortcut.mjs",

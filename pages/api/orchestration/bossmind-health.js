@@ -269,6 +269,15 @@ export default async function handler(req, res) {
       runtimeAuthority = { enabled: false, error: e.message || String(e) };
     }
 
+    let autonomousMarketing = { enabled: false };
+    try {
+      const { getAutonomousMarketingStatus } = require("../../../lib/orchestration/bossmind-autonomous-marketing-engine");
+      autonomousMarketing = await getAutonomousMarketingStatus(process.cwd());
+      autonomousMarketing.apiPath = "/api/orchestration/bossmind-autonomous-marketing";
+    } catch (e) {
+      autonomousMarketing = { enabled: false, error: e.message || String(e) };
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
@@ -276,6 +285,7 @@ export default async function handler(req, res) {
       neonConfigured: neonOk,
       sharedMemoryHub,
       runtimeAuthority,
+      autonomousMarketing,
       sentryConfigured: Boolean(
         process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
       ),

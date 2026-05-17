@@ -30,6 +30,7 @@ export default function BossMindAdminDashboard() {
   const [production, setProduction] = useState(null);
   const [hub, setHub] = useState(null);
   const [runtime, setRuntime] = useState(null);
+  const [marketing, setMarketing] = useState(null);
   const [projectKey, setProjectKey] = useState("resumora");
   const [shortcutLog, setShortcutLog] = useState("");
   const [error, setError] = useState("");
@@ -51,13 +52,14 @@ export default function BossMindAdminDashboard() {
     setError("");
     setBusy(true);
     try {
-      const [hRes, cRes, mRes, rRes] = await Promise.all([
+      const [hRes, cRes, mRes, rRes, mkRes] = await Promise.all([
         fetch("/api/orchestration/bossmind-health", { headers: headers() }),
         fetch("/api/orchestration/bossmind-core-optimization", { headers: headers() }),
         fetch(`/api/orchestration/bossmind-shared-memory?projectKey=${encodeURIComponent(projectKey)}`, {
           headers: headers(),
         }),
         fetch("/api/orchestration/bossmind-runtime-authority", { headers: headers() }),
+        fetch("/api/orchestration/bossmind-autonomous-marketing", { headers: headers() }),
       ]);
       const hJson = await hRes.json();
       const cJson = await cRes.json();
@@ -70,12 +72,38 @@ export default function BossMindAdminDashboard() {
       const rJson = await rRes.json();
       setHub(mRes.ok ? mJson : hJson.sharedMemoryHub || null);
       setRuntime(rRes.ok ? rJson : hJson.runtimeAuthority || null);
+      const mkJson = await mkRes.json();
+      setMarketing(mkRes.ok ? mkJson : hJson.autonomousMarketing || null);
     } catch (e) {
       setError(e.message || "Failed to load orchestration data");
     } finally {
       setBusy(false);
     }
   }, [headers, projectKey]);
+
+  const runMarketingCycle = async () => {
+    setError("");
+    setBusy(true);
+    setShortcutLog("");
+    try {
+      const r = await fetch("/api/orchestration/bossmind-autonomous-marketing", {
+        method: "POST",
+        headers: {
+          ...headers(),
+          "X-Bossmind-Writer-Agent": "master_admin_shortcut",
+        },
+        body: JSON.stringify({ projectKey, writerAgent: "master_admin_shortcut" }),
+      });
+      const j = await r.json();
+      if (!r.ok && r.status !== 207) throw new Error(j.error || `marketing ${r.status}`);
+      setShortcutLog(JSON.stringify(j, null, 2));
+      await load();
+    } catch (e) {
+      setError(e.message || "Marketing cycle failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const runRuntimeCycle = async () => {
     setError("");
@@ -301,6 +329,80 @@ export default function BossMindAdminDashboard() {
             {runtime.latestCycle.executionMode}
           </p>
         </article>
+      ) : null}
+
+      {marketing?.latestCycle ? (
+        <section className={styles.shortcutSection}>
+          <h2 className={styles.shortcutTitle}>Autonomous marketing engine</h2>
+          <div className={styles.grid}>
+            <article className={styles.card}>
+              <h3>Marketing health</h3>
+              <p className={`${styles.score} ${scoreClass(marketing.latestCycle.marketingHealthScore, 95)}`}>
+                {marketing.latestCycle.marketingHealthScore}%
+              </p>
+            </article>
+            <article className={styles.card}>
+              <h3>Engagement score</h3>
+              <p className={styles.score}>
+                {marketing.latestCycle.phases?.analyze?.winners?.[0]?.score ?? "—"}
+              </p>
+              <p className={styles.scoreTarget}>Top platform prediction</p>
+            </article>
+            <article className={styles.card}>
+              <h3>SEO health</h3>
+              <p className={`${styles.score} ${scoreClass(marketing.latestCycle.seoVerification?.percent, 85)}`}>
+                {marketing.latestCycle.seoVerification?.percent ?? "—"}%
+              </p>
+            </article>
+            <article className={styles.card}>
+              <h3>Social publishing</h3>
+              <p className={styles.scoreTarget}>
+                Verified {marketing.latestCycle.phases?.verify?.verifiedCount ?? 0} · Dispatched{" "}
+                {marketing.latestCycle.phases?.publish?.dispatched ?? 0}
+              </p>
+            </article>
+            <article className={styles.card}>
+              <h3>Failed campaigns</h3>
+              <p className={styles.score}>
+                {marketing.latestCycle.failedCampaigns?.length ?? 0}
+              </p>
+            </article>
+            <article className={styles.card}>
+              <h3>Auto-optimization queue</h3>
+              <p className={styles.score}>
+                {marketing.latestCycle.autoOptimizationQueue?.length ?? 0}
+              </p>
+            </article>
+            <article className={`${styles.card} ${styles.wide}`}>
+              <h3>Platform health monitor</h3>
+              <ul className={styles.projectList}>
+                {(marketing.platformConnections || []).map((p) => (
+                  <li key={p.id}>
+                    <span>{p.id}</span>
+                    <span>
+                      {p.mode === "verify_only"
+                        ? "verify-only"
+                        : p.connected
+                          ? "webhook ready"
+                          : "awaiting webhook"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+            <article className={`${styles.card} ${styles.wide}`}>
+              <h3>Top performing content</h3>
+              <ul className={styles.projectList}>
+                {(marketing.latestCycle.topPerforming || []).map((t) => (
+                  <li key={t.platform}>
+                    <span>{t.platform}</span>
+                    <span>{t.score}% · {t.pillar}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </div>
+        </section>
       ) : null}
 
       {hub?.shortcuts?.length ? (

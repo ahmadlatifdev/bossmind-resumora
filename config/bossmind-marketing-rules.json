@@ -8,6 +8,11 @@
     { "id": "pricing_conversion", "severity": "require", "text": "Every pricing page must use a conversion-focused layout." },
     { "id": "mobile_first", "severity": "require", "text": "Every page must stay mobile-first." },
     { "id": "analytics_readiness", "severity": "require", "text": "Every project must track analytics readiness signals." },
-    { "id": "professional_voice", "severity": "require", "text": "Every project must keep a professional brand voice." }
+    { "id": "professional_voice", "severity": "require", "text": "Every project must keep a professional brand voice." },
+    { "id": "never_publish_unverified_branding", "severity": "block", "text": "Never publish marketing content without brand/logo verification." },
+    { "id": "never_publish_broken_links", "severity": "block", "text": "Never publish campaigns with failed CTA link probes." },
+    { "id": "never_duplicate_campaigns", "severity": "block", "text": "Never post duplicate campaigns for the same platform and week." },
+    { "id": "never_bypass_verification", "severity": "block", "text": "Never bypass publish verification before marking live." },
+    { "id": "auto_pause_failed_workflows", "severity": "block", "text": "Auto-pause marketing workflows when publish verification fails." }
   ]
 }
