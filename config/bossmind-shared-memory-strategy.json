@@ -47,7 +47,8 @@
   "configRefs": {
     "safetyRules": "config/bossmind-safety-rules.json",
     "marketingRules": "config/bossmind-marketing-rules.json",
-    "organicRegistry": "config/bossmind-organic-growth-registry.json"
+    "organicRegistry": "config/bossmind-organic-growth-registry.json",
+    "brandAssetAuthority": "config/bossmind-brand-asset-authority.json"
   },
   "shortcutFlow": [
     "load_project_key",

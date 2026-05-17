@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
+import ResumoraLogo from "@/components/brand/ResumoraLogo";
 import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
-import { RESUMORA_LOGO_ALT, RESUMORA_LOGO_SRC } from "@/lib/marketing/resumora-logo";
 
 /**
  * Slim shell for auth/checkout/legal-simple pages: luxury bar with EN/FR top-right + optional footer lang.
@@ -18,16 +17,12 @@ export default function MinimalAppChrome({ children }) {
       <div className="rs-bg" aria-hidden />
 
       <header className="rs-minimal-topbar">
-        <Link href="/" className="rs-minimal-topbar-brand" aria-label={t.minimalHomeAria}>
-          <Image
-            src={RESUMORA_LOGO_SRC}
-            alt={RESUMORA_LOGO_ALT}
-            width={160}
-            height={37}
-            className="rs-logo rs-logo-minimal rs-logo--protected"
-            sizes="160px"
-          />
-        </Link>
+        <ResumoraLogo
+          variant="minimal"
+          linkHome
+          linkClassName="rs-minimal-topbar-brand"
+          homeAriaLabel={t.minimalHomeAria}
+        />
         <LanguageSwitcher />
       </header>
 

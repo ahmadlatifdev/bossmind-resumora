@@ -29,7 +29,7 @@ self.addEventListener("install", (event) => {
           "/icon-512.png" + q(),
           "/android-chrome-192x192.png" + q(),
           "/android-chrome-512x512.png" + q(),
-          "/resumora-logo.png" + q(),
+          "/brand/resumora-logo-original.png" + q(),
           "/og-resumora-brand.png" + q(),
           "/manifest.webmanifest",
         ]).catch(() => {})
@@ -78,6 +78,7 @@ self.addEventListener("fetch", (event) => {
     path.startsWith("/icon-") ||
     path.startsWith("/android-chrome") ||
     path === "/apple-touch-icon.png" ||
+    path === "/brand/resumora-logo-original.png" ||
     path === "/resumora-logo.png" ||
     path === "/og-resumora-brand.png" ||
     path === "/manifest.webmanifest" ||

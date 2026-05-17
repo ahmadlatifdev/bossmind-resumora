@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "project": "resumora",
+  "lockedLogo": {
+    "publicUrl": "/brand/resumora-logo-original.png",
+    "repoPath": "public/brand/resumora-logo-original.png",
+    "component": "components/brand/ResumoraLogo.tsx",
+    "authorityModule": "lib/marketing/brand-asset-authority.js",
+    "sha256": "f25eec93391abd2331e6830af0cc69429e2d2c45e2287c19503eb8a681fd538d",
+    "approvedSource": "Official Resumora social / production wordmark (copied from public/resumora-logo.png at lock time)"
+  },
+  "legacyAliases": ["/resumora-logo.png"],
+  "forbiddenPatterns": [
+    "resumora-logo.svg",
+    "logo-draft",
+    "logo-mockup",
+    "logo-generated",
+    "placeholder-logo"
+  ],
+  "requiredHtmlMarkers": [
+    "data-rs-brand-logo=\"1\"",
+    "/brand/resumora-logo-original.png"
+  ],
+  "protection": {
+    "blockReplacementWithoutApproval": true,
+    "blockGeneratedLogosInProduction": true,
+    "blockDuplicatedBrandAssets": true,
+    "verifyCommand": "npm run bossmind:brand:verify"
+  },
+  "sharedMemory": {
+    "memoryKey": "brand_asset_authority_resumora",
+    "projectLockType": "brand_logo"
+  }
+}

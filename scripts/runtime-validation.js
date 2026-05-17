@@ -17,10 +17,10 @@ async function main() {
     process.env.BOSSMIND_REFERENCE_IMAGES_FOLDER ||
     "D:\\Shakhsy11\\bossmind-resumora-base\\reference-images";
 
-  const hasLogo = fs.existsSync(path.join(process.cwd(), "public", "resumora-logo.png"));
+  const hasLogo = fs.existsSync(path.join(process.cwd(), "public", "brand", "resumora-logo-original.png"));
   const hasOg = fs.existsSync(path.join(process.cwd(), "public", "og-resumora-brand.png"));
   if (!hasLogo) {
-    throw new Error("Missing public/resumora-logo.png");
+    throw new Error("Missing public/brand/resumora-logo-original.png");
   }
   if (!hasOg) {
     throw new Error("Missing public/og-resumora-brand.png (run npm run bossmind:branding:icons)");

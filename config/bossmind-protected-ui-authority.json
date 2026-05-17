@@ -35,7 +35,8 @@
     "data-rs-pricing-ui=\"20260517-lux-v4\"",
     "data-rs-pricing-order=\"basic,professional,elite,essential_advanced\"",
     "rs-pricing-grid--final",
-    "resumora-logo.png",
+    "/brand/resumora-logo-original.png",
+    "data-rs-brand-logo=\"1\"",
     "data-rs-trust-removed=\"1\"",
     "Professional Career Upgrade Plans"
   ],

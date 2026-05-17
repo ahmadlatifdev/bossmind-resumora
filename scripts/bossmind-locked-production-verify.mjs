@@ -51,6 +51,7 @@ const probeEnv =
   process.env.BOSSMIND_PRODUCTION_PUBLIC_ORIGIN ||
   "";
 
+run("Brand asset authority (locked logo + conflict scan)", "node", ["scripts/bossmind-brand-asset-forbidden-scan.mjs"]);
 run("Immutable luxury baseline (checksums + optional prod probe)", "node", ["scripts/bossmind-immutable-verify.mjs"], probeEnv ? { BOSSMIND_IMMUTABLE_PROBE_ORIGIN: probeEnv } : {});
 run("Immutable execution chain (snapshot + live /pricing)", "node", ["scripts/bossmind-immutable-execution-chain.mjs"], probeEnv ? { BOSSMIND_IMMUTABLE_PROBE_ORIGIN: probeEnv, BOSSMIND_REALITY_LIVE_URL: probeEnv } : {});
 

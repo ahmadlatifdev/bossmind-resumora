@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import ResumoraLogo from "@/components/brand/ResumoraLogo";
 import { useRouter } from "next/router";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +8,6 @@ import { translations } from "@/lib/marketing/site-copy";
 import FooterUniversalDock from "@/components/marketing/FooterUniversalDock";
 import InstallPrompt from "@/components/marketing/InstallPrompt";
 import LanguageSwitcher from "@/components/marketing/LanguageSwitcher";
-import { RESUMORA_LOGO_ALT, RESUMORA_LOGO_SIDEBAR, RESUMORA_LOGO_TOPBAR } from "@/lib/marketing/resumora-logo";
 
 function NavGroup({ title, open, onToggle, children }) {
   return (
@@ -91,17 +90,12 @@ export default function SiteChrome({ children }) {
         aria-label={t.sidebarNavLabel}
       >
         <div className="rs-sidebar-brand">
-          <Link href="/" className="rs-brand rs-brand-sidebar rs-brand--protected" onClick={() => setSidebarOpen(false)}>
-            <Image
-              src={RESUMORA_LOGO_SIDEBAR.src}
-              alt={RESUMORA_LOGO_ALT}
-              width={RESUMORA_LOGO_SIDEBAR.width}
-              height={RESUMORA_LOGO_SIDEBAR.height}
-              priority
-              className={RESUMORA_LOGO_SIDEBAR.className}
-              sizes={RESUMORA_LOGO_SIDEBAR.sizes}
-            />
-          </Link>
+          <ResumoraLogo
+            variant="sidebar"
+            linkHome
+            linkClassName="rs-brand rs-brand-sidebar rs-brand--protected"
+            onNavigate={() => setSidebarOpen(false)}
+          />
         </div>
 
         <nav className="rs-sidebar-nav">
@@ -143,16 +137,12 @@ export default function SiteChrome({ children }) {
             {sidebarOpen ? <X className="rs-icon-gold" size={22} strokeWidth={1.5} /> : <Menu className="rs-icon-gold" size={22} strokeWidth={1.5} />}
           </button>
 
-          <Link href="/" className="rs-topbar-brand rs-brand--protected hide-desktop-flex" aria-label="Resumora home">
-            <Image
-              src={RESUMORA_LOGO_TOPBAR.src}
-              alt={RESUMORA_LOGO_ALT}
-              width={RESUMORA_LOGO_TOPBAR.width}
-              height={RESUMORA_LOGO_TOPBAR.height}
-              className={RESUMORA_LOGO_TOPBAR.className}
-              sizes={RESUMORA_LOGO_TOPBAR.sizes}
-            />
-          </Link>
+          <ResumoraLogo
+            variant="topbar"
+            linkHome
+            linkClassName="rs-topbar-brand rs-brand--protected hide-desktop-flex"
+            homeAriaLabel="Resumora home"
+          />
 
           <div className="rs-topbar-actions">
             <LanguageSwitcher />
@@ -172,7 +162,7 @@ export default function SiteChrome({ children }) {
         <footer className="rs-footer rs-footer-enterprise rs-footer-minimal">
           <div className="rs-footer-enterprise-grid rs-footer-enterprise-grid--tight">
             <div className="rs-footer-block">
-              <p className="rs-footer-wordmark">Resumora</p>
+              <ResumoraLogo variant="footer" linkHome />
               <p className="rs-footer-about">{t.footerAboutLuxury}</p>
             </div>
 
