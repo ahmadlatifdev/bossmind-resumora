@@ -299,12 +299,28 @@ export default async function handler(req, res) {
       productionLiveAudit.loadError = "lock_unreadable";
     }
 
+    let enterpriseProductionHealth = {
+      runCommand: "npm run bossmind:enterprise:production-health",
+    };
+    try {
+      const entPath = path.join(process.cwd(), "config/bossmind-enterprise-production-health-lock.json");
+      if (fs.existsSync(entPath)) {
+        enterpriseProductionHealth = {
+          ...enterpriseProductionHealth,
+          ...JSON.parse(fs.readFileSync(entPath, "utf8")),
+        };
+      }
+    } catch {
+      enterpriseProductionHealth.loadError = "lock_unreadable";
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
       ts: Date.now(),
       activationRecovery,
       productionLiveAudit,
+      enterpriseProductionHealth,
       neonConfigured: neonOk,
       sharedMemoryHub,
       runtimeAuthority,
