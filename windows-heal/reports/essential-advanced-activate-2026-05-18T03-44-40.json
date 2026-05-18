@@ -1,0 +1,40 @@
+{
+  "lockedAt": "2026-05-18T03:44:40.035Z",
+  "memoryType": "ESSENTIAL_ADVANCED_INTERVIEW_STUDIO_ACTIVE",
+  "planId": "essential_advanced",
+  "priceUsd": 110,
+  "deliverables": {
+    "atsOptimization": true,
+    "resumeEnhancement": true,
+    "structuredFormatting": true,
+    "keywordOptimization": true,
+    "coverLetterSupport": true,
+    "fasterTurnaround": true,
+    "limitedRevisions": {
+      "count": 2,
+      "note": "structured edit sprints"
+    },
+    "interviewPrepBundle": {
+      "trainingVideos": 3,
+      "simulations": 3,
+      "qaCount": 60,
+      "successTips": 22,
+      "executiveSection": true,
+      "bilingualEnFr": true,
+      "secureDownloads": 4,
+      "clientStudioPath": "/studio/essential-advanced",
+      "progressTracking": true,
+      "automatedDeliveryAfterStripe": true
+    }
+  },
+  "catalogCounts": {
+    "videos": 3,
+    "simulations": 3,
+    "qa": 60,
+    "tips": 22,
+    "downloads": 4
+  },
+  "studioPath": "/studio/essential-advanced",
+  "pricingWhatsIncluded": true,
+  "notes": "interview-studio-activated"
+}

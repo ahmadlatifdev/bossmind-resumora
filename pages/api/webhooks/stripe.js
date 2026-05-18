@@ -3,7 +3,13 @@
  * Configure endpoint in Stripe Dashboard + STRIPE_WEBHOOK_SECRET.
  */
 const { createStripeServerClient } = require("../../../lib/marketing/stripe-server");
-const { saveEvent, initializeSharedMemory, getSqlClient } = require("../../../lib/shared/neon-memory");
+const {
+  saveEvent,
+  initializeSharedMemory,
+  ensureEngagementSchema,
+  getSqlClient,
+} = require("../../../lib/shared/neon-memory");
+const { fulfillStripeCheckoutSession } = require("../../../lib/essential-advanced/entitlements-store");
 
 export const config = {
   api: {
@@ -54,11 +60,20 @@ export default async function handler(req, res) {
   }
 
   await initializeSharedMemory().catch(() => {});
+  await ensureEngagementSchema().catch(() => {});
+
+  if (event.type === "checkout.session.completed") {
+    try {
+      await fulfillStripeCheckoutSession(event.data.object);
+    } catch (e) {
+      console.error("essential_advanced fulfillment:", e.message);
+    }
+  }
 
   try {
     const sql = getSqlClient();
     if (sql) {
-      const dup = await sql(
+      const dup = await sql.query(
         `SELECT 1 FROM event_log WHERE project_key = $1 AND event_key = $2 AND source = $3 LIMIT 1`,
         [bossmindProjectKey(), event.id, "stripe"]
       );

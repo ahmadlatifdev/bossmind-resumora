@@ -4543,3 +4543,208 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     }
   }
 }
+
+/* Essential Advanced — pricing card "What's included" + interview studio */
+.rs-price-whats-included {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rs-border);
+}
+
+.rs-price-whats-included-toggle {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--rs-gold-soft);
+  font-family: var(--rs-font);
+  font-size: 0.92rem;
+  cursor: pointer;
+  padding: 0.35rem 0;
+}
+
+.rs-price-whats-included-toggle:hover {
+  color: var(--rs-gold);
+}
+
+.rs-price-whats-included-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+  color: var(--rs-text-secondary);
+}
+
+.rs-price-whats-included-list li {
+  margin-bottom: 0.35rem;
+}
+
+.rs-ea-studio-wrap {
+  max-width: min(1100px, 100%);
+  margin-inline: auto;
+}
+
+.rs-ea-studio {
+  padding: clamp(1rem, 3vw, 2rem) 0 3rem;
+}
+
+.rs-ea-studio-header h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 0.5rem;
+}
+
+.rs-ea-studio-lead {
+  color: var(--rs-text-secondary);
+  max-width: 52ch;
+}
+
+.rs-ea-progress {
+  position: relative;
+  margin-top: 1rem;
+  height: 8px;
+  background: rgba(201, 162, 39, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rs-ea-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rs-gold), var(--rs-gold-soft));
+  transition: width 0.25s ease;
+}
+
+.rs-ea-progress-label {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--rs-text-muted);
+}
+
+.rs-ea-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0 1rem;
+}
+
+.rs-ea-tab {
+  border: 1px solid var(--rs-border);
+  background: var(--rs-bg-card);
+  color: var(--rs-text-secondary);
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--rs-radius-sm);
+  font-family: var(--rs-font);
+  cursor: pointer;
+}
+
+.rs-ea-tab--active {
+  border-color: var(--rs-gold);
+  color: var(--rs-gold-soft);
+}
+
+.rs-ea-panel {
+  margin-top: 0.5rem;
+}
+
+.rs-ea-video-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.rs-ea-card {
+  background: var(--rs-bg-card);
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-md);
+  padding: 1rem;
+  box-shadow: var(--rs-shadow-card);
+}
+
+.rs-ea-video-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--rs-radius-sm);
+  margin-bottom: 0.75rem;
+}
+
+.rs-ea-video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.rs-ea-qa-scroll {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.rs-ea-qa-item {
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-sm);
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.5rem;
+  background: var(--rs-bg-card);
+}
+
+.rs-ea-qa-item summary {
+  cursor: pointer;
+  color: var(--rs-text);
+}
+
+.rs-ea-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rs-ea-tips li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rs-border);
+}
+
+.rs-ea-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--rs-text-secondary);
+}
+
+.rs-ea-check--inline {
+  margin-top: 0;
+}
+
+.rs-ea-downloads {
+  list-style: none;
+  padding: 0;
+}
+
+.rs-ea-downloads li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.rs-success-ea-hint {
+  color: var(--rs-gold-soft);
+  margin: 1rem 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .rs-ea-tabs {
+    gap: 0.35rem;
+  }
+
+  .rs-ea-tab {
+    flex: 1 1 calc(50% - 0.35rem);
+    text-align: center;
+    font-size: 0.82rem;
+  }
+}

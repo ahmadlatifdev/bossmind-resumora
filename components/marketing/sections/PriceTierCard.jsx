@@ -6,9 +6,12 @@ const VISIBLE_FEATURES = 3;
 export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteMatch }) {
   const t = translations[lang];
   const features = plan.features[lang] || [];
+  const whatsIncluded = plan.whatsIncluded?.[lang] || [];
   const [expanded, setExpanded] = useState(false);
+  const [includedOpen, setIncludedOpen] = useState(false);
   const visible = expanded ? features : features.slice(0, VISIBLE_FEATURES);
   const hasMore = features.length > VISIBLE_FEATURES;
+  const showWhatsIncluded = plan.id === "essential_advanced" && whatsIncluded.length > 0;
 
   const showFlagship = plan.badge === "flagship";
   const showBalanced = plan.badge === "balanced";
@@ -60,6 +63,26 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
       ) : (
         <span className="rs-price-expand-spacer" aria-hidden />
       )}
+
+      {showWhatsIncluded ? (
+        <div className="rs-price-whats-included" data-rs-ea-whats-included="1">
+          <button
+            type="button"
+            className="rs-price-whats-included-toggle"
+            onClick={() => setIncludedOpen((v) => !v)}
+            aria-expanded={includedOpen}
+          >
+            {includedOpen ? t.essentialAdvancedWhatsIncludedHide : t.essentialAdvancedWhatsIncluded}
+          </button>
+          {includedOpen ? (
+            <ul className="rs-price-whats-included-list">
+              {whatsIncluded.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
 
       <footer className="rs-price-card-footer">
         <button

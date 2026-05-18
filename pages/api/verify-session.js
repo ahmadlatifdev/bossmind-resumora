@@ -1,5 +1,10 @@
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
-const { getSqlClient, saveEvent } = require("../../lib/shared/neon-memory");
+const { getSqlClient, saveEvent, ensureEngagementSchema } = require("../../lib/shared/neon-memory");
+const {
+  fulfillStripeCheckoutSession,
+  resolvePlanIdFromStripeSession,
+  PLAN_ESSENTIAL_ADVANCED,
+} = require("../../lib/essential-advanced/entitlements-store");
 
 function bossmindProjectKey() {
   return process.env.BOSSMIND_PROJECT_KEY || "resumora";
@@ -20,12 +25,21 @@ export default async function handler(req, res) {
     const session = await stripe.checkout.sessions.retrieve(String(session_id));
     const valid = session.payment_status === "paid";
 
+    let planId = null;
+    let fulfillment = null;
+
     if (valid) {
+      await ensureEngagementSchema().catch(() => {});
+      planId = resolvePlanIdFromStripeSession(session);
+      fulfillment = await fulfillStripeCheckoutSession(session).catch(() => ({
+        ok: false,
+      }));
+
       const eventKey = `checkout:${session.id}`;
       const sql = getSqlClient();
       let already = false;
       if (sql) {
-        const rows = await sql(
+        const rows = await sql.query(
           `SELECT 1 FROM event_log WHERE project_key = $1 AND event_key = $2 LIMIT 1`,
           [projectKey, eventKey]
         );
@@ -42,15 +56,23 @@ export default async function handler(req, res) {
             amount_total: session.amount_total,
             currency: session.currency,
             metadata: session.metadata || {},
+            plan_id: planId,
+            fulfillment_ok: fulfillment?.ok === true,
             utm_source: session.metadata?.utm_source,
             utm_medium: session.metadata?.utm_medium,
             utm_campaign: session.metadata?.utm_campaign,
           },
-        });
+        }).catch(() => {});
       }
     }
 
-    res.status(200).json({ valid });
+    res.status(200).json({
+      valid,
+      planId,
+      essentialAdvanced: planId === PLAN_ESSENTIAL_ADVANCED,
+      studioPath: planId === PLAN_ESSENTIAL_ADVANCED ? "/studio/essential-advanced" : null,
+      fulfillmentOk: fulfillment?.ok === true,
+    });
   } catch {
     res.status(200).json({ valid: false });
   }

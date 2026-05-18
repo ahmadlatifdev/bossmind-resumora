@@ -1,4 +1,5 @@
 const { registerProfile, createSession } = require("../../../lib/engagement/store");
+const { linkEntitlementsToProfile } = require("../../../lib/essential-advanced/entitlements-store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");
 const {
   getSqlClient,
@@ -31,6 +32,8 @@ export default async function handler(req, res) {
     if (!result.ok) {
       return res.status(409).json({ error: result.error || "register_failed" });
     }
+
+    await linkEntitlementsToProfile(result.profile.id, result.profile.email);
 
     const session = await createSession(result.profile.id);
     if (!session) {

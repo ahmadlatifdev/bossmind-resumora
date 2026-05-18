@@ -20,7 +20,7 @@ export default function SuccessPage() {
 
   /** Per-session verify result — avoids stale state when `session_id` query changes. */
   const [bySession, setBySession] = useState(
-    /** @type {Record<string, "pending" | "success" | "invalid" | "error">} */ ({})
+    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; essentialAdvanced?: boolean }>} */ ({})
   );
 
   useEffect(() => {
@@ -30,17 +30,24 @@ export default function SuccessPage() {
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
-        setBySession((prev) => ({ ...prev, [sid]: data.valid ? "success" : "invalid" }));
+        setBySession((prev) => ({
+          ...prev,
+          [sid]: {
+            status: data.valid ? "success" : "invalid",
+            essentialAdvanced: Boolean(data.essentialAdvanced),
+          },
+        }));
       })
       .catch(() => {
-        if (!cancelled) setBySession((prev) => ({ ...prev, [sid]: "error" }));
+        if (!cancelled) setBySession((prev) => ({ ...prev, [sid]: { status: "error" } }));
       });
     return () => {
       cancelled = true;
     };
   }, [router.isReady, sid]);
 
-  const remote = sid ? bySession[sid] ?? "pending" : "invalid";
+  const remote = sid ? bySession[sid]?.status ?? "pending" : "invalid";
+  const essentialAdvanced = sid ? Boolean(bySession[sid]?.essentialAdvanced) : false;
 
   const status = !router.isReady
     ? "loading"
@@ -70,6 +77,16 @@ export default function SuccessPage() {
               <h1>{t.successPaymentTitle}</h1>
               <p>{t.successThanks}</p>
               <p>{t.successVerified}</p>
+              {essentialAdvanced ? (
+                <>
+                  <p className="rs-success-ea-hint">{t.successEaStudioHint}</p>
+                  <p>
+                    <Link href="/studio/essential-advanced" className="rs-btn-accent">
+                      {t.successEaStudioCta}
+                    </Link>
+                  </p>
+                </>
+              ) : null}
               <p className="rs-success-private-hint">{t.successPrivateFeedbackHint}</p>
               <p className="rs-success-private-cta">
                 <a
