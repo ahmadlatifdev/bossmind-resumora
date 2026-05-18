@@ -1,0 +1,418 @@
+{
+  "ok": false,
+  "generatedAt": "2026-05-18T10:35:08.015Z",
+  "overallHealthScore": 21,
+  "projects": [
+    {
+      "projectId": "resumora",
+      "displayName": "Resumora",
+      "productionUrl": "https://www.resumora.net",
+      "repoPresent": true,
+      "projectRoot": "D:\\BossMind\\resumora-fresh",
+      "healthScore": 91,
+      "features": [
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "ACTIVE",
+          "detail": "NEON_DATABASE_URL",
+          "safeFix": null
+        },
+        {
+          "id": "registration",
+          "label": "Registration API",
+          "status": "ACTIVE",
+          "detail": "local_register_ready",
+          "safeFix": null
+        },
+        {
+          "id": "login_sessions",
+          "label": "Login & session persistence",
+          "status": "ACTIVE",
+          "detail": "login_route_present",
+          "safeFix": null
+        },
+        {
+          "id": "stripe_checkout",
+          "label": "Stripe checkout",
+          "status": "ACTIVE",
+          "detail": "test",
+          "safeFix": null
+        },
+        {
+          "id": "stripe_webhooks",
+          "label": "Stripe webhooks",
+          "status": "PARTIAL",
+          "detail": "webhook_secret_missing",
+          "safeFix": "render_env_bundle"
+        },
+        {
+          "id": "payment_links",
+          "label": "Plan payment links",
+          "status": "ACTIVE",
+          "detail": "four_plans_linked",
+          "safeFix": null
+        },
+        {
+          "id": "post_payment",
+          "label": "Post-payment provisioning",
+          "status": "ACTIVE",
+          "detail": "provision_wired",
+          "safeFix": null
+        },
+        {
+          "id": "client_dashboard",
+          "label": "Client dashboard",
+          "status": "ACTIVE",
+          "detail": "hub_present",
+          "safeFix": null
+        },
+        {
+          "id": "plans_four_tier",
+          "label": "Four-tier plans sync",
+          "status": "ACTIVE",
+          "detail": "plans_synced",
+          "safeFix": null
+        },
+        {
+          "id": "en_fr",
+          "label": "EN/FR content",
+          "status": "ACTIVE",
+          "detail": "bilingual_markers",
+          "safeFix": null
+        },
+        {
+          "id": "premium_interview_prep",
+          "label": "Interview prep assets",
+          "status": "ACTIVE",
+          "detail": "qa=60",
+          "safeFix": null
+        },
+        {
+          "id": "protected_ui",
+          "label": "Protected luxury UI lock",
+          "status": "ACTIVE",
+          "detail": "authority_locked",
+          "safeFix": null
+        },
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "ACTIVE",
+          "detail": "10_routes",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "BROKEN",
+          "detail": "live_db_missing_env",
+          "safeFix": "sync_hub_database_env"
+        }
+      ]
+    },
+    {
+      "projectId": "elegancyart",
+      "displayName": "ElegancyArt",
+      "productionUrl": null,
+      "repoPresent": false,
+      "projectRoot": null,
+      "healthScore": 0,
+      "features": [
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "MISSING",
+          "detail": "no_production_url",
+          "safeFix": null
+        },
+        {
+          "id": "en_fr",
+          "label": "EN/FR content",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        }
+      ]
+    },
+    {
+      "projectId": "ai-video-generator",
+      "displayName": "AI Video Generator",
+      "productionUrl": null,
+      "repoPresent": false,
+      "projectRoot": null,
+      "healthScore": 0,
+      "features": [
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "MISSING",
+          "detail": "no_production_url",
+          "safeFix": null
+        },
+        {
+          "id": "post_payment",
+          "label": "Post-payment provisioning",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        }
+      ]
+    },
+    {
+      "projectId": "tiktok-ai",
+      "displayName": "TikTok AI",
+      "productionUrl": null,
+      "repoPresent": false,
+      "projectRoot": null,
+      "healthScore": 0,
+      "features": [
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "MISSING",
+          "detail": "no_production_url",
+          "safeFix": null
+        }
+      ]
+    },
+    {
+      "projectId": "global-stock",
+      "displayName": "Global Stock",
+      "productionUrl": null,
+      "repoPresent": false,
+      "projectRoot": null,
+      "healthScore": 0,
+      "features": [
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "MISSING",
+          "detail": "no_production_url",
+          "safeFix": null
+        },
+        {
+          "id": "stripe_checkout",
+          "label": "Stripe checkout",
+          "status": "MISSING",
+          "detail": "repo_not_mounted",
+          "safeFix": null
+        }
+      ]
+    },
+    {
+      "projectId": "bossmind-master-admin",
+      "displayName": "BossMind Master Admin",
+      "productionUrl": null,
+      "repoPresent": true,
+      "projectRoot": "D:\\BossMind\\bossmind-master-admin",
+      "healthScore": 37,
+      "features": [
+        {
+          "id": "api_routes",
+          "label": "Critical API routes",
+          "status": "PARTIAL",
+          "detail": "api_dir_unknown",
+          "safeFix": null
+        },
+        {
+          "id": "database",
+          "label": "Neon database connectivity",
+          "status": "PARTIAL",
+          "detail": "sibling_scan_needs_env_on_host",
+          "safeFix": null
+        },
+        {
+          "id": "live_health",
+          "label": "Live production health",
+          "status": "MISSING",
+          "detail": "no_production_url",
+          "safeFix": null
+        }
+      ]
+    }
+  ],
+  "safeFixResults": [
+    {
+      "projectId": "resumora",
+      "fixId": "render_env_bundle",
+      "ok": true,
+      "exitCode": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"outPath\": \"D:\\\\BossMind\\\\resumora-fresh\\\\.bossmind\\\\render-production-env.env\",\n  \"gitignored\": true,\n  \"checklist\": [\n    {\n      \"key\": \"NEON_DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"STRIPE_SECRET_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"STRIPE_WEBHOOK_SECRET\",\n      \"present\": false\n    },\n"
+    },
+    {
+      "projectId": "resumora",
+      "fixId": "sync_hub_database_env",
+      "ok": true,
+      "exitCode": 0,
+      "stdout": "{\"ok\":true,\"target\":\".env.local\",\"source\":\"D:/BossMind/bossmind-resumora/.env\",\"keys\":[\"NEON_DATABASE_URL\",\"DATABASE_URL\"]}\n"
+    }
+  ],
+  "escalation": [
+    {
+      "projectId": "elegancyart",
+      "featureId": "database",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "elegancyart",
+      "featureId": "api_routes",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "elegancyart",
+      "featureId": "live_health",
+      "status": "MISSING",
+      "detail": "no_production_url"
+    },
+    {
+      "projectId": "elegancyart",
+      "featureId": "en_fr",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "ai-video-generator",
+      "featureId": "database",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "ai-video-generator",
+      "featureId": "api_routes",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "ai-video-generator",
+      "featureId": "live_health",
+      "status": "MISSING",
+      "detail": "no_production_url"
+    },
+    {
+      "projectId": "ai-video-generator",
+      "featureId": "post_payment",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "tiktok-ai",
+      "featureId": "database",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "tiktok-ai",
+      "featureId": "api_routes",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "tiktok-ai",
+      "featureId": "live_health",
+      "status": "MISSING",
+      "detail": "no_production_url"
+    },
+    {
+      "projectId": "global-stock",
+      "featureId": "database",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "global-stock",
+      "featureId": "api_routes",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "global-stock",
+      "featureId": "live_health",
+      "status": "MISSING",
+      "detail": "no_production_url"
+    },
+    {
+      "projectId": "global-stock",
+      "featureId": "stripe_checkout",
+      "status": "MISSING",
+      "detail": "repo_not_mounted"
+    },
+    {
+      "projectId": "bossmind-master-admin",
+      "featureId": "api_routes",
+      "status": "PARTIAL",
+      "detail": "api_dir_unknown"
+    },
+    {
+      "projectId": "bossmind-master-admin",
+      "featureId": "database",
+      "status": "PARTIAL",
+      "detail": "sibling_scan_needs_env_on_host"
+    },
+    {
+      "projectId": "bossmind-master-admin",
+      "featureId": "live_health",
+      "status": "MISSING",
+      "detail": "no_production_url"
+    }
+  ],
+  "notes": "activation_recovery_scan"
+}

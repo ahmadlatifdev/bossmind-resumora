@@ -55,7 +55,8 @@
     { "id": "premium_interview_prep", "category": "premium", "label": "Interview prep assets" },
     { "id": "protected_ui", "category": "ui", "label": "Protected luxury UI lock" },
     { "id": "api_routes", "category": "runtime", "label": "Critical API routes" },
-    { "id": "live_health", "category": "deploy", "label": "Live production health" }
+    { "id": "live_health", "category": "deploy", "label": "Live production health" },
+    { "id": "password_reset", "category": "auth", "label": "Forgot / reset password (email + SMS)" }
   ],
   "projectFeatures": {
     "resumora": [
@@ -72,7 +73,8 @@
       "premium_interview_prep",
       "protected_ui",
       "api_routes",
-      "live_health"
+      "live_health",
+      "password_reset"
     ],
     "elegancyart": ["database", "api_routes", "live_health", "en_fr"],
     "ai-video-generator": ["database", "api_routes", "live_health", "post_payment"],
@@ -90,6 +92,10 @@
     "pages/api/stripe/payment-links.js",
     "pages/api/client/hub.js",
     "pages/api/essential-advanced/catalog.js",
-    "pages/api/runtime/database-health.js"
+    "pages/api/runtime/database-health.js",
+    "pages/api/engagement/password-reset/request.js",
+    "pages/api/engagement/password-reset/verify.js",
+    "pages/api/engagement/password-reset/complete.js",
+    "pages/api/engagement/password-reset/health.js"
   ]
 }

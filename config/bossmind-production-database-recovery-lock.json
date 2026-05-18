@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-18T10:21:23.719Z",
+  "generatedAt": "2026-05-18T10:34:10.654Z",
   "fullyOperational": false,
   "rootCause": "RENDER_ENV_MISSING_NEON_DATABASE_URL",
   "localBlockers": [],

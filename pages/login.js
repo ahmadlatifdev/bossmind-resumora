@@ -79,6 +79,11 @@ export default function LoginPage() {
               {t.loginSubmit}
             </button>
           </form>
+          <p style={{ marginTop: "0.75rem", fontSize: "0.9rem" }}>
+            <Link href="/forgot-password" className="rs-link-muted">
+              {t.loginForgotLink}
+            </Link>
+          </p>
           {error ? (
             <p role="alert" style={{ color: "#f0a8a8", marginTop: "0.75rem", fontSize: "0.9rem" }}>
               {error}

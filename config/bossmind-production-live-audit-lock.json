@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-18T10:43:17.076Z",
+  "fullyOperational": false,
+  "blockers": [
+    "resumora_live_database_offline",
+    "resumora_live_register_database_unavailable"
+  ],
+  "projects": [
+    {
+      "id": "resumora",
+      "databaseStatus": "DISCONNECTED"
+    },
+    {
+      "id": "elegancyart",
+      "databaseStatus": "NO_LIVE_URL"
+    },
+    {
+      "id": "ai-video-generator",
+      "databaseStatus": "NO_LIVE_URL"
+    },
+    {
+      "id": "tiktok-ai",
+      "databaseStatus": "NO_LIVE_URL"
+    },
+    {
+      "id": "global-stock",
+      "databaseStatus": "NO_LIVE_URL"
+    },
+    {
+      "id": "bossmind-master-admin",
+      "databaseStatus": "DISCONNECTED"
+    }
+  ]
+}

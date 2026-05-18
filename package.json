@@ -108,6 +108,8 @@
     "bossmind:production:full-recover": "node scripts/bossmind-production-full-recover.mjs",
     "bossmind:plans:deliverables:activate": "node scripts/bossmind-plans-deliverables-activate.mjs",
     "bossmind:production:database-recover": "node scripts/bossmind-production-database-recover.mjs",
+    "bossmind:production:live-audit": "node scripts/bossmind-production-live-audit.mjs",
+    "bossmind:production:live-audit:safe": "node scripts/bossmind-production-live-audit.mjs --apply-safe",
     "bossmind:activation:recover": "node scripts/bossmind-activation-recovery.mjs",
     "bossmind:activation:recover:safe": "node scripts/bossmind-activation-recovery.mjs --apply-safe",
     "bossmind:render:env-bundle": "node scripts/bossmind-render-env-bundle.mjs",

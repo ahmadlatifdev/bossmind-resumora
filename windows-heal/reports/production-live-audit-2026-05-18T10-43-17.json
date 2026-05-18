@@ -1,0 +1,332 @@
+{
+  "ok": true,
+  "fullyOperational": false,
+  "generatedAt": "2026-05-18T10:43:17.076Z",
+  "rootCause": "RENDER_ENV_MISSING_NEON_DATABASE_URL",
+  "authority": "Neon Postgres (@neondatabase/serverless); Prisma not used at app runtime",
+  "local": {
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "SUPABASE_DATABASE_URL"
+      ],
+      "reason": null
+    },
+    "providers": {
+      "email": {
+        "resend": false,
+        "smtp": false,
+        "configured": true
+      },
+      "sms": {
+        "twilio": false,
+        "configured": true
+      },
+      "devLog": true
+    },
+    "stripe": {
+      "secretKey": {
+        "present": true,
+        "formatOk": true
+      },
+      "publishableKey": {
+        "present": true,
+        "formatOk": true
+      },
+      "webhookSecret": {
+        "present": false,
+        "formatOk": false
+      },
+      "sandboxLiveConsistent": {
+        "consistent": true,
+        "mode": "test"
+      },
+      "priceIds": {
+        "basic": {
+          "configured": true,
+          "valid": true
+        },
+        "professional": {
+          "configured": true,
+          "valid": true
+        },
+        "elite": {
+          "configured": true,
+          "valid": true
+        },
+        "essential_advanced": {
+          "configured": true,
+          "valid": true
+        }
+      },
+      "pricingResolution": {
+        "plans": {
+          "basic": {
+            "planId": "basic",
+            "resolved": true,
+            "winningKey": "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+            "canonicalKey": "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+            "tried": [
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+                "status": "valid"
+              },
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_STARTER",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_BASIC",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ID_BASIC",
+                "status": "missing"
+              }
+            ]
+          },
+          "professional": {
+            "planId": "professional",
+            "resolved": true,
+            "winningKey": "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+            "canonicalKey": "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+            "tried": [
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+                "status": "valid"
+              },
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_PROFESSIONAL",
+                "status": "missing"
+              },
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_PRO",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_PROFESSIONAL",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ID_PRO",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ID_PROFESSIONAL",
+                "status": "missing"
+              }
+            ]
+          },
+          "elite": {
+            "planId": "elite",
+            "resolved": true,
+            "winningKey": "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+            "canonicalKey": "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+            "tried": [
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+                "status": "valid"
+              },
+              {
+                "key": "STRIPE_PRICE_ELITE",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ID_ELITE",
+                "status": "missing"
+              }
+            ]
+          },
+          "essential_advanced": {
+            "planId": "essential_advanced",
+            "resolved": true,
+            "winningKey": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+            "canonicalKey": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+            "tried": [
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+                "status": "valid"
+              },
+              {
+                "key": "NEXT_PUBLIC_STRIPE_PRICE_INTERVIEW_ADVANCED",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ESSENTIAL_ADVANCED",
+                "status": "missing"
+              },
+              {
+                "key": "STRIPE_PRICE_ID_ESSENTIAL_ADVANCED",
+                "status": "missing"
+              }
+            ]
+          }
+        },
+        "canonicalKeys": {
+          "basic": "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+          "professional": "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+          "elite": "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+          "essential_advanced": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED"
+        }
+      },
+      "checkoutReady": true,
+      "webhookSigningReady": false,
+      "financialPipelineReady": false
+    },
+    "register": true,
+    "login": true,
+    "passwordResetE2e": {
+      "ok": true,
+      "sessionRestored": true
+    }
+  },
+  "projects": [
+    {
+      "id": "resumora",
+      "displayName": "Resumora",
+      "origins": [
+        "https://www.resumora.net",
+        "https://resumora.net"
+      ],
+      "databaseStatus": "DISCONNECTED",
+      "liveProbes": [
+        {
+          "origin": "https://www.resumora.net",
+          "status": "DISCONNECTED",
+          "database": {
+            "ok": false,
+            "configured": false,
+            "reason": "no_database_url",
+            "source": null,
+            "orm": "neon-serverless",
+            "prismaAppRuntime": false,
+            "testLike": null
+          },
+          "register": {
+            "status": 503,
+            "error": "Database unavailable",
+            "reason": "no_database_url"
+          },
+          "passwordReset": null,
+          "healthStatus": 503,
+          "stripe": {
+            "checkoutReady": false,
+            "financialPipelineReady": false,
+            "mode": null
+          },
+          "recoveryHint": "Set NEON_DATABASE_URL and DATABASE_URL on Render, redeploy, then verify /api/health."
+        },
+        {
+          "origin": "https://resumora.net",
+          "status": "DISCONNECTED",
+          "database": {
+            "ok": false,
+            "configured": false,
+            "reason": "no_database_url",
+            "source": null,
+            "orm": "neon-serverless",
+            "prismaAppRuntime": false,
+            "testLike": null
+          },
+          "register": {
+            "status": 503,
+            "error": "Database unavailable",
+            "reason": "no_database_url"
+          },
+          "passwordReset": null,
+          "healthStatus": 503,
+          "stripe": {
+            "checkoutReady": false,
+            "financialPipelineReady": false,
+            "mode": null
+          },
+          "recoveryHint": "Set NEON_DATABASE_URL and DATABASE_URL on Render, redeploy, then verify /api/health."
+        }
+      ]
+    },
+    {
+      "id": "elegancyart",
+      "displayName": "ElegancyArt",
+      "origins": [],
+      "databaseStatus": "NO_LIVE_URL",
+      "liveProbes": []
+    },
+    {
+      "id": "ai-video-generator",
+      "displayName": "AI Video Generator",
+      "origins": [],
+      "databaseStatus": "NO_LIVE_URL",
+      "liveProbes": []
+    },
+    {
+      "id": "tiktok-ai",
+      "displayName": "TikTok AI",
+      "origins": [],
+      "databaseStatus": "NO_LIVE_URL",
+      "liveProbes": []
+    },
+    {
+      "id": "global-stock",
+      "displayName": "Global Stock",
+      "origins": [],
+      "databaseStatus": "NO_LIVE_URL",
+      "liveProbes": []
+    },
+    {
+      "id": "bossmind-master-admin",
+      "displayName": "BossMind Master Admin",
+      "origins": [
+        "https://www.resumora.net"
+      ],
+      "databaseStatus": "DISCONNECTED",
+      "liveProbes": [
+        {
+          "origin": "https://www.resumora.net",
+          "status": "DISCONNECTED",
+          "database": {
+            "ok": false,
+            "configured": false,
+            "reason": "no_database_url",
+            "source": null,
+            "orm": "neon-serverless",
+            "prismaAppRuntime": false,
+            "testLike": null
+          },
+          "register": {
+            "status": 503,
+            "error": "Database unavailable",
+            "reason": "no_database_url"
+          },
+          "passwordReset": null,
+          "healthStatus": 503,
+          "stripe": {
+            "checkoutReady": false,
+            "financialPipelineReady": false,
+            "mode": null
+          },
+          "recoveryHint": "Set NEON_DATABASE_URL and DATABASE_URL on Render, redeploy, then verify /api/health."
+        }
+      ]
+    }
+  ],
+  "blockers": [
+    "resumora_live_database_offline",
+    "resumora_live_register_database_unavailable"
+  ],
+  "remediation": [
+    "Paste .bossmind/render-production-env.env into Render → Environment (NEON_DATABASE_URL, DATABASE_URL, Stripe)",
+    "Configure RESEND_API_KEY or SMTP + TWILIO_* for production password reset delivery",
+    "Redeploy Resumora; verify GET /api/health database.ok:true",
+    "Set BOSSMIND_LIVE_URL_* env vars for sibling projects when URLs are known"
+  ]
+}

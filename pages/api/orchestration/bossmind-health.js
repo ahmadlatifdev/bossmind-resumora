@@ -289,11 +289,22 @@ export default async function handler(req, res) {
     }
     activationRecovery.apiPath = "/api/orchestration/bossmind-activation-recovery";
 
+    let productionLiveAudit = { lastAudit: null, runCommand: "npm run bossmind:production:live-audit" };
+    try {
+      const liveAuditPath = path.join(process.cwd(), "config/bossmind-production-live-audit-lock.json");
+      if (fs.existsSync(liveAuditPath)) {
+        productionLiveAudit.lastAudit = JSON.parse(fs.readFileSync(liveAuditPath, "utf8"));
+      }
+    } catch {
+      productionLiveAudit.loadError = "lock_unreadable";
+    }
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
       ts: Date.now(),
       activationRecovery,
+      productionLiveAudit,
       neonConfigured: neonOk,
       sharedMemoryHub,
       runtimeAuthority,

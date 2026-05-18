@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "name": "BossMind production live probe targets",
+  "envUrlKeys": {
+    "resumora": ["BOSSMIND_LIVE_URL_RESUMORA", "NEXT_PUBLIC_SITE_URL"],
+    "elegancyart": ["BOSSMIND_LIVE_URL_ELEGANCYART"],
+    "ai-video-generator": ["BOSSMIND_LIVE_URL_AI_VIDEO"],
+    "tiktok-ai": ["BOSSMIND_LIVE_URL_TIKTOK_AI"],
+    "global-stock": ["BOSSMIND_LIVE_URL_GLOBAL_STOCK"],
+    "bossmind-master-admin": ["BOSSMIND_LIVE_URL_MASTER_ADMIN"]
+  },
+  "defaultOrigins": {
+    "resumora": ["https://www.resumora.net", "https://resumora.net"],
+    "bossmind-master-admin": ["https://www.resumora.net"]
+  },
+  "probePaths": {
+    "health": "/api/health",
+    "databaseHealth": "/api/runtime/database-health",
+    "passwordResetHealth": "/api/engagement/password-reset/health",
+    "registerProbe": "/api/engagement/register"
+  },
+  "testDatabaseMarkers": ["localhost", "127.0.0.1", "_test", "staging", "dev-only"]
+}

@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-18T10:30:27.350Z",
+  "generatedAt": "2026-05-18T10:40:05.970Z",
   "overallHealthScore": 21,
   "projects": [
     {
       "id": "resumora",
-      "healthScore": 91,
-      "broken": 1
+      "healthScore": 86,
+      "broken": 2
     },
     {
       "id": "elegancyart",
