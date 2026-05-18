@@ -8,7 +8,9 @@
     { "id": "elegancyart", "displayName": "ElegancyArt", "frontend": "render", "backend": "railway", "productionUrl": null },
     { "id": "ai-video-generator", "displayName": "AI Video Generator", "frontend": "render", "backend": "railway", "productionUrl": null },
     { "id": "tiktok-ai", "displayName": "TikTok AI", "frontend": "render", "backend": "railway", "productionUrl": null },
-    { "id": "global-stock", "displayName": "Global Stock", "frontend": "render", "backend": "railway", "productionUrl": null }
+    { "id": "global-stock", "displayName": "Global Stock", "frontend": "render", "backend": "railway", "productionUrl": null },
+    { "id": "tiktok-ai", "displayName": "TikTok AI", "frontend": "render", "backend": "railway", "productionUrl": null },
+    { "id": "bossmind-master-admin", "displayName": "BossMind Master Admin", "frontend": "render", "backend": "railway", "productionUrl": null }
   ],
   "coreStack": {
     "neon": "shared memory database",

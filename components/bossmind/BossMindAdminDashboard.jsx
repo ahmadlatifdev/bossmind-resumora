@@ -31,6 +31,7 @@ export default function BossMindAdminDashboard() {
   const [hub, setHub] = useState(null);
   const [runtime, setRuntime] = useState(null);
   const [marketing, setMarketing] = useState(null);
+  const [activation, setActivation] = useState(null);
   const [projectKey, setProjectKey] = useState("resumora");
   const [shortcutLog, setShortcutLog] = useState("");
   const [error, setError] = useState("");
@@ -67,6 +68,7 @@ export default function BossMindAdminDashboard() {
       if (!hRes.ok) throw new Error(hJson.error || `health ${hRes.status}`);
       if (!cRes.ok) throw new Error(cJson.error || `core ${cRes.status}`);
       setHealth(hJson);
+      setActivation(hJson.activationRecovery?.lastScan || null);
       setCore(cJson.latest || null);
       setProduction(hJson.productionAutonomous?.lastReport || null);
       const rJson = await rRes.json();
@@ -80,6 +82,47 @@ export default function BossMindAdminDashboard() {
       setBusy(false);
     }
   }, [headers, projectKey]);
+
+  const runActivationRecovery = async (applySafe = false) => {
+    setError("");
+    setBusy(true);
+    setShortcutLog("");
+    try {
+      const r = await fetch("/api/orchestration/bossmind-activation-recovery", {
+        method: "POST",
+        headers: {
+          ...headers(),
+          "X-Bossmind-Writer-Agent": "recovery_agent",
+        },
+        body: JSON.stringify({
+          applySafe,
+          writerAgent: "recovery_agent",
+          notes: applySafe ? "master_admin_safe_apply" : "master_admin_scan",
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok && r.status !== 207) throw new Error(j.error || `activation ${r.status}`);
+      setShortcutLog(JSON.stringify(j, null, 2));
+      setActivation(
+        j.projects
+          ? {
+              generatedAt: j.generatedAt,
+              overallHealthScore: j.overallHealthScore,
+              projects: j.projects.map((p) => ({
+                id: p.projectId,
+                healthScore: p.healthScore,
+                displayName: p.displayName,
+              })),
+            }
+          : null
+      );
+      await load();
+    } catch (e) {
+      setError(e.message || "Activation recovery failed");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const runMarketingCycle = async () => {
     setError("");
@@ -295,6 +338,45 @@ export default function BossMindAdminDashboard() {
               </ul>
             </article>
           ) : null}
+
+          <article className={styles.card}>
+              <h3>Activation recovery (all projects)</h3>
+              {activation?.overallHealthScore != null ? (
+                <p className={`${styles.score} ${scoreClass(activation.overallHealthScore, target)}`}>
+                  {activation.overallHealthScore}%
+                </p>
+              ) : (
+                <p className={styles.scoreTarget}>Run scan to score all BossMind projects</p>
+              )}
+              {activation?.projects?.length ? (
+              <ul className={styles.projectList}>
+                {activation.projects.map((p) => (
+                  <li key={p.id}>
+                    <span>{p.displayName || p.id}</span>
+                    <span className={scoreClass(p.healthScore, 80)}>{p.healthScore}%</span>
+                  </li>
+                ))}
+              </ul>
+              ) : null}
+              <div className={styles.authRow}>
+                <button
+                  type="button"
+                  className={styles.btn}
+                  disabled={busy}
+                  onClick={() => runActivationRecovery(false)}
+                >
+                  Scan all projects
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.btnGhost}`}
+                  disabled={busy}
+                  onClick={() => runActivationRecovery(true)}
+                >
+                  Scan + safe fixes
+                </button>
+              </div>
+            </article>
 
           {health?.ultraAntileak?.lastLock ? (
             <article className={styles.card}>

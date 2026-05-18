@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "statuses": ["ACTIVE", "PARTIAL", "MISSING", "BROKEN"],
+  "safeAutoFixes": [
+    {
+      "id": "sync_hub_database_env",
+      "script": "bossmind-sync-hub-database-env.mjs",
+      "projects": ["resumora"],
+      "risk": "low"
+    },
+    {
+      "id": "sync_hub_stripe_prices",
+      "script": "bossmind-sync-hub-stripe-prices.mjs",
+      "projects": ["resumora"],
+      "risk": "low"
+    },
+    {
+      "id": "render_env_bundle",
+      "script": "bossmind-render-env-bundle.mjs",
+      "projects": ["resumora"],
+      "risk": "low"
+    }
+  ],
+  "escalationRequired": [
+    "render_env_apply",
+    "production_deploy",
+    "ui_redesign",
+    "pricing_change",
+    "database_schema_destructive",
+    "force_push",
+    "sibling_repo_code_edit"
+  ],
+  "protectedSurfaces": [
+    "config/bossmind-protected-ui-authority.json",
+    "docs/PROTECTED_COMPONENTS_REGISTRY.md"
+  ],
+  "writerAgent": "recovery_agent"
+}

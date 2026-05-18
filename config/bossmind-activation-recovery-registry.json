@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "name": "BossMind Missing/Partial Activation Auto-Recovery",
+  "projects": [
+    {
+      "id": "resumora",
+      "displayName": "Resumora",
+      "productionUrl": "https://www.resumora.net",
+      "repoRelativePath": ".",
+      "anchorRepo": true
+    },
+    {
+      "id": "elegancyart",
+      "displayName": "ElegancyArt",
+      "productionUrl": null,
+      "repoRelativePath": "bossmind-elegancyart"
+    },
+    {
+      "id": "ai-video-generator",
+      "displayName": "AI Video Generator",
+      "productionUrl": null,
+      "repoRelativePath": "bossmind-ai-video-generator"
+    },
+    {
+      "id": "tiktok-ai",
+      "displayName": "TikTok AI",
+      "productionUrl": null,
+      "repoRelativePath": "bossmind-tiktok-ai"
+    },
+    {
+      "id": "global-stock",
+      "displayName": "Global Stock",
+      "productionUrl": null,
+      "repoRelativePath": "bossmind-global-stock"
+    },
+    {
+      "id": "bossmind-master-admin",
+      "displayName": "BossMind Master Admin",
+      "productionUrl": null,
+      "repoRelativePath": "bossmind-master-admin",
+      "orchestrationHost": "resumora"
+    }
+  ],
+  "featureCatalog": [
+    { "id": "database", "category": "database", "label": "Neon database connectivity" },
+    { "id": "registration", "category": "auth", "label": "Registration API" },
+    { "id": "login_sessions", "category": "auth", "label": "Login & session persistence" },
+    { "id": "stripe_checkout", "category": "stripe", "label": "Stripe checkout" },
+    { "id": "stripe_webhooks", "category": "stripe", "label": "Stripe webhooks" },
+    { "id": "payment_links", "category": "stripe", "label": "Plan payment links" },
+    { "id": "post_payment", "category": "deliverables", "label": "Post-payment provisioning" },
+    { "id": "client_dashboard", "category": "deliverables", "label": "Client dashboard" },
+    { "id": "plans_four_tier", "category": "plans", "label": "Four-tier plans sync" },
+    { "id": "en_fr", "category": "i18n", "label": "EN/FR content" },
+    { "id": "premium_interview_prep", "category": "premium", "label": "Interview prep assets" },
+    { "id": "protected_ui", "category": "ui", "label": "Protected luxury UI lock" },
+    { "id": "api_routes", "category": "runtime", "label": "Critical API routes" },
+    { "id": "live_health", "category": "deploy", "label": "Live production health" }
+  ],
+  "projectFeatures": {
+    "resumora": [
+      "database",
+      "registration",
+      "login_sessions",
+      "stripe_checkout",
+      "stripe_webhooks",
+      "payment_links",
+      "post_payment",
+      "client_dashboard",
+      "plans_four_tier",
+      "en_fr",
+      "premium_interview_prep",
+      "protected_ui",
+      "api_routes",
+      "live_health"
+    ],
+    "elegancyart": ["database", "api_routes", "live_health", "en_fr"],
+    "ai-video-generator": ["database", "api_routes", "live_health", "post_payment"],
+    "tiktok-ai": ["database", "api_routes", "live_health"],
+    "global-stock": ["database", "api_routes", "live_health", "stripe_checkout"],
+    "bossmind-master-admin": ["api_routes", "database", "live_health"]
+  },
+  "resumoraCriticalRoutes": [
+    "pages/api/health.js",
+    "pages/api/engagement/register.js",
+    "pages/api/engagement/login.js",
+    "pages/api/checkout.js",
+    "pages/api/webhooks/stripe.js",
+    "pages/api/verify-session.js",
+    "pages/api/stripe/payment-links.js",
+    "pages/api/client/hub.js",
+    "pages/api/essential-advanced/catalog.js",
+    "pages/api/runtime/database-health.js"
+  ]
+}

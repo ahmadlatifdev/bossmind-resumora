@@ -278,10 +278,22 @@ export default async function handler(req, res) {
       autonomousMarketing = { enabled: false, error: e.message || String(e) };
     }
 
+    let activationRecovery = { lastScan: null, runCommand: "npm run bossmind:activation:recover" };
+    try {
+      const lockPath = path.join(process.cwd(), "config/bossmind-activation-recovery-lock.json");
+      if (fs.existsSync(lockPath)) {
+        activationRecovery.lastScan = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+      }
+    } catch {
+      activationRecovery.loadError = "lock_unreadable";
+    }
+    activationRecovery.apiPath = "/api/orchestration/bossmind-activation-recovery";
+
     return res.status(200).json({
       ok: blockers.length === 0 && audit.checkoutReady,
       project: "resumora",
       ts: Date.now(),
+      activationRecovery,
       neonConfigured: neonOk,
       sharedMemoryHub,
       runtimeAuthority,
