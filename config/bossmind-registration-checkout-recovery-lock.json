@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-18T03:32:47.795Z",
+  "ok": false,
+  "blockers": [
+    "Production database offline — set NEON_DATABASE_URL on Render (Web Service → Environment) to the same Neon branch URL, then redeploy",
+    "Live registration returns Database unavailable — Render env not wired to Neon",
+    "Payment links on production are Stripe TEST URLs — run bossmind:stripe:payment-links:apply with sk_live_* then redeploy lock manifest",
+    "Local Stripe checkout env incomplete (keys or price IDs)"
+  ],
+  "liveOrigin": "https://www.resumora.net",
+  "paymentLinkAudit": [
+    {
+      "planId": "basic",
+      "configured": true,
+      "mode": "test"
+    },
+    {
+      "planId": "essential_advanced",
+      "configured": true,
+      "mode": "test"
+    },
+    {
+      "planId": "professional",
+      "configured": true,
+      "mode": "test"
+    },
+    {
+      "planId": "elite",
+      "configured": true,
+      "mode": "test"
+    }
+  ]
+}

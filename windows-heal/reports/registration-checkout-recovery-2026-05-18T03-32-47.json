@@ -1,0 +1,88 @@
+{
+  "ok": false,
+  "generatedAt": "2026-05-18T03:32:47.795Z",
+  "liveOrigin": "https://www.resumora.net",
+  "local": {
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL"
+      ],
+      "reason": null
+    },
+    "databaseSource": "NEON_DATABASE_URL",
+    "register": {
+      "ok": true,
+      "error": null
+    },
+    "stripe": {
+      "checkoutReady": false,
+      "mode": "test"
+    }
+  },
+  "live": {
+    "health": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "env": "production",
+        "ts": 1779075167509,
+        "uptime": 24956.68292549,
+        "rss": 166309888,
+        "heapUsed": 46552832
+      }
+    },
+    "register": {
+      "status": 503,
+      "body": {
+        "error": "Database unavailable"
+      }
+    },
+    "paymentLinks": {
+      "status": 200,
+      "ok": true,
+      "planRoutes": [
+        {
+          "planId": "basic",
+          "configured": true,
+          "mode": "test"
+        },
+        {
+          "planId": "essential_advanced",
+          "configured": true,
+          "mode": "test"
+        },
+        {
+          "planId": "professional",
+          "configured": true,
+          "mode": "test"
+        },
+        {
+          "planId": "elite",
+          "configured": true,
+          "mode": "test"
+        }
+      ]
+    }
+  },
+  "blockers": [
+    "Production database offline — set NEON_DATABASE_URL on Render (Web Service → Environment) to the same Neon branch URL, then redeploy",
+    "Live registration returns Database unavailable — Render env not wired to Neon",
+    "Payment links on production are Stripe TEST URLs — run bossmind:stripe:payment-links:apply with sk_live_* then redeploy lock manifest",
+    "Local Stripe checkout env incomplete (keys or price IDs)"
+  ],
+  "renderRemediation": [
+    "Render Dashboard → resumora Web Service → Environment",
+    "Add NEON_DATABASE_URL = (Neon console → Connection string → pooled)",
+    "Optional duplicate: DATABASE_URL = same value",
+    "Ensure STRIPE_SECRET_KEY + NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY are live pair for production",
+    "Manual Deploy → Clear build cache & deploy",
+    "Verify: GET /api/health shows database.ok true",
+    "Verify: POST /api/engagement/register returns 201"
+  ]
+}

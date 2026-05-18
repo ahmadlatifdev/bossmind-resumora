@@ -1,6 +1,10 @@
 const { registerProfile, createSession } = require("../../../lib/engagement/store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");
-const { getSqlClient } = require("../../../lib/shared/neon-memory");
+const {
+  getSqlClient,
+  ensureEngagementSchema,
+  getDatabaseConfigStatus,
+} = require("../../../lib/shared/neon-memory");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,8 +12,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!getSqlClient()) {
-    return res.status(503).json({ error: "Database unavailable" });
+  const init = await ensureEngagementSchema();
+  if (!init.enabled || !getSqlClient()) {
+    const db = getDatabaseConfigStatus();
+    return res.status(503).json({
+      error: "Database unavailable",
+      reason: init.reason || db.source || "no_database_url",
+    });
   }
 
   const { email, password, displayName } = req.body || {};

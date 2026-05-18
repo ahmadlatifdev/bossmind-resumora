@@ -1,18 +1,31 @@
 /** Lightweight liveness probe for dev preview status / orchestration. */
 
-export default function handler(req, res) {
+const { probeDatabaseConnection } = require("../../lib/shared/neon-memory");
+const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
+
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ ok: false });
   }
 
   const mem = process.memoryUsage();
-  return res.status(200).json({
-    ok: true,
+  const database = await probeDatabaseConnection();
+  const stripe = auditStripeEnv();
+  const ok = database.ok;
+
+  return res.status(ok ? 200 : 503).json({
+    ok,
     env: process.env.NODE_ENV || "development",
     ts: Date.now(),
     uptime: process.uptime(),
     rss: mem.rss,
     heapUsed: mem.heapUsed,
+    database,
+    stripe: {
+      checkoutReady: stripe.checkoutReady,
+      financialPipelineReady: stripe.financialPipelineReady,
+      mode: stripe.sandboxLiveConsistent?.mode || null,
+    },
   });
 }

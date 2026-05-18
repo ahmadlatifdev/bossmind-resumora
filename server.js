@@ -8,6 +8,7 @@ const next = require("next");
 const {
   initializeSharedMemory,
   saveEvent,
+  probeDatabaseConnection,
 } = require("./lib/shared/neon-memory");
 const { indexScreenshots } = require("./lib/shared/screenshot-indexer");
 
@@ -51,8 +52,10 @@ app
     server.use(express.json({ limit: "10mb" }));
     server.use(express.urlencoded({ extended: true }));
 
-    server.get("/health", (_req, res) => {
-      res.status(200).json({ ok: true, service: "resumora" });
+    server.get("/health", async (_req, res) => {
+      const database = await probeDatabaseConnection();
+      const ok = database.ok;
+      res.status(ok ? 200 : 503).json({ ok, service: "resumora", database });
     });
 
     server.all("*splat", (req, res) => handle(req, res));

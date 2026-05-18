@@ -3,8 +3,12 @@
  * Ensure BossMind One Shared Memory tables + seed safety/marketing rules into Neon.
  */
 import { createRequire } from "module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+require(path.join(root, "lib/shared/load-project-env.js")).loadProjectEnv(root);
 const hub = require("../lib/shared/bossmind-hub-memory.js");
 const { initializeSharedMemory } = require("../lib/shared/neon-memory.js");
 const { seedRulesFromConfig, getHubStatus } = require("../lib/orchestration/bossmind-shared-memory-hub.js");
