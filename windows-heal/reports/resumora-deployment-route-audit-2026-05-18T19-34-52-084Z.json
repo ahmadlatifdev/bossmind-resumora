@@ -1,0 +1,400 @@
+{
+  "generatedAt": "2026-05-18T19:34:51.786Z",
+  "brandingAssetVersion": "20260517-rs5-official-jpg",
+  "activeDeployedCommitId": "a952a7fcfd6e0507bda35e9e2515dbc703f23cb5",
+  "activeProductionRoutes": {
+    "homepage": "pages/index.js → components/marketing/HomePage.jsx",
+    "pricingPage": "pages/pricing.js → components/marketing/sections/PricingPanel.jsx",
+    "pricingSection": "components/marketing/sections/PricingPanel.jsx",
+    "siteChrome": "components/marketing/SiteChrome.js (InstallPrompt)",
+    "pwaPopup": "components/marketing/InstallPrompt.jsx",
+    "trustStub": "components/marketing/sections/TrustMetricsPanel.jsx (no-op)",
+    "plansData": "lib/marketing/site-copy.js → pricingPlans"
+  },
+  "repoSourceValidation": {
+    "homeImportsTrustPanel": false,
+    "trustPanelIsNoOp": true,
+    "essentialAdvancedInSiteCopy": true,
+    "planOrderImage2": true,
+    "luxuryV1SnapshotStillHasTrust": false
+  },
+  "stringScanHits": [
+    {
+      "file": "components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": "components/marketing/LanguageSwitcher.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-activation-recovery-registry.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-elegancyart-stack.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-production-autonomous.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-stripe-payment-links-catalog.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-ultra-antileak-policy.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-ultra-antileak-policy.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/resumora-client-deliverables.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/resumora-google-business-profile-checklist.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/resumora-organic-marketing.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/resumora-stripe-payment-links-lock.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/essential-advanced/interview-prep-content.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/essential-advanced/video-delivery.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/google-organic-engine.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/legal-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/resumora-deepseek-seo-brain.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/resumora-google-traffic-engine-lib.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/seo-config.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/seo-data.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": "lib/marketing/social-growth-engine.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/marketing/weekly-organic-bundle.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/orchestration/bossmind-autonomous-validation-engine.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "lib/orchestration/bossmind-ultra-antileak-lib.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "windows-heal/reports/activation-recovery-2026-05-18T10-30-27.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/activation-recovery-2026-05-18T10-35-08.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/activation-recovery-2026-05-18T10-40-05.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/activation-recovery-2026-05-18T10-48-47.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/activation-recovery-2026-05-18T11-02-10.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/bossmind-brand-authority-scan-2026-05-17T19-04-59-163Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/bossmind-brand-authority-scan-2026-05-17T19-06-34-268Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/bossmind-brand-authority-scan-2026-05-17T19-07-59-813Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/bossmind-seo-ai-visibility-audit.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T20-59-26.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T21-52-01.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T23-24-32.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/chrome-bookmark-consolidation-2026-05-14T23-26-49.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "ATS+"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "windows-heal/reports/resumora-deployment-route-audit-2026-05-16T23-08-42-972Z.json",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": "windows-heal/reports/resumora-gbp-visibility-audit-latest.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-ecosystem-audit-2026-05-16T03-17-36-054Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-ecosystem-audit-2026-05-16T03-18-10-566Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/resumora-google-traffic-engine-2026-05-16T22-31-13-209Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/stripe-brand-sync-2026-05-17T19-03-12-984Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/stripe-brand-sync-2026-05-17T19-04-20-245Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/stripe-brand-sync-2026-05-17T19-04-57-707Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/reports/stripe-brand-sync-2026-05-17T19-05-50-877Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/stripe-payment-links/payment-links-2026-05-17T20-22-20-593Z.json",
+      "string": "EN/FR"
+    },
+    {
+      "file": "windows-heal/stripe-payment-links/payment-links-2026-05-17T20-23-47-806Z.json",
+      "string": "EN/FR"
+    }
+  ],
+  "snapshotArchiveHits": [
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/LanguageSwitcher.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-ultra-antileak-policy.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/config/bossmind-ultra-antileak-policy.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/luxury-v1/lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/components/marketing/HomePage.jsx",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "ATS+"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "Secure checkout"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "Greenhouse · Lever"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-hero-approved-v2/lib/marketing/site-copy.js",
+      "string": "Install Resumora for faster access"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-production-approved-v1/components/marketing/MinimalAppChrome.js",
+      "string": "EN/FR"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-production-approved-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Trust at a glance"
+    },
+    {
+      "file": "config/bossmind-baseline-snapshots/resumora-production-approved-v1/config/bossmind-protected-ui-authority.json",
+      "string": "Greenhouse · Lever"
+    }
+  ],
+  "liveProbe": {
+    "/": {
+      "status": 200,
+      "trustAtAGlance": false,
+      "trustPanel": false,
+      "essentialAdvanced": true,
+      "pricingMarker": false,
+      "deployUiMeta": "20260517-rs5-official-jpg",
+      "tierCount": 4,
+      "deployMeta": "20260517-rs5-official-jpg"
+    },
+    "/pricing": {
+      "status": 200,
+      "trustAtAGlance": false,
+      "trustPanel": false,
+      "essentialAdvanced": true,
+      "pricingMarker": false,
+      "deployUiMeta": "20260517-rs5-official-jpg",
+      "tierCount": 4,
+      "deployMeta": "20260517-rs5-official-jpg"
+    }
+  },
+  "runtimeChecksum": "3177db5425750a65815beef9538a40292025c83ae3da1b00d6f68a3e14a0e242",
+  "rootCauseHints": [
+    "Client PWA may cache old HTML until service worker updates to network-first + new CACHE name",
+    "User browser hard refresh / uninstall PWA required if live probe passes but screenshots show old UI"
+  ]
+}
