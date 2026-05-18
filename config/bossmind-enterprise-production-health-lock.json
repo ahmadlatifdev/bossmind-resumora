@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-18T10:48:52.089Z",
+  "generatedAt": "2026-05-18T11:02:15.000Z",
   "fullyOperational": false,
   "liveProductionReady": false,
   "rootCause": "RENDER_ENV_MISSING_NEON_DATABASE_URL",
@@ -20,6 +20,14 @@
     { "id": "tiktok-ai", "liveDatabase": "NO_LIVE_URL" },
     { "id": "global-stock", "liveDatabase": "NO_LIVE_URL" }
   ],
+  "envAudit": {
+    "NEON_DATABASE_URL": "SET_LOCAL_ONLY",
+    "DATABASE_URL": "SET_LOCAL_ONLY",
+    "STRIPE_SECRET_KEY": "SET_LOCAL",
+    "STRIPE_WEBHOOK_SECRET": "MISSING",
+    "RENDER_API_KEY": "MISSING",
+    "RENDER_SERVICE_ID": "MISSING"
+  },
   "renderBundlePath": ".bossmind/render-production-env.env",
   "renderApiReady": false,
   "checkpointKey": "production_live_validation",
@@ -27,7 +35,7 @@
   "remediation": [
     "Paste .bossmind/render-production-env.env into Render → Environment",
     "Add STRIPE_WEBHOOK_SECRET from Stripe Dashboard if missing in bundle",
-    "Clear build cache and redeploy",
+    "Clear build cache and redeploy latest main",
     "Verify https://www.resumora.net/api/health returns database.ok true",
     "Optional: set RENDER_API_KEY + RENDER_SERVICE_ID then npm run bossmind:render:env-sync -- --apply"
   ]
