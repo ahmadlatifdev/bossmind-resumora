@@ -3,10 +3,12 @@ const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
 const {
   hasEntitlement,
-  listProgress,
   PLAN_ESSENTIAL_ADVANCED,
 } = require("../../../lib/client/entitlements-store");
-const { getInterviewPrepCatalog } = require("../../../lib/essential-advanced/interview-prep-content");
+const {
+  resolveProtectedVideoDelivery,
+  getVideoModule,
+} = require("../../../lib/essential-advanced/video-delivery");
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -14,7 +16,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const videoId = String(req.query.videoId || "").trim();
   const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
+
+  if (!videoId || !getVideoModule(videoId)) {
+    return res.status(400).json({ ok: false, error: "invalid_video_id" });
+  }
 
   try {
     await ensureEngagementSchema();
@@ -25,34 +32,22 @@ export default async function handler(req, res) {
       return res.status(403).json({
         ok: false,
         error: "not_entitled",
-        hint: "Purchase Essential Advanced to unlock interview preparation materials.",
+        hint: "Essential Advanced plan required for premium interview videos.",
       });
     }
 
     if (!actor.profileId) {
-      return res.status(401).json({
-        ok: false,
-        error: "sign_in_required",
-        hint: "Create an account or sign in to access your studio.",
-      });
+      return res.status(401).json({ ok: false, error: "sign_in_required" });
     }
 
-    const progress = await listProgress(actor.profileId);
-    const completed = new Set(progress.filter((p) => p.completed).map((p) => p.asset_key));
+    const delivery = resolveProtectedVideoDelivery(videoId, lang);
+    if (!delivery) {
+      return res.status(404).json({ ok: false, error: "video_not_found" });
+    }
 
-    return res.status(200).json({
-      ok: true,
-      lang,
-      catalog: getInterviewPrepCatalog(lang),
-      progress: progress.map((p) => ({
-        assetKey: p.asset_key,
-        completed: p.completed,
-        updatedAt: p.updated_at,
-      })),
-      completedCount: completed.size,
-      totalAssets: getInterviewPrepCatalog(lang).assetKeys.length,
-    });
+    res.setHeader("Cache-Control", "private, no-store");
+    return res.status(200).json(delivery);
   } catch (e) {
-    return res.status(500).json({ error: e.message || "Server error" });
+    return res.status(500).json({ ok: false, error: e.message || "Server error" });
   }
 }

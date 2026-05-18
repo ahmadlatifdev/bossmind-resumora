@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "planId": "essential_advanced",
+  "hosting": "youtube-nocookie-gated",
+  "deliveryApi": "/api/essential-advanced/video",
+  "videos": [
+    {
+      "id": "video_star_mastery",
+      "durationMin": 12,
+      "title": {
+        "en": "STAR Method Mastery for Behavioral Interviews",
+        "fr": "Maîtrise STAR pour entretiens comportementaux"
+      },
+      "summary": {
+        "en": "Structure Situation–Task–Action–Result answers with executive clarity.",
+        "fr": "Structurez Situation–Tâche–Action–Résultat avec clarté exécutive."
+      },
+      "sources": {
+        "en": { "youtubeId": "OYNgoVxOVLk", "provider": "youtube-nocookie" },
+        "fr": {
+          "youtubeId": "OYNgoVxOVLk",
+          "fallbackYoutubeId": "EqFZZGiI0TA",
+          "embedLocale": "fr",
+          "provider": "youtube-nocookie"
+        }
+      }
+    },
+    {
+      "id": "video_executive_presence",
+      "durationMin": 15,
+      "title": {
+        "en": "Executive Presence & First-Impression Control",
+        "fr": "Présence exécutive et contrôle de la première impression"
+      },
+      "summary": {
+        "en": "Calibrate tone, pacing, and authority signals for senior panels.",
+        "fr": "Calibrez ton, rythme et signaux d'autorité pour jurys seniors."
+      },
+      "sources": {
+        "en": { "youtubeId": "kZiG95XFcBk", "provider": "youtube-nocookie" },
+        "fr": {
+          "youtubeId": "kZiG95XFcBk",
+          "fallbackYoutubeId": "xO2E_F_GZjg",
+          "embedLocale": "fr",
+          "provider": "youtube-nocookie"
+        }
+      }
+    },
+    {
+      "id": "video_negotiation_close",
+      "durationMin": 14,
+      "title": {
+        "en": "Closing Questions, Objections & Offer Conversations",
+        "fr": "Questions de clôture, objections et négociation d'offre"
+      },
+      "summary": {
+        "en": "Handle compensation, scope, and timeline discussions professionally.",
+        "fr": "Gérez rémunération, périmètre et délais avec professionnalisme."
+      },
+      "sources": {
+        "en": { "youtubeId": "EqFZZGiI0TA", "provider": "youtube-nocookie" },
+        "fr": {
+          "youtubeId": "EqFZZGiI0TA",
+          "fallbackYoutubeId": "xO2E_F_GZjg",
+          "embedLocale": "fr",
+          "provider": "youtube-nocookie"
+        }
+      }
+    }
+  ]
+}

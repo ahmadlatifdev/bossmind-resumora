@@ -1,0 +1,10 @@
+{
+  "lockedAt": "2026-05-18T09:55:39.929Z",
+  "memoryType": "ESSENTIAL_ADVANCED_PREMIUM_VIDEOS_LIVE",
+  "videoCount": 3,
+  "bilingualEnFr": true,
+  "delivery": "youtube-nocookie-gated-api",
+  "manifestHash": "6e216a20a30ebf965cc93eee16e99105a0075e4d1dabd9359922606f700f5921",
+  "probesOk": true,
+  "notes": "local-video-delivery-v2"
+}

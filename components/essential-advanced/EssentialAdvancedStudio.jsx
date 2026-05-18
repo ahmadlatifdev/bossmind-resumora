@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { translations } from "@/lib/marketing/site-copy";
+import ProtectedVideoPlayer from "@/components/essential-advanced/ProtectedVideoPlayer";
 
 function pct(completed, total) {
   if (!total) return 0;
@@ -154,15 +155,7 @@ export default function EssentialAdvancedStudio({ lang }) {
           <div className="rs-ea-video-grid">
             {catalog.videos.map((v) => (
               <article key={v.id} className="rs-ea-card">
-                <div className="rs-ea-video-embed">
-                  <iframe
-                    title={v.title[L]}
-                    src={`https://www.youtube-nocookie.com/embed/${v.youtubeId}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  />
-                </div>
+                <ProtectedVideoPlayer videoId={v.id} lang={lang} title={v.title[L]} />
                 <h3>{v.title[L]}</h3>
                 <p>{v.summary[L]}</p>
                 <label className="rs-ea-check">

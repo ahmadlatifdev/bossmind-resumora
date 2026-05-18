@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "liveOk": false,
+  "generatedAt": "2026-05-18T09:55:39.929Z",
+  "manifestCheck": {
+    "ok": true,
+    "videoCount": 3,
+    "manifestHash": "6e216a20a30ebf965cc93eee16e99105a0075e4d1dabd9359922606f700f5921",
+    "errors": []
+  },
+  "probes": {
+    "ok": true,
+    "count": 9
+  },
+  "localApi": {
+    "ok": true,
+    "deliveries": [
+      {
+        "videoId": "video_star_mastery",
+        "lang": "en",
+        "ok": true,
+        "hasFallback": false
+      },
+      {
+        "videoId": "video_star_mastery",
+        "lang": "fr",
+        "ok": true,
+        "hasFallback": true
+      },
+      {
+        "videoId": "video_executive_presence",
+        "lang": "en",
+        "ok": true,
+        "hasFallback": false
+      },
+      {
+        "videoId": "video_executive_presence",
+        "lang": "fr",
+        "ok": true,
+        "hasFallback": true
+      },
+      {
+        "videoId": "video_negotiation_close",
+        "lang": "en",
+        "ok": true,
+        "hasFallback": false
+      },
+      {
+        "videoId": "video_negotiation_close",
+        "lang": "fr",
+        "ok": true,
+        "hasFallback": true
+      }
+    ],
+    "entitled": true
+  },
+  "live": {
+    "origin": "https://www.resumora.net",
+    "databaseOk": false,
+    "videoApiStatus": 404
+  },
+  "localBlockers": [],
+  "liveBlockers": [
+    "live_database_offline",
+    "live_video_api_unreachable"
+  ],
+  "manifestHash": "6e216a20a30ebf965cc93eee16e99105a0075e4d1dabd9359922606f700f5921"
+}
