@@ -4,6 +4,7 @@ require("../../lib/shared/ensure-project-env");
 const { probeDatabaseConnection } = require("../../lib/shared/neon-memory");
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 const { auditPlansRuntime } = require("../../lib/shared/plans-runtime-sync");
+const { databaseRecoveryHint } = require("../../lib/shared/database-resilience");
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -37,5 +38,7 @@ export default async function handler(req, res) {
       allPaymentLinks: plans.allPaymentLinks,
       plans: plans.plans,
     },
+    recoveryHint: ok ? null : databaseRecoveryHint(database.reason),
+    monitoring: "/api/runtime/database-health",
   });
 }

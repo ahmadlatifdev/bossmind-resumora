@@ -2,11 +2,7 @@ require("../../../lib/shared/ensure-project-env");
 const { loginProfile, createSession } = require("../../../lib/engagement/store");
 const { linkEntitlementsToProfile } = require("../../../lib/client/entitlements-store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");
-const {
-  getSqlClient,
-  ensureEngagementSchema,
-  getDatabaseConfigStatus,
-} = require("../../../lib/shared/neon-memory");
+const { requireDatabaseReady } = require("../../../lib/shared/require-database");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -14,13 +10,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const init = await ensureEngagementSchema();
-  if (!init.enabled || !getSqlClient()) {
-    const db = getDatabaseConfigStatus();
-    return res.status(503).json({
-      error: "Database unavailable",
-      reason: init.reason || db.source || "no_database_url",
-    });
+  const dbGate = await requireDatabaseReady();
+  if (!dbGate.ok) {
+    return res.status(dbGate.status).json(dbGate.body);
   }
 
   const { email, password } = req.body || {};

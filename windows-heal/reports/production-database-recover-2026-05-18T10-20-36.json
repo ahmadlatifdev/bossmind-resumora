@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "fullyOperational": false,
+  "generatedAt": "2026-05-18T10:20:36.404Z",
+  "rootCause": "RENDER_ENV_MISSING_NEON_DATABASE_URL",
+  "authority": "Neon Postgres via @neondatabase/serverless (no Prisma app ORM)",
+  "local": {
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "SUPABASE_DATABASE_URL"
+      ],
+      "reason": null
+    },
+    "plans": {
+      "ok": true
+    },
+    "register": true,
+    "login": true,
+    "relogin": true,
+    "entitlements": true
+  },
+  "live": {
+    "origin": "https://www.resumora.net",
+    "health": {
+      "status": 503,
+      "database": {
+        "ok": false,
+        "configured": false,
+        "source": null,
+        "checkedKeys": [
+          "NEON_DATABASE_URL",
+          "DATABASE_URL",
+          "POSTGRES_URL",
+          "POSTGRES_PRISMA_URL"
+        ],
+        "reason": "no_database_url"
+      }
+    },
+    "databaseHealth": {
+      "status": 404,
+      "body": {}
+    },
+    "register": {
+      "status": 503,
+      "error": "Database unavailable",
+      "reason": "database_url_missing"
+    },
+    "paymentLinks": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "localBlockers": [],
+  "liveBlockers": [
+    "live_database_offline",
+    "live_register_database_unavailable"
+  ],
+  "remediation": [
+    "Paste .bossmind/render-production-env.env into Render → Environment",
+    "Set NEON_DATABASE_URL + DATABASE_URL (same Neon connection string)",
+    "Redeploy with build cache cleared",
+    "Verify GET /api/health returns database.ok:true"
+  ]
+}

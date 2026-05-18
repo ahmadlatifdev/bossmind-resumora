@@ -65,7 +65,9 @@ export default function RegisterPage({ initialPlan = null }) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       if (data.error === "email_in_use") setError(t.errEmailInUse);
-      else setError(typeof data.error === "string" ? data.error : t.errRegisterGeneric);
+      else if (data.error === "Database unavailable" && data.recoveryHint) {
+        setError(`${t.errRegisterGeneric} (${data.recoveryHint})`);
+      } else setError(typeof data.error === "string" ? data.error : t.errRegisterGeneric);
       return;
     }
     trackGa4("sign_up", { method: "engagement_register" });
