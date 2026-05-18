@@ -20,7 +20,7 @@ export default function SuccessPage() {
 
   /** Per-session verify result — avoids stale state when `session_id` query changes. */
   const [bySession, setBySession] = useState(
-    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; essentialAdvanced?: boolean }>} */ ({})
+    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; planId?: string; studioPath?: string }>} */ ({})
   );
 
   useEffect(() => {
@@ -34,7 +34,8 @@ export default function SuccessPage() {
           ...prev,
           [sid]: {
             status: data.valid ? "success" : "invalid",
-            essentialAdvanced: Boolean(data.essentialAdvanced),
+            planId: data.planId || null,
+            studioPath: data.studioPath || data.clientHubPath || "/studio",
           },
         }));
       })
@@ -47,7 +48,8 @@ export default function SuccessPage() {
   }, [router.isReady, sid]);
 
   const remote = sid ? bySession[sid]?.status ?? "pending" : "invalid";
-  const essentialAdvanced = sid ? Boolean(bySession[sid]?.essentialAdvanced) : false;
+  const paidPlanId = sid ? bySession[sid]?.planId : null;
+  const studioPath = sid ? bySession[sid]?.studioPath || "/studio" : "/studio";
 
   const status = !router.isReady
     ? "loading"
@@ -77,12 +79,19 @@ export default function SuccessPage() {
               <h1>{t.successPaymentTitle}</h1>
               <p>{t.successThanks}</p>
               <p>{t.successVerified}</p>
-              {essentialAdvanced ? (
+              {paidPlanId ? (
                 <>
-                  <p className="rs-success-ea-hint">{t.successEaStudioHint}</p>
+                  <p className="rs-success-ea-hint">
+                    {paidPlanId === "essential_advanced" ? t.successEaStudioHint : t.successClientHubHint}
+                  </p>
                   <p>
-                    <Link href="/studio/essential-advanced" className="rs-btn-accent">
-                      {t.successEaStudioCta}
+                    <Link href={studioPath} className="rs-btn-accent">
+                      {paidPlanId === "essential_advanced" ? t.successEaStudioCta : t.successClientHubCta}
+                    </Link>
+                  </p>
+                  <p>
+                    <Link href="/studio" className="rs-link-muted">
+                      {t.successClientHubCta}
                     </Link>
                   </p>
                 </>

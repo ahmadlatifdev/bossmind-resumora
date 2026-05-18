@@ -4,7 +4,7 @@ const {
   hasEntitlement,
   listProgress,
   PLAN_ESSENTIAL_ADVANCED,
-} = require("../../../lib/essential-advanced/entitlements-store");
+} = require("../../../lib/client/entitlements-store");
 const { getInterviewPrepCatalog } = require("../../../lib/essential-advanced/interview-prep-content");
 
 export default async function handler(req, res) {

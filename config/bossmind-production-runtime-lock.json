@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-18T03:51:38.622Z",
+  "ok": false,
+  "blockers": [
+    "Local Stripe checkout env incomplete",
+    "Live database offline (set NEON_DATABASE_URL on Render)",
+    "Live registration blocked",
+    "Live Stripe payment link for basic is TEST mode"
+  ],
+  "liveOrigin": "https://www.resumora.net"
+}

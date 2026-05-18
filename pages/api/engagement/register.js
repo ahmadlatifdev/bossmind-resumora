@@ -1,5 +1,5 @@
 const { registerProfile, createSession } = require("../../../lib/engagement/store");
-const { linkEntitlementsToProfile } = require("../../../lib/essential-advanced/entitlements-store");
+const { linkEntitlementsToProfile } = require("../../../lib/client/entitlements-store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");
 const {
   getSqlClient,

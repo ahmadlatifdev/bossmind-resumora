@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "plans": {
+    "basic": {
+      "displayName": { "en": "Essential Foundation", "fr": "Fondation essentielle" },
+      "studioPath": "/studio",
+      "welcomeAssetId": "welcome_basic",
+      "features": {
+        "en": ["Résumé intake confirmed", "ATS export guidance", "Concierge follow-up within 24h"],
+        "fr": ["Intake CV confirmé", "Guide export ATS", "Suivi concierge sous 24 h"]
+      }
+    },
+    "professional": {
+      "displayName": { "en": "Professional Career Package", "fr": "Forfait carrière professionnel" },
+      "studioPath": "/studio",
+      "welcomeAssetId": "welcome_professional",
+      "features": {
+        "en": ["Priority strategist queue", "Storyline + keyword scaffold", "Cover letter alignment"],
+        "fr": ["File stratège prioritaire", "Storyline + mots-clés", "Alignement lettre"]
+      }
+    },
+    "elite": {
+      "displayName": { "en": "Executive Career Package", "fr": "Forfait carrière exécutif" },
+      "studioPath": "/studio",
+      "welcomeAssetId": "welcome_elite",
+      "features": {
+        "en": ["Executive narrative review", "LinkedIn relaunch brief", "Recorded rehearsal slot"],
+        "fr": ["Revue narrative exécutive", "Brief LinkedIn", "Créneau répétition enregistrée"]
+      }
+    },
+    "essential_advanced": {
+      "displayName": { "en": "Essential Advanced", "fr": "Essential Avancé" },
+      "studioPath": "/studio/essential-advanced",
+      "welcomeAssetId": "welcome_essential_advanced",
+      "features": {
+        "en": ["Full interview studio (videos, simulations, Q&A)", "Secure downloads EN/FR", "Progress tracking"],
+        "fr": ["Studio entretien complet", "Téléchargements sécurisés EN/FR", "Suivi progression"]
+      }
+    }
+  },
+  "serviceKeyToPlanId": {
+    "essential_foundation": "basic",
+    "professional_career": "professional",
+    "executive_career": "elite",
+    "essential_career": "essential_advanced"
+  }
+}

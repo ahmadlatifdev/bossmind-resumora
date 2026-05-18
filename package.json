@@ -103,6 +103,8 @@
     "bossmind:stripe:payment-links:apply": "node scripts/bossmind-stripe-payment-links-provision.mjs --apply",
     "bossmind:stripe:payment-links:verify": "node scripts/bossmind-stripe-payment-links-verify.mjs",
     "bossmind:registration-checkout:recover": "node scripts/bossmind-registration-checkout-recovery.mjs",
+    "bossmind:production-runtime:activate": "node scripts/bossmind-production-runtime-activate.mjs",
+    "bossmind:render:env-sync": "node scripts/bossmind-render-production-env-sync.mjs",
     "bossmind:sync:hub-database-env": "node scripts/bossmind-sync-hub-database-env.mjs",
     "bossmind:shared-memory:ensure": "node scripts/bossmind-shared-memory-ensure.mjs",
     "bossmind:shared-memory:shortcut": "node scripts/bossmind-shared-memory-shortcut.mjs",

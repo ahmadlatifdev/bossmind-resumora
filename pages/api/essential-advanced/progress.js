@@ -4,7 +4,7 @@ const {
   hasEntitlement,
   upsertProgress,
   PLAN_ESSENTIAL_ADVANCED,
-} = require("../../../lib/essential-advanced/entitlements-store");
+} = require("../../../lib/client/entitlements-store");
 const { allAssetKeys } = require("../../../lib/essential-advanced/interview-prep-content");
 
 export default async function handler(req, res) {
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "GET") {
-      const { listProgress } = require("../../../lib/essential-advanced/entitlements-store");
+      const { listProgress } = require("../../../lib/client/entitlements-store");
       const rows = await listProgress(actor.profileId);
       return res.status(200).json({ ok: true, progress: rows });
     }

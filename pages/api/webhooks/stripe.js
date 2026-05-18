@@ -9,7 +9,8 @@ const {
   ensureEngagementSchema,
   getSqlClient,
 } = require("../../../lib/shared/neon-memory");
-const { fulfillStripeCheckoutSession } = require("../../../lib/essential-advanced/entitlements-store");
+const { fulfillStripeCheckoutSession } = require("../../../lib/client/entitlements-store");
+const { provisionAfterPayment } = require("../../../lib/client/post-purchase-provision");
 
 export const config = {
   api: {
@@ -64,9 +65,12 @@ export default async function handler(req, res) {
 
   if (event.type === "checkout.session.completed") {
     try {
-      await fulfillStripeCheckoutSession(event.data.object);
+      const grant = await fulfillStripeCheckoutSession(event.data.object);
+      if (grant?.ok) {
+        await provisionAfterPayment(event.data.object, grant);
+      }
     } catch (e) {
-      console.error("essential_advanced fulfillment:", e.message);
+      console.error("checkout fulfillment:", e.message);
     }
   }
 

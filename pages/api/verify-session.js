@@ -3,8 +3,9 @@ const { getSqlClient, saveEvent, ensureEngagementSchema } = require("../../lib/s
 const {
   fulfillStripeCheckoutSession,
   resolvePlanIdFromStripeSession,
-  PLAN_ESSENTIAL_ADVANCED,
-} = require("../../lib/essential-advanced/entitlements-store");
+} = require("../../lib/client/entitlements-store");
+const { provisionAfterPayment } = require("../../lib/client/post-purchase-provision");
+const { getDeliverableForPlan } = require("../../lib/client/deliverables-catalog");
 
 function bossmindProjectKey() {
   return process.env.BOSSMIND_PROJECT_KEY || "resumora";
@@ -34,6 +35,9 @@ export default async function handler(req, res) {
       fulfillment = await fulfillStripeCheckoutSession(session).catch(() => ({
         ok: false,
       }));
+      if (fulfillment?.ok) {
+        await provisionAfterPayment(session, fulfillment).catch(() => {});
+      }
 
       const eventKey = `checkout:${session.id}`;
       const sql = getSqlClient();
@@ -66,11 +70,14 @@ export default async function handler(req, res) {
       }
     }
 
+    const deliverable = planId ? getDeliverableForPlan(planId) : null;
+
     res.status(200).json({
       valid,
       planId,
-      essentialAdvanced: planId === PLAN_ESSENTIAL_ADVANCED,
-      studioPath: planId === PLAN_ESSENTIAL_ADVANCED ? "/studio/essential-advanced" : null,
+      essentialAdvanced: planId === "essential_advanced",
+      studioPath: deliverable?.studioPath || (planId ? "/studio" : null),
+      clientHubPath: "/studio",
       fulfillmentOk: fulfillment?.ok === true,
     });
   } catch {

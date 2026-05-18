@@ -1,5 +1,7 @@
 const { loadProjectEnv } = require("./lib/shared/load-project-env");
+const { bootstrapProductionRuntime } = require("./lib/shared/production-runtime-bootstrap");
 loadProjectEnv();
+bootstrapProductionRuntime();
 
 const path = require("path");
 const { spawn } = require("child_process");

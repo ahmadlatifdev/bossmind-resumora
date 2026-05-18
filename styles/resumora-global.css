@@ -4748,3 +4748,54 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     font-size: 0.82rem;
   }
 }
+
+/* Client hub — all purchased plans */
+.rs-client-hub-wrap {
+  max-width: min(1000px, 100%);
+  margin-inline: auto;
+}
+
+.rs-client-hub-header h1 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.rs-client-hub-lead,
+.rs-client-hub-email {
+  color: var(--rs-text-secondary);
+}
+
+.rs-client-hub-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.rs-client-hub-card {
+  background: var(--rs-bg-card);
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-md);
+  padding: 1rem;
+  box-shadow: var(--rs-shadow-card);
+}
+
+.rs-client-hub-features {
+  margin: 0.75rem 0;
+  padding-left: 1.1rem;
+  color: var(--rs-text-secondary);
+  font-size: 0.9rem;
+}
+
+.rs-client-hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .rs-client-hub-actions .rs-btn-accent,
+  .rs-client-hub-actions .rs-btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+}

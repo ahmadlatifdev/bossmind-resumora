@@ -3,7 +3,7 @@ const { ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
 const {
   hasEntitlement,
   PLAN_ESSENTIAL_ADVANCED,
-} = require("../../../lib/essential-advanced/entitlements-store");
+} = require("../../../lib/client/entitlements-store");
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
