@@ -52,4 +52,12 @@ if (!found) {
 }
 
 upsertEnvLine(target, "NEON_DATABASE_URL", found.url);
-console.log(JSON.stringify({ ok: true, target: ".env.local", source: found.source, key: "NEON_DATABASE_URL" }));
+upsertEnvLine(target, "DATABASE_URL", found.url);
+console.log(
+  JSON.stringify({
+    ok: true,
+    target: ".env.local",
+    source: found.source,
+    keys: ["NEON_DATABASE_URL", "DATABASE_URL"],
+  })
+);

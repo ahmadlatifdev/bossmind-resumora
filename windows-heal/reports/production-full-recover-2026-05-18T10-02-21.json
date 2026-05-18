@@ -1,0 +1,111 @@
+{
+  "ok": true,
+  "liveOk": false,
+  "fullyOperational": false,
+  "generatedAt": "2026-05-18T10:02:21.642Z",
+  "liveOrigin": "https://www.resumora.net",
+  "local": {
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL"
+      ],
+      "reason": null
+    },
+    "plans": {
+      "ok": true,
+      "planIds": [
+        "basic",
+        "professional",
+        "elite",
+        "essential_advanced"
+      ],
+      "plans": {
+        "basic": {
+          "deliverable": true,
+          "studioPath": "/studio",
+          "bilingual": true,
+          "stripePriceConfigured": true,
+          "paymentLinkConfigured": true,
+          "paymentLinkTestMode": true
+        },
+        "professional": {
+          "deliverable": true,
+          "studioPath": "/studio",
+          "bilingual": true,
+          "stripePriceConfigured": true,
+          "paymentLinkConfigured": true,
+          "paymentLinkTestMode": true
+        },
+        "elite": {
+          "deliverable": true,
+          "studioPath": "/studio",
+          "bilingual": true,
+          "stripePriceConfigured": true,
+          "paymentLinkConfigured": true,
+          "paymentLinkTestMode": true
+        },
+        "essential_advanced": {
+          "deliverable": true,
+          "studioPath": "/studio/essential-advanced",
+          "bilingual": true,
+          "stripePriceConfigured": true,
+          "paymentLinkConfigured": true,
+          "paymentLinkTestMode": true
+        }
+      },
+      "paymentLinksManifest": true,
+      "allDeliverables": true,
+      "allStripePrices": true,
+      "allPaymentLinks": true
+    },
+    "stripe": {
+      "checkoutReady": true
+    },
+    "register": true,
+    "login": true
+  },
+  "live": {
+    "health": {
+      "status": 503,
+      "database": {
+        "ok": false,
+        "configured": false,
+        "source": null,
+        "checkedKeys": [
+          "NEON_DATABASE_URL",
+          "DATABASE_URL",
+          "POSTGRES_URL",
+          "POSTGRES_PRISMA_URL"
+        ],
+        "reason": "no_database_url"
+      }
+    },
+    "register": {
+      "status": 503,
+      "error": "Database unavailable"
+    },
+    "paymentLinks": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "localBlockers": [],
+  "liveBlockers": [
+    "live_database_offline",
+    "live_registration_database_unavailable"
+  ],
+  "renderBundle": true,
+  "authority": "Neon Postgres (NEON_DATABASE_URL) — Supabase is not the Resumora DB authority in this repo",
+  "remediation": [
+    "1. Open .bossmind/render-production-env.env (gitignored)",
+    "2. Render Dashboard → web service → Environment → paste all keys",
+    "3. Clear build cache + deploy latest main",
+    "4. Re-run: node scripts/bossmind-production-full-recover.mjs --lock --i-understand-production"
+  ]
+}
