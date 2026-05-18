@@ -1,0 +1,130 @@
+{
+  "ok": true,
+  "fullyOperational": false,
+  "generatedAt": "2026-05-18T16:03:51.738Z",
+  "liveOrigin": "https://www.resumora.net",
+  "renderApiConfigured": false,
+  "local": {
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "SUPABASE_DATABASE_URL"
+      ],
+      "reason": null
+    },
+    "plans": {
+      "ok": true
+    },
+    "register": true,
+    "login": true,
+    "passwordReset": {
+      "ok": true,
+      "sessionRestored": true
+    },
+    "planGrants": [
+      {
+        "planId": "basic",
+        "ok": true
+      },
+      {
+        "planId": "professional",
+        "ok": true
+      },
+      {
+        "planId": "elite",
+        "ok": true
+      },
+      {
+        "planId": "essential_advanced",
+        "ok": true
+      }
+    ],
+    "orm": "neon-serverless",
+    "prismaUsed": false
+  },
+  "live": {
+    "before": {
+      "origin": "https://www.resumora.net",
+      "databaseOk": false,
+      "healthStatus": 503,
+      "databaseReason": "no_database_url",
+      "registerStatus": 503,
+      "registerError": "Database unavailable",
+      "resetHealthStatus": 404,
+      "dbHealthStatus": 503
+    },
+    "after": {
+      "origin": "https://www.resumora.net",
+      "databaseOk": false,
+      "healthStatus": 503,
+      "databaseReason": "no_database_url",
+      "registerStatus": 503,
+      "registerError": "Database unavailable",
+      "resetHealthStatus": 404,
+      "dbHealthStatus": 503
+    },
+    "poll": null
+  },
+  "steps": [
+    {
+      "step": "sync_hub_database_env",
+      "status": 0,
+      "signal": null,
+      "output": [
+        null,
+        "{\"ok\":true,\"target\":\".env.local\",\"source\":\"D:/BossMind/bossmind-resumora/.env\",\"keys\":[\"NEON_DATABASE_URL\",\"DATABASE_URL\"]}\n",
+        ""
+      ],
+      "pid": 13840,
+      "stdout": "{\"ok\":true,\"target\":\".env.local\",\"source\":\"D:/BossMind/bossmind-resumora/.env\",\"keys\":[\"NEON_DATABASE_URL\",\"DATABASE_URL\"]}\n",
+      "stderr": ""
+    },
+    {
+      "step": "sync_hub_stripe_prices",
+      "status": 0,
+      "signal": null,
+      "output": [
+        null,
+        "{\n  \"ok\": true,\n  \"synced\": [\n    {\n      \"planId\": \"basic\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_BASIC\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"essential_advanced\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"professional\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_PRO\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"elite\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_ELITE\",\n      \"present\": true\n    }\n  ],\n  \"target\": \".env.local\"\n}\n",
+        ""
+      ],
+      "pid": 31780,
+      "stdout": "{\n  \"ok\": true,\n  \"synced\": [\n    {\n      \"planId\": \"basic\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_BASIC\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"essential_advanced\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"professional\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_PRO\",\n      \"present\": true\n    },\n    {\n      \"planId\": \"elite\",\n      \"envKey\": \"NEXT_PUBLIC_STRIPE_PRICE_ELITE\",\n      \"present\": true\n    }\n  ],\n  \"target\": \".env.local\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "step": "render_env_bundle",
+      "status": 0,
+      "signal": null,
+      "output": [
+        null,
+        "{\n  \"ok\": true,\n  \"outPath\": \"D:\\\\BossMind\\\\resumora-fresh\\\\.bossmind\\\\render-production-env.env\",\n  \"gitignored\": true,\n  \"checklist\": [\n    {\n      \"key\": \"NEON_DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"PORT\",\n      \"present\": false\n    },\n    {\n      \"key\": \"STRIPE_SECRET_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"STRIPE_WEBHOOK_SECRET\",\n      \"present\": false\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_BASIC\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_PRO\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_ELITE\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_SITE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"BOSSMIND_PROJECT_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NODE_ENV\",\n      \"present\": true\n    },\n    {\n      \"key\": \"RESUMORA_POST_PURCHASE_WEBHOOK_URL\",\n      \"present\": false\n    }\n  ],\n  \"hint\": \"Render Dashboard → resumora web service → Environment → paste from bundle file\"\n}\n",
+        ""
+      ],
+      "pid": 34444,
+      "stdout": "{\n  \"ok\": true,\n  \"outPath\": \"D:\\\\BossMind\\\\resumora-fresh\\\\.bossmind\\\\render-production-env.env\",\n  \"gitignored\": true,\n  \"checklist\": [\n    {\n      \"key\": \"NEON_DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"DATABASE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"PORT\",\n      \"present\": false\n    },\n    {\n      \"key\": \"STRIPE_SECRET_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"STRIPE_WEBHOOK_SECRET\",\n      \"present\": false\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_BASIC\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_PRO\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_ELITE\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NEXT_PUBLIC_SITE_URL\",\n      \"present\": true\n    },\n    {\n      \"key\": \"BOSSMIND_PROJECT_KEY\",\n      \"present\": true\n    },\n    {\n      \"key\": \"NODE_ENV\",\n      \"present\": true\n    },\n    {\n      \"key\": \"RESUMORA_POST_PURCHASE_WEBHOOK_URL\",\n      \"present\": false\n    }\n  ],\n  \"hint\": \"Render Dashboard → resumora web service → Environment → paste from bundle file\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "step": "render_api_skipped",
+      "reason": "RENDER_API_KEY or RENDER_SERVICE_ID not in hub/.env.local",
+      "bundlePath": "D:\\BossMind\\resumora-fresh\\.bossmind\\render-production-env.env"
+    }
+  ],
+  "blockers": [
+    "live_database_offline",
+    "live_register_database_unavailable"
+  ],
+  "remediation": [
+    "Paste .bossmind/render-production-env.env into Render → Environment",
+    "Set RENDER_API_KEY + RENDER_SERVICE_ID in D:/BossMind/bossmind-resumora/.env for automated sync",
+    "Clear build cache + deploy latest main on Render",
+    "Verify https://www.resumora.net/api/health → database.ok:true"
+  ]
+}
