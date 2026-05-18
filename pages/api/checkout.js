@@ -1,3 +1,4 @@
+require("../../lib/shared/ensure-project-env");
 const {
   isPlanId,
   isValidPriceId,

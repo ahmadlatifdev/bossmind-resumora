@@ -1,0 +1,86 @@
+{
+  "ok": false,
+  "generatedAt": "2026-05-18T09:42:56.216Z",
+  "liveOrigin": "https://www.resumora.net",
+  "local": {
+    "runtime": {
+      "databaseConfigured": true,
+      "databaseSource": "NEON_DATABASE_URL",
+      "stripeCheckoutReady": true,
+      "stripeMode": "test",
+      "warnings": []
+    },
+    "database": {
+      "ok": true,
+      "configured": true,
+      "source": "NEON_DATABASE_URL",
+      "checkedKeys": [
+        "NEON_DATABASE_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL"
+      ],
+      "reason": null
+    },
+    "stripe": {
+      "checkoutReady": true,
+      "mode": "test"
+    }
+  },
+  "catalogCounts": {
+    "videos": 3,
+    "simulations": 3,
+    "qa": 60,
+    "tips": 22,
+    "downloads": 4
+  },
+  "live": {
+    "health": {
+      "status": 503,
+      "body": {
+        "ok": false,
+        "env": "production",
+        "ts": 1779097375931,
+        "uptime": 322.648365423,
+        "rss": 140132352,
+        "heapUsed": 43494624,
+        "database": {
+          "ok": false,
+          "configured": false,
+          "source": null,
+          "checkedKeys": [
+            "NEON_DATABASE_URL",
+            "DATABASE_URL",
+            "POSTGRES_URL",
+            "POSTGRES_PRISMA_URL"
+          ],
+          "reason": "no_database_url"
+        },
+        "stripe": {
+          "checkoutReady": false,
+          "financialPipelineReady": false,
+          "mode": null
+        }
+      }
+    },
+    "register": {
+      "status": 503,
+      "error": "Database unavailable"
+    },
+    "paymentLinks": {
+      "status": 200,
+      "ok": true
+    }
+  },
+  "blockers": [
+    "Live database offline (set NEON_DATABASE_URL on Render)",
+    "Live registration blocked",
+    "Live Stripe payment link for basic is TEST mode"
+  ],
+  "renderRemediation": [
+    "Render → Environment: NEON_DATABASE_URL, STRIPE_SECRET_KEY, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET",
+    "Set all NEXT_PUBLIC_STRIPE_PRICE_* for basic/pro/elite/essential_advanced",
+    "Optional: RESUMORA_POST_PURCHASE_WEBHOOK_URL for automated email (n8n)",
+    "Deploy latest main + clear build cache"
+  ]
+}

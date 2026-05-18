@@ -30,10 +30,9 @@ async function fetchJson(url, init) {
 }
 
 async function main() {
-  spawnSync(process.execPath, [path.join(root, "scripts/bossmind-sync-hub-database-env.mjs")], {
-    cwd: root,
-    stdio: "ignore",
-  });
+  for (const script of ["bossmind-sync-hub-database-env.mjs", "bossmind-sync-hub-stripe-prices.mjs"]) {
+    spawnSync(process.execPath, [path.join(root, "scripts", script)], { cwd: root, stdio: "ignore" });
+  }
   require(path.join(root, "lib/shared/load-project-env.js")).loadProjectEnv(root);
   const { bootstrapProductionRuntime } = require(path.join(root, "lib/shared/production-runtime-bootstrap"));
   const { probeDatabaseConnection } = require(path.join(root, "lib/shared/neon-memory"));

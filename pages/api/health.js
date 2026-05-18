@@ -1,5 +1,6 @@
 /** Lightweight liveness probe for dev preview status / orchestration. */
 
+require("../../lib/shared/ensure-project-env");
 const { probeDatabaseConnection } = require("../../lib/shared/neon-memory");
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 

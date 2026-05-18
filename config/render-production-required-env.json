@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "service": "resumora-web",
+  "required": [
+    "NEON_DATABASE_URL",
+    "STRIPE_SECRET_KEY",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+    "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+    "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+    "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+    "NODE_ENV"
+  ],
+  "recommended": [
+    "DATABASE_URL",
+    "BOSSMIND_PROJECT_KEY",
+    "RESUMORA_POST_PURCHASE_WEBHOOK_URL",
+    "RESUMORA_POST_PURCHASE_WEBHOOK_SECRET",
+    "NEXT_PUBLIC_SITE_URL"
+  ],
+  "syncScript": "npm run bossmind:render:env-sync -- --apply",
+  "validateScript": "npm run bossmind:production-runtime:activate"
+}

@@ -1,3 +1,4 @@
+require("../../../lib/shared/ensure-project-env");
 const { loginProfile, createSession } = require("../../../lib/engagement/store");
 const { linkEntitlementsToProfile } = require("../../../lib/client/entitlements-store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");

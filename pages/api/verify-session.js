@@ -1,3 +1,4 @@
+require("../../lib/shared/ensure-project-env");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 const { getSqlClient, saveEvent, ensureEngagementSchema } = require("../../lib/shared/neon-memory");
 const {

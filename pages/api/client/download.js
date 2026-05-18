@@ -1,3 +1,4 @@
+require("../../../lib/shared/ensure-project-env");
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
 const { hasEntitlement } = require("../../../lib/client/entitlements-store");

@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const HUB_ENV = "D:/BossMind/bossmind-resumora/.env";
+const LOCAL_ENV = path.join(root, ".env.local");
 const KEYS = [
   "NEON_DATABASE_URL",
   "DATABASE_URL",
@@ -65,15 +66,21 @@ async function renderPutEnv(serviceId, key, value, apiKey) {
   return { key, status: res.status, created: res.ok };
 }
 
+function mergeEnvSources() {
+  const hub = parseEnvFile(HUB_ENV);
+  const local = parseEnvFile(LOCAL_ENV);
+  return { ...hub, ...local, ...process.env };
+}
+
 async function main() {
   const apply = process.argv.includes("--apply");
-  const hub = parseEnvFile(HUB_ENV);
-  const renderKey = process.env.RENDER_API_KEY || hub.RENDER_API_KEY || "";
-  const serviceId = process.env.RENDER_SERVICE_ID || hub.RENDER_SERVICE_ID || "";
+  const merged = mergeEnvSources();
+  const renderKey = merged.RENDER_API_KEY || "";
+  const serviceId = merged.RENDER_SERVICE_ID || "";
 
   const planned = [];
   for (const key of KEYS) {
-    const val = hub[key] || (key === "DATABASE_URL" ? hub.NEON_DATABASE_URL : "");
+    const val = merged[key] || (key === "DATABASE_URL" ? merged.NEON_DATABASE_URL : "");
     if (val) planned.push({ key, present: true });
     else planned.push({ key, present: false });
   }
@@ -82,6 +89,7 @@ async function main() {
     ok: false,
     apply,
     hubEnvFound: fs.existsSync(HUB_ENV),
+    localEnvFound: fs.existsSync(LOCAL_ENV),
     renderApiKeyPresent: Boolean(renderKey),
     renderServiceIdPresent: Boolean(serviceId),
     planned,
@@ -100,7 +108,7 @@ async function main() {
   }
 
   for (const key of KEYS) {
-    const value = hub[key] || (key === "DATABASE_URL" ? hub.NEON_DATABASE_URL : "");
+    const value = merged[key] || (key === "DATABASE_URL" ? merged.NEON_DATABASE_URL : "");
     if (!value) {
       report.results.push({ key, skipped: true, reason: "missing_in_hub" });
       continue;

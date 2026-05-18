@@ -2,6 +2,7 @@
  * Stripe webhook — verifies signature, logs financial events to Neon event_log (BossMind centralized tracking).
  * Configure endpoint in Stripe Dashboard + STRIPE_WEBHOOK_SECRET.
  */
+require("../../../lib/shared/ensure-project-env");
 const { createStripeServerClient } = require("../../../lib/marketing/stripe-server");
 const {
   saveEvent,
