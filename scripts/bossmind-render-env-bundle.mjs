@@ -5,8 +5,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
+const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const HUB = "D:/BossMind/bossmind-resumora/.env";
 const LOCAL = path.join(root, ".env.local");
@@ -15,6 +17,7 @@ const OUT = path.join(root, ".bossmind/render-production-env.env");
 const KEYS = [
   "NEON_DATABASE_URL",
   "DATABASE_URL",
+  "PORT",
   "STRIPE_SECRET_KEY",
   "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
   "STRIPE_WEBHOOK_SECRET",
@@ -30,18 +33,14 @@ const KEYS = [
 
 function parse(file) {
   if (!fs.existsSync(file)) return {};
-  const out = {};
-  for (const line of fs.readFileSync(file, "utf8").split(/\r?\n/)) {
-    const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    const i = t.indexOf("=");
-    if (i < 1) continue;
-    out[t.slice(0, i)] = t.slice(i + 1).trim().replace(/^['"]|['"]$/g, "");
-  }
-  return out;
+  const { parseEnvContent } = require(path.join(root, "lib/shared/load-project-env.js"));
+  return parseEnvContent(fs.readFileSync(file, "utf8"));
 }
 
-const merged = { ...parse(HUB), ...parse(LOCAL), ...process.env };
+const merged = { ...parse(HUB), ...parse(LOCAL) };
+for (const [k, v] of Object.entries(process.env)) {
+  if (v != null && String(v).trim() !== "") merged[k] = v;
+}
 if (!merged.NODE_ENV) merged.NODE_ENV = "production";
 if (!merged.NEXT_PUBLIC_SITE_URL) merged.NEXT_PUBLIC_SITE_URL = "https://www.resumora.net";
 if (!merged.BOSSMIND_PROJECT_KEY) merged.BOSSMIND_PROJECT_KEY = "resumora";

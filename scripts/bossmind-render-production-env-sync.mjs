@@ -8,8 +8,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
+const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const HUB_ENV = "D:/BossMind/bossmind-resumora/.env";
 const LOCAL_ENV = path.join(root, ".env.local");
@@ -31,20 +33,8 @@ const KEYS = [
 
 function parseEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {};
-  const out = {};
-  for (const line of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
-    const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    const eq = t.indexOf("=");
-    if (eq < 1) continue;
-    const k = t.slice(0, eq).trim();
-    let v = t.slice(eq + 1).trim();
-    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
-      v = v.slice(1, -1);
-    }
-    out[k] = v;
-  }
-  return out;
+  const { parseEnvContent } = require(path.join(root, "lib/shared/load-project-env.js"));
+  return parseEnvContent(fs.readFileSync(filePath, "utf8"));
 }
 
 async function renderPutEnv(serviceId, key, value, apiKey) {
@@ -73,7 +63,17 @@ async function renderPutEnv(serviceId, key, value, apiKey) {
 function mergeEnvSources() {
   const hub = parseEnvFile(HUB_ENV);
   const local = parseEnvFile(LOCAL_ENV);
-  return { ...hub, ...local, ...process.env };
+  const merged = { ...hub, ...local };
+  for (const [k, v] of Object.entries(process.env)) {
+    if (v != null && String(v).trim() !== "") merged[k] = v;
+  }
+  if (!merged.DATABASE_URL && merged.NEON_DATABASE_URL) {
+    merged.DATABASE_URL = merged.NEON_DATABASE_URL;
+  }
+  if (!merged.NODE_ENV) merged.NODE_ENV = "production";
+  if (!merged.NEXT_PUBLIC_SITE_URL) merged.NEXT_PUBLIC_SITE_URL = "https://www.resumora.net";
+  if (!merged.BOSSMIND_PROJECT_KEY) merged.BOSSMIND_PROJECT_KEY = "resumora";
+  return merged;
 }
 
 async function main() {

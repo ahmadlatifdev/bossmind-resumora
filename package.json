@@ -111,6 +111,8 @@
     "bossmind:production:live-audit": "node scripts/bossmind-production-live-audit.mjs",
     "bossmind:production:live-audit:safe": "node scripts/bossmind-production-live-audit.mjs --apply-safe",
     "bossmind:enterprise:production-health": "node scripts/bossmind-sync-hub-database-env.mjs && node scripts/bossmind-render-env-bundle.mjs && node scripts/bossmind-production-full-recover.mjs && node scripts/bossmind-production-live-audit.mjs --apply-safe",
+    "bossmind:production:hands-free": "node scripts/bossmind-production-hands-free-recover.mjs",
+    "bossmind:production:hands-free:lock": "node scripts/bossmind-production-hands-free-recover.mjs --lock --i-understand-production",
     "bossmind:activation:recover": "node scripts/bossmind-activation-recovery.mjs",
     "bossmind:activation:recover:safe": "node scripts/bossmind-activation-recovery.mjs --apply-safe",
     "bossmind:render:env-bundle": "node scripts/bossmind-render-env-bundle.mjs",

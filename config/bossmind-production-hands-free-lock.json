@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-18T12:59:01.918Z",
+  "fullyOperational": false,
+  "blockers": [
+    "live_database_offline",
+    "live_register_database_unavailable"
+  ],
+  "renderApiConfigured": false,
+  "liveDatabaseOk": false
+}

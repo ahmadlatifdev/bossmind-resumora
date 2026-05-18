@@ -998,3 +998,13 @@
 {"ts":"2026-05-18T08:40:03.4139907-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-18T08:45:02.8809816-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
 {"ts":"2026-05-18T08:50:02.8730003-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-18T08:55:03.2889114-04:00","level":"info","message":"Runner start","data":{"mode":"AutoHeal"}}
+{"ts":"2026-05-18T08:55:03.4540785-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-18T08:55:20.4393603-04:00","level":"info","message":"Restore point created","data":{"label":"WindowsHeal-AutoHeal-20260518-0855"}}
+{"ts":"2026-05-18T08:55:20.5061944-04:00","level":"info","message":"Cleaning temp files","data":{}}
+{"ts":"2026-05-18T08:55:22.1810150-04:00","level":"info","message":"Power profile optimized","data":{"profile":"SCHEME_BALANCED"}}
+{"ts":"2026-05-18T08:55:22.2280099-04:00","level":"warn","message":"Thermal pressure detected; applying balanced power mode","data":{"tempC":93.1}}
+{"ts":"2026-05-18T08:55:29.5763714-04:00","level":"info","message":"Runner completed","data":{"postActions":["thermal_protection","service_repair"],"displayTimeouts":0,"explorerCrashes":0,"mode":"AutoHeal","initialActions":["startup_optimization","thermal_protection","service_repair"]}}
+{"ts":"2026-05-18T09:00:02.7733181-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-18T09:05:03.1348213-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}
+{"ts":"2026-05-18T09:10:02.7055342-04:00","level":"info","message":"Runner start","data":{"mode":"Detect"}}

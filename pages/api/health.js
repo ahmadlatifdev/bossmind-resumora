@@ -21,6 +21,8 @@ export default async function handler(req, res) {
   return res.status(ok ? 200 : 503).json({
     ok,
     env: process.env.NODE_ENV || "development",
+    port: process.env.PORT || null,
+    render: Boolean(process.env.RENDER),
     ts: Date.now(),
     uptime: process.uptime(),
     rss: mem.rss,
