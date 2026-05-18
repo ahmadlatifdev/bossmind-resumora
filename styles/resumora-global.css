@@ -4676,6 +4676,50 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   border: 0;
 }
 
+.rs-price-free-edits,
+.rs-checkout-summary-edits strong,
+.rs-client-hub-free-edits strong,
+.rs-success-free-edits strong,
+.rs-register-free-edits {
+  color: var(--rs-gold-soft);
+  font-weight: 600;
+}
+
+.rs-price-free-edits {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
+}
+
+.rs-checkout-summary {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-sm);
+  background: color-mix(in srgb, var(--rs-bg-card) 92%, var(--rs-gold) 8%);
+}
+
+.rs-checkout-summary-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rs-text-muted);
+}
+
+.rs-checkout-summary-plan,
+.rs-checkout-summary-edits {
+  margin: 0.15rem 0;
+  font-size: 0.92rem;
+}
+
+.rs-client-hub-free-edits,
+.rs-success-free-edits,
+.rs-register-free-edits {
+  margin: 0.35rem 0 0.65rem;
+  font-size: 0.92rem;
+}
+
 .rs-ea-video-player {
   margin-bottom: 0.75rem;
 }

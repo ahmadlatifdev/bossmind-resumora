@@ -20,13 +20,13 @@ export default function SuccessPage() {
 
   /** Per-session verify result — avoids stale state when `session_id` query changes. */
   const [bySession, setBySession] = useState(
-    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; planId?: string; studioPath?: string }>} */ ({})
+    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; planId?: string; studioPath?: string; freeEditsLabel?: string; displayName?: string }>} */ ({})
   );
 
   useEffect(() => {
     if (!router.isReady || !sid) return;
     let cancelled = false;
-    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}`)
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -36,6 +36,8 @@ export default function SuccessPage() {
             status: data.valid ? "success" : "invalid",
             planId: data.planId || null,
             studioPath: data.studioPath || data.clientHubPath || "/studio",
+            freeEditsLabel: data.freeEditsLabel || "",
+            displayName: data.displayName || "",
           },
         }));
       })
@@ -45,11 +47,12 @@ export default function SuccessPage() {
     return () => {
       cancelled = true;
     };
-  }, [router.isReady, sid]);
+  }, [router.isReady, sid, lang]);
 
   const remote = sid ? bySession[sid]?.status ?? "pending" : "invalid";
   const paidPlanId = sid ? bySession[sid]?.planId : null;
   const studioPath = sid ? bySession[sid]?.studioPath || "/studio" : "/studio";
+  const freeEditsLabel = sid ? bySession[sid]?.freeEditsLabel : "";
 
   const status = !router.isReady
     ? "loading"
@@ -79,6 +82,11 @@ export default function SuccessPage() {
               <h1>{t.successPaymentTitle}</h1>
               <p>{t.successThanks}</p>
               <p>{t.successVerified}</p>
+              {freeEditsLabel ? (
+                <p className="rs-success-free-edits">
+                  {t.successFreeEditsLine} <strong>{freeEditsLabel}</strong>
+                </p>
+              ) : null}
               {paidPlanId ? (
                 <>
                   <p className="rs-success-ea-hint">

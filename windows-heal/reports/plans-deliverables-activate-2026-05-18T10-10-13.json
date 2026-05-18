@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "generatedAt": "2026-05-18T10:10:13.153Z",
+  "plans": {
+    "ok": true,
+    "planIds": [
+      "basic",
+      "professional",
+      "elite",
+      "essential_advanced"
+    ],
+    "plans": {
+      "basic": {
+        "deliverable": true,
+        "studioPath": "/studio",
+        "bilingual": true,
+        "freeEdits": 1,
+        "stripePriceConfigured": true,
+        "paymentLinkConfigured": true,
+        "paymentLinkTestMode": true
+      },
+      "professional": {
+        "deliverable": true,
+        "studioPath": "/studio",
+        "bilingual": true,
+        "freeEdits": 2,
+        "stripePriceConfigured": true,
+        "paymentLinkConfigured": true,
+        "paymentLinkTestMode": true
+      },
+      "elite": {
+        "deliverable": true,
+        "studioPath": "/studio",
+        "bilingual": true,
+        "freeEdits": 3,
+        "stripePriceConfigured": true,
+        "paymentLinkConfigured": true,
+        "paymentLinkTestMode": true
+      },
+      "essential_advanced": {
+        "deliverable": true,
+        "studioPath": "/studio/essential-advanced",
+        "bilingual": true,
+        "freeEdits": 2,
+        "stripePriceConfigured": true,
+        "paymentLinkConfigured": true,
+        "paymentLinkTestMode": true
+      }
+    },
+    "paymentLinksManifest": true,
+    "allDeliverables": true,
+    "allStripePrices": true,
+    "allPaymentLinks": true,
+    "freeEditsAudit": {
+      "ok": true,
+      "expected": {
+        "basic": 1,
+        "professional": 2,
+        "elite": 3,
+        "essential_advanced": 2
+      },
+      "actual": {
+        "basic": 1,
+        "professional": 2,
+        "elite": 3,
+        "essential_advanced": 2
+      }
+    }
+  },
+  "freeEdits": {
+    "ok": true,
+    "expected": {
+      "basic": 1,
+      "professional": 2,
+      "elite": 3,
+      "essential_advanced": 2
+    },
+    "actual": {
+      "basic": 1,
+      "professional": 2,
+      "elite": 3,
+      "essential_advanced": 2
+    }
+  },
+  "interviewPrep": {
+    "en": {
+      "videos": 3,
+      "simulations": 3,
+      "qa": 60,
+      "tips": 22,
+      "downloads": 4
+    },
+    "fr": {
+      "videos": 3,
+      "simulations": 3,
+      "qa": 60,
+      "tips": 22,
+      "downloads": 4
+    },
+    "contentOk": true
+  },
+  "videos": {
+    "ok": true,
+    "videoCount": 3
+  },
+  "blockers": []
+}

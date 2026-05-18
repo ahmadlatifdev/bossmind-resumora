@@ -87,6 +87,11 @@ export default function ClientStudioHub({ lang }) {
         {hub.plans.map((plan) => (
           <article key={plan.planId} className="rs-client-hub-card" data-plan={plan.planId}>
             <h2>{plan.displayName}</h2>
+            {plan.freeEditsLabel ? (
+              <p className="rs-client-hub-free-edits">
+                {t.clientHubFreeEdits}: <strong>{plan.freeEditsLabel}</strong>
+              </p>
+            ) : null}
             <ul className="rs-client-hub-features">
               {plan.features.map((f) => (
                 <li key={f}>{f}</li>

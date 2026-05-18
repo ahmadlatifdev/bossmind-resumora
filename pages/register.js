@@ -10,6 +10,7 @@ import {
   setPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
 import { pricingPlans, translations } from "@/lib/marketing/site-copy";
+import { freeEditsLabel } from "@/lib/client/plan-policy";
 import { trackGa4 } from "@/lib/marketing/resumora-ga4-events";
 
 function firstQuery(value) {
@@ -141,6 +142,9 @@ export default function RegisterPage({ initialPlan = null }) {
                 {planMeta.name[lang]} · <span style={{ color: "var(--rs-gold-soft)" }}>{planMeta.price}</span>
               </h2>
               <p style={{ margin: "0.35rem 0 0", fontSize: "0.82rem", color: "var(--rs-text-muted)" }}>{t.registerPlanPriceNote}</p>
+              {planMeta.freeEdits ? (
+                <p className="rs-register-free-edits">{freeEditsLabel(planMeta.id, lang)}</p>
+              ) : null}
               <ul className="rs-register-plan-features">
                 {(planMeta.features[lang] || planMeta.features.en).slice(0, 6).map((line) => (
                   <li key={line}>{line}</li>

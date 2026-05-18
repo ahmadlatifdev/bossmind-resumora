@@ -7,6 +7,7 @@ const {
 } = require("../../lib/client/entitlements-store");
 const { provisionAfterPayment } = require("../../lib/client/post-purchase-provision");
 const { getDeliverableForPlan } = require("../../lib/client/deliverables-catalog");
+const { planPolicySummary } = require("../../lib/client/plan-policy");
 
 function bossmindProjectKey() {
   return process.env.BOSSMIND_PROJECT_KEY || "resumora";
@@ -71,7 +72,9 @@ export default async function handler(req, res) {
       }
     }
 
-    const deliverable = planId ? getDeliverableForPlan(planId) : null;
+    const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
+    const deliverable = planId ? getDeliverableForPlan(planId, lang) : null;
+    const policy = planId ? planPolicySummary(planId, lang) : null;
 
     res.status(200).json({
       valid,
@@ -80,6 +83,9 @@ export default async function handler(req, res) {
       studioPath: deliverable?.studioPath || (planId ? "/studio" : null),
       clientHubPath: "/studio",
       fulfillmentOk: fulfillment?.ok === true,
+      freeEdits: policy?.freeEdits ?? 0,
+      freeEditsLabel: policy?.freeEditsLabel || deliverable?.freeEditsLabel || "",
+      displayName: deliverable?.displayName || null,
     });
   } catch {
     res.status(200).json({ valid: false });

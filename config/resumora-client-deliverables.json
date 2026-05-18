@@ -3,6 +3,7 @@
   "plans": {
     "basic": {
       "displayName": { "en": "Essential Foundation", "fr": "Fondation essentielle" },
+      "freeEdits": 1,
       "studioPath": "/studio",
       "welcomeAssetId": "welcome_basic",
       "features": {
@@ -12,6 +13,7 @@
     },
     "professional": {
       "displayName": { "en": "Professional Career Package", "fr": "Forfait carrière professionnel" },
+      "freeEdits": 2,
       "studioPath": "/studio",
       "welcomeAssetId": "welcome_professional",
       "features": {
@@ -21,6 +23,7 @@
     },
     "elite": {
       "displayName": { "en": "Executive Career Package", "fr": "Forfait carrière exécutif" },
+      "freeEdits": 3,
       "studioPath": "/studio",
       "welcomeAssetId": "welcome_elite",
       "features": {
@@ -30,6 +33,7 @@
     },
     "essential_advanced": {
       "displayName": { "en": "Essential Advanced", "fr": "Essential Avancé" },
+      "freeEdits": 2,
       "studioPath": "/studio/essential-advanced",
       "welcomeAssetId": "welcome_essential_advanced",
       "features": {

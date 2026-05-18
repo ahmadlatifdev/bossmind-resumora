@@ -28,6 +28,8 @@ export default async function handler(req, res) {
           ? `/api/client/download?assetId=${encodeURIComponent(deliverable.welcomeAssetId)}&planId=${encodeURIComponent(row.plan_id)}&lang=${lang}`
           : null,
         features: deliverable?.features || [],
+        freeEdits: deliverable?.freeEdits ?? 0,
+        freeEditsLabel: deliverable?.freeEditsLabel || "",
       };
     });
 

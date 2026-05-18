@@ -57,6 +57,13 @@ async function main() {
   const db = await probeDatabaseConnection();
   await ensureEngagementSchema();
   const plans = auditPlansRuntime();
+  const { auditFreeEditsPolicy } = require(path.join(root, "lib/client/plan-policy.js"));
+  const { getInterviewPrepCatalog } = require(path.join(
+    root,
+    "lib/essential-advanced/interview-prep-content.js"
+  ));
+  const freeEdits = auditFreeEditsPolicy();
+  const interviewCounts = getInterviewPrepCatalog("en").counts;
   const stripe = auditStripeEnv();
 
   const email = `recover-${Date.now()}@resumora-recover.invalid`;
@@ -84,6 +91,10 @@ async function main() {
   const liveBlockers = [];
   if (!db.ok) localBlockers.push("local_database_failed");
   if (!plans.ok) localBlockers.push("plan_metadata_incomplete");
+  if (!freeEdits.ok) localBlockers.push("free_edits_policy_invalid");
+  if (interviewCounts.qa < 50 || interviewCounts.tips < 20) {
+    localBlockers.push("interview_prep_content_incomplete");
+  }
   if (!stripe.checkoutReady) localBlockers.push("stripe_env_incomplete");
   if (!reg.ok) localBlockers.push("local_register_failed");
   if (!login.ok) localBlockers.push("local_login_failed");
@@ -100,7 +111,15 @@ async function main() {
     fullyOperational: localBlockers.length === 0 && liveBlockers.length === 0,
     generatedAt: new Date().toISOString(),
     liveOrigin,
-    local: { database: db, plans, stripe: { checkoutReady: stripe.checkoutReady }, register: reg.ok, login: login.ok },
+    local: {
+      database: db,
+      plans,
+      freeEdits,
+      interviewCounts,
+      stripe: { checkoutReady: stripe.checkoutReady },
+      register: reg.ok,
+      login: login.ok,
+    },
     live: {
       health: { status: liveHealth.status, database: liveHealth.body?.database },
       register: { status: liveRegister.status, error: liveRegister.body?.error },

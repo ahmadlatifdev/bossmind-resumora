@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { translations } from "@/lib/marketing/site-copy";
+import { freeEditsLabel } from "@/lib/client/plan-policy";
 
 const VISIBLE_FEATURES = 3;
 
@@ -38,6 +39,12 @@ export default function PriceTierCard({ plan, lang, busyPlan, onCheckout, quoteM
         <span className="rs-price-amount-value">{plan.price}</span>
         <span className="rs-price-one-time">· {t.pricingOneTimeNote}</span>
       </div>
+
+      {plan.freeEdits ? (
+        <p className="rs-price-free-edits" data-rs-free-edits={plan.freeEdits}>
+          {freeEditsLabel(plan.id, lang)}
+        </p>
+      ) : null}
 
       <div className="rs-price-tagline-slot">
         {plan.id === "essential_advanced" ? (

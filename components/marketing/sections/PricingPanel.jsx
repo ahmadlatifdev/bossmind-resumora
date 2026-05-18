@@ -19,7 +19,7 @@ export default function PricingPanel({ showHeader = true }) {
   const resumeCheckoutOnce = useRef(false);
   const { lang } = useLanguage();
   const t = translations[lang];
-  const { busyPlan, handleCheckout, dynamicPlans, checkoutError } = useStripeCheckout();
+  const { busyPlan, handleCheckout, dynamicPlans, checkoutError, checkoutSummary } = useStripeCheckout();
   const labels = SERVICE_LABELS[lang];
   const [savedQuote, setSavedQuote] = useState(null);
 
@@ -102,6 +102,18 @@ export default function PricingPanel({ showHeader = true }) {
             <p className="rs-pricing-hero-lead">{t.pricingSubtitle}</p>
             <p className="rs-pricing-trust-line">{t.pricingTrustSecureLine}</p>
           </header>
+        ) : null}
+
+        {checkoutSummary ? (
+          <aside className="rs-checkout-summary" aria-live="polite">
+            <p className="rs-checkout-summary-title">{t.checkoutSummaryTitle}</p>
+            <p className="rs-checkout-summary-plan">
+              {checkoutSummary.planName} · {checkoutSummary.planPrice}
+            </p>
+            <p className="rs-checkout-summary-edits">
+              {t.checkoutSummaryEdits}: <strong>{checkoutSummary.freeEditsLabel}</strong>
+            </p>
+          </aside>
         ) : null}
 
         {checkoutError ? (

@@ -8,6 +8,7 @@ const { pricingSetupHintForPlan } = require("../../lib/marketing/stripe-pricing-
 const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 const { checkoutMetadata } = require("../../lib/marketing/bossmind-brand-authority");
+const { getFreeEditsCount } = require("../../lib/client/plan-policy");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -143,6 +144,7 @@ export default async function handler(req, res) {
       metadata: {
         ...Object.fromEntries(Object.entries(brandMeta).map(([k, v]) => [k, metaSlice(v)])),
         service_scope: metaSlice(summaryStr),
+        free_edits: metaSlice(String(getFreeEditsCount(planId))),
         ...quoteMetaFromSummary(summaryStr),
       },
     });
