@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "server-fixed.js",
     // BossMind deploy checkpoints / rolling backups — not source (eslint was scanning duplicate copies).
     ".bossmind/**",
+    "config/bossmind-baseline-snapshots/**",
+    "windows-heal/**",
   ]),
 ]);
 
