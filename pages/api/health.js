@@ -23,6 +23,8 @@ export default async function handler(req, res) {
     env: process.env.NODE_ENV || "development",
     port: process.env.PORT || null,
     render: Boolean(process.env.RENDER),
+    gitCommit: process.env.RENDER_GIT_COMMIT || process.env.RENDER_GIT_COMMIT_SHA || null,
+    gitBranch: process.env.RENDER_GIT_BRANCH || null,
     ts: Date.now(),
     uptime: process.uptime(),
     rss: mem.rss,
