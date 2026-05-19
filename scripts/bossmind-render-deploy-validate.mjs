@@ -185,7 +185,8 @@ async function main() {
   report.localReportPath = localPath;
 
   console.log(JSON.stringify(report, null, 2));
-  process.exit(report.fullyValidated && (commitMatch !== false) ? 0 : commitMatch === null && report.fullyValidated ? 0 : 2);
+  const exitOk = report.fullyValidated && commitMatch !== false;
+  process.exit(exitOk ? 0 : 2);
 }
 
 main().catch((e) => {
