@@ -1,0 +1,44 @@
+{
+  "ok": false,
+  "checklist": [
+    {
+      "key": "NEON_DATABASE_URL",
+      "present": false
+    },
+    {
+      "key": "STRIPE_SECRET_KEY",
+      "present": false
+    },
+    {
+      "key": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "present": false
+    },
+    {
+      "key": "STRIPE_WEBHOOK_SECRET",
+      "present": false
+    },
+    {
+      "key": "NEXT_PUBLIC_STRIPE_PRICE_BASIC",
+      "present": false
+    },
+    {
+      "key": "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+      "present": false
+    },
+    {
+      "key": "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+      "present": false
+    },
+    {
+      "key": "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED",
+      "present": false
+    },
+    {
+      "key": "NODE_ENV",
+      "present": false
+    }
+  ],
+  "renderApiReady": false,
+  "applyCommand": "npm run bossmind:render:env-sync -- --apply",
+  "dashboard": "https://dashboard.render.com → resumora-web → Environment"
+}
