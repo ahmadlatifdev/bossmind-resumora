@@ -13,8 +13,8 @@ import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const HUB_ENV = "D:/BossMind/bossmind-resumora/.env";
 const LOCAL_ENV = path.join(root, ".env.local");
+const { HUB_ENV_SOURCES } = require(path.join(root, "lib/shared/hub-env-sources.js"));
 const KEYS = [
   "NEON_DATABASE_URL",
   "DATABASE_URL",
@@ -61,14 +61,23 @@ async function renderPutEnv(serviceId, key, value, apiKey) {
 }
 
 function mergeEnvSources() {
-  const hub = parseEnvFile(HUB_ENV);
-  const local = parseEnvFile(LOCAL_ENV);
-  const merged = { ...hub, ...local };
+  let merged = {};
+  for (const src of HUB_ENV_SOURCES) {
+    merged = { ...merged, ...parseEnvFile(src) };
+  }
+  merged = { ...merged, ...parseEnvFile(LOCAL_ENV) };
   for (const [k, v] of Object.entries(process.env)) {
     if (v != null && String(v).trim() !== "") merged[k] = v;
   }
-  if (!merged.DATABASE_URL && merged.NEON_DATABASE_URL) {
-    merged.DATABASE_URL = merged.NEON_DATABASE_URL;
+  const neon =
+    merged.NEON_DATABASE_URL ||
+    merged.DATABASE_URL ||
+    merged.BOSSMIND_DATABASE_URL ||
+    merged.NEON_DB ||
+    "";
+  if (neon) {
+    merged.NEON_DATABASE_URL = neon;
+    merged.DATABASE_URL = neon;
   }
   if (!merged.NODE_ENV) merged.NODE_ENV = "production";
   if (!merged.NEXT_PUBLIC_SITE_URL) merged.NEXT_PUBLIC_SITE_URL = "https://www.resumora.net";
@@ -92,7 +101,7 @@ async function main() {
   const report = {
     ok: false,
     apply,
-    hubEnvFound: fs.existsSync(HUB_ENV),
+    hubSourcesLoaded: HUB_ENV_SOURCES.filter((p) => fs.existsSync(p)).length,
     localEnvFound: fs.existsSync(LOCAL_ENV),
     renderApiKeyPresent: Boolean(renderKey),
     renderServiceIdPresent: Boolean(serviceId),

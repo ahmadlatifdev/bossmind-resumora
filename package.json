@@ -118,6 +118,8 @@
     "bossmind:render:env-bundle": "node scripts/bossmind-render-env-bundle.mjs",
     "bossmind:render:env-sync": "node scripts/bossmind-render-production-env-sync.mjs",
     "bossmind:render:env-checklist": "node scripts/bossmind-render-env-checklist.mjs",
+    "bossmind:hub-env-bootstrap": "node scripts/bossmind-hub-env-bootstrap.mjs",
+    "bossmind:render:env-handsfree": "node scripts/bossmind-render-env-handsfree.mjs",
     "bossmind:sync:hub-database-env": "node scripts/bossmind-sync-hub-database-env.mjs",
     "bossmind:sync:hub-stripe-prices": "node scripts/bossmind-sync-hub-stripe-prices.mjs",
     "bossmind:shared-memory:ensure": "node scripts/bossmind-shared-memory-ensure.mjs",

@@ -10,8 +10,8 @@ import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const HUB = "D:/BossMind/bossmind-resumora/.env";
 const LOCAL = path.join(root, ".env.local");
+const { HUB_ENV_SOURCES } = require(path.join(root, "lib/shared/hub-env-sources.js"));
 const OUT = path.join(root, ".bossmind/render-production-env.env");
 
 const KEYS = [
@@ -37,7 +37,11 @@ function parse(file) {
   return parseEnvContent(fs.readFileSync(file, "utf8"));
 }
 
-const merged = { ...parse(HUB), ...parse(LOCAL) };
+let merged = {};
+for (const src of HUB_ENV_SOURCES) {
+  merged = { ...merged, ...parse(src) };
+}
+merged = { ...merged, ...parse(LOCAL) };
 for (const [k, v] of Object.entries(process.env)) {
   if (v != null && String(v).trim() !== "") merged[k] = v;
 }

@@ -1,0 +1,63 @@
+name: Render production env sync
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/render-env-sync.yml"
+      - "scripts/bossmind-render-production-env-sync.mjs"
+      - "lib/shared/hub-env-sources.js"
+
+jobs:
+  sync-render-env:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_SERVICE_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Apply env to Render via API
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXT_PUBLIC_STRIPE_PRICE_BASIC: ${{ secrets.NEXT_PUBLIC_STRIPE_PRICE_BASIC }}
+          NEXT_PUBLIC_STRIPE_PRICE_PRO: ${{ secrets.NEXT_PUBLIC_STRIPE_PRICE_PRO }}
+          NEXT_PUBLIC_STRIPE_PRICE_ELITE: ${{ secrets.NEXT_PUBLIC_STRIPE_PRICE_ELITE }}
+          NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED: ${{ secrets.NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED }}
+          NODE_ENV: production
+          NEXT_PUBLIC_SITE_URL: https://www.resumora.net
+          BOSSMIND_PROJECT_KEY: resumora
+        run: node scripts/bossmind-render-production-env-sync.mjs --apply
+
+      - name: Clear-cache redeploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":"clear"}' \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys"
+
+      - name: Verify live health
+        run: |
+          for i in $(seq 1 12); do
+            body=$(curl -fsS "https://www.resumora.net/api/health" || true)
+            echo "$body" | grep -q '"ok":true' && exit 0
+            sleep 30
+          done
+          echo "Health did not return ok:true"
+          exit 1
