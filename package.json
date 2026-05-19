@@ -189,6 +189,7 @@
     "resumora:essential-advanced:interface-lock": "node scripts/resumora-essential-advanced-interface-lock.mjs",
     "resumora:essential-advanced:activate-lock": "node scripts/resumora-essential-advanced-activate-lock.mjs",
     "resumora:essential-advanced:videos:activate": "node scripts/resumora-essential-advanced-videos-activate.mjs",
+    "resumora:essential-advanced:full-activate": "node scripts/resumora-essential-advanced-full-production-activate.mjs",
     "resumora:pricing:ui-verify": "node scripts/resumora-pricing-ui-verify.mjs",
     "resumora:deployment:route-audit": "node scripts/resumora-deployment-route-audit.mjs",
     "resumora:deployment:force-sync": "node scripts/resumora-deployment-force-sync.mjs",

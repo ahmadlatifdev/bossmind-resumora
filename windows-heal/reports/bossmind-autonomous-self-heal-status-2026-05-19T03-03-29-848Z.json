@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-05-19T03:03:29.841Z",
+  "mandatoryFlowDeclaredInactive": {
+    "autoWriteCodeFixToFilesystem": false,
+    "reason": "BossMind safe review: patches require human/PR path (see scripts/bossmind-self-heal.mjs header, docs/BOSSMIND_SAFE_REVIEW_WORKFLOW.md).",
+    "autoGitCommitAndPush": false,
+    "gitPushNote": "railway-closed-loop-worker logs github_push as not_implemented even if BOSSMIND_RAILWAY_AUTO_PUSH=1 — use GitHub Actions + branch protection.",
+    "autoDeployRender": false,
+    "renderNote": "Render deploy triggers are external to this worker; use Render dashboard or GH integration.",
+    "autoDeployRailwayRedeploy": false
+  },
+  "envHints": {
+    "BOSSMIND_SENTRY_ENQUEUE_ONLY": "unset",
+    "BOSSMIND_RAILWAY_RUN_BUILD_GUARD": "unset",
+    "BOSSMIND_RAILWAY_AUTO_REDEPLOY": "unset",
+    "BOSSMIND_RAILWAY_AUTO_PUSH": "unset"
+  },
+  "scores": {
+    "closedLoopInfrastructureReadinessPercent": 55,
+    "fullAutonomousChainPercent": 0,
+    "fullAutonomousChainNote": "Auto-write + auto-push + auto-merge main + unsupervised deploy chain is not activated by policy."
+  },
+  "components": {
+    "sentryRuntime": true,
+    "sentryRepairIngress": false,
+    "neonMemory": true,
+    "langgraphRepairPlanner": true,
+    "railwayWorkerRedeployCapable": false,
+    "postDeployHealthProbeConfigured": false
+  },
+  "policySha256": "ce6227cc80a0cae8fed6e1c63aec5d6d6f4d538232558a9d5652d777c5818e37"
+}

@@ -18,6 +18,10 @@ export default async function handler(req, res) {
   const plans = auditPlansRuntime();
   const ok = database.ok;
   const commerceReady = stripe.checkoutReady && plans.allPaymentLinks;
+  const essentialAdvancedReady =
+    plans.plans?.essential_advanced?.stripePriceConfigured &&
+    plans.plans?.essential_advanced?.paymentLinkConfigured &&
+    plans.plans?.essential_advanced?.deliverable;
 
   return res.status(ok ? 200 : 503).json({
     ok,
@@ -38,6 +42,12 @@ export default async function handler(req, res) {
       operational: stripe.operational || null,
     },
     commerceReady,
+    essentialAdvanced: {
+      ready: essentialAdvancedReady,
+      studioPath: plans.plans?.essential_advanced?.studioPath || "/studio/essential-advanced",
+      stripePriceConfigured: plans.plans?.essential_advanced?.stripePriceConfigured,
+      paymentLinkConfigured: plans.plans?.essential_advanced?.paymentLinkConfigured,
+    },
     plans: {
       ok: plans.ok || commerceReady,
       allDeliverables: plans.allDeliverables,

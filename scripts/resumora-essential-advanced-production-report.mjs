@@ -28,13 +28,13 @@ async function main() {
     root,
     "lib/marketing/stripe-plan-map.js"
   ));
-  const { auditStripeEnv } = require(path.join(root, "lib/marketing/stripe-env-audit.js"));
+  const { auditStripeProductionState } = require(path.join(root, "lib/marketing/stripe-env-audit.js"));
 
   const siteCopyRaw = fs.readFileSync(path.join(root, "lib/marketing/site-copy.js"), "utf8");
   const planInSiteCopy =
     siteCopyRaw.includes('id: "essential_advanced"') && siteCopyRaw.includes("ESSENTIAL_ADVANCED_PRICE_USD");
   const priceId = resolveStripePriceId("essential_advanced");
-  const audit = auditStripeEnv();
+  const audit = auditStripeProductionState();
   const origin = (process.env.RESUMORA_GOOGLE_AUDIT_ORIGIN || "https://resumora.net").replace(/\/$/, "");
 
   let liveHtml = { ok: false };
