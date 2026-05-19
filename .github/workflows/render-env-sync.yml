@@ -12,8 +12,16 @@ on:
 jobs:
   sync-render-env:
     runs-on: ubuntu-latest
-    if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_SERVICE_ID != '' }}
     steps:
+      - name: Require Render API credentials
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+            echo "Set RENDER_API_KEY and RENDER_SERVICE_ID in GitHub Actions secrets."
+            exit 1
+          fi
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
