@@ -122,6 +122,8 @@
     "bossmind:render:env-handsfree": "node scripts/bossmind-render-env-handsfree.mjs",
     "bossmind:ultra:stabilize": "node scripts/bossmind-ultra-stabilization.mjs",
     "bossmind:ultra:stabilize:redeploy": "node scripts/bossmind-ultra-stabilization.mjs --redeploy",
+    "bossmind:ultra:optimize": "node scripts/bossmind-ultra-optimization.mjs",
+    "bossmind:render:env-reconcile": "node scripts/bossmind-render-env-reconcile.mjs",
     "bossmind:neon:legacy-schema-migrate": "node scripts/bossmind-neon-legacy-schema-migrate.mjs",
     "bossmind:sync:hub-database-env": "node scripts/bossmind-sync-hub-database-env.mjs",
     "bossmind:sync:hub-stripe-prices": "node scripts/bossmind-sync-hub-stripe-prices.mjs",
