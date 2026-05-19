@@ -28,22 +28,30 @@ app
   .then(async () => {
     const memoryInit = await initializeSharedMemory();
     if (memoryInit.enabled) {
-      await saveEvent({
-        projectKey: PROJECT_KEY,
-        source: "server.start",
-        eventType: "shared.memory.ready",
-        payload: { port, dev },
-      });
-      const screenshotResult = await indexScreenshots({
-        projectKey: PROJECT_KEY,
-        sourceFolder: REFERENCE_IMAGES_FOLDER,
-      });
-      await saveEvent({
-        projectKey: PROJECT_KEY,
-        source: "server.start",
-        eventType: "screenshot.indexing.completed",
-        payload: screenshotResult,
-      });
+      try {
+        await saveEvent({
+          projectKey: PROJECT_KEY,
+          source: "server.start",
+          eventType: "shared.memory.ready",
+          payload: { port, dev },
+        });
+      } catch (e) {
+        console.warn(`[resumora-runtime] startup event log skipped: ${e.message}`);
+      }
+      try {
+        const screenshotResult = await indexScreenshots({
+          projectKey: PROJECT_KEY,
+          sourceFolder: REFERENCE_IMAGES_FOLDER,
+        });
+        await saveEvent({
+          projectKey: PROJECT_KEY,
+          source: "server.start",
+          eventType: "screenshot.indexing.completed",
+          payload: screenshotResult,
+        });
+      } catch (e) {
+        console.warn(`[resumora-runtime] screenshot indexing skipped: ${e.message}`);
+      }
       console.log("Shared Neon memory active.");
     } else {
       console.warn(`Shared memory disabled: ${memoryInit.reason}`);
