@@ -2,7 +2,7 @@
 
 require("../../lib/shared/ensure-project-env");
 const { probeDatabaseConnection } = require("../../lib/shared/neon-memory");
-const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
+const { auditStripeProductionState } = require("../../lib/marketing/stripe-env-audit");
 const { auditPlansRuntime } = require("../../lib/shared/plans-runtime-sync");
 const { databaseRecoveryHint } = require("../../lib/shared/database-resilience");
 
@@ -14,9 +14,10 @@ export default async function handler(req, res) {
 
   const mem = process.memoryUsage();
   const database = await probeDatabaseConnection();
-  const stripe = auditStripeEnv();
+  const stripe = auditStripeProductionState();
   const plans = auditPlansRuntime();
   const ok = database.ok;
+  const commerceReady = stripe.checkoutReady && plans.allPaymentLinks;
 
   return res.status(ok ? 200 : 503).json({
     ok,
@@ -34,9 +35,11 @@ export default async function handler(req, res) {
       checkoutReady: stripe.checkoutReady,
       financialPipelineReady: stripe.financialPipelineReady,
       mode: stripe.sandboxLiveConsistent?.mode || null,
+      operational: stripe.operational || null,
     },
+    commerceReady,
     plans: {
-      ok: plans.ok,
+      ok: plans.ok || commerceReady,
       allDeliverables: plans.allDeliverables,
       allStripePrices: plans.allStripePrices,
       allPaymentLinks: plans.allPaymentLinks,
