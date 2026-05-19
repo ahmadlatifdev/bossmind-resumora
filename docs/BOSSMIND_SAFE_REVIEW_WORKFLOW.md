@@ -1,8 +1,8 @@
-# BossMind safe review workflow (agents / Windsurf-compatible)
+# BossMind safe review workflow (Cursor agents)
 
 Purpose: constrain automated editors to **review / validate / surgical fixes** and avoid bulldozing approved **Resumora** UX, Stripe flows, locale, or memory architecture.
 
-This file is mirrored in Cursor rules at `.cursor/rules/bossmind-resumora.mdc`. **Windsurf** and other assistants should honor the same constraints when instructed to load repo rules.
+This file is mirrored in Cursor rules at `.cursor/rules/bossmind-resumora.mdc`. Windsurf is dropped from the BossMind stack; use Cursor only.
 
 ## Operating mode
 

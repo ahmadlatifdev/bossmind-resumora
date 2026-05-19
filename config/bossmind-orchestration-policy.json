@@ -5,7 +5,7 @@
     "primaryExecutionEngine": "cursor",
     "codingRepairAgent": "openai_codex",
     "strategyArchitect": "claude",
-    "reviewOnlyEngine": "windsurf"
+    "reviewOnlyEngine": "claude"
   },
   "roles": {
     "cursor": {
@@ -29,19 +29,6 @@
       ],
       "restricted": [
         "direct_production_ui_overwrite_without_explicit_approval"
-      ]
-    },
-    "windsurf": {
-      "mode": "review_fix_only",
-      "allowed": [
-        "review_cursor_changes",
-        "detect_regressions",
-        "propose_fixes"
-      ],
-      "restricted": [
-        "autonomous_layout_rewrite",
-        "replace_stable_production_files",
-        "unsafe_merge_without_snapshot_or_antileak"
       ]
     },
     "openai_codex": {

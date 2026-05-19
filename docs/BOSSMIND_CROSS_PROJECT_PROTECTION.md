@@ -24,4 +24,4 @@
 
 ## AI safety
 
-Cursor/Windsurf/Copilot do not read lockfiles automatically. Enforcement is **CLI + CI + policy** (`config/bossmind-orchestration-policy.json`, `.cursor/rules`). Approved layouts stay safe when validation runs **before merge**.
+Cursor/Copilot do not read lockfiles automatically. (Windsurf dropped from stack.) Enforcement is **CLI + CI + policy** (`config/bossmind-orchestration-policy.json`, `.cursor/rules`). Approved layouts stay safe when validation runs **before merge**.

@@ -9,7 +9,7 @@ Deploy and automation are aligned to this toolchain only:
 - **Neon** — Postgres for shared orchestration memory and Resumora engagement data (`NEON_DATABASE_URL`).
 - **GitHub** — source of truth, PR workflow, CI hooks.
 - **PowerShell** — local scripting and validation on Windows runners.
-- **Cursor / Windsurf** — agent editing with orchestration APIs (`/api/orchestration/*`).
+- **Cursor** — agent editing with orchestration APIs (`/api/orchestration/*`). (Windsurf dropped from stack.)
 - **Ollama** — local LLM execution for repair flows (`OLLAMA_MODEL` optional).
 - **LangGraph** — supervisor/worker orchestration (`lib/orchestration/langgraph-repair-flow.js`).
 - **OpenAI Codex (policy layer)** — dedicated **coding + repair** agent; orchestration policy in `config/bossmind-codex-agent-layer.json`; status via `codexAgentLayer` on `GET /api/orchestration/bossmind-health` — see `docs/BOSSMIND_CODEX_AGENT_LAYER.md` (not primary reasoning; GitHub/Codex execution is external).
@@ -28,7 +28,7 @@ These mechanisms reduce overwrite collisions and mixed UI states across concurre
 | **Shared memory** (`task_state`, `event_log`, `error_memory`) | Single writer semantics per `(project_key, task_key)` tasks |
 | **Screenshot indexer** | Dedupes by path + hash to avoid redundant UI context |
 
-IDE-level enforcement (Cursor/Windsurf) still requires discipline: one agent per branch, pull before push, and avoid parallel edits on the same route files.
+IDE-level enforcement (Cursor) still requires discipline: one agent per branch, pull before push, and avoid parallel edits on the same route files.
 
 ## Persistence & continuity
 

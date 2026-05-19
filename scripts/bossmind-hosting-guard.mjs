@@ -7,20 +7,22 @@
  * - Railway: backend/APIs/workers/orchestration
  * - Neon: memory/database authority
  *
- * Fails on:
- * - VERCEL* environment variables (except explicit override)
- * - Vercel deployment guidance/configuration patterns in repo text files
+ * Fails on dropped-provider env keys and deployment guidance:
+ * - Vercel, Cloudflare (platform), Supabase, Windsurf
  *
- * Override (explicit/manual): BOSSMIND_ALLOW_VERCEL=1
+ * Approved live: Render, Railway, Neon, GitHub, Squarespace (marketing/domain).
+ *
+ * Override (explicit/manual): BOSSMIND_ALLOW_DROPPED_HOSTING=1
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const allowVercel = process.env.BOSSMIND_ALLOW_VERCEL === "1";
+const allowOverride = process.env.BOSSMIND_ALLOW_DROPPED_HOSTING === "1";
 
 const ENV_ALLOWLIST = new Set([
+  "BOSSMIND_ALLOW_DROPPED_HOSTING",
   "BOSSMIND_ALLOW_VERCEL",
 ]);
 
@@ -51,6 +53,7 @@ const SKIP_DIRS = new Set([
   "dist",
   "build",
   "out",
+  "windows-heal",
 ]);
 
 const SKIP_FILES = new Set([
@@ -63,6 +66,9 @@ const policyOnlyPatterns = [
   /unless explicitly reapproved/i,
   /do not .*vercel/i,
   /never propose .*vercel/i,
+  /\bdropped\b/i,
+  /never wire/i,
+  /Squarespace stays live/i,
 ];
 
 const forbiddenPatterns = [
@@ -74,6 +80,14 @@ const forbiddenPatterns = [
   /\b\.vercel\b/i,
   /\bVERCEL_[A-Z0-9_]*\b/,
   /\bNEXT_PUBLIC_VERCEL_[A-Z0-9_]*\b/,
+  /deploy(?:ed|ment)?\s+(?:to|on)\s+(?:cloudflare|supabase|windsurf)/i,
+  /use\s+(?:cloudflare\s+pages|cloudflare\s+workers|supabase|windsurf)/i,
+  /\bcloudflare\.com\/.*(?:pages|workers)/i,
+  /\bsupabase\.co\b/i,
+  /\bwindsurf\b/i,
+  /\bSUPABASE_[A-Z0-9_]*\b/,
+  /\bNEXT_PUBLIC_SUPABASE_[A-Z0-9_]*\b/,
+  /\bCLOUDFLARE_[A-Z0-9_]*\b/,
 ];
 
 function shouldScanTextFile(filePath) {
@@ -102,7 +116,10 @@ function walk(dir, acc = []) {
 }
 
 function isPolicyOnlyLine(line) {
-  return policyOnlyPatterns.some((p) => p.test(line));
+  if (policyOnlyPatterns.some((p) => p.test(line))) return true;
+  if (/SUPABASE_DATABASE_URL/.test(line) && /database|env|checkedKeys|alias/i.test(line)) return true;
+  if (/windsurf/i.test(line) && /dropped|removed|never wire|do not/i.test(line)) return true;
+  return false;
 }
 
 function scanFile({ abs, rel }) {
@@ -139,24 +156,27 @@ function fail(msg, findings = []) {
   process.exit(1);
 }
 
-if (allowVercel) {
-  console.log("bossmind-hosting-guard: BOSSMIND_ALLOW_VERCEL=1 override active.");
+if (allowOverride) {
+  console.log("bossmind-hosting-guard: BOSSMIND_ALLOW_DROPPED_HOSTING=1 override active.");
   process.exit(0);
 }
 
+const DROPPED_ENV_RE = /^(VERCEL|SUPABASE|CLOUDFLARE|WINDSURF)_/i;
 const badEnv = Object.keys(process.env).filter(
-  (k) => /VERCEL/i.test(k) && !ENV_ALLOWLIST.has(k)
+  (k) => DROPPED_ENV_RE.test(k) && !ENV_ALLOWLIST.has(k)
 );
 if (badEnv.length) {
-  fail(`blocked Vercel env keys detected: ${badEnv.join(", ")}`);
+  fail(`blocked dropped-provider env keys detected: ${badEnv.join(", ")}`);
 }
 
 const files = walk(root);
 const findings = files.flatMap(scanFile);
 if (findings.length) {
-  fail("blocked Vercel deployment/config guidance detected.", findings);
+  fail("blocked dropped-provider deployment/config guidance detected.", findings);
 }
 
-console.log("bossmind-hosting-guard: ok (Render/Railway/Neon policy enforced).");
+console.log(
+  "bossmind-hosting-guard: ok (Render/Railway/Neon + Squarespace live; Cloudflare/Vercel/Supabase/Windsurf dropped)."
+);
 process.exit(0);
 

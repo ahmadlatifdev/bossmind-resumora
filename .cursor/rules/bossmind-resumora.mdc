@@ -6,7 +6,7 @@ globs:
 
 # BossMind / Resumora — **Safe review / fix-only mode**
 
-Applies to Cursor agents and any compatible assistant (e.g. Windsurf when repo rules are loaded).
+Applies to Cursor agents. **Dropped from stack:** Cloudflare (platform), Vercel, Supabase, Windsurf. **Live:** Render, Railway, Neon, Squarespace (marketing/domain).
 
 ## Default posture
 

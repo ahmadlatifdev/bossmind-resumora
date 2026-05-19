@@ -138,7 +138,7 @@ Pair with **`npm run bossmind:watch:dev`** on a dev VM for localhost auto-recove
 
 - **`npm run bossmind:validate`** — runs `validate:all` (deps, lint, build, runtime). Pair with git push + **`deployment-report`** after Railway/production verification.
 
-**Note:** IDE automation (Cursor/Copilot/Windsurf applying patches) remains external; this repo exposes APIs and Neon persistence so workers can follow a consistent sequence.
+**Note:** IDE automation (Cursor/Copilot applying patches) remains external; this repo exposes APIs and Neon persistence so workers can follow a consistent sequence.
 
 ## Social growth automation layer
 

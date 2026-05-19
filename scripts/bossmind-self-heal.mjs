@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Build → on failure: log to Neon + run repair flow (planner + shared memory) → retry build once.
- * Does not auto-apply AI patches (Cursor/Windsurf must apply changes). Rollback stays manual/git.
+ * Does not auto-apply AI patches (Cursor must apply changes). Rollback stays manual/git.
  */
 import { spawnSync } from "child_process";
 import { createRequire } from "module";
