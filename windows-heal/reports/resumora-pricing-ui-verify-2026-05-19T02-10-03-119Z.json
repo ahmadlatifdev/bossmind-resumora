@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-05-19T02:10:03.116Z",
+  "origin": "https://resumora.net",
+  "repo": {
+    "planOrderOk": true,
+    "homeNoTrustImport": true,
+    "trustPanelNoOp": true,
+    "swNetworkFirstHtml": true
+  },
+  "live": {
+    "/": {
+      "label": "/",
+      "trustAtAGlance": false,
+      "rsTrustPanel": false,
+      "greenhouseStrip": false,
+      "pricingUiMarker": true,
+      "pricingOrderAttr": true,
+      "tierSequence": [
+        "basic",
+        "professional",
+        "elite",
+        "essential_advanced"
+      ],
+      "essentialAdvanced": true,
+      "tiers": {
+        "basic": true,
+        "essential_advanced": true,
+        "professional": true,
+        "elite": true
+      }
+    },
+    "/pricing": {
+      "label": "/pricing",
+      "trustAtAGlance": false,
+      "rsTrustPanel": false,
+      "greenhouseStrip": false,
+      "pricingUiMarker": true,
+      "pricingOrderAttr": true,
+      "tierSequence": [
+        "basic",
+        "professional",
+        "elite",
+        "essential_advanced"
+      ],
+      "essentialAdvanced": true,
+      "tiers": {
+        "basic": true,
+        "essential_advanced": true,
+        "professional": true,
+        "elite": true
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "repo_plan_order",
+      "pass": true
+    },
+    {
+      "id": "repo_trust_removed",
+      "pass": true
+    },
+    {
+      "id": "repo_sw_no_stale_home_cache",
+      "pass": true
+    },
+    {
+      "id": "live_no_trust_home",
+      "pass": true
+    },
+    {
+      "id": "live_ea_home",
+      "pass": true
+    },
+    {
+      "id": "live_pricing_marker",
+      "pass": true
+    },
+    {
+      "id": "live_ea_far_right",
+      "pass": true
+    },
+    {
+      "id": "live_four_tiers_pricing",
+      "pass": true
+    }
+  ],
+  "passPercent": 100,
+  "pass": true,
+  "note": "If live_pricing_marker fails, deploy latest commit to Render and hard-refresh (Ctrl+Shift+R) or clear site data to drop old service worker."
+}
