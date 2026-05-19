@@ -122,7 +122,7 @@ async function pollLiveUntilHealthy(origin, maxAttempts = 12, intervalMs = 30000
   for (let i = 0; i < maxAttempts; i++) {
     const p = await probeLive(origin);
     attempts.push({ ...p, attempt: i + 1, at: new Date().toISOString() });
-    if (p.databaseOk && p.registerStatus === 200) return { ok: true, attempts, final: p };
+    if (p.databaseOk && (p.registerStatus === 200 || p.registerStatus === 201)) return { ok: true, attempts, final: p };
     if (i < maxAttempts - 1) await new Promise((r) => setTimeout(r, intervalMs));
   }
   return { ok: false, attempts, final: attempts[attempts.length - 1] };
