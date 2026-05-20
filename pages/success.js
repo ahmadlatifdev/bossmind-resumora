@@ -53,6 +53,11 @@ export default function SuccessPage() {
   const paidPlanId = sid ? bySession[sid]?.planId : null;
   const studioPath = sid ? bySession[sid]?.studioPath || "/studio" : "/studio";
   const freeEditsLabel = sid ? bySession[sid]?.freeEditsLabel : "";
+  const paymentConfirmedLead =
+    lang === "fr"
+      ? "Paiement confirmé. Votre espace Resumora est prêt. Continuez vers votre studio sécurisé pour téléverser vos documents et suivre votre nouveau CV."
+      : "Payment confirmed. Your Resumora workspace is ready. Please continue to your secure studio to upload documents and track your new resume.";
+  const studioCtaLabel = lang === "fr" ? "Ouvrir mon studio Resumora" : "Open My Resumora Studio";
 
   const status = !router.isReady
     ? "loading"
@@ -61,6 +66,15 @@ export default function SuccessPage() {
       : remote === "pending"
         ? "loading"
         : remote;
+
+  useEffect(() => {
+    if (status !== "success") return;
+    if (!studioPath) return;
+    const timer = setTimeout(() => {
+      router.replace(studioPath).catch(() => {});
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, [status, studioPath, router]);
 
   return (
     <MinimalAppChrome>
@@ -81,6 +95,7 @@ export default function SuccessPage() {
             <>
               <h1>{t.successPaymentTitle}</h1>
               <p>{t.successThanks}</p>
+              <p>{paymentConfirmedLead}</p>
               <p>{t.successVerified}</p>
               {freeEditsLabel ? (
                 <p className="rs-success-free-edits">
@@ -94,7 +109,7 @@ export default function SuccessPage() {
                   </p>
                   <p>
                     <Link href={studioPath} className="rs-btn-accent">
-                      {paidPlanId === "essential_advanced" ? t.successEaStudioCta : t.successClientHubCta}
+                      {studioCtaLabel}
                     </Link>
                   </p>
                   <p>
