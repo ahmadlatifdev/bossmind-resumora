@@ -3,6 +3,7 @@ const { registerProfile, createSession } = require("../../../lib/engagement/stor
 const { linkEntitlementsToProfile } = require("../../../lib/client/entitlements-store");
 const { serializeCookie, COOKIE_SESSION } = require("../../../lib/engagement/cookies");
 const { requireDatabaseReady } = require("../../../lib/shared/require-database");
+const { notifyPostPurchaseWebhook } = require("../../../lib/client/post-purchase-provision");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -35,6 +36,27 @@ export default async function handler(req, res) {
 
     const cookie = serializeCookie(COOKIE_SESSION, session.token, { maxAge: 14 * 24 * 60 * 60 });
     res.setHeader("Set-Cookie", cookie);
+    const siteOrigin = String(process.env.NEXT_PUBLIC_SITE_URL || "https://www.resumora.net").replace(/\/$/, "");
+    await notifyPostPurchaseWebhook({
+      event: "resumora.registration_confirmed",
+      customerEmail: result.profile.email,
+      studioUrl: `${siteOrigin}/studio`,
+      account: {
+        profileId: result.profile.id,
+        emailVerified: true,
+      },
+      onboarding: {
+        steps: [
+          "Account Created",
+          "Payment Confirmed",
+          "Documents Uploaded",
+          "Resume In Progress",
+          "Resume Ready",
+          "Free Edit Available",
+          "Delivery Completed",
+        ],
+      },
+    }).catch(() => {});
 
     return res.status(201).json({
       ok: true,

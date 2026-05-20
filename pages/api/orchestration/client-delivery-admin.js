@@ -5,6 +5,7 @@ require("../../../lib/shared/ensure-project-env");
 const { getSqlClient, ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
 const { acceptEditRequest, upsertDeliveryStatus } = require("../../../lib/client/workspace-store");
 const { notifyPostPurchaseWebhook } = require("../../../lib/client/post-purchase-provision");
+const { upsertGenerationStatus } = require("../../../lib/client/workspace-store");
 
 function authorize(req) {
   const secret = process.env.BOSSMIND_ORCHESTRATION_SECRET;
@@ -75,6 +76,41 @@ export default async function handler(req, res) {
         downloadUrl: downloadUrl || null,
       }).catch(() => {});
       return res.status(200).json({ ok: true, delivery: up.delivery });
+    }
+    if (action === "set_generation_status") {
+      const profileId = String(req.body?.profileId || "").trim();
+      const planId = String(req.body?.planId || "").trim().toLowerCase();
+      const status = String(req.body?.status || "queued").trim().toLowerCase();
+      const stageMessage = String(req.body?.stageMessage || "").trim().slice(0, 300);
+      if (!profileId || !planId) return res.status(400).json({ error: "profileId and planId required" });
+      const allowed = ["queued", "analyzing", "generating", "reviewing", "finalizing", "ready"];
+      if (!allowed.includes(status)) return res.status(400).json({ error: "invalid_generation_status" });
+      const updated = await upsertGenerationStatus({ profileId, planId, status, stageMessage });
+      if (!updated.ok) return res.status(400).json({ error: updated.error || "generation_update_failed" });
+      if (status === "ready") {
+        await upsertDeliveryStatus({
+          profileId,
+          planId,
+          status: "ready",
+          message: "Resume ready for delivery.",
+          emailStatus: "queued",
+          metadata: { source: "generation_ready" },
+        }).catch(() => {});
+        await notifyPostPurchaseWebhook({
+          event: "resumora.resume_ready",
+          planId,
+          studioUrl: `${String(process.env.NEXT_PUBLIC_SITE_URL || "https://www.resumora.net").replace(/\/$/, "")}/studio`,
+        }).catch(() => {});
+      } else {
+        await notifyPostPurchaseWebhook({
+          event: "resumora.generation_status",
+          planId,
+          stage: status,
+          stageMessage,
+          studioUrl: `${String(process.env.NEXT_PUBLIC_SITE_URL || "https://www.resumora.net").replace(/\/$/, "")}/studio`,
+        }).catch(() => {});
+      }
+      return res.status(200).json({ ok: true, generation: updated.generation });
     }
     return res.status(400).json({ error: "unknown_action" });
   }

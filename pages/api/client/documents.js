@@ -48,6 +48,48 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, removed: removed.removed });
   }
 
+  if (req.method === "PUT") {
+    const docId = Number(req.query.id || 0);
+    if (!docId) return res.status(400).json({ error: "id required" });
+    const existing = await listWorkspaceDocuments(actor.profileId, "");
+    const target = existing.find((d) => Number(d.id) === docId);
+    if (!target) return res.status(404).json({ error: "not_found" });
+    // Soft replace by remove + new upload with same logical doc type.
+    await removeWorkspaceDocument({ profileId: actor.profileId, docId });
+    const dir = profileWorkspaceDir(actor.profileId);
+    fs.mkdirSync(dir, { recursive: true });
+    const form = formidable({
+      uploadDir: dir,
+      keepExtensions: true,
+      maxFiles: 1,
+      maxFileSize: 20 * 1024 * 1024,
+      filename: (_name, ext, part) => `${Date.now()}-${safeName(part.originalFilename || `upload${ext || ""}`)}`,
+    });
+    try {
+      const [fields, files] = await form.parse(req);
+      const planId = String(fields.planId?.[0] || target.plan_id || "").trim().toLowerCase();
+      const access = await hasEntitlement(actor.profileId, actor.profileEmail, planId);
+      if (!access.entitled) return res.status(403).json({ error: "not_entitled" });
+      const file = files.file?.[0] || files.resumeFile?.[0];
+      if (!file) return res.status(400).json({ error: "file required" });
+      const added = await addWorkspaceDocument({
+        profileId: actor.profileId,
+        planId,
+        docType: target.doc_type || DEFAULT_DOC_TYPE,
+        originalName: safeName(file.originalFilename || "upload"),
+        storedName: path.basename(file.filepath),
+        storagePath: file.filepath,
+        mimeType: file.mimetype || "",
+        sizeBytes: file.size || 0,
+      });
+      if (!added.ok) return res.status(400).json({ error: added.error || "replace_failed" });
+      const items = await listWorkspaceDocuments(actor.profileId, planId);
+      return res.status(200).json({ ok: true, document: added.document, items });
+    } catch (e) {
+      return res.status(500).json({ error: e.message || "replace_failed" });
+    }
+  }
+
   if (req.method === "POST") {
     const dir = profileWorkspaceDir(actor.profileId);
     fs.mkdirSync(dir, { recursive: true });
@@ -87,6 +129,6 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader("Allow", "GET, POST, DELETE");
+  res.setHeader("Allow", "GET, POST, PUT, DELETE");
   return res.status(405).json({ error: "Method not allowed" });
 }

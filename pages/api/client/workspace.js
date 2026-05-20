@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       signedIn: true,
       email: actor.profileEmail || null,
       hasAccess: plans.length > 0,
+      supportEmail: process.env.RESUMORA_SUPPORT_EMAIL || "support@resumora.net",
       plans,
     });
   } catch (e) {

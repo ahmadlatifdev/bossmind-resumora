@@ -25,6 +25,7 @@ export default function ClientStudioHub({ lang }) {
   const [hub, setHub] = useState(null);
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
+  const [replacingId, setReplacingId] = useState(0);
   const [editNotes, setEditNotes] = useState({});
   const [docTypes, setDocTypes] = useState({});
 
@@ -142,6 +143,24 @@ export default function ClientStudioHub({ lang }) {
     }
   }
 
+  async function replaceDocument(planId, docId, file) {
+    if (!file) return;
+    setReplacingId(docId);
+    const form = new FormData();
+    form.append("file", file);
+    form.append("planId", planId);
+    try {
+      await fetch(`/api/client/documents?id=${encodeURIComponent(docId)}`, {
+        method: "PUT",
+        credentials: "same-origin",
+        body: form,
+      });
+      await load();
+    } finally {
+      setReplacingId(0);
+    }
+  }
+
   const docTypeLabels = useMemo(
     () =>
       Object.fromEntries(
@@ -156,6 +175,10 @@ export default function ClientStudioHub({ lang }) {
         <h1>{t.clientHubTitle}</h1>
         <p>{t.clientHubLead}</p>
         {hub?.email ? <p className="rs-client-hub-email">{hub.email}</p> : null}
+        <p className="rs-client-hub-email">
+          {L(lang, "Support", "Support")}:{" "}
+          <a href={`mailto:${hub?.supportEmail || "support@resumora.net"}`}>{hub?.supportEmail || "support@resumora.net"}</a>
+        </p>
       </header>
 
       <div className="rs-client-hub-grid">
@@ -178,6 +201,21 @@ export default function ClientStudioHub({ lang }) {
               {" / "}
               {plan.freeEdits?.included ?? 0}
             </p>
+            {plan.progressTracker ? (
+              <div className="rs-client-hub-delivery">
+                <p>
+                  <strong>{L(lang, "Onboarding progress", "Progression onboarding")}:</strong>{" "}
+                  {plan.progressTracker.percent}%
+                </p>
+                <ol className="rs-client-hub-files">
+                  {plan.progressTracker.steps.map((s) => (
+                    <li key={s.key}>
+                      {s.done ? "✓" : "○"} {s.label}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
             {plan.delivery ? (
               <div className="rs-client-hub-delivery">
                 <p>
@@ -220,6 +258,24 @@ export default function ClientStudioHub({ lang }) {
                   <li key={doc.id}>
                     <strong>{doc.original_name}</strong> · {docTypeLabels[doc.doc_type] || doc.doc_type} ·{" "}
                     {doc.status} · {formatDate(doc.created_at)}
+                    {" · "}
+                    <a href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=preview`} target="_blank" rel="noreferrer">
+                      {L(lang, "Preview", "Apercu")}
+                    </a>
+                    {" · "}
+                    <a href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=download`}>
+                      {L(lang, "Download", "Telecharger")}
+                    </a>
+                    {" · "}
+                    <label style={{ display: "inline-block" }}>
+                      {L(lang, "Replace", "Remplacer")}
+                      <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={(e) => replaceDocument(plan.planId, doc.id, e.target.files?.[0])}
+                        disabled={replacingId === doc.id}
+                      />
+                    </label>
                     <button type="button" className="rs-btn-ghost" onClick={() => removeDocument(doc.id)}>
                       {L(lang, "Remove", "Supprimer")}
                     </button>
@@ -255,6 +311,16 @@ export default function ClientStudioHub({ lang }) {
               </ul>
             </div>
             <div className="rs-client-hub-actions">
+              <button
+                type="button"
+                className="rs-btn-ghost"
+                onClick={() => {
+                  const i = document.querySelector(`article[data-plan="${plan.planId}"] input[type="file"]`);
+                  if (i) i.click();
+                }}
+              >
+                {L(lang, "Upload Files", "Televerser des fichiers")}
+              </button>
               <Link href={plan.studioPath} className="rs-btn-accent">
                 {t.clientHubOpenStudio}
               </Link>
@@ -263,6 +329,9 @@ export default function ClientStudioHub({ lang }) {
                   {t.clientHubDownloadWelcome}
                 </a>
               ) : null}
+              <a href={`mailto:${hub?.supportEmail || "support@resumora.net"}?subject=${encodeURIComponent("Resumora Support")}`} className="rs-btn-ghost">
+                {L(lang, "Contact Support", "Contacter le support")}
+              </a>
             </div>
           </article>
         ))}
