@@ -22,6 +22,7 @@ export default function SuccessPage() {
   const [bySession, setBySession] = useState(
     /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; planId?: string; studioPath?: string; freeEditsLabel?: string; displayName?: string }>} */ ({})
   );
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     if (!router.isReady || !sid) return;
@@ -57,7 +58,9 @@ export default function SuccessPage() {
     lang === "fr"
       ? "Paiement confirmé. Votre espace Resumora est prêt. Continuez vers votre studio sécurisé pour téléverser vos documents et suivre votre nouveau CV."
       : "Payment confirmed. Your Resumora workspace is ready. Please continue to your secure studio to upload documents and track your new resume.";
-  const studioCtaLabel = lang === "fr" ? "Ouvrir mon studio Resumora" : "Open My Resumora Studio";
+  const continueLabel =
+    lang === "fr" ? "Continuer vers mon studio CV" : "Continue To My Resume Studio";
+  const studioCtaLabel = continueLabel;
 
   const status = !router.isReady
     ? "loading"
@@ -69,12 +72,18 @@ export default function SuccessPage() {
 
   useEffect(() => {
     if (status !== "success") return;
-    if (!studioPath) return;
-    const timer = setTimeout(() => {
-      router.replace(studioPath).catch(() => {});
-    }, 2200);
-    return () => clearTimeout(timer);
-  }, [status, studioPath, router]);
+    setCountdown(5);
+    const tick = setInterval(() => {
+      setCountdown((c) => (c > 0 ? c - 1 : 0));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [status, sid]);
+
+  useEffect(() => {
+    if (status !== "success" || !studioPath) return;
+    if (countdown > 0) return;
+    router.replace(studioPath).catch(() => {});
+  }, [status, studioPath, router, countdown]);
 
   return (
     <MinimalAppChrome>
@@ -104,6 +113,11 @@ export default function SuccessPage() {
               ) : null}
               {paidPlanId ? (
                 <>
+                  <p className="rs-success-countdown">
+                    {lang === "fr"
+                      ? `Redirection automatique dans ${countdown}s…`
+                      : `Auto-redirecting in ${countdown}s…`}
+                  </p>
                   <p className="rs-success-ea-hint">
                     {paidPlanId === "essential_advanced" ? t.successEaStudioHint : t.successClientHubHint}
                   </p>

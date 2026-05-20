@@ -4900,3 +4900,64 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
     text-align: center;
   }
 }
+
+.rs-onboarding-progress {
+  margin: 1rem 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--rs-border, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+}
+.rs-onboarding-bar,
+.rs-upload-wizard-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+.rs-onboarding-bar-fill,
+.rs-upload-wizard-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c9a227, #f4e4a6);
+  transition: width 0.35s ease;
+}
+.rs-onboarding-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+.rs-onboarding-steps li.is-done {
+  opacity: 0.95;
+}
+.rs-upload-wizard,
+.rs-premium-dashboard,
+.rs-generation-tracker {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--rs-border, rgba(255, 255, 255, 0.12));
+}
+.rs-resume-ready-banner {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.35);
+  font-weight: 600;
+}
+.rs-upload-toast {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(201, 162, 39, 0.12);
+}
+.rs-success-countdown {
+  font-size: 1.05rem;
+  margin: 0.75rem 0;
+}
+.rs-client-hub-continue {
+  margin: 0.5rem 0 1rem;
+}

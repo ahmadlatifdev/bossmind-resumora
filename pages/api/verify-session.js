@@ -6,6 +6,7 @@ const {
   resolvePlanIdFromStripeSession,
 } = require("../../lib/client/entitlements-store");
 const { provisionAfterPayment } = require("../../lib/client/post-purchase-provision");
+const { markOnboarding } = require("../../lib/client/onboarding-journey");
 const { getDeliverableForPlan } = require("../../lib/client/deliverables-catalog");
 const { planPolicySummary } = require("../../lib/client/plan-policy");
 
@@ -39,6 +40,14 @@ export default async function handler(req, res) {
       }));
       if (fulfillment?.ok) {
         await provisionAfterPayment(session, fulfillment).catch(() => {});
+        const pid = fulfillment.entitlement?.profile_id;
+        if (pid) {
+          await markOnboarding(pid, {
+            paymentCompleted: true,
+            planSelected: true,
+            activePlanId: planId,
+          }).catch(() => {});
+        }
       }
 
       const eventKey = `checkout:${session.id}`;

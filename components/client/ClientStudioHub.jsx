@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
+import OnboardingProgress from "@/components/client/OnboardingProgress";
+import UploadWizard from "@/components/client/UploadWizard";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -20,9 +23,12 @@ function formatDate(value) {
 }
 
 export default function ClientStudioHub({ lang }) {
+  const router = useRouter();
   const t = translations[lang];
   const [state, setState] = useState("loading");
   const [hub, setHub] = useState(null);
+  const [journey, setJourney] = useState(null);
+  const [toast, setToast] = useState("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
@@ -53,6 +59,33 @@ export default function ClientStudioHub({ lang }) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" })
+      .then((r) => r.json())
+      .then((j) => setJourney(j))
+      .catch(() => {});
+  }, [lang]);
+
+  useEffect(() => {
+    if (!hub?.plans?.length) return;
+    const plan = hub.plans[0];
+    const hasResume = (plan.documents || []).some((d) => d.doc_type === "resume" && d.status !== "removed");
+    if (!hasResume) return;
+    const gen = plan.generationStatus || "queued";
+    if (gen === "ready") return;
+    const tick = setInterval(() => {
+      fetch("/api/client/generation-status", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId: plan.planId }),
+      })
+        .then(() => load())
+        .catch(() => {});
+    }, 4000);
+    return () => clearInterval(tick);
+  }, [hub, load]);
 
   if (state === "loading") {
     return (
@@ -110,6 +143,7 @@ export default function ClientStudioHub({ lang }) {
         credentials: "same-origin",
         body: form,
       });
+      setToast(L(lang, "Upload saved.", "Televersement enregistre."));
       await load();
     } finally {
       setUploadingPlan("");
@@ -122,6 +156,7 @@ export default function ClientStudioHub({ lang }) {
       method: "DELETE",
       credentials: "same-origin",
     });
+    setToast(L(lang, "Document removed.", "Document supprime."));
     await load();
   }
 
@@ -181,6 +216,18 @@ export default function ClientStudioHub({ lang }) {
         </p>
       </header>
 
+      {journey?.progress?.steps?.length ? (
+        <OnboardingProgress steps={journey.progress.steps} percent={journey.progress.percent} lang={lang} />
+      ) : null}
+      {journey?.next?.path ? (
+        <p className="rs-client-hub-continue">
+          <Link href={journey.next.path} className="rs-btn-accent">
+            {journey.next.label || L(lang, "Continue", "Continuer")}
+          </Link>
+        </p>
+      ) : null}
+      {toast ? <p className="rs-upload-toast" role="status">{toast}</p> : null}
+
       <div className="rs-client-hub-grid">
         {hub.plans.map((plan) => (
           <article key={plan.planId} className="rs-client-hub-card" data-plan={plan.planId}>
@@ -214,6 +261,37 @@ export default function ClientStudioHub({ lang }) {
                     </li>
                   ))}
                 </ol>
+              </div>
+            ) : null}
+            {(plan.delivery?.status === "ready" || plan.generationStatus === "ready") ? (
+              <div className="rs-resume-ready-banner" role="status">
+                {L(lang, "Resume Ready — download your deliverables below.", "CV pret — telechargez vos livrables ci-dessous.")}
+              </div>
+            ) : null}
+            {plan.generationStatus ? (
+              <div className="rs-generation-tracker">
+                <p>
+                  <strong>{L(lang, "Generation", "Generation")}:</strong> {plan.generationStatus}
+                  {plan.generationMeta?.stageMessage ? ` — ${plan.generationMeta.stageMessage}` : ""}
+                </p>
+              </div>
+            ) : null}
+            {router.query?.onboarding === "upload" || !(plan.documents || []).some((d) => d.doc_type === "resume") ? (
+              <UploadWizard
+                lang={lang}
+                planId={plan.planId}
+                documents={plan.documents || []}
+                onUpload={() => load()}
+                onComplete={() => load()}
+              />
+            ) : null}
+            {plan.planId === "essential_advanced" ? (
+              <div className="rs-premium-dashboard">
+                <h3>{L(lang, "Essential Advanced Premium", "Essential Advanced Premium")}</h3>
+                <p>{L(lang, "3 interview videos · Q&A library · 20 tips · EN/FR delivery", "3 videos · bibliotheque Q&R · 20 conseils · livraison EN/FR")}</p>
+                <Link href="/studio/essential-advanced" className="rs-btn-accent">
+                  {L(lang, "Open Premium Studio", "Ouvrir le studio premium")}
+                </Link>
               </div>
             ) : null}
             {plan.delivery ? (

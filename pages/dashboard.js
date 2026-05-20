@@ -1,14 +1,33 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { lang } = useLanguage();
   const t = translations[lang];
   const [data, setData] = useState(null);
+  const [journey, setJourney] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" })
+      .then((r) => r.json())
+      .then((j) => {
+        if (!cancelled) setJourney(j);
+        if (!cancelled && j?.signedIn && j?.next?.path && j.next.path !== "/dashboard") {
+          router.replace(j.next.path).catch(() => {});
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,8 +76,18 @@ export default function DashboardPage() {
               <strong>{t.dashboardNeon}</strong> {neonLabel}
             </div>
           </div>
+          {journey?.next?.path ? (
+            <p style={{ marginTop: "1rem" }}>
+              <Link href={journey.next.path} className="rs-btn-accent" style={{ textDecoration: "none", display: "inline-flex" }}>
+                {journey.next.label || (lang === "fr" ? "Continuer" : "Continue")}
+              </Link>
+            </p>
+          ) : null}
           <div style={{ marginTop: "1.5rem", display: "flex", flexWrap: "wrap", gap: "0.65rem" }}>
-            <Link href="/client-engagement" className="rs-btn-accent" style={{ textDecoration: "none", display: "inline-flex" }}>
+            <Link href="/studio" className="rs-btn-accent" style={{ textDecoration: "none", display: "inline-flex" }}>
+              {lang === "fr" ? "Mon studio CV" : "My Resume Studio"}
+            </Link>
+            <Link href="/client-engagement" className="rs-btn-ghost" style={{ textDecoration: "none", display: "inline-flex" }}>
               {t.dashboardBackEngagement}
             </Link>
             <button type="button" className="rs-btn-ghost" onClick={() => logout()}>

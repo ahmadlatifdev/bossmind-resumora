@@ -72,6 +72,16 @@ export default function RegisterPage({ initialPlan = null }) {
     }
     trackGa4("sign_up", { method: "engagement_register" });
     setMessage(t.registerCreated);
+    try {
+      const ob = await fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" });
+      const journey = await ob.json();
+      if (journey?.next?.path) {
+        await router.push(journey.next.path);
+        return;
+      }
+    } catch {
+      /* fallback */
+    }
     await router.push(getPostAuthRedirectPath(router));
   }
 
