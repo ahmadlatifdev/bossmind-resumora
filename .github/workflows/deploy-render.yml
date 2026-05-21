@@ -1,0 +1,13 @@
+name: Deploy Render
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm Render deploy placeholder
+        run: echo "Render deploy workflow detected. Add RENDER_DEPLOY_HOOK_URL secret to activate live deployment."
