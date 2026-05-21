@@ -91,6 +91,8 @@ export default function ClientStudioHub({ lang }) {
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
+  const loadRef = useRef(null);
+  const runSilentCheckoutRef = useRef(null);
   const [prepareTimedOut, setPrepareTimedOut] = useState(false);
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
@@ -165,7 +167,8 @@ export default function ClientStudioHub({ lang }) {
         }
         if (!data.signedIn) {
           setHub(data);
-          if (pending) {
+          const mustSignIn = pending && (data.needsSignIn || data.fulfillmentOk || data.planId);
+          if (mustSignIn) {
             const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
             router.replace(`/login?next=${encodeURIComponent(next)}`).catch(() => {});
           }
@@ -314,35 +317,62 @@ export default function ClientStudioHub({ lang }) {
     }
   }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
+  loadRef.current = load;
+  runSilentCheckoutRef.current = runSilentCheckout;
+
   useEffect(() => {
     if (!router.isReady) return;
 
     const runId = ++orchestrationRunRef.current;
     const ac = new AbortController();
-    const sid = resolveSessionId();
+    const sid = firstQuery(router.query.session_id) || getStoredSessionId();
     if (sid) persistSessionId(sid);
     setPrepareTimedOut(false);
 
     (async () => {
       setState("loading");
-      if (await load(sid, { signal: ac.signal })) return;
+      const doLoad = loadRef.current;
+      const doSilent = runSilentCheckoutRef.current;
+      if (!doLoad) return;
+
+      if (await doLoad(sid, { signal: ac.signal })) return;
       if (!sid || ac.signal.aborted || runId !== orchestrationRunRef.current) return;
 
-      const result = await runSilentCheckout(ac.signal);
-      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
-      if (result?.ok) return;
-
-      const ok = await load(sid, { signal: ac.signal });
-      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
-      if (!ok && !result?.needsSignIn) {
-        setState("no_plan");
+      if (doSilent) {
+        const result = await doSilent(ac.signal);
+        if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
+        if (result?.ok) return;
+        if (result?.needsSignIn) return;
       }
+
+      const ok = await doLoad(sid, { signal: ac.signal });
+      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
+      if (!ok) setState("no_plan");
     })();
 
-    return () => {
-      ac.abort();
-    };
-  }, [router.isReady, router.query.session_id, resolveSessionId, load, runSilentCheckout]);
+    return () => ac.abort();
+  }, [router.isReady, router.query.session_id]);
+
+  useEffect(() => {
+    const sid = resolveSessionId();
+    if (state !== "loading" || !sid) return;
+    let n = 0;
+    const max = 12;
+    const tick = setInterval(async () => {
+      n += 1;
+      const doLoad = loadRef.current;
+      if (!doLoad || n > max) {
+        clearInterval(tick);
+        return;
+      }
+      try {
+        if (await doLoad(sid)) clearInterval(tick);
+      } catch {
+        /* ignore */
+      }
+    }, 5000);
+    return () => clearInterval(tick);
+  }, [state, router.query.session_id, resolveSessionId]);
 
   useEffect(() => {
     if (state !== "loading") {
@@ -351,7 +381,7 @@ export default function ClientStudioHub({ lang }) {
     }
     const sid = resolveSessionId();
     if (!sid) return;
-    const timer = setTimeout(() => setPrepareTimedOut(true), 48000);
+    const timer = setTimeout(() => setPrepareTimedOut(true), 15000);
     return () => clearTimeout(timer);
   }, [state, resolveSessionId]);
 
@@ -436,28 +466,32 @@ export default function ClientStudioHub({ lang }) {
   }, [state, hub, load, resolveSessionId]);
 
   if (state === "loading") {
-    const stripeEmail = recoveryEmail || hub?.email || "";
+    const sid = resolveSessionId();
+    const stripeEmail = recoveryEmail || hub?.email || hub?.stripeCheckoutEmail || "";
+    const showCheckoutActions = Boolean(sid);
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-        {prepareTimedOut ? (
+        {showCheckoutActions ? (
           <div className="rs-studio-calm-prepare-actions">
-            <p className="rs-studio-calm-prepare-hint">
-              {L(
-                lang,
-                "Your payment is confirmed. Continue setup to open your workspace.",
-                "Votre paiement est confirme. Poursuivez pour ouvrir votre espace."
-              )}
-            </p>
-            <button type="button" className="rs-btn-accent" onClick={manualRecoverPurchase}>
+            {prepareTimedOut ? (
+              <p className="rs-studio-calm-prepare-hint">
+                {L(
+                  lang,
+                  "Your payment is confirmed. Sign in with your checkout email, then continue setup.",
+                  "Votre paiement est confirme. Connectez-vous avec le courriel d'achat, puis poursuivez."
+                )}
+              </p>
+            ) : null}
+            <Link href={signInHref} className="rs-btn-accent">
+              {L(lang, "Sign in to open workspace", "Connexion pour ouvrir l'espace")}
+            </Link>
+            <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
               {L(lang, "Continue workspace setup", "Poursuivre la configuration")}
             </button>
-            <Link href={signInHref} className="rs-btn-ghost">
-              {L(lang, "Sign in", "Connexion")}
-            </Link>
             {stripeEmail.includes("@") ? (
               <p className="rs-studio-calm-prepare-hint">
-                {L(lang, `Use the same email as checkout: ${stripeEmail}`, `Utilisez le meme courriel qu'a l'achat : ${stripeEmail}`)}
+                {L(lang, `Checkout email: ${stripeEmail}`, `Courriel d'achat : ${stripeEmail}`)}
               </p>
             ) : null}
           </div>
