@@ -1,0 +1,189 @@
+{
+  "generatedAt": "2026-05-21T09:42:43.652Z",
+  "officialBrand": "Resumora",
+  "currency": "usd",
+  "checkoutMode": "payment",
+  "logoUrl": "https://resumora.net/brand/resumora-logo-official-transparent.png",
+  "dryRun": false,
+  "services": [
+    {
+      "serviceKey": "essential_foundation",
+      "name": "Resumora Essential Career Foundation",
+      "description": "Entry-tier ATS remediation and keyword scaffolding — Resumora executive studio (Basic tier).",
+      "amountUsd": 19,
+      "planIds": [
+        "basic"
+      ],
+      "category": "tier",
+      "amountCents": 1900,
+      "productId": "prod_UXFjm6w98cL4TP",
+      "priceId": "price_1TYBDuGjsXTaeZBgFRYpbSuy",
+      "paymentLinkId": "plink_1TYBDvGjsXTaeZBgHucwATH6",
+      "paymentLinkUrl": "https://buy.stripe.com/test_00w9ATgCp0151atfE40Fi07",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "essential_career",
+      "name": "Resumora Essential Career Package",
+      "description": "Luxury essential career positioning — ATS-safe résumé enhancement, keyword scaffolding, and one structured revision sprint. Resumora executive studio.",
+      "amountUsd": 110,
+      "planIds": [
+        "essential_advanced"
+      ],
+      "category": "tier",
+      "amountCents": 11000,
+      "productId": "prod_UXFh1kz3QyUEpc",
+      "priceId": "price_1TYBCQGjsXTaeZBg2q8BLeGv",
+      "paymentLinkId": "plink_1TYBCRGjsXTaeZBgrUTkTSI1",
+      "paymentLinkUrl": "https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "professional_career",
+      "name": "Resumora Professional Career Package",
+      "description": "Professional career optimization — full résumé rebuild, cover letter, and bilingual-ready delivery. Resumora official.",
+      "amountUsd": 49,
+      "planIds": [
+        "professional"
+      ],
+      "category": "tier",
+      "amountCents": 4900,
+      "productId": "prod_UXFhyljDHj092l",
+      "priceId": "price_1TYBCSGjsXTaeZBgt9c9wB02",
+      "paymentLinkId": "plink_1TYBCSGjsXTaeZBgfOm2bmKU",
+      "paymentLinkUrl": "https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "executive_career",
+      "name": "Resumora Executive Career Package",
+      "description": "Executive career package — storyline, LinkedIn relaunch, interview rehearsals, and concierge strategist. Resumora luxury delivery.",
+      "amountUsd": 99,
+      "planIds": [
+        "elite"
+      ],
+      "category": "tier",
+      "amountCents": 9900,
+      "productId": "prod_UXFhUykFe8nw1S",
+      "priceId": "price_1TYBCTGjsXTaeZBgE4R4BSan",
+      "paymentLinkId": "plink_1TYBCUGjsXTaeZBg9NIBnCQO",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14AeVd99X9BFcTbeA00Fi02",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "linkedin_optimization",
+      "name": "Resumora LinkedIn Optimization",
+      "description": "LinkedIn authority enhancement — headline, featured media, and recruiter discoverability calibration.",
+      "amountUsd": 35,
+      "planIds": [
+        "addon_linkedin"
+      ],
+      "category": "addon",
+      "amountCents": 3500,
+      "productId": "prod_UXFhKM6bKRY9Zw",
+      "priceId": "price_1TYBCUGjsXTaeZBgECP0g9ew",
+      "paymentLinkId": "plink_1TYBCVGjsXTaeZBgNWZ6t62m",
+      "paymentLinkUrl": "https://buy.stripe.com/test_cNi8wP4THcNRdXf77y0Fi03",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "interview_preparation",
+      "name": "Resumora Interview Preparation",
+      "description": "Executive interview preparation — scenario drills and presence coaching aligned to your Resumora dossier.",
+      "amountUsd": 40,
+      "planIds": [
+        "addon_interview"
+      ],
+      "category": "addon",
+      "amountCents": 4000,
+      "productId": "prod_UXFh4yqGlaCT9Q",
+      "priceId": "price_1TYBCWGjsXTaeZBgBF7CPhUx",
+      "paymentLinkId": "plink_1TYBCXGjsXTaeZBg82L8hTS3",
+      "paymentLinkUrl": "https://buy.stripe.com/test_8x2fZhcm99BF4mF77y0Fi04",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "custom_cover_letter",
+      "name": "Resumora Custom Cover Letter",
+      "description": "Strategic cover letter — mandate-aligned narrative with quantified proof points. Resumora bespoke delivery.",
+      "amountUsd": 25,
+      "planIds": [
+        "addon_cover_letter"
+      ],
+      "category": "addon",
+      "amountCents": 2500,
+      "productId": "prod_UXFhtOxTkWGDvf",
+      "priceId": "price_1TYBCXGjsXTaeZBgvxZCHrnZ",
+      "paymentLinkId": "plink_1TYBCYGjsXTaeZBgbo8l7Ahd",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14A28r71P1596uN0Ja0Fi05",
+      "linkCreated": false,
+      "active": true
+    },
+    {
+      "serviceKey": "translation_tls",
+      "name": "Resumora Translation/TLS Service",
+      "description": "Bilingual EN/FR translation and tonal harmonisation across résumé and outreach artefacts.",
+      "amountUsd": 25,
+      "planIds": [
+        "addon_translation"
+      ],
+      "category": "addon",
+      "amountCents": 2500,
+      "productId": "prod_UXFhehZnTXtHbi",
+      "priceId": "price_1TYBCZGjsXTaeZBga7gcf1V7",
+      "paymentLinkId": "plink_1TYBCaGjsXTaeZBgzAZEsJO6",
+      "paymentLinkUrl": "https://buy.stripe.com/test_aFa8wP3PDg034mFdvW0Fi06",
+      "linkCreated": false,
+      "active": true
+    }
+  ],
+  "planRoutes": {
+    "basic": {
+      "serviceKey": "essential_foundation",
+      "paymentLinkUrl": "https://buy.stripe.com/test_00w9ATgCp0151atfE40Fi07",
+      "paymentLinkId": "plink_1TYBDvGjsXTaeZBgHucwATH6"
+    },
+    "essential_advanced": {
+      "serviceKey": "essential_career",
+      "paymentLinkUrl": "https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00",
+      "paymentLinkId": "plink_1TYBCRGjsXTaeZBgrUTkTSI1"
+    },
+    "professional": {
+      "serviceKey": "professional_career",
+      "paymentLinkUrl": "https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01",
+      "paymentLinkId": "plink_1TYBCSGjsXTaeZBgfOm2bmKU"
+    },
+    "elite": {
+      "serviceKey": "executive_career",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14AeVd99X9BFcTbeA00Fi02",
+      "paymentLinkId": "plink_1TYBCUGjsXTaeZBg9NIBnCQO"
+    },
+    "addon_linkedin": {
+      "serviceKey": "linkedin_optimization",
+      "paymentLinkUrl": "https://buy.stripe.com/test_cNi8wP4THcNRdXf77y0Fi03",
+      "paymentLinkId": "plink_1TYBCVGjsXTaeZBgNWZ6t62m"
+    },
+    "addon_interview": {
+      "serviceKey": "interview_preparation",
+      "paymentLinkUrl": "https://buy.stripe.com/test_8x2fZhcm99BF4mF77y0Fi04",
+      "paymentLinkId": "plink_1TYBCXGjsXTaeZBg82L8hTS3"
+    },
+    "addon_cover_letter": {
+      "serviceKey": "custom_cover_letter",
+      "paymentLinkUrl": "https://buy.stripe.com/test_14A28r71P1596uN0Ja0Fi05",
+      "paymentLinkId": "plink_1TYBCYGjsXTaeZBgbo8l7Ahd"
+    },
+    "addon_translation": {
+      "serviceKey": "translation_tls",
+      "paymentLinkUrl": "https://buy.stripe.com/test_aFa8wP3PDg034mFdvW0Fi06",
+      "paymentLinkId": "plink_1TYBCaGjsXTaeZBgzAZEsJO6"
+    }
+  },
+  "manifestHash": "be747568243857913427bc4bdb997cccfadff3f50d9b13c453a91204eda8b867"
+}

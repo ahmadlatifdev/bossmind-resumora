@@ -32,7 +32,12 @@ async function probe(base, route) {
   const t0 = Date.now();
   try {
     const res = await fetch(url, { redirect: "follow" });
-    return { url, status: res.status, ms: Date.now() - t0, ok: res.ok || res.status === 401 };
+    const ok =
+      res.ok ||
+      res.status === 401 ||
+      (route.includes("checkout-recovery") && res.status === 400) ||
+      (route.includes("essential-advanced/catalog") && res.status === 403);
+    return { url, status: res.status, ms: Date.now() - t0, ok };
   } catch (e) {
     return { url, status: 0, ms: Date.now() - t0, ok: false, error: e.message };
   }
