@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
-import StudioCheckoutSync from "@/components/client/StudioCheckoutSync";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -71,6 +70,17 @@ function hasPendingCheckout(router) {
   return Boolean(sid) || firstQuery(router.query.checkout) === "success";
 }
 
+function clearCheckoutFromUrl(router) {
+  try {
+    sessionStorage.removeItem("rs_last_checkout_session");
+  } catch {
+    /* ignore */
+  }
+  if (router?.replace) {
+    router.replace("/studio", undefined, { shallow: true }).catch(() => {});
+  }
+}
+
 export default function ClientStudioHub({ lang }) {
   const router = useRouter();
   const t = translations[lang];
@@ -116,11 +126,7 @@ export default function ClientStudioHub({ lang }) {
       const sid = sessionId || resolveSessionId();
       const pending = Boolean(sid) || hasPendingCheckout(router);
 
-      if (!skipActivatingGate && pending) {
-        setState("activating");
-      } else {
-        setState("loading");
-      }
+      setState("loading");
 
       try {
         const qs = new URLSearchParams({ lang });
@@ -138,8 +144,12 @@ export default function ClientStudioHub({ lang }) {
         }
         if (!data.signedIn) {
           setHub(data);
-          if (pending) setState("activating");
-          else setState("auth");
+          if (pending) {
+            const sid = sessionId || resolveSessionId();
+            const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
+            router.replace(`/login?next=${encodeURIComponent(next)}`).catch(() => {});
+          }
+          setState("auth");
           return;
         }
         if (data.hasAccess) {
@@ -152,7 +162,7 @@ export default function ClientStudioHub({ lang }) {
         }
         if (pending) {
           setHub(data);
-          setState("activating");
+          setState("loading");
           return false;
         }
         setHub(data);
@@ -206,12 +216,19 @@ export default function ClientStudioHub({ lang }) {
           )
         );
         await refreshJourney();
+        clearCheckoutFromUrl(router);
         return true;
       }
       return false;
     },
-    [lang, refreshJourney]
+    [lang, refreshJourney, router]
   );
+
+  const signInHref = useMemo(() => {
+    const sid = resolveSessionId();
+    const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
+    return `/login?next=${encodeURIComponent(next)}`;
+  }, [resolveSessionId]);
 
   const runActivationAttempt = useCallback(async () => {
     const sid = resolveSessionId();
@@ -244,7 +261,8 @@ export default function ClientStudioHub({ lang }) {
     }
 
     if (data.needsSignIn && data.fulfillmentOk) {
-      setState("activating");
+      setNeedsSignIn(true);
+      router.replace(signInHref).catch(() => {});
       return { ok: false, needsSignIn: true };
     }
 
@@ -274,21 +292,16 @@ export default function ClientStudioHub({ lang }) {
     load,
     applyActivationPayload,
     finishActivationSuccess,
+    signInHref,
+    router,
   ]);
-
-  const signInHref = useMemo(() => {
-    const sid = resolveSessionId();
-    const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
-    return `/login?next=${encodeURIComponent(next)}`;
-  }, [resolveSessionId]);
 
   useEffect(() => {
     if (!router.isReady) return;
     const sid = firstQuery(router.query.session_id);
     if (sid) persistSessionId(sid);
-    if (hasPendingCheckout(router)) setActivationExtended(true);
-    load(sid);
-  }, [router.isReady, router.query.session_id, load, router]);
+    load(sid, { skipActivatingGate: true });
+  }, [router.isReady, router.query.session_id, load]);
 
   useEffect(() => {
     const sid = resolveSessionId();
@@ -308,10 +321,7 @@ export default function ClientStudioHub({ lang }) {
 
   useEffect(() => {
     if (!needsSignIn) return;
-    const t = setTimeout(() => {
-      router.push(signInHref).catch(() => {});
-    }, 6000);
-    return () => clearTimeout(t);
+    router.replace(signInHref).catch(() => {});
   }, [needsSignIn, signInHref, router]);
 
   useEffect(() => {
@@ -319,7 +329,37 @@ export default function ClientStudioHub({ lang }) {
   }, [refreshJourney]);
 
   useEffect(() => {
-    if (state !== "activating" && state !== "loading") return;
+    const sid = resolveSessionId();
+    if (!router.isReady || !sid) return;
+
+    const runId = ++activationRunRef.current;
+    let cancelled = false;
+
+    (async () => {
+      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
+        if (cancelled || activationRunRef.current !== runId) return;
+        const result = await runActivationAttempt();
+        if (result?.ok) return;
+        if (i < MAX_ACTIVATION_ATTEMPTS - 1) {
+          await new Promise((r) => setTimeout(r, activationRetryDelay(i)));
+        }
+      }
+      let tail = 0;
+      while (!cancelled && activationRunRef.current === runId && tail < 40) {
+        const result = await runActivationAttempt();
+        if (result?.ok) return;
+        tail += 1;
+        await new Promise((r) => setTimeout(r, tail <= 12 ? 5000 : 12000));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router.isReady, resolveSessionId, runActivationAttempt]);
+
+  useEffect(() => {
+    if (state !== "loading" && state !== "ready") return;
     preloadStudioAssets({
       studio: "/studio",
       onboarding: `/api/client/onboarding?lang=${lang}`,
@@ -348,72 +388,26 @@ export default function ClientStudioHub({ lang }) {
   }, [state, hub?.email, lang, load, resolveSessionId]);
 
   useEffect(() => {
-    if (state !== "activating") return;
-
-    const runId = ++activationRunRef.current;
-    let cancelled = false;
-
-    (async () => {
-      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
-        if (cancelled || activationRunRef.current !== runId) return;
-        setActivationAttempt(i + 1);
-        if (i >= 6) setActivationExtended(true);
-        const result = await runActivationAttempt();
-        if (result?.ok) return;
-        if (i < MAX_ACTIVATION_ATTEMPTS - 1) {
-          await new Promise((r) => setTimeout(r, activationRetryDelay(i)));
-        }
-      }
-      if (!cancelled && activationRunRef.current === runId) {
-        setActivationExtended(true);
-        let tail = 0;
-        while (!cancelled && activationRunRef.current === runId) {
-          setActivationAttempt(MAX_ACTIVATION_ATTEMPTS + tail + 1);
-          tail += 1;
-          const result = await runActivationAttempt();
-          if (result?.ok) return;
-          await new Promise((r) => setTimeout(r, tail <= 24 ? 10000 : 15000));
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [state, runActivationAttempt]);
-
-  useEffect(() => {
     if (!router.isReady) return;
-    if (firstQuery(router.query.checkout) !== "success") return;
-    const sid = firstQuery(router.query.session_id);
+    const sid = firstQuery(router.query.session_id) || getStoredSessionId();
     if (!sid) return;
-
     persistSessionId(sid);
-    setState("activating");
-    setCheckoutVerify({ status: "pending" });
-    router.replace("/studio", undefined, { shallow: true }).catch(() => {});
+    if (firstQuery(router.query.checkout) === "success" || firstQuery(router.query.session_id)) {
+      router.replace(`/studio?session_id=${encodeURIComponent(sid)}`, undefined, { shallow: true }).catch(() => {});
+    }
   }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
   async function manualRecoverPurchase() {
-    setState("activating");
-    setActivationExtended(false);
-    setActivationAttempt(0);
+    setState("loading");
     activationRunRef.current += 1;
-    const runId = activationRunRef.current;
-    for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
-      if (activationRunRef.current !== runId) return;
-      setActivationAttempt(i + 1);
-      const r = await runActivationAttempt();
-      if (r?.ok) return;
-      await new Promise((res) => setTimeout(res, activationRetryDelay(i)));
-    }
-    setActivationExtended(true);
+    await runActivationAttempt();
+    await load(resolveSessionId(), { skipActivatingGate: true });
   }
 
   async function recoverWorkspaceByEmail() {
     const email = recoveryEmail.trim();
     if (!email.includes("@")) return;
-    setState("activating");
+    setState("loading");
     const r = await fetch(`/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`, {
       credentials: "same-origin",
     });
@@ -422,34 +416,9 @@ export default function ClientStudioHub({ lang }) {
       await load(resolveSessionId(), { skipActivatingGate: true });
       await refreshJourney();
     } else {
-      setActivationExtended(true);
-      setState("activating");
       setToast(L(lang, "Still verifying your purchase with Stripe.", "Verification de votre achat avec Stripe en cours."));
     }
   }
-
-  const syncProgress =
-    progressPercent ??
-    (activation?.generationReady ? 100 : activation?.workspaceReady ? 82 : activation?.planActivated ? 55 : 28) ??
-    Math.min(90, 15 + activationAttempt * 3);
-
-  const checkoutSyncBar = (
-    <StudioCheckoutSync
-      lang={lang}
-      attempt={activationAttempt}
-      progressPercent={syncProgress}
-      needsSignIn={needsSignIn}
-      signInHref={signInHref}
-      onAssist={activationAttempt >= 15 ? manualRecoverPurchase : undefined}
-    />
-  );
-
-  const checkoutSyncShell = (body) => (
-    <div className="rs-client-hub rs-client-hub--checkout-sync" data-rs-checkout-sync="1">
-      {checkoutSyncBar}
-      <div className="rs-client-hub-sync-body">{body}</div>
-    </div>
-  );
 
   useEffect(() => {
     if (!hub?.plans?.length) return;
@@ -471,12 +440,6 @@ export default function ClientStudioHub({ lang }) {
     return () => clearInterval(tick);
   }, [hub, load, resolveSessionId]);
 
-  if (state === "loading" && hasPendingCheckout(router)) {
-    return checkoutSyncShell(
-      <p className="rs-client-hub-sync-placeholder">{t.clientHubLoading}</p>
-    );
-  }
-
   if (state === "loading") {
     return (
       <div className="rs-client-hub rs-client-hub--loading">
@@ -486,8 +449,8 @@ export default function ClientStudioHub({ lang }) {
   }
 
   if (state === "auth") {
-    return checkoutSyncShell(
-      <div className="rs-client-hub-auth-inline">
+    return (
+      <div className="rs-client-hub">
         <h1>{t.clientHubAuthTitle}</h1>
         <p>{t.clientHubAuthLead}</p>
         <Link href={signInHref} className="rs-btn-accent">
@@ -505,18 +468,6 @@ export default function ClientStudioHub({ lang }) {
           {t.clientHubRetry}
         </button>
       </div>
-    );
-  }
-
-  if (state === "activating") {
-    return checkoutSyncShell(
-      <p className="rs-client-hub-sync-placeholder">
-        {L(
-          lang,
-          "Your executive workspace will appear here momentarily.",
-          "Votre espace executif apparaitra ici dans un instant."
-        )}
-      </p>
     );
   }
 

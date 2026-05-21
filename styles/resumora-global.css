@@ -4978,6 +4978,13 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
+/* Legacy checkout screens removed — hide if an old cached bundle still injects them */
+.rs-post-payment-activation,
+.rs-studio-checkout-sync,
+.rs-client-hub--checkout-sync {
+  display: none !important;
+}
+
 /* Compact post-checkout sync — studio stays visible, no full-page blocker */
 .rs-studio-checkout-sync {
   margin: 0 0 1.25rem;

@@ -1,11 +1,11 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect } from "react";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 
+/** Legacy /success — hands-free redirect straight into studio activation (no intermediate UI). */
 export default function SuccessPage() {
   const router = useRouter();
   const { lang } = useLanguage();
@@ -18,156 +18,28 @@ export default function SuccessPage() {
         ? session_id[0]
         : "";
 
-  /** Per-session verify result — avoids stale state when `session_id` query changes. */
-  const [bySession, setBySession] = useState(
-    /** @type {Record<string, { status: "pending" | "success" | "invalid" | "error"; planId?: string; studioPath?: string; freeEditsLabel?: string; displayName?: string }>} */ ({})
-  );
-  const [countdown, setCountdown] = useState(5);
-
   useEffect(() => {
-    if (!router.isReady || !sid) return;
-    let cancelled = false;
-    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        setBySession((prev) => ({
-          ...prev,
-          [sid]: {
-            status: data.valid ? "success" : "invalid",
-            planId: data.planId || null,
-            studioPath: data.studioPath || data.clientHubPath || "/studio",
-            freeEditsLabel: data.freeEditsLabel || "",
-            displayName: data.displayName || "",
-          },
-        }));
-      })
-      .catch(() => {
-        if (!cancelled) setBySession((prev) => ({ ...prev, [sid]: { status: "error" } }));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [router.isReady, sid, lang]);
-
-  const remote = sid ? bySession[sid]?.status ?? "pending" : "invalid";
-  const paidPlanId = sid ? bySession[sid]?.planId : null;
-  const studioPath = sid ? bySession[sid]?.studioPath || "/studio" : "/studio";
-  const freeEditsLabel = sid ? bySession[sid]?.freeEditsLabel : "";
-  const paymentConfirmedLead =
-    lang === "fr"
-      ? "Paiement confirmé. Votre espace Resumora est prêt. Continuez vers votre studio sécurisé pour téléverser vos documents et suivre votre nouveau CV."
-      : "Payment confirmed. Your Resumora workspace is ready. Please continue to your secure studio to upload documents and track your new resume.";
-  const continueLabel =
-    lang === "fr" ? "Continuer vers mon studio CV" : "Continue To My Resume Studio";
-  const studioCtaLabel = continueLabel;
-
-  const status = !router.isReady
-    ? "loading"
-    : !sid
-      ? "invalid"
-      : remote === "pending"
-        ? "loading"
-        : remote;
-
-  useEffect(() => {
-    if (status !== "success") return;
-    setCountdown(5);
-    const tick = setInterval(() => {
-      setCountdown((c) => (c > 0 ? c - 1 : 0));
-    }, 1000);
-    return () => clearInterval(tick);
-  }, [status, sid]);
-
-  useEffect(() => {
-    if (status !== "success" || !studioPath) return;
-    if (countdown > 0) return;
-    router.replace(studioPath).catch(() => {});
-  }, [status, studioPath, router, countdown]);
+    if (!router.isReady) return;
+    if (!sid) {
+      router.replace("/studio").catch(() => {});
+      return;
+    }
+    try {
+      sessionStorage.setItem("rs_last_checkout_session", sid);
+    } catch {
+      /* ignore */
+    }
+    router.replace(`/studio?session_id=${encodeURIComponent(sid)}`).catch(() => {});
+  }, [router.isReady, sid, router]);
 
   return (
     <MinimalAppChrome>
       <Head>
-        <title>{t.successVerifying} · Resumora</title>
-        <meta name="description" content={t.successWait} />
+        <title>{t.clientHubLoading} · Resumora</title>
+        <meta name="robots" content="noindex" />
       </Head>
-      <main className="rs-app-shell rs-app-shell--minimal-main">
-        <section className="rs-simple-card" style={{ textAlign: "center" }}>
-          {status === "loading" && (
-            <>
-              <h1>{t.successVerifying}</h1>
-              <p>{t.successWait}</p>
-            </>
-          )}
-
-          {status === "success" && (
-            <>
-              <h1>{t.successPaymentTitle}</h1>
-              <p>{t.successThanks}</p>
-              <p>{paymentConfirmedLead}</p>
-              <p>{t.successVerified}</p>
-              {freeEditsLabel ? (
-                <p className="rs-success-free-edits">
-                  {t.successFreeEditsLine} <strong>{freeEditsLabel}</strong>
-                </p>
-              ) : null}
-              {paidPlanId ? (
-                <>
-                  <p className="rs-success-countdown">
-                    {lang === "fr"
-                      ? `Redirection automatique dans ${countdown}s…`
-                      : `Auto-redirecting in ${countdown}s…`}
-                  </p>
-                  <p className="rs-success-ea-hint">
-                    {paidPlanId === "essential_advanced" ? t.successEaStudioHint : t.successClientHubHint}
-                  </p>
-                  <p>
-                    <Link href={studioPath} className="rs-btn-accent">
-                      {studioCtaLabel}
-                    </Link>
-                  </p>
-                  <p>
-                    <Link href="/studio" className="rs-link-muted">
-                      {t.successClientHubCta}
-                    </Link>
-                  </p>
-                </>
-              ) : null}
-              <p className="rs-success-private-hint">{t.successPrivateFeedbackHint}</p>
-              <p className="rs-success-private-cta">
-                <a
-                  href={`mailto:${t.footerEmail}?subject=${encodeURIComponent("Private feedback (Resumora client)")}`}
-                  className="rs-btn-ghost"
-                >
-                  {t.successPrivateFeedbackCta}
-                </a>
-              </p>
-              <Link href="/" className="rs-link-muted">
-                {t.returnHome}
-              </Link>
-            </>
-          )}
-
-          {status === "invalid" && (
-            <>
-              <h1>{t.successInvalidTitle}</h1>
-              <p>{t.successInvalidLead}</p>
-              <Link href="/" className="rs-link-muted">
-                {t.returnHome}
-              </Link>
-            </>
-          )}
-
-          {status === "error" && (
-            <>
-              <h1>{t.successErrorTitle}</h1>
-              <p>{t.successErrorLead}</p>
-              <Link href="/" className="rs-link-muted">
-                {t.returnHome}
-              </Link>
-            </>
-          )}
-        </section>
+      <main className="rs-app-shell rs-app-shell--minimal-main rs-client-hub--loading">
+        <p style={{ textAlign: "center", opacity: 0.6 }}>{t.clientHubLoading}</p>
       </main>
     </MinimalAppChrome>
   );
