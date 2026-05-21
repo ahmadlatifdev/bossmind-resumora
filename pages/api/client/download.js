@@ -12,6 +12,7 @@ export default async function handler(req, res) {
 
   const planId = String(req.query.planId || "").trim();
   const assetId = String(req.query.assetId || "welcome").trim();
+  const format = String(req.query.format || "md").toLowerCase();
   const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
 
   if (!planId) {
@@ -31,8 +32,15 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "asset_not_found" });
     }
 
-    const filename = `resumora-${planId}-welcome-${lang}.md`;
-    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    const ext = format === "pdf" ? "pdf" : format === "docx" ? "docx" : "md";
+    const mime =
+      format === "pdf"
+        ? "application/pdf"
+        : format === "docx"
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : "text/markdown; charset=utf-8";
+    const filename = `resumora-${planId}-${lang}.${ext}`;
+    res.setHeader("Content-Type", mime);
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.setHeader("Cache-Control", "private, no-store");
     return res.status(200).send(body);

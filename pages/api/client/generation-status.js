@@ -8,6 +8,7 @@ const {
   listWorkspaceDocuments,
 } = require("../../../lib/client/workspace-store");
 const { markOnboarding } = require("../../../lib/client/onboarding-journey");
+const { finalizeGenerationDelivery } = require("../../../lib/client/generation-delivery");
 
 const PIPELINE = [
   { key: "queued", pct: 5 },
@@ -35,7 +36,12 @@ async function advanceGenerationPipeline(profileId, planId) {
   const docs = await listWorkspaceDocuments(profileId, planId);
   const hasResume = docs.some((d) => d.doc_type === "resume");
   if (hasResume && next.key === "ready") {
-    await markOnboarding(profileId, { deliveryReady: true });
+    await markOnboarding(profileId, { deliveryReady: true, downloadDelivered: false });
+    await finalizeGenerationDelivery({
+      profileId,
+      planId,
+      lang: "en",
+    }).catch(() => {});
   }
   return { advanced: true, status: next.key, stage: next.key };
 }

@@ -37,6 +37,8 @@ export default function ClientStudioHub({ lang }) {
   const [toast, setToast] = useState("");
   const [checkoutVerify, setCheckoutVerify] = useState(null);
   const [showUploadWizard, setShowUploadWizard] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [redirectCountdown, setRedirectCountdown] = useState(0);
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
@@ -102,6 +104,11 @@ export default function ClientStudioHub({ lang }) {
           invoiceReference: data.invoiceReference,
         });
         if (data.valid) {
+          try {
+            sessionStorage.setItem("rs_last_checkout_session", sid);
+          } catch {
+            /* ignore */
+          }
           setShowUploadWizard(true);
           setToast(
             L(lang, "Payment confirmed. Upload your documents to begin.", "Paiement confirme. Televersez vos documents.")
@@ -111,8 +118,68 @@ export default function ClientStudioHub({ lang }) {
         }
         router.replace("/studio", undefined, { shallow: true }).catch(() => {});
       })
-      .catch(() => setCheckoutVerify({ status: "error" }));
+      .catch(async () => {
+        setCheckoutVerify({ status: "error" });
+        try {
+          const last = sessionStorage.getItem("rs_last_checkout_session");
+          if (last) {
+            const r = await fetch(
+              `/api/client/checkout-recovery?session_id=${encodeURIComponent(last)}&lang=${lang}`,
+              { credentials: "same-origin" }
+            );
+            const j = await r.json();
+            if (j.recovered) {
+              setCheckoutVerify({ status: "success", planId: j.planId, displayName: j.displayName });
+              await load();
+            }
+          }
+        } catch {
+          /* ignore */
+        }
+      });
   }, [router.isReady, router.query.checkout, router.query.session_id, lang, load, refreshJourney, router]);
+
+  useEffect(() => {
+    if (!router.isReady || firstQuery(router.query.checkout) === "success") return;
+    try {
+      const last = sessionStorage.getItem("rs_last_checkout_session");
+      if (!last) return;
+      setRedirectCountdown(8);
+      const tick = setInterval(() => setRedirectCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
+      fetch(`/api/client/checkout-recovery?session_id=${encodeURIComponent(last)}&lang=${lang}`, {
+        credentials: "same-origin",
+      })
+        .then((r) => r.json())
+        .then(async (j) => {
+          if (j.recovered) {
+            setCheckoutVerify({ status: "success", planId: j.planId, displayName: j.displayName });
+            setShowUploadWizard(true);
+            await load();
+          }
+        })
+        .catch(() => {});
+      return () => clearInterval(tick);
+    } catch {
+      /* ignore */
+    }
+  }, [router.isReady, router.query.checkout, lang, load]);
+
+  async function recoverWorkspaceByEmail() {
+    const email = recoveryEmail.trim();
+    if (!email.includes("@")) return;
+    const r = await fetch(`/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`, {
+      credentials: "same-origin",
+    });
+    const j = await r.json();
+    if (j.recovered) {
+      setToast(L(lang, "Workspace restored.", "Espace client restaure."));
+      await load();
+      await refreshJourney();
+      if (j.continueUrl) router.push(j.continueUrl).catch(() => {});
+    } else {
+      setToast(L(lang, "No purchase found for this email.", "Aucun achat trouve pour ce courriel."));
+    }
+  }
 
   useEffect(() => {
     if (!hub?.plans?.length) return;
@@ -287,10 +354,41 @@ export default function ClientStudioHub({ lang }) {
         </div>
       ) : null}
       {checkoutVerify?.status === "invalid" || checkoutVerify?.status === "error" ? (
-        <p className="rs-payment-confirmed-banner rs-payment-confirmed-banner--warn" role="alert">
-          {L(lang, "We could not verify this payment session. Contact support if you were charged.", "Impossible de verifier cette session. Contactez le support si vous avez ete debite.")}
-        </p>
+        <div className="rs-payment-confirmed-banner rs-payment-confirmed-banner--warn" role="alert">
+          <p>
+            {L(lang, "We could not verify this payment session. Contact support if you were charged.", "Impossible de verifier cette session. Contactez le support si vous avez ete debite.")}
+          </p>
+          <Link href="/studio" className="rs-btn-accent">
+            {L(lang, "Continue To My Studio", "Continuer vers mon studio")}
+          </Link>
+        </div>
       ) : null}
+      <p className="rs-client-hub-continue">
+        <Link href="/studio" className="rs-btn-ghost">
+          {L(lang, "Continue To My Studio", "Continuer vers mon studio")}
+        </Link>
+        {redirectCountdown > 0 ? (
+          <span className="rs-success-countdown">
+            {" "}
+            {L(lang, `Restoring session ${redirectCountdown}s…`, `Restauration ${redirectCountdown}s…`)}
+          </span>
+        ) : null}
+      </p>
+      <div className="rs-checkout-recovery">
+        <label>
+          {L(lang, "Recover workspace by email", "Recuperer par courriel")}
+          <input
+            className="rs-input"
+            type="email"
+            value={recoveryEmail}
+            onChange={(e) => setRecoveryEmail(e.target.value)}
+            placeholder={L(lang, "you@email.com", "vous@courriel.com")}
+          />
+        </label>
+        <button type="button" className="rs-btn-ghost" onClick={recoverWorkspaceByEmail}>
+          {L(lang, "Restore access", "Restaurer l'acces")}
+        </button>
+      </div>
 
       {journey?.progress?.steps?.length ? (
         <OnboardingProgress steps={journey.progress.steps} percent={journey.progress.percent} lang={lang} />
@@ -379,10 +477,27 @@ export default function ClientStudioHub({ lang }) {
                   {plan.delivery.status}
                 </p>
                 {plan.delivery.message ? <p>{plan.delivery.message}</p> : null}
-                {plan.delivery.download_url ? (
-                  <a href={plan.delivery.download_url} className="rs-btn-ghost">
-                    {L(lang, "Download latest resume", "Telecharger le CV")}
-                  </a>
+                {plan.delivery?.download_url || plan.generationStatus === "ready" ? (
+                  <div className="rs-delivery-downloads">
+                    <a
+                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=pdf&lang=${lang}`}
+                      className="rs-btn-accent"
+                    >
+                      {L(lang, "Download PDF", "Telecharger PDF")}
+                    </a>
+                    <a
+                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=docx&lang=${lang}`}
+                      className="rs-btn-ghost"
+                    >
+                      {L(lang, "Download DOCX", "Telecharger DOCX")}
+                    </a>
+                    <a
+                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&lang=${lang === "fr" ? "en" : "fr"}`}
+                      className="rs-btn-ghost"
+                    >
+                      {L(lang, "Bilingual pack (EN/FR)", "Pack bilingue EN/FR")}
+                    </a>
+                  </div>
                 ) : null}
               </div>
             ) : (

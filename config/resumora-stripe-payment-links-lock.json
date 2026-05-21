@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-17T20:23:47.806Z",
+  "generatedAt": "2026-05-21T09:52:19.272Z",
   "officialBrand": "Resumora",
   "currency": "usd",
   "checkoutMode": "payment",
-  "logoUrl": "https://www.resumora.net/brand/resumora-logo-official-transparent.png",
+  "logoUrl": "https://resumora.net/brand/resumora-logo-official-transparent.png",
   "dryRun": false,
   "services": [
     {
@@ -20,7 +20,7 @@
       "priceId": "price_1TYBDuGjsXTaeZBgFRYpbSuy",
       "paymentLinkId": "plink_1TYBDvGjsXTaeZBgHucwATH6",
       "paymentLinkUrl": "https://buy.stripe.com/test_00w9ATgCp0151atfE40Fi07",
-      "linkCreated": true,
+      "linkCreated": false,
       "active": true
     },
     {
@@ -187,9 +187,9 @@
   },
   "manifestHash": "be747568243857913427bc4bdb997cccfadff3f50d9b13c453a91204eda8b867",
   "backups": {
-    "txt": "D:/BossMind/resumora-fresh/windows-heal/stripe-payment-links/resumora-payment-links-secure-backup.txt",
-    "googleDocsExport": "D:/BossMind/resumora-fresh/windows-heal/stripe-payment-links/resumora-payment-links-google-docs-export.txt",
-    "json": "D:/BossMind/resumora-fresh/windows-heal/stripe-payment-links/payment-links-2026-05-17T20-23-47-806Z.json",
-    "bossmind": "D:/BossMind/resumora-fresh/.bossmind/stripe-payment-links/latest.json"
+    "txt": "D:/BossMind/bossmind-resumora/windows-heal/stripe-payment-links/resumora-payment-links-secure-backup.txt",
+    "googleDocsExport": "D:/BossMind/bossmind-resumora/windows-heal/stripe-payment-links/resumora-payment-links-google-docs-export.txt",
+    "json": "D:/BossMind/bossmind-resumora/windows-heal/stripe-payment-links/payment-links-2026-05-21T09-52-19-272Z.json",
+    "bossmind": "D:/BossMind/bossmind-resumora/.bossmind/stripe-payment-links/latest.json"
   }
 }

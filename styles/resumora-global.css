@@ -4978,3 +4978,30 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
+.rs-checkout-recovery {
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.rs-checkout-recovery label {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+.rs-delivery-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+@media (max-width: 640px) {
+  .rs-delivery-downloads .rs-btn-accent,
+  .rs-delivery-downloads .rs-btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+}
