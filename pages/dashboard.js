@@ -15,12 +15,23 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" })
+    let storedSid = "";
+    try {
+      storedSid = sessionStorage.getItem("rs_last_checkout_session") || "";
+    } catch {
+      /* ignore */
+    }
+    const qs = new URLSearchParams({ lang });
+    if (storedSid) qs.set("session_id", storedSid);
+    fetch(`/api/client/onboarding?${qs.toString()}`, { credentials: "same-origin" })
       .then((r) => r.json())
       .then((j) => {
         if (!cancelled) setJourney(j);
-        if (!cancelled && j?.signedIn && j?.next?.path && j.next.path !== "/dashboard") {
-          router.replace(j.next.path).catch(() => {});
+        const nextPath = j?.next?.path || "";
+        if (!cancelled && j?.signedIn && nextPath && nextPath !== "/dashboard") {
+          if (storedSid || !nextPath.startsWith("/pricing")) {
+            router.replace(nextPath).catch(() => {});
+          }
         }
       })
       .catch(() => {});

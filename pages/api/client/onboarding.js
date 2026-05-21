@@ -29,7 +29,10 @@ export default async function handler(req, res) {
     }
 
     const state = await getOnboardingState(profileId, lang);
-    const next = await getNextAction(profileId, lang, req.query);
+    const next = await getNextAction(profileId, lang, {
+      ...req.query,
+      session_id: req.query.session_id || req.query.stripe_session_id || "",
+    });
     const planId = state.activePlanId;
     const deliverable = planId ? getDeliverableForPlan(planId, lang) : null;
 

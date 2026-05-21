@@ -5,10 +5,16 @@ import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  getPostAuthRedirectPath,
   normalizeCheckoutPlanId,
   setPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
+import {
+  extractSessionIdFromPath,
+  getStoredCheckoutSessionId,
+  hasPaidCheckoutPending,
+  persistCheckoutSessionId,
+  resolvePostAuthRedirect,
+} from "@/lib/marketing/post-auth-redirect";
 import { translations } from "@/lib/marketing/site-copy";
 
 function firstQuery(value) {
@@ -28,16 +34,23 @@ export default function LoginPage() {
     if (!router.isReady) return;
     const p = normalizeCheckoutPlanId(firstQuery(router.query.plan));
     if (p) setPendingCheckoutPlan(p);
-  }, [router.isReady, router.query.plan]);
+    const next = firstQuery(router.query.next);
+    const sid = extractSessionIdFromPath(next) || getStoredCheckoutSessionId();
+    if (sid) persistCheckoutSessionId(sid);
+  }, [router.isReady, router.query.plan, router.query.next]);
 
   async function onSubmit(e) {
     e.preventDefault();
     setMessage("");
     setError("");
     const fd = new FormData(e.currentTarget);
+    const stripeSessionId =
+      extractSessionIdFromPath(firstQuery(router.query.next)) || getStoredCheckoutSessionId();
     const body = {
       email: String(fd.get("email") || ""),
       password: String(fd.get("password") || ""),
+      stripe_session_id: stripeSessionId || undefined,
+      lang,
     };
     const res = await fetch("/api/engagement/login", {
       method: "POST",
@@ -48,21 +61,53 @@ export default function LoginPage() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       if (data.error === "invalid_credentials") setError(t.errInvalidCredentials);
-      else setError(typeof data.error === "string" ? data.error : t.errLoginGeneric);
+      else if (data.failedStep === "auth_email_mismatch") {
+        setError(
+          lang === "fr"
+            ? "Utilisez l'email utilise lors du paiement Stripe."
+            : "Sign in with the same email you used for Stripe checkout."
+        );
+      } else setError(typeof data.error === "string" ? data.error : t.errLoginGeneric);
       return;
     }
+
     setMessage(t.loginSignedIn);
-    try {
-      const ob = await fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" });
-      const journey = await ob.json();
-      if (journey?.next?.path) {
-        await router.push(journey.next.path);
-        return;
+
+    const redirectPath = resolvePostAuthRedirect(router);
+    const paidPending = hasPaidCheckoutPending(router) || Boolean(stripeSessionId);
+
+    if (data.activation?.activationSuccess) {
+      try {
+        sessionStorage.setItem("rs_post_login", "1");
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* fallback */
+      await router.replace("/studio");
+      return;
     }
-    await router.push(getPostAuthRedirectPath(router));
+
+    if (!paidPending) {
+      try {
+        const qs = new URLSearchParams({ lang });
+        if (stripeSessionId) qs.set("session_id", stripeSessionId);
+        const ob = await fetch(`/api/client/onboarding?${qs.toString()}`, { credentials: "same-origin" });
+        const journey = await ob.json();
+        const nextPath = journey?.next?.path || "";
+        if (nextPath && !nextPath.startsWith("/pricing")) {
+          await router.replace(nextPath);
+          return;
+        }
+      } catch {
+        /* fallback */
+      }
+    }
+
+    try {
+      sessionStorage.setItem("rs_post_login", "1");
+    } catch {
+      /* ignore */
+    }
+    await router.replace(redirectPath);
   }
 
   return (

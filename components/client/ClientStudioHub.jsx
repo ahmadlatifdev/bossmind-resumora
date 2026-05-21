@@ -95,6 +95,8 @@ export default function ClientStudioHub({ lang }) {
   const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
   const loadRef = useRef(null);
+  const loginRedirectCountRef = useRef(0);
+  const MAX_LOGIN_REDIRECTS = 2;
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -208,6 +210,29 @@ export default function ClientStudioHub({ lang }) {
           setHub(data);
           const mustSignIn = pending && (data.needsSignIn || data.fulfillmentOk || data.planId);
           if (mustSignIn) {
+            let postLogin = false;
+            try {
+              postLogin = sessionStorage.getItem("rs_post_login") === "1";
+              if (postLogin) sessionStorage.removeItem("rs_post_login");
+            } catch {
+              /* ignore */
+            }
+            if (postLogin) {
+              setState("loading");
+              return false;
+            }
+            if (loginRedirectCountRef.current >= MAX_LOGIN_REDIRECTS) {
+              setToast(
+                L(
+                  lang,
+                  "Sign in with the same email used at Stripe checkout, then refresh this page.",
+                  "Connectez-vous avec le meme email que pour le paiement Stripe, puis actualisez."
+                )
+              );
+              setState("error");
+              return false;
+            }
+            loginRedirectCountRef.current += 1;
             const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
             router.replace(`/login?next=${encodeURIComponent(next)}`).catch(() => {});
           }
@@ -304,16 +329,41 @@ export default function ClientStudioHub({ lang }) {
         return;
       }
 
+      if (outcome.status === "email_mismatch") {
+        setToast(
+          L(
+            lang,
+            `Sign in with ${data.stripeCheckoutEmail || "your Stripe checkout email"} to unlock your workspace.`,
+            `Connectez-vous avec ${data.stripeCheckoutEmail || "l'email du paiement Stripe"} pour activer votre espace.`
+          )
+        );
+        if (loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
+          loginRedirectCountRef.current += 1;
+          router.replace(signInHref).catch(() => {});
+        } else {
+          setState("error");
+        }
+        return;
+      }
+
       if (outcome.status === "needs_sign_in") {
-        setNeedsSignIn(true);
+        if (loginRedirectCountRef.current >= MAX_LOGIN_REDIRECTS) {
+          setState("error");
+          return;
+        }
+        loginRedirectCountRef.current += 1;
         const target =
           data.redirectTo || `/login?next=${encodeURIComponent(`/studio?session_id=${encodeURIComponent(sid)}`)}`;
         router.replace(target).catch(() => {});
         return;
       }
 
-      const target = data.redirectTo || signInHref;
-      router.replace(target).catch(() => {});
+      if (loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
+        loginRedirectCountRef.current += 1;
+        router.replace(data.redirectTo || signInHref).catch(() => {});
+      } else {
+        setState("error");
+      }
     })();
 
     return () => {
@@ -321,11 +371,6 @@ export default function ClientStudioHub({ lang }) {
       ac.abort();
     };
   }, [router.isReady, router.query.session_id, lang, enterStudioFromPayload, refreshJourney, router]);
-
-  useEffect(() => {
-    if (!needsSignIn) return;
-    router.replace(signInHref).catch(() => {});
-  }, [needsSignIn, signInHref, router]);
 
   useEffect(() => {
     if (state !== "ready") return;
@@ -399,14 +444,6 @@ export default function ClientStudioHub({ lang }) {
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-      </div>
-    );
-  }
-
-  if (state === "checkout_recovery") {
-    return (
-      <div className="rs-client-hub rs-client-hub--calm-prepare rs-client-hub--checkout-recovery-only">
-        <StudioCheckoutRecovery lang={lang} onContinue={continueToWorkspace} busy={recoveryBusy} />
       </div>
     );
   }

@@ -5,10 +5,16 @@ import { useRouter } from "next/router";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
 import { useLanguage } from "@/context/LanguageContext";
 import {
-  getPostAuthRedirectPath,
   normalizeCheckoutPlanId,
   setPendingCheckoutPlan,
 } from "@/lib/marketing/checkout-plan-persistence";
+import {
+  extractSessionIdFromPath,
+  getStoredCheckoutSessionId,
+  hasPaidCheckoutPending,
+  persistCheckoutSessionId,
+  resolvePostAuthRedirect,
+} from "@/lib/marketing/post-auth-redirect";
 import { pricingPlans, translations } from "@/lib/marketing/site-copy";
 import { freeEditsLabel } from "@/lib/client/plan-policy";
 import { trackGa4 } from "@/lib/marketing/resumora-ga4-events";
@@ -38,7 +44,10 @@ export default function RegisterPage({ initialPlan = null }) {
     const p = normalizeCheckoutPlanId(firstQuery(router.query.plan));
     if (p) setPendingCheckoutPlan(p);
     else if (initialPlan) setPendingCheckoutPlan(initialPlan);
-  }, [router.isReady, router.query.plan, initialPlan]);
+    const next = firstQuery(router.query.next);
+    const sid = extractSessionIdFromPath(next) || getStoredCheckoutSessionId();
+    if (sid) persistCheckoutSessionId(sid);
+  }, [router.isReady, router.query.plan, router.query.next, initialPlan]);
 
   const planMeta = useMemo(() => {
     const fromRouter = router.isReady ? normalizeCheckoutPlanId(firstQuery(router.query.plan)) : "";
@@ -51,10 +60,14 @@ export default function RegisterPage({ initialPlan = null }) {
     setMessage("");
     setError("");
     const fd = new FormData(e.currentTarget);
+    const stripeSessionId =
+      extractSessionIdFromPath(firstQuery(router.query.next)) || getStoredCheckoutSessionId();
     const body = {
       email: String(fd.get("email") || ""),
       password: String(fd.get("password") || ""),
       displayName: String(fd.get("displayName") || ""),
+      stripe_session_id: stripeSessionId || undefined,
+      lang,
     };
     const res = await fetch("/api/engagement/register", {
       method: "POST",
@@ -65,24 +78,55 @@ export default function RegisterPage({ initialPlan = null }) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       if (data.error === "email_in_use") setError(t.errEmailInUse);
-      else if (data.error === "Database unavailable" && data.recoveryHint) {
+      else if (data.failedStep === "auth_email_mismatch" || data.error === "checkout_email_mismatch") {
+        setError(
+          lang === "fr"
+            ? "Utilisez l'email utilise lors du paiement Stripe."
+            : "Use the same email you used for Stripe checkout."
+        );
+      } else if (data.error === "Database unavailable" && data.recoveryHint) {
         setError(`${t.errRegisterGeneric} (${data.recoveryHint})`);
       } else setError(typeof data.error === "string" ? data.error : t.errRegisterGeneric);
       return;
     }
     trackGa4("sign_up", { method: "engagement_register" });
     setMessage(t.registerCreated);
-    try {
-      const ob = await fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" });
-      const journey = await ob.json();
-      if (journey?.next?.path) {
-        await router.push(journey.next.path);
-        return;
+
+    const redirectPath = resolvePostAuthRedirect(router);
+    const paidPending = hasPaidCheckoutPending(router) || Boolean(stripeSessionId);
+
+    if (data.activation?.activationSuccess) {
+      try {
+        sessionStorage.setItem("rs_post_login", "1");
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* fallback */
+      await router.replace("/studio");
+      return;
     }
-    await router.push(getPostAuthRedirectPath(router));
+
+    if (!paidPending) {
+      try {
+        const qs = new URLSearchParams({ lang });
+        if (stripeSessionId) qs.set("session_id", stripeSessionId);
+        const ob = await fetch(`/api/client/onboarding?${qs.toString()}`, { credentials: "same-origin" });
+        const journey = await ob.json();
+        const nextPath = journey?.next?.path || "";
+        if (nextPath && !nextPath.startsWith("/pricing")) {
+          await router.replace(nextPath);
+          return;
+        }
+      } catch {
+        /* fallback */
+      }
+    }
+
+    try {
+      sessionStorage.setItem("rs_post_login", "1");
+    } catch {
+      /* ignore */
+    }
+    await router.replace(redirectPath);
   }
 
   return (

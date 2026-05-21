@@ -31,12 +31,22 @@ export default async function handler(req, res) {
       if (i < serverAttempts) await sleep(700 * i);
     }
 
+    if (payload.logs?.length) {
+      const failed = payload.logs.filter((e) => e.ok === false);
+      if (failed.length) {
+        console.error("[checkout-complete] activation_trace", {
+          sessionId: sessionId.slice(0, 22),
+          failedSteps: failed.map((e) => e.phase),
+        });
+      }
+    }
     if (!payload.activationSuccess && payload.failedStep) {
       console.error("[checkout-complete] activation_incomplete", {
         sessionId: sessionId.slice(0, 22),
         phase: payload.phase,
         failedStep: payload.failedStep,
         signedIn: payload.signedIn,
+        activationStatus: payload.activationStatus,
       });
     }
 
