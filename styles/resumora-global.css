@@ -4978,6 +4978,106 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
+/* Compact post-checkout sync — studio stays visible, no full-page blocker */
+.rs-studio-checkout-sync {
+  margin: 0 0 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  background: linear-gradient(135deg, rgba(24, 22, 14, 0.95), rgba(10, 10, 12, 0.98));
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  animation: rsActivationCardEnter 0.4s ease-out both;
+}
+.rs-studio-checkout-sync-inner {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem 0.95rem;
+}
+@media (min-width: 720px) {
+  .rs-studio-checkout-sync-inner {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.75rem 1rem;
+  }
+  .rs-studio-checkout-sync-meter {
+    grid-column: 1 / -1;
+  }
+}
+.rs-studio-checkout-sync-eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 39, 0.8);
+}
+.rs-studio-checkout-sync-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 0.5rem;
+}
+.rs-studio-checkout-sync-sub {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+.rs-studio-checkout-sync-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+}
+.rs-studio-checkout-sync-meter {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.rs-studio-checkout-sync-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9a7b1a, #e8d48a);
+  transition: width 0.5s ease;
+}
+.rs-studio-checkout-sync-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.rs-studio-checkout-sync-pulse {
+  font-size: 0.8rem;
+  color: rgba(201, 162, 39, 0.9);
+}
+.rs-studio-checkout-sync-pulse::before {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: #c9a227;
+  vertical-align: middle;
+  animation: rsActivationPulse 1.2s ease-in-out infinite;
+}
+.rs-btn-accent--compact {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+}
+.rs-client-hub--checkout-sync .rs-client-hub-sync-body {
+  opacity: 0.45;
+  pointer-events: none;
+  filter: blur(0.5px);
+  transition: opacity 0.35s ease;
+}
+.rs-client-hub-sync-placeholder {
+  margin: 2rem 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.95rem;
+}
+.rs-client-hub-auth-inline {
+  max-width: 28rem;
+  padding: 1rem 0 2rem;
+}
 .rs-post-payment-activation {
   margin: 0 auto;
   max-width: 42rem;

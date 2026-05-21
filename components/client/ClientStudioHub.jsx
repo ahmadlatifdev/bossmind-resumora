@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
-import PostPaymentActivation from "@/components/client/PostPaymentActivation";
+import StudioCheckoutSync from "@/components/client/StudioCheckoutSync";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -291,6 +291,22 @@ export default function ClientStudioHub({ lang }) {
   }, [router.isReady, router.query.session_id, load, router]);
 
   useEffect(() => {
+    const sid = resolveSessionId();
+    if (!sid || !router.isReady) return;
+    let cancelled = false;
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, { credentials: "same-origin" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (data.valid && data.hasAccess) load(sid, { skipActivatingGate: true });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [resolveSessionId, router.isReady, lang, load]);
+
+  useEffect(() => {
     if (!needsSignIn) return;
     const t = setTimeout(() => {
       router.push(signInHref).catch(() => {});
@@ -412,20 +428,28 @@ export default function ClientStudioHub({ lang }) {
     }
   }
 
-  const activationViewProps = {
-    lang,
-    attempt: activationAttempt,
-    activation,
-    luxuryStages,
-    conciergeMessage,
-    progressPercent: progressPercent ?? (activationExtended ? 88 : null),
-    needsSignIn,
-    signInHref,
-    onRecover: manualRecoverPurchase,
-    recoveryEmail,
-    onRecoveryEmailChange: setRecoveryEmail,
-    onEmailRecover: recoverWorkspaceByEmail,
-  };
+  const syncProgress =
+    progressPercent ??
+    (activation?.generationReady ? 100 : activation?.workspaceReady ? 82 : activation?.planActivated ? 55 : 28) ??
+    Math.min(90, 15 + activationAttempt * 3);
+
+  const checkoutSyncBar = (
+    <StudioCheckoutSync
+      lang={lang}
+      attempt={activationAttempt}
+      progressPercent={syncProgress}
+      needsSignIn={needsSignIn}
+      signInHref={signInHref}
+      onAssist={activationAttempt >= 15 ? manualRecoverPurchase : undefined}
+    />
+  );
+
+  const checkoutSyncShell = (body) => (
+    <div className="rs-client-hub rs-client-hub--checkout-sync" data-rs-checkout-sync="1">
+      {checkoutSyncBar}
+      <div className="rs-client-hub-sync-body">{body}</div>
+    </div>
+  );
 
   useEffect(() => {
     if (!hub?.plans?.length) return;
@@ -448,7 +472,9 @@ export default function ClientStudioHub({ lang }) {
   }, [hub, load, resolveSessionId]);
 
   if (state === "loading" && hasPendingCheckout(router)) {
-    return <PostPaymentActivation {...activationViewProps} attempt={0} />;
+    return checkoutSyncShell(
+      <p className="rs-client-hub-sync-placeholder">{t.clientHubLoading}</p>
+    );
   }
 
   if (state === "loading") {
@@ -460,14 +486,13 @@ export default function ClientStudioHub({ lang }) {
   }
 
   if (state === "auth") {
-    return (
-      <div className="rs-client-hub">
+    return checkoutSyncShell(
+      <div className="rs-client-hub-auth-inline">
         <h1>{t.clientHubAuthTitle}</h1>
         <p>{t.clientHubAuthLead}</p>
-        <Link href="/login" className="rs-btn-accent">
+        <Link href={signInHref} className="rs-btn-accent">
           {t.clientHubAuthCta}
         </Link>
-        {hasPendingCheckout(router) ? <PostPaymentActivation {...activationViewProps} /> : null}
       </div>
     );
   }
@@ -484,7 +509,15 @@ export default function ClientStudioHub({ lang }) {
   }
 
   if (state === "activating") {
-    return <PostPaymentActivation {...activationViewProps} />;
+    return checkoutSyncShell(
+      <p className="rs-client-hub-sync-placeholder">
+        {L(
+          lang,
+          "Your executive workspace will appear here momentarily.",
+          "Votre espace executif apparaitra ici dans un instant."
+        )}
+      </p>
+    );
   }
 
   if (state === "no_plan") {
