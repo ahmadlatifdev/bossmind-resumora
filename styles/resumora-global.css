@@ -5053,14 +5053,29 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   padding: 0.5rem 0 2rem;
   min-height: 40vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  contain: layout style;
 }
 .rs-studio-calm-prepare {
   max-width: 36rem;
   margin: 0 auto;
   padding: 2rem 1.25rem 2.5rem;
   text-align: center;
+}
+.rs-studio-calm-prepare--enter {
+  animation: rsCalmPrepareFade 0.65s ease-out both;
+}
+@keyframes rsCalmPrepareFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .rs-studio-calm-prepare-eyebrow {
   margin: 0 0 0.75rem;
@@ -5085,22 +5100,33 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 .rs-studio-calm-prepare-bar-fill {
   display: block;
-  width: 38%;
+  width: 42%;
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, #9a7b1a, #e8d48a);
-  will-change: transform;
-  animation: rsCalmIndeterminate 2.4s ease-in-out infinite alternate;
+  animation: rsCalmIndeterminate 6s ease-in-out infinite alternate;
 }
 @keyframes rsCalmIndeterminate {
   0% {
-    transform: translateX(-5%);
-    opacity: 0.75;
+    transform: translateX(0);
+    opacity: 0.82;
   }
   100% {
-    transform: translateX(165%);
+    transform: translateX(140%);
     opacity: 1;
   }
+}
+.rs-studio-checkout-recovery {
+  max-width: 28rem;
+  margin: 2rem auto 0;
+  text-align: center;
+  animation: rsCalmPrepareFade 0.5s ease-out 0.15s both;
+}
+.rs-studio-checkout-recovery-message {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
 }
 @media (prefers-reduced-motion: reduce) {
   .rs-studio-calm-prepare-bar-fill {

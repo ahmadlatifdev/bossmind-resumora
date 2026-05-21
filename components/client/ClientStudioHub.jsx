@@ -5,8 +5,11 @@ import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
-
-const CHECKOUT_ACTIVATION_TIMEOUT_MS = 20000;
+import StudioCheckoutRecovery from "@/components/client/StudioCheckoutRecovery";
+import {
+  runLuxuryCheckoutActivation,
+  LUXURY_CHECKOUT_TIMEOUT_MS,
+} from "@/lib/client/luxury-checkout-client";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -93,7 +96,7 @@ export default function ClientStudioHub({ lang }) {
   const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
   const loadRef = useRef(null);
-  const [checkoutFailedStep, setCheckoutFailedStep] = useState("");
+  const [recoveryBusy, setRecoveryBusy] = useState(false);
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -151,7 +154,6 @@ export default function ClientStudioHub({ lang }) {
       setState("ready");
       setShowUploadWizard(true);
       setNeedsSignIn(false);
-      setCheckoutFailedStep("");
       setCheckoutVerify({ status: "success", planId: data.planId, displayName: data.displayName });
       if (sid) clearCheckoutFromUrl(router);
       return true;
@@ -280,53 +282,32 @@ export default function ClientStudioHub({ lang }) {
 
     persistSessionId(sid);
     const ac = new AbortController();
-    const timeoutId = setTimeout(() => ac.abort(), CHECKOUT_ACTIVATION_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => ac.abort(), LUXURY_CHECKOUT_TIMEOUT_MS);
 
     (async () => {
       setState("loading");
-      setCheckoutFailedStep("");
 
-      try {
-        const qs = new URLSearchParams({ lang, session_id: sid });
-        const res = await fetch(`/api/client/checkout-complete?${qs.toString()}`, {
-          credentials: "same-origin",
-          signal: ac.signal,
-        });
-        const data = await res.json().catch(() => ({}));
+      const outcome = await runLuxuryCheckoutActivation(sid, lang, { signal: ac.signal });
+      if (runId !== orchestrationRunRef.current) return;
 
-        if (runId !== orchestrationRunRef.current) return;
+      const data = outcome.data || {};
+      if (data.stripeCheckoutEmail) setRecoveryEmail(data.stripeCheckoutEmail);
 
-        if (data.activationStatus === "complete" && data.hasAccess) {
-          enterStudioFromPayload(data, sid);
-          await refreshJourney();
-          return;
-        }
+      if (outcome.status === "complete") {
+        enterStudioFromPayload(data, sid);
+        await refreshJourney();
+        return;
+      }
 
-        if (data.activationStatus === "needs_sign_in" || data.needsSignIn) {
-          setNeedsSignIn(true);
-          const target = data.redirectTo || `/login?next=${encodeURIComponent(`/studio?session_id=${encodeURIComponent(sid)}`)}`;
-          router.replace(target).catch(() => {});
-          setState("auth");
-          return;
-        }
+      if (outcome.status === "needs_sign_in") {
+        setNeedsSignIn(true);
+        const target =
+          data.redirectTo || `/login?next=${encodeURIComponent(`/studio?session_id=${encodeURIComponent(sid)}`)}`;
+        router.replace(target).catch(() => {});
+        return;
+      }
 
-        if (data.activationStatus === "pending") {
-          setCheckoutFailedStep(data.failedStep || "payment_confirmed");
-          setState("checkout_recovery");
-          return;
-        }
-
-        setCheckoutFailedStep(data.failedStep || "activation_failed");
-        if (data.stripeCheckoutEmail) setRecoveryEmail(data.stripeCheckoutEmail);
-        setState("checkout_recovery");
-      } catch (err) {
-        if (runId !== orchestrationRunRef.current) return;
-        if (err?.name === "AbortError") {
-          setCheckoutFailedStep("timeout");
-          setState("checkout_recovery");
-          return;
-        }
-        setCheckoutFailedStep("network_error");
+      if (outcome.status !== "aborted") {
         setState("checkout_recovery");
       }
     })();
@@ -335,7 +316,7 @@ export default function ClientStudioHub({ lang }) {
       clearTimeout(timeoutId);
       ac.abort();
     };
-  }, [router.isReady, router.query.session_id, lang, load, enterStudioFromPayload, refreshJourney, router]);
+  }, [router.isReady, router.query.session_id, lang, enterStudioFromPayload, refreshJourney, router]);
 
   useEffect(() => {
     if (!needsSignIn) return;
@@ -374,40 +355,32 @@ export default function ClientStudioHub({ lang }) {
     return () => ac.abort();
   }, [state, hub?.email, lang, load, resolveSessionId]);
 
-  async function manualRecoverPurchase() {
+  async function continueToWorkspace() {
     const sid = resolveSessionId();
     if (!sid) {
       await load("");
       return;
     }
+    setRecoveryBusy(true);
     setState("loading");
-    setCheckoutFailedStep("");
     const ac = new AbortController();
-    const timeoutId = setTimeout(() => ac.abort(), CHECKOUT_ACTIVATION_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => ac.abort(), LUXURY_CHECKOUT_TIMEOUT_MS);
     try {
-      const qs = new URLSearchParams({ lang, session_id: sid });
-      const res = await fetch(`/api/client/checkout-complete?${qs.toString()}`, {
-        credentials: "same-origin",
-        signal: ac.signal,
-      });
-      const data = await res.json().catch(() => ({}));
-      if (data.activationStatus === "complete" && data.hasAccess) {
+      const outcome = await runLuxuryCheckoutActivation(sid, lang, { signal: ac.signal });
+      const data = outcome.data || {};
+      if (outcome.status === "complete") {
         enterStudioFromPayload(data, sid);
         await refreshJourney();
         return;
       }
-      if (data.needsSignIn || data.activationStatus === "needs_sign_in") {
+      if (outcome.status === "needs_sign_in") {
         router.replace(data.redirectTo || signInHref).catch(() => {});
-        setState("auth");
         return;
       }
-      setCheckoutFailedStep(data.failedStep || "activation_failed");
-      setState("checkout_recovery");
-    } catch {
-      setCheckoutFailedStep("timeout");
       setState("checkout_recovery");
     } finally {
       clearTimeout(timeoutId);
+      setRecoveryBusy(false);
     }
   }
 
@@ -456,46 +429,18 @@ export default function ClientStudioHub({ lang }) {
   }
 
   if (state === "checkout_recovery") {
-    const stripeEmail = recoveryEmail || hub?.stripeCheckoutEmail || "";
-    const stepLabel = checkoutFailedStep || "activation";
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-        <div className="rs-studio-calm-prepare-actions">
-          <p className="rs-studio-calm-prepare-hint">
-            {L(
-              lang,
-              "We could not finish activating your workspace automatically. Sign in with your checkout email, then retry once.",
-              "Nous n'avons pas pu activer votre espace automatiquement. Connectez-vous avec le courriel d'achat, puis reessayez."
-            )}
-          </p>
-          <Link href={signInHref} className="rs-btn-accent">
-            {L(lang, "Sign in and open workspace", "Connexion et ouverture")}
-          </Link>
-          <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
-            {L(lang, "Retry activation", "Reessayer l'activation")}
-          </button>
-          {stripeEmail.includes("@") ? (
-            <p className="rs-studio-calm-prepare-hint">
-              {L(lang, `Checkout email: ${stripeEmail}`, `Courriel d'achat : ${stripeEmail}`)}
-            </p>
-          ) : null}
-          <p className="rs-studio-calm-prepare-hint rs-studio-calm-prepare-hint--muted">
-            {L(lang, `Step: ${stepLabel}`, `Etape : ${stepLabel}`)}
-          </p>
-        </div>
+        <StudioCheckoutRecovery lang={lang} onContinue={continueToWorkspace} busy={recoveryBusy} />
       </div>
     );
   }
 
   if (state === "auth") {
     return (
-      <div className="rs-client-hub">
-        <h1>{t.clientHubAuthTitle}</h1>
-        <p>{t.clientHubAuthLead}</p>
-        <Link href={signInHref} className="rs-btn-accent">
-          {t.clientHubAuthCta}
-        </Link>
+      <div className="rs-client-hub rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
       </div>
     );
   }
@@ -515,21 +460,7 @@ export default function ClientStudioHub({ lang }) {
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-        <p className="rs-studio-calm-prepare-hint">
-          {L(
-            lang,
-            "Your purchase is being secured. If this takes longer than expected, continue setup below.",
-            "Votre achat est en cours de securisation. Si l'attente se prolonge, poursuivez ci-dessous."
-          )}
-        </p>
-        <div className="rs-studio-calm-prepare-actions">
-          <button type="button" className="rs-btn-accent" onClick={manualRecoverPurchase}>
-            {L(lang, "Continue workspace setup", "Poursuivre la configuration")}
-          </button>
-          <Link href={signInHref} className="rs-btn-ghost">
-            {L(lang, "Sign in", "Connexion")}
-          </Link>
-        </div>
+        <StudioCheckoutRecovery lang={lang} onContinue={continueToWorkspace} busy={recoveryBusy} />
       </div>
     );
   }
@@ -544,26 +475,13 @@ export default function ClientStudioHub({ lang }) {
         <p className="rs-post-payment-activation-sub">
           {L(
             lang,
-            "Select an executive plan to activate upload channels, resume generation, and complimentary edits.",
-            "Selectionnez un forfait executif pour activer televersement, generation CV et retouches incluses."
-          )}
-        </p>
-        <p className="rs-post-payment-activation-concierge">
-          {L(
-            lang,
-            "Already purchased? We are checking your account for entitlements automatically.",
-            "Deja achete? Verification automatique de vos droits sur votre compte."
+            "Select an executive plan to begin your secure checkout.",
+            "Selectionnez un forfait executif pour commencer votre paiement securise."
           )}
         </p>
         <div className="rs-post-payment-activation-actions">
           <Link href="/pricing#pricing" className="rs-btn-accent">
-            {L(lang, "Choose a Plan", "Choisir un forfait")}
-          </Link>
-          <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
-            {L(lang, "Recover Purchase", "Recuperer l'achat")}
-          </button>
-          <Link href="/login" className="rs-btn-ghost">
-            {L(lang, "Sign in", "Connexion")}
+            {L(lang, "View Plans", "Voir les forfaits")}
           </Link>
         </div>
       </div>

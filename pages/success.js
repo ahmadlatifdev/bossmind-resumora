@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import MinimalAppChrome from "@/components/marketing/MinimalAppChrome";
+import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
 import { useLanguage } from "@/context/LanguageContext";
 import { translations } from "@/lib/marketing/site-copy";
 
@@ -38,8 +39,8 @@ export default function SuccessPage() {
         <title>{t.clientHubLoading} · Resumora</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <main className="rs-app-shell rs-app-shell--minimal-main rs-client-hub--loading">
-        <p style={{ textAlign: "center", opacity: 0.6 }}>{t.clientHubLoading}</p>
+      <main className="rs-app-shell rs-app-shell--minimal-main rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
       </main>
     </MinimalAppChrome>
   );

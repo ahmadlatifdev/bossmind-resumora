@@ -15,11 +15,35 @@ export default async function handler(req, res) {
 
   const lang = String(req.query.lang || req.body?.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
   const sessionId = String(req.query.session_id || req.body?.session_id || "").trim();
+  const attempt = Math.min(2, Math.max(1, parseInt(String(req.query.attempt || "1"), 10) || 1));
 
   try {
     const actor = await readEngagementActor(req, res);
-    const payload = await runCheckoutActivationPipeline(actor, { sessionId, lang });
-    return res.status(200).json({ ok: payload.ok !== false, ...payload });
+    let payload = await runCheckoutActivationPipeline(actor, { sessionId, lang });
+
+    const retriable =
+      payload.activationStatus === "pending" ||
+      payload.activationStatus === "failed" ||
+      !payload.activationComplete;
+    if (attempt === 2 && retriable && sessionId) {
+      payload = await runCheckoutActivationPipeline(actor, { sessionId, lang, silentRetry: true });
+    }
+
+    if (payload.failedStep || payload.steps?.length) {
+      console.info("[checkout-complete]", {
+        sessionId: sessionId.slice(0, 20),
+        attempt,
+        activationStatus: payload.activationStatus,
+        failedStep: payload.failedStep,
+      });
+    }
+
+    const { steps, failedStep, ...clientSafe } = payload;
+    return res.status(200).json({
+      ok: payload.ok !== false,
+      ...clientSafe,
+      activationStatus: payload.activationStatus,
+    });
   } catch (e) {
     console.error("[checkout-complete]", e.message);
     return res.status(500).json({
