@@ -5,7 +5,8 @@ import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
-import { silentCheckoutSync } from "@/lib/client/silent-checkout-sync";
+
+const CHECKOUT_ACTIVATION_TIMEOUT_MS = 20000;
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -92,8 +93,7 @@ export default function ClientStudioHub({ lang }) {
   const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
   const loadRef = useRef(null);
-  const runSilentCheckoutRef = useRef(null);
-  const [prepareTimedOut, setPrepareTimedOut] = useState(false);
+  const [checkoutFailedStep, setCheckoutFailedStep] = useState("");
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -123,9 +123,41 @@ export default function ClientStudioHub({ lang }) {
       setRecoveryEmail(data.stripeCheckoutEmail);
       accountEmailRef.current = data.stripeCheckoutEmail;
     }
+    if (data?.email) {
+      accountEmailRef.current = data.email;
+      setRecoveryEmail((prev) => prev || data.email);
+    }
     if (data?.needsSignIn) setNeedsSignIn(true);
     else if (data?.signedIn && data?.hasAccess) setNeedsSignIn(false);
   }, []);
+
+  const enterStudioFromPayload = useCallback(
+    (data, sid) => {
+      applyActivationPayload(data);
+      const plans =
+        data.plans?.length > 0
+          ? data.plans
+          : data.planId
+            ? [
+                {
+                  planId: data.planId,
+                  displayName: data.displayName || data.planId,
+                  documents: [],
+                  generationStatus: "queued",
+                },
+              ]
+            : [];
+      setHub({ ...data, plans });
+      setState("ready");
+      setShowUploadWizard(true);
+      setNeedsSignIn(false);
+      setCheckoutFailedStep("");
+      setCheckoutVerify({ status: "success", planId: data.planId, displayName: data.displayName });
+      if (sid) clearCheckoutFromUrl(router);
+      return true;
+    },
+    [applyActivationPayload, router]
+  );
 
   const load = useCallback(
     async (sessionId = "", { signal } = {}) => {
@@ -193,7 +225,6 @@ export default function ClientStudioHub({ lang }) {
           setState("ready");
           setShowUploadWizard(true);
           setNeedsSignIn(false);
-          setPrepareTimedOut(false);
           if (pending) clearCheckoutFromUrl(router);
           return true;
         }
@@ -214,97 +245,11 @@ export default function ClientStudioHub({ lang }) {
     [lang, router, resolveSessionId, applyActivationPayload]
   );
 
-  const finishActivationSuccess = useCallback(
-    async (sid, meta = {}) => {
-      persistSessionId(sid);
-      const qs = new URLSearchParams({ lang, session_id: sid });
-      const ws = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
-      const wsData = await ws.json();
-      if (wsData.activation) setActivation(wsData.activation);
-      const wsReady =
-        wsData.hasAccess || (wsData.signedIn && wsData.fulfillmentOk && (wsData.planId || meta.planId));
-      if (wsReady) {
-        const plans =
-          wsData.plans?.length > 0
-            ? wsData.plans
-            : meta.planId
-              ? [{ planId: meta.planId, displayName: meta.displayName || meta.planId, documents: [] }]
-              : [];
-        setHub({ ...wsData, plans });
-        setState("ready");
-        setShowUploadWizard(true);
-        setNeedsSignIn(false);
-        setCheckoutVerify({
-          status: "success",
-          planId: meta.planId,
-          displayName: meta.displayName,
-        });
-        setToast(
-          L(
-            lang,
-            "Your secure workspace is ready. Upload your documents to begin.",
-            "Votre espace securise est pret. Televersez vos documents pour commencer."
-          )
-        );
-        await refreshJourney();
-        clearCheckoutFromUrl(router);
-        return true;
-      }
-      return false;
-    },
-    [lang, refreshJourney, router]
-  );
-
   const signInHref = useMemo(() => {
     const sid = resolveSessionId();
     const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
     return `/login?next=${encodeURIComponent(next)}`;
   }, [resolveSessionId]);
-
-  const runSilentCheckout = useCallback(
-    async (signal) => {
-      const sid = resolveSessionId();
-      if (!sid) return { ok: false };
-
-      await fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
-        credentials: "same-origin",
-        signal,
-      }).catch(() => {});
-
-      const sync = await silentCheckoutSync(sid, lang, { signal });
-      if (signal?.aborted) return { ok: false, aborted: true };
-
-      if (sync.ok && sync.data) {
-        if (sync.data.needsSignIn) {
-          setNeedsSignIn(true);
-          router.replace(signInHref).catch(() => {});
-          return { ok: false, needsSignIn: true };
-        }
-        applyActivationPayload(sync.data);
-        const syncReady =
-          sync.data.hasAccess || (sync.data.signedIn && sync.data.fulfillmentOk && sync.data.planId);
-        if (syncReady && (await finishActivationSuccess(sid, sync.data))) {
-          return { ok: true };
-        }
-        if (syncReady && (await load(sid, { signal }))) {
-          return { ok: true };
-        }
-      }
-
-      const email = accountEmailRef.current || hub?.email || recoveryEmail || sync.data?.stripeCheckoutEmail || "";
-      if (email.includes("@")) {
-        const emailRes = await fetch(
-          `/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`,
-          { credentials: "same-origin", signal }
-        );
-        const emailData = await emailRes.json().catch(() => ({}));
-        if (emailData.recovered && (await load(sid, { signal }))) return { ok: true };
-      }
-
-      return { ok: false };
-    },
-    [lang, resolveSessionId, hub?.email, recoveryEmail, load, applyActivationPayload, finishActivationSuccess, signInHref, router]
-  );
 
   useEffect(() => {
     if (!router.isReady || urlNormalizedRef.current) return;
@@ -318,72 +263,79 @@ export default function ClientStudioHub({ lang }) {
   }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
   loadRef.current = load;
-  runSilentCheckoutRef.current = runSilentCheckout;
 
   useEffect(() => {
     if (!router.isReady) return;
 
     const runId = ++orchestrationRunRef.current;
-    const ac = new AbortController();
     const sid = firstQuery(router.query.session_id) || getStoredSessionId();
-    if (sid) persistSessionId(sid);
-    setPrepareTimedOut(false);
+
+    if (!sid) {
+      (async () => {
+        setState("loading");
+        await load("");
+      })();
+      return;
+    }
+
+    persistSessionId(sid);
+    const ac = new AbortController();
+    const timeoutId = setTimeout(() => ac.abort(), CHECKOUT_ACTIVATION_TIMEOUT_MS);
 
     (async () => {
       setState("loading");
-      const doLoad = loadRef.current;
-      const doSilent = runSilentCheckoutRef.current;
-      if (!doLoad) return;
+      setCheckoutFailedStep("");
 
-      if (await doLoad(sid, { signal: ac.signal })) return;
-      if (!sid || ac.signal.aborted || runId !== orchestrationRunRef.current) return;
+      try {
+        const qs = new URLSearchParams({ lang, session_id: sid });
+        const res = await fetch(`/api/client/checkout-complete?${qs.toString()}`, {
+          credentials: "same-origin",
+          signal: ac.signal,
+        });
+        const data = await res.json().catch(() => ({}));
 
-      if (doSilent) {
-        const result = await doSilent(ac.signal);
-        if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
-        if (result?.ok) return;
-        if (result?.needsSignIn) return;
+        if (runId !== orchestrationRunRef.current) return;
+
+        if (data.activationStatus === "complete" && data.hasAccess) {
+          enterStudioFromPayload(data, sid);
+          await refreshJourney();
+          return;
+        }
+
+        if (data.activationStatus === "needs_sign_in" || data.needsSignIn) {
+          setNeedsSignIn(true);
+          const target = data.redirectTo || `/login?next=${encodeURIComponent(`/studio?session_id=${encodeURIComponent(sid)}`)}`;
+          router.replace(target).catch(() => {});
+          setState("auth");
+          return;
+        }
+
+        if (data.activationStatus === "pending") {
+          setCheckoutFailedStep(data.failedStep || "payment_confirmed");
+          setState("checkout_recovery");
+          return;
+        }
+
+        setCheckoutFailedStep(data.failedStep || "activation_failed");
+        if (data.stripeCheckoutEmail) setRecoveryEmail(data.stripeCheckoutEmail);
+        setState("checkout_recovery");
+      } catch (err) {
+        if (runId !== orchestrationRunRef.current) return;
+        if (err?.name === "AbortError") {
+          setCheckoutFailedStep("timeout");
+          setState("checkout_recovery");
+          return;
+        }
+        setCheckoutFailedStep("network_error");
+        setState("checkout_recovery");
       }
-
-      const ok = await doLoad(sid, { signal: ac.signal });
-      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
-      if (!ok) setState("no_plan");
     })();
 
-    return () => ac.abort();
-  }, [router.isReady, router.query.session_id]);
-
-  useEffect(() => {
-    const sid = resolveSessionId();
-    if (state !== "loading" || !sid) return;
-    let n = 0;
-    const max = 12;
-    const tick = setInterval(async () => {
-      n += 1;
-      const doLoad = loadRef.current;
-      if (!doLoad || n > max) {
-        clearInterval(tick);
-        return;
-      }
-      try {
-        if (await doLoad(sid)) clearInterval(tick);
-      } catch {
-        /* ignore */
-      }
-    }, 5000);
-    return () => clearInterval(tick);
-  }, [state, router.query.session_id, resolveSessionId]);
-
-  useEffect(() => {
-    if (state !== "loading") {
-      setPrepareTimedOut(false);
-      return;
-    }
-    const sid = resolveSessionId();
-    if (!sid) return;
-    const timer = setTimeout(() => setPrepareTimedOut(true), 15000);
-    return () => clearTimeout(timer);
-  }, [state, resolveSessionId]);
+    return () => {
+      clearTimeout(timeoutId);
+      ac.abort();
+    };
+  }, [router.isReady, router.query.session_id, lang, load, enterStudioFromPayload, refreshJourney, router]);
 
   useEffect(() => {
     if (!needsSignIn) return;
@@ -423,10 +375,40 @@ export default function ClientStudioHub({ lang }) {
   }, [state, hub?.email, lang, load, resolveSessionId]);
 
   async function manualRecoverPurchase() {
+    const sid = resolveSessionId();
+    if (!sid) {
+      await load("");
+      return;
+    }
     setState("loading");
+    setCheckoutFailedStep("");
     const ac = new AbortController();
-    await runSilentCheckout(ac.signal);
-    await load(resolveSessionId(), { signal: ac.signal });
+    const timeoutId = setTimeout(() => ac.abort(), CHECKOUT_ACTIVATION_TIMEOUT_MS);
+    try {
+      const qs = new URLSearchParams({ lang, session_id: sid });
+      const res = await fetch(`/api/client/checkout-complete?${qs.toString()}`, {
+        credentials: "same-origin",
+        signal: ac.signal,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.activationStatus === "complete" && data.hasAccess) {
+        enterStudioFromPayload(data, sid);
+        await refreshJourney();
+        return;
+      }
+      if (data.needsSignIn || data.activationStatus === "needs_sign_in") {
+        router.replace(data.redirectTo || signInHref).catch(() => {});
+        setState("auth");
+        return;
+      }
+      setCheckoutFailedStep(data.failedStep || "activation_failed");
+      setState("checkout_recovery");
+    } catch {
+      setCheckoutFailedStep("timeout");
+      setState("checkout_recovery");
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   async function recoverWorkspaceByEmail() {
@@ -466,36 +448,42 @@ export default function ClientStudioHub({ lang }) {
   }, [state, hub, load, resolveSessionId]);
 
   if (state === "loading") {
-    const sid = resolveSessionId();
-    const stripeEmail = recoveryEmail || hub?.email || hub?.stripeCheckoutEmail || "";
-    const showCheckoutActions = Boolean(sid);
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-        {showCheckoutActions ? (
-          <div className="rs-studio-calm-prepare-actions">
-            {prepareTimedOut ? (
-              <p className="rs-studio-calm-prepare-hint">
-                {L(
-                  lang,
-                  "Your payment is confirmed. Sign in with your checkout email, then continue setup.",
-                  "Votre paiement est confirme. Connectez-vous avec le courriel d'achat, puis poursuivez."
-                )}
-              </p>
-            ) : null}
-            <Link href={signInHref} className="rs-btn-accent">
-              {L(lang, "Sign in to open workspace", "Connexion pour ouvrir l'espace")}
-            </Link>
-            <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
-              {L(lang, "Continue workspace setup", "Poursuivre la configuration")}
-            </button>
-            {stripeEmail.includes("@") ? (
-              <p className="rs-studio-calm-prepare-hint">
-                {L(lang, `Checkout email: ${stripeEmail}`, `Courriel d'achat : ${stripeEmail}`)}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+      </div>
+    );
+  }
+
+  if (state === "checkout_recovery") {
+    const stripeEmail = recoveryEmail || hub?.stripeCheckoutEmail || "";
+    const stepLabel = checkoutFailedStep || "activation";
+    return (
+      <div className="rs-client-hub rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
+        <div className="rs-studio-calm-prepare-actions">
+          <p className="rs-studio-calm-prepare-hint">
+            {L(
+              lang,
+              "We could not finish activating your workspace automatically. Sign in with your checkout email, then retry once.",
+              "Nous n'avons pas pu activer votre espace automatiquement. Connectez-vous avec le courriel d'achat, puis reessayez."
+            )}
+          </p>
+          <Link href={signInHref} className="rs-btn-accent">
+            {L(lang, "Sign in and open workspace", "Connexion et ouverture")}
+          </Link>
+          <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
+            {L(lang, "Retry activation", "Reessayer l'activation")}
+          </button>
+          {stripeEmail.includes("@") ? (
+            <p className="rs-studio-calm-prepare-hint">
+              {L(lang, `Checkout email: ${stripeEmail}`, `Courriel d'achat : ${stripeEmail}`)}
+            </p>
+          ) : null}
+          <p className="rs-studio-calm-prepare-hint rs-studio-calm-prepare-hint--muted">
+            {L(lang, `Step: ${stepLabel}`, `Etape : ${stepLabel}`)}
+          </p>
+        </div>
       </div>
     );
   }
