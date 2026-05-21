@@ -44,11 +44,19 @@ async function main() {
     successRedirectUrl: getStudioCheckoutSuccessUrl(),
     codeChecks: {
       checkoutBootstrapApi: fs.existsSync(path.join(root, "pages/api/client/checkout-bootstrap.js")),
-      studioLuxuryLoader: fs.existsSync(path.join(root, "components/client/StudioLuxuryLoader.jsx")),
+      studioCalmPrepare: fs.existsSync(path.join(root, "components/client/StudioCalmPrepare.jsx")),
+      silentCheckoutSync: fs.existsSync(path.join(root, "lib/client/silent-checkout-sync.js")),
       postPaymentActivationRemoved: !fs.existsSync(path.join(root, "components/client/PostPaymentActivation.jsx")),
       clientHubUsesBootstrap: fs
         .readFileSync(path.join(root, "components/client/ClientStudioHub.jsx"), "utf8")
         .includes("checkout-bootstrap"),
+      clientHubSilentPrepare: fs
+        .readFileSync(path.join(root, "components/client/ClientStudioHub.jsx"), "utf8")
+        .includes("StudioCalmPrepare") &&
+        !fs.readFileSync(path.join(root, "components/client/ClientStudioHub.jsx"), "utf8").includes("StudioLuxuryLoader"),
+      noProvisioningState: !fs
+        .readFileSync(path.join(root, "components/client/ClientStudioHub.jsx"), "utf8")
+        .includes('setState("provisioning")'),
     },
     sites: [],
   };
@@ -82,7 +90,10 @@ async function main() {
 
   report.closedLoopReady =
     report.codeChecks.checkoutBootstrapApi &&
-    report.codeChecks.studioLuxuryLoader &&
+    report.codeChecks.studioCalmPrepare &&
+    report.codeChecks.silentCheckoutSync &&
+    report.codeChecks.clientHubSilentPrepare &&
+    report.codeChecks.noProvisioningState &&
     report.codeChecks.postPaymentActivationRemoved &&
     report.sites.every((s) => s.handsFreeApis);
 

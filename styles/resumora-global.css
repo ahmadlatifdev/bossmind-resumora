@@ -5049,30 +5049,85 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   color: #fff;
   border-color: rgba(201, 162, 39, 0.45);
 }
-.rs-client-hub--provisioning {
+.rs-client-hub--calm-prepare {
   padding: 0.5rem 0 2rem;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.rs-client-hub-skeleton {
-  display: grid;
-  gap: 1rem;
-  max-width: 56rem;
+.rs-studio-calm-prepare {
+  max-width: 36rem;
   margin: 0 auto;
-  opacity: 0.35;
+  padding: 2rem 1.25rem 2.5rem;
+  text-align: center;
 }
-.rs-skeleton-card {
-  min-height: 10rem;
-  border-radius: 12px;
-  background: linear-gradient(110deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 75%);
-  background-size: 200% 100%;
-  animation: rsSkeletonShimmer 1.4s ease-in-out infinite;
+.rs-studio-calm-prepare-eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 39, 0.8);
 }
-@keyframes rsSkeletonShimmer {
+.rs-studio-calm-prepare-title {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.45;
+}
+.rs-studio-calm-prepare-bar {
+  height: 3px;
+  margin-top: 1.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.rs-studio-calm-prepare-bar-fill {
+  display: block;
+  width: 38%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #9a7b1a, #e8d48a);
+  will-change: transform;
+  animation: rsCalmIndeterminate 2.4s ease-in-out infinite alternate;
+}
+@keyframes rsCalmIndeterminate {
   0% {
-    background-position: 100% 0;
+    transform: translateX(-5%);
+    opacity: 0.75;
   }
   100% {
-    background-position: -100% 0;
+    transform: translateX(165%);
+    opacity: 1;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-studio-calm-prepare-bar-fill {
+    animation: none;
+    transform: translateX(30%);
+    opacity: 0.85;
+  }
+}
+.rs-studio-calm-prepare-hint {
+  max-width: 32rem;
+  margin: 1.25rem auto 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.5;
+}
+.rs-studio-calm-prepare-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+.rs-studio-luxury-loader,
+.rs-studio-checkout-sync,
+.rs-post-payment-activation {
+  display: none !important;
 }
 
 /* Compact post-checkout sync — studio stays visible, no full-page blocker */

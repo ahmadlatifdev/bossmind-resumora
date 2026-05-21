@@ -230,94 +230,82 @@ export default function ClientStudioHub({ lang }) {
     return `/login?next=${encodeURIComponent(next)}`;
   }, [resolveSessionId]);
 
-  const runActivationAttempt = useCallback(async () => {
-    const sid = resolveSessionId();
-    if (!sid) return { ok: false };
+  const runSilentCheckout = useCallback(
+    async (signal) => {
+      const sid = resolveSessionId();
+      if (!sid) return { ok: false };
 
-    const recoveryRes = await fetch(
-      `/api/client/checkout-recovery?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
-      { credentials: "same-origin" }
-    );
-    const recoveryData = await recoveryRes.json().catch(() => ({}));
-    if (recoveryData.activation) setActivation(recoveryData.activation);
+      await fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
+        credentials: "same-origin",
+        signal,
+      }).catch(() => {});
 
-    await fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
-      credentials: "same-origin",
-    }).catch(() => {});
+      const sync = await silentCheckoutSync(sid, lang, { signal });
+      if (signal?.aborted) return { ok: false, aborted: true };
 
-    const res = await fetch(
-      `/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
-      { credentials: "same-origin" }
-    );
-    const data = await res.json();
-    applyActivationPayload(data);
-
-    if (data.hasAccess) {
-      if (await finishActivationSuccess(sid, data)) return { ok: true };
-    }
-
-    if (data.fulfillmentOk && data.signedIn) {
-      if (await finishActivationSuccess(sid, data)) return { ok: true };
-    }
-
-    if (data.needsSignIn && data.fulfillmentOk) {
-      setNeedsSignIn(true);
-      router.replace(signInHref).catch(() => {});
-      return { ok: false, needsSignIn: true };
-    }
-
-    const email =
-      accountEmailRef.current || hub?.email || recoveryEmail || data.stripeCheckoutEmail || "";
-    if (email.includes("@")) {
-      const emailRes = await fetch(
-        `/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`,
-        { credentials: "same-origin" }
-      );
-      const emailData = await emailRes.json();
-      if (emailData.recovered) {
-        if (await load(sid, { skipActivatingGate: true })) return { ok: true };
+      if (sync.ok && sync.data) {
+        if (sync.data.needsSignIn) {
+          setNeedsSignIn(true);
+          router.replace(signInHref).catch(() => {});
+          return { ok: false, needsSignIn: true };
+        }
+        applyActivationPayload(sync.data);
+        if (sync.data.hasAccess && (await finishActivationSuccess(sid, sync.data))) {
+          return { ok: true };
+        }
       }
-    }
 
-    if (recoveryData.recovered) {
-      if (await load(sid, { skipActivatingGate: true })) return { ok: true };
-    }
+      const email = accountEmailRef.current || hub?.email || recoveryEmail || sync.data?.stripeCheckoutEmail || "";
+      if (email.includes("@")) {
+        const emailRes = await fetch(
+          `/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`,
+          { credentials: "same-origin", signal }
+        );
+        const emailData = await emailRes.json().catch(() => ({}));
+        if (emailData.recovered && (await load(sid, { signal }))) return { ok: true };
+      }
 
-    return { ok: false };
-  }, [
-    lang,
-    resolveSessionId,
-    hub?.email,
-    recoveryEmail,
-    load,
-    applyActivationPayload,
-    finishActivationSuccess,
-    signInHref,
-    router,
-  ]);
+      return { ok: false };
+    },
+    [lang, resolveSessionId, hub?.email, recoveryEmail, load, applyActivationPayload, finishActivationSuccess, signInHref, router]
+  );
 
   useEffect(() => {
-    if (!router.isReady) return;
-    const sid = firstQuery(router.query.session_id);
-    if (sid) persistSessionId(sid);
-    load(sid, { skipActivatingGate: true });
-  }, [router.isReady, router.query.session_id, load]);
+    if (!router.isReady || urlNormalizedRef.current) return;
+    const sid = firstQuery(router.query.session_id) || getStoredSessionId();
+    if (!sid) return;
+    if (firstQuery(router.query.checkout) === "success") {
+      urlNormalizedRef.current = true;
+      persistSessionId(sid);
+      router.replace(`/studio?session_id=${encodeURIComponent(sid)}`, undefined, { shallow: true }).catch(() => {});
+    }
+  }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
   useEffect(() => {
+    if (!router.isReady || initStartedRef.current) return;
+    initStartedRef.current = true;
+
+    const ac = new AbortController();
     const sid = resolveSessionId();
-    if (!sid || !router.isReady) return;
-    let cancelled = false;
-    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, { credentials: "same-origin" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        if (data.valid && data.hasAccess) load(sid, { skipActivatingGate: true });
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [resolveSessionId, router.isReady, lang, load]);
+    if (sid) persistSessionId(sid);
+
+    (async () => {
+      setState("loading");
+      if (await load(sid, { signal: ac.signal })) return;
+      if (!sid || ac.signal.aborted) return;
+
+      const result = await runSilentCheckout(ac.signal);
+      if (ac.signal.aborted) return;
+      if (result?.ok) return;
+
+      const ok = await load(sid, { signal: ac.signal });
+      if (!ok && !ac.signal.aborted && !result?.needsSignIn) {
+        setState("no_plan");
+      }
+    })();
+
+    return () => ac.abort();
+  }, [router.isReady, resolveSessionId, load, runSilentCheckout, router]);
 
   useEffect(() => {
     if (!needsSignIn) return;
@@ -325,42 +313,12 @@ export default function ClientStudioHub({ lang }) {
   }, [needsSignIn, signInHref, router]);
 
   useEffect(() => {
+    if (state !== "ready") return;
     refreshJourney();
-  }, [refreshJourney]);
+  }, [state, refreshJourney]);
 
   useEffect(() => {
-    const sid = resolveSessionId();
-    if (!router.isReady || !sid || state !== "provisioning") return;
-
-    const runId = ++activationRunRef.current;
-    let cancelled = false;
-
-    (async () => {
-      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
-        if (cancelled || activationRunRef.current !== runId) return;
-        setActivationAttempt(i + 1);
-        const result = await runActivationAttempt();
-        if (result?.ok) return;
-        if (i < MAX_ACTIVATION_ATTEMPTS - 1) {
-          await new Promise((r) => setTimeout(r, activationRetryDelay(i)));
-        }
-      }
-      let tail = 0;
-      while (!cancelled && activationRunRef.current === runId && tail < 40) {
-        const result = await runActivationAttempt();
-        if (result?.ok) return;
-        tail += 1;
-        await new Promise((r) => setTimeout(r, tail <= 12 ? 5000 : 12000));
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [router.isReady, resolveSessionId, runActivationAttempt, state]);
-
-  useEffect(() => {
-    if (state !== "loading" && state !== "ready" && state !== "provisioning") return;
+    if (state !== "loading" && state !== "ready") return;
     preloadStudioAssets({
       studio: "/studio",
       onboarding: `/api/client/onboarding?lang=${lang}`,
@@ -370,39 +328,27 @@ export default function ClientStudioHub({ lang }) {
 
   useEffect(() => {
     if (state !== "no_plan" || !hub?.email) return;
-    let cancelled = false;
+    const ac = new AbortController();
     (async () => {
       try {
         const r = await fetch(
           `/api/client/checkout-recovery?email=${encodeURIComponent(hub.email)}&lang=${lang}`,
-          { credentials: "same-origin" }
+          { credentials: "same-origin", signal: ac.signal }
         );
         const j = await r.json();
-        if (!cancelled && j.recovered) await load(resolveSessionId(), { skipActivatingGate: true });
+        if (j.recovered) await load(resolveSessionId(), { signal: ac.signal });
       } catch {
         /* silent */
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => ac.abort();
   }, [state, hub?.email, lang, load, resolveSessionId]);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const sid = firstQuery(router.query.session_id) || getStoredSessionId();
-    if (!sid) return;
-    persistSessionId(sid);
-    if (firstQuery(router.query.checkout) === "success" || firstQuery(router.query.session_id)) {
-      router.replace(`/studio?session_id=${encodeURIComponent(sid)}`, undefined, { shallow: true }).catch(() => {});
-    }
-  }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
   async function manualRecoverPurchase() {
     setState("loading");
-    activationRunRef.current += 1;
-    await runActivationAttempt();
-    await load(resolveSessionId(), { skipActivatingGate: true });
+    const ac = new AbortController();
+    await runSilentCheckout(ac.signal);
+    await load(resolveSessionId(), { signal: ac.signal });
   }
 
   async function recoverWorkspaceByEmail() {
@@ -414,7 +360,7 @@ export default function ClientStudioHub({ lang }) {
     });
     const j = await r.json();
     if (j.recovered) {
-      await load(resolveSessionId(), { skipActivatingGate: true });
+      await load(resolveSessionId());
       await refreshJourney();
     } else {
       setToast(L(lang, "Still verifying your purchase with Stripe.", "Verification de votre achat avec Stripe en cours."));
@@ -422,7 +368,7 @@ export default function ClientStudioHub({ lang }) {
   }
 
   useEffect(() => {
-    if (!hub?.plans?.length) return;
+    if (state !== "ready" || !hub?.plans?.length) return;
     const plan = hub.plans[0];
     const hasResume = (plan.documents || []).some((d) => d.doc_type === "resume" && d.status !== "removed");
     if (!hasResume) return;
@@ -435,32 +381,16 @@ export default function ClientStudioHub({ lang }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan.planId }),
       })
-        .then(() => load(resolveSessionId(), { skipActivatingGate: true }))
+        .then(() => load(resolveSessionId()))
         .catch(() => {});
-    }, 4000);
+    }, 10000);
     return () => clearInterval(tick);
-  }, [hub, load, resolveSessionId]);
+  }, [state, hub, load, resolveSessionId]);
 
-  const luxuryLoader = (
-    <StudioLuxuryLoader
-      lang={lang}
-      tick={activationAttempt}
-      activation={activation}
-      luxuryStages={luxuryStages}
-      conciergeMessage={conciergeMessage}
-      progressPercent={progressPercent}
-      postCheckout={hasPendingCheckout(router)}
-    />
-  );
-
-  if (state === "loading" || state === "provisioning") {
+  if (state === "loading") {
     return (
-      <div className="rs-client-hub rs-client-hub--provisioning">
-        {luxuryLoader}
-        <div className="rs-client-hub-skeleton" aria-hidden="true">
-          <div className="rs-skeleton-card" />
-          <div className="rs-skeleton-card" />
-        </div>
+      <div className="rs-client-hub rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
       </div>
     );
   }
@@ -488,7 +418,30 @@ export default function ClientStudioHub({ lang }) {
     );
   }
 
-  if (state === "no_plan" && !hasPendingCheckout(router)) {
+  if (state === "no_plan" && hasPendingCheckout(router)) {
+    return (
+      <div className="rs-client-hub rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
+        <p className="rs-studio-calm-prepare-hint">
+          {L(
+            lang,
+            "Your purchase is being secured. If this takes longer than expected, continue setup below.",
+            "Votre achat est en cours de securisation. Si l'attente se prolonge, poursuivez ci-dessous."
+          )}
+        </p>
+        <div className="rs-studio-calm-prepare-actions">
+          <button type="button" className="rs-btn-accent" onClick={manualRecoverPurchase}>
+            {L(lang, "Continue workspace setup", "Poursuivre la configuration")}
+          </button>
+          <Link href={signInHref} className="rs-btn-ghost">
+            {L(lang, "Sign in", "Connexion")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "no_plan") {
     return (
       <div className="rs-client-hub rs-client-hub--no-plan rs-client-hub--premium-prep">
         <p className="rs-post-payment-activation-eyebrow">
@@ -538,7 +491,7 @@ export default function ClientStudioHub({ lang }) {
         body: form,
       });
       setToast(L(lang, "Upload saved.", "Televersement enregistre."));
-      await load(resolveSessionId(), { skipActivatingGate: true });
+      await load(resolveSessionId(), {});
     } finally {
       setUploadingPlan("");
     }
@@ -551,7 +504,7 @@ export default function ClientStudioHub({ lang }) {
       credentials: "same-origin",
     });
     setToast(L(lang, "Document removed.", "Document supprime."));
-    await load(resolveSessionId(), { skipActivatingGate: true });
+    await load(resolveSessionId(), {});
   }
 
   async function requestFreeEdit(planId) {
@@ -566,7 +519,7 @@ export default function ClientStudioHub({ lang }) {
         body: JSON.stringify({ planId, notes }),
       });
       setEditNotes((s) => ({ ...s, [planId]: "" }));
-      await load(resolveSessionId(), { skipActivatingGate: true });
+      await load(resolveSessionId(), {});
     } finally {
       setRequestingPlan("");
     }
@@ -584,7 +537,7 @@ export default function ClientStudioHub({ lang }) {
         credentials: "same-origin",
         body: form,
       });
-      await load(resolveSessionId(), { skipActivatingGate: true });
+      await load(resolveSessionId(), {});
     } finally {
       setReplacingId(0);
     }
@@ -689,8 +642,8 @@ export default function ClientStudioHub({ lang }) {
                 lang={lang}
                 planId={plan.planId}
                 documents={plan.documents || []}
-                onUpload={() => load(resolveSessionId(), { skipActivatingGate: true })}
-                onComplete={() => load(resolveSessionId(), { skipActivatingGate: true })}
+                onUpload={() => load(resolveSessionId(), {})}
+                onComplete={() => load(resolveSessionId(), {})}
               />
             ) : null}
             {plan.planId === "essential_advanced" ? (
