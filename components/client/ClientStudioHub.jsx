@@ -16,8 +16,12 @@ const DOC_TYPE_OPTIONS = [
 ];
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
-const MAX_ACTIVATION_ATTEMPTS = 5;
-const ACTIVATION_RETRY_MS = 3000;
+const MAX_ACTIVATION_ATTEMPTS = 30;
+const ACTIVATION_RETRY_BASE_MS = 2000;
+
+function activationRetryDelay(attemptIndex) {
+  return Math.min(8000, ACTIVATION_RETRY_BASE_MS + attemptIndex * 350);
+}
 
 function firstQuery(value) {
   if (typeof value === "string") return value;
@@ -82,7 +86,10 @@ export default function ClientStudioHub({ lang }) {
   const [conciergeMessage, setConciergeMessage] = useState("");
   const [progressPercent, setProgressPercent] = useState(null);
   const [activationAttempt, setActivationAttempt] = useState(0);
+  const [activationExtended, setActivationExtended] = useState(false);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
   const activationRunRef = useRef(0);
+  const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
@@ -125,47 +132,56 @@ export default function ClientStudioHub({ lang }) {
           return;
         }
         if (data.activation) setActivation(data.activation);
+        if (data.email) {
+          accountEmailRef.current = data.email;
+          setRecoveryEmail((prev) => prev || data.email);
+        }
         if (!data.signedIn) {
-          setState("auth");
           setHub(data);
+          if (pending) setState("activating");
+          else setState("auth");
           return;
         }
         if (data.hasAccess) {
           setHub(data);
           setState("ready");
           setShowUploadWizard(true);
-          return;
+          setActivationExtended(false);
+          setNeedsSignIn(false);
+          return true;
         }
         if (pending) {
           setHub(data);
           setState("activating");
-          return;
+          return false;
         }
         setHub(data);
         setState("no_plan");
+        return false;
       } catch {
         setState("error");
+        return false;
       }
     },
     [lang, router, resolveSessionId]
   );
 
-  const runActivationAttempt = useCallback(async () => {
-    const sid = resolveSessionId();
-    if (!sid) return { ok: false };
+  const applyActivationPayload = useCallback((data) => {
+    if (data?.activation) setActivation(data.activation);
+    if (Array.isArray(data?.luxuryStages)) setLuxuryStages(data.luxuryStages);
+    if (data?.conciergeMessage) setConciergeMessage(data.conciergeMessage);
+    if (typeof data?.progressPercent === "number") setProgressPercent(data.progressPercent);
+    if (data?.preload) preloadStudioAssets(data.preload);
+    if (data?.stripeCheckoutEmail) {
+      setRecoveryEmail(data.stripeCheckoutEmail);
+      accountEmailRef.current = data.stripeCheckoutEmail;
+    }
+    if (data?.needsSignIn) setNeedsSignIn(true);
+    else if (data?.signedIn && data?.hasAccess) setNeedsSignIn(false);
+  }, []);
 
-    const res = await fetch(
-      `/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
-      { credentials: "same-origin" }
-    );
-    const data = await res.json();
-    if (data.activation) setActivation(data.activation);
-    if (Array.isArray(data.luxuryStages)) setLuxuryStages(data.luxuryStages);
-    if (data.conciergeMessage) setConciergeMessage(data.conciergeMessage);
-    if (typeof data.progressPercent === "number") setProgressPercent(data.progressPercent);
-    if (data.preload) preloadStudioAssets(data.preload);
-
-    if (data.hasAccess || data.fulfillmentOk) {
+  const finishActivationSuccess = useCallback(
+    async (sid, meta = {}) => {
       persistSessionId(sid);
       const qs = new URLSearchParams({ lang, session_id: sid });
       const ws = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
@@ -175,10 +191,12 @@ export default function ClientStudioHub({ lang }) {
         setHub(wsData);
         setState("ready");
         setShowUploadWizard(true);
+        setActivationExtended(false);
+        setNeedsSignIn(false);
         setCheckoutVerify({
           status: "success",
-          planId: data.planId,
-          displayName: data.displayName,
+          planId: meta.planId,
+          displayName: meta.displayName,
         });
         setToast(
           L(
@@ -188,23 +206,71 @@ export default function ClientStudioHub({ lang }) {
           )
         );
         await refreshJourney();
-        return { ok: true };
+        return true;
       }
+      return false;
+    },
+    [lang, refreshJourney]
+  );
+
+  const runActivationAttempt = useCallback(async () => {
+    const sid = resolveSessionId();
+    if (!sid) return { ok: false };
+
+    const recoveryRes = await fetch(
+      `/api/client/checkout-recovery?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
+      { credentials: "same-origin" }
+    );
+    const recoveryData = await recoveryRes.json().catch(() => ({}));
+    if (recoveryData.activation) setActivation(recoveryData.activation);
+
+    await fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
+      credentials: "same-origin",
+    }).catch(() => {});
+
+    const res = await fetch(
+      `/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
+      { credentials: "same-origin" }
+    );
+    const data = await res.json();
+    applyActivationPayload(data);
+
+    if (data.hasAccess) {
+      if (await finishActivationSuccess(sid, data)) return { ok: true };
     }
 
-    if (hub?.email) {
+    if (data.needsSignIn && data.fulfillmentOk) {
+      setState("activating");
+      return { ok: false, needsSignIn: true };
+    }
+
+    const email =
+      accountEmailRef.current || hub?.email || recoveryEmail || data.stripeCheckoutEmail || "";
+    if (email.includes("@")) {
       const emailRes = await fetch(
-        `/api/client/checkout-recovery?email=${encodeURIComponent(hub.email)}&lang=${lang}`,
+        `/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`,
         { credentials: "same-origin" }
       );
       const emailData = await emailRes.json();
       if (emailData.recovered) {
-        return load(sid, { skipActivatingGate: true });
+        if (await load(sid, { skipActivatingGate: true })) return { ok: true };
       }
     }
 
+    if (recoveryData.recovered) {
+      if (await load(sid, { skipActivatingGate: true })) return { ok: true };
+    }
+
     return { ok: false };
-  }, [lang, resolveSessionId, hub?.email, load, refreshJourney]);
+  }, [
+    lang,
+    resolveSessionId,
+    hub?.email,
+    recoveryEmail,
+    load,
+    applyActivationPayload,
+    finishActivationSuccess,
+  ]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -256,14 +322,21 @@ export default function ClientStudioHub({ lang }) {
       for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
         if (cancelled || activationRunRef.current !== runId) return;
         setActivationAttempt(i + 1);
+        if (i >= 6) setActivationExtended(true);
         const result = await runActivationAttempt();
         if (result?.ok) return;
         if (i < MAX_ACTIVATION_ATTEMPTS - 1) {
-          await new Promise((r) => setTimeout(r, ACTIVATION_RETRY_MS));
+          await new Promise((r) => setTimeout(r, activationRetryDelay(i)));
         }
       }
       if (!cancelled && activationRunRef.current === runId) {
-        setState("activation_failed");
+        setActivationExtended(true);
+        for (let t = 0; t < 24 && !cancelled && activationRunRef.current === runId; t++) {
+          setActivationAttempt(MAX_ACTIVATION_ATTEMPTS + t + 1);
+          const result = await runActivationAttempt();
+          if (result?.ok) return;
+          await new Promise((r) => setTimeout(r, 10000));
+        }
       }
     })();
 
@@ -286,18 +359,18 @@ export default function ClientStudioHub({ lang }) {
 
   async function manualRecoverPurchase() {
     setState("activating");
+    setActivationExtended(false);
     setActivationAttempt(0);
     activationRunRef.current += 1;
-    const result = await runActivationAttempt();
-    if (!result?.ok) {
-      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
-        setActivationAttempt(i + 1);
-        const r = await runActivationAttempt();
-        if (r?.ok) return;
-        await new Promise((res) => setTimeout(res, ACTIVATION_RETRY_MS));
-      }
-      setState("activation_failed");
+    const runId = activationRunRef.current;
+    for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
+      if (activationRunRef.current !== runId) return;
+      setActivationAttempt(i + 1);
+      const r = await runActivationAttempt();
+      if (r?.ok) return;
+      await new Promise((res) => setTimeout(res, activationRetryDelay(i)));
     }
+    setActivationExtended(true);
   }
 
   async function recoverWorkspaceByEmail() {
@@ -312,10 +385,33 @@ export default function ClientStudioHub({ lang }) {
       await load(resolveSessionId(), { skipActivatingGate: true });
       await refreshJourney();
     } else {
-      setState("activation_failed");
-      setToast(L(lang, "No purchase found for this email.", "Aucun achat trouve pour ce courriel."));
+      setActivationExtended(true);
+      setState("activating");
+      setToast(L(lang, "Still verifying your purchase with Stripe.", "Verification de votre achat avec Stripe en cours."));
     }
   }
+
+  const signInHref = useMemo(() => {
+    const sid = resolveSessionId();
+    const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
+    return `/login?next=${encodeURIComponent(next)}`;
+  }, [resolveSessionId]);
+
+  const activationViewProps = {
+    lang,
+    attempt: activationAttempt,
+    activation,
+    luxuryStages,
+    conciergeMessage,
+    progressPercent,
+    softExtended: activationExtended,
+    needsSignIn,
+    signInHref,
+    onRecover: manualRecoverPurchase,
+    recoveryEmail,
+    onRecoveryEmailChange: setRecoveryEmail,
+    onEmailRecover: recoverWorkspaceByEmail,
+  };
 
   useEffect(() => {
     if (!hub?.plans?.length) return;
@@ -338,14 +434,7 @@ export default function ClientStudioHub({ lang }) {
   }, [hub, load, resolveSessionId]);
 
   if (state === "loading" && hasPendingCheckout(router)) {
-    return (
-      <PostPaymentActivation
-        lang={lang}
-        attempt={0}
-        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
-        activation={activation}
-      />
-    );
+    return <PostPaymentActivation {...activationViewProps} attempt={0} />;
   }
 
   if (state === "loading") {
@@ -364,16 +453,7 @@ export default function ClientStudioHub({ lang }) {
         <Link href="/login" className="rs-btn-accent">
           {t.clientHubAuthCta}
         </Link>
-        {hasPendingCheckout(router) ? (
-          <PostPaymentActivation
-            lang={lang}
-            attempt={activationAttempt}
-            activation={activation}
-            luxuryStages={luxuryStages}
-            conciergeMessage={conciergeMessage}
-            progressPercent={progressPercent}
-          />
-        ) : null}
+        {hasPendingCheckout(router) ? <PostPaymentActivation {...activationViewProps} /> : null}
       </div>
     );
   }
@@ -390,34 +470,7 @@ export default function ClientStudioHub({ lang }) {
   }
 
   if (state === "activating") {
-    return (
-      <PostPaymentActivation
-        lang={lang}
-        attempt={activationAttempt}
-        activation={activation}
-        luxuryStages={luxuryStages}
-        conciergeMessage={conciergeMessage}
-        progressPercent={progressPercent}
-      />
-    );
-  }
-
-  if (state === "activation_failed") {
-    return (
-      <PostPaymentActivation
-        lang={lang}
-        attempt={activationAttempt}
-        activation={activation}
-        luxuryStages={luxuryStages}
-        conciergeMessage={conciergeMessage}
-        progressPercent={progressPercent}
-        failed
-        onRecover={manualRecoverPurchase}
-        recoveryEmail={recoveryEmail}
-        onRecoveryEmailChange={setRecoveryEmail}
-        onEmailRecover={recoverWorkspaceByEmail}
-      />
-    );
+    return <PostPaymentActivation {...activationViewProps} />;
   }
 
   if (state === "no_plan") {

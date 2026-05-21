@@ -46,6 +46,16 @@
     "essential_foundation": "basic",
     "professional_career": "professional",
     "executive_career": "elite",
-    "essential_career": "essential_advanced"
+    "essential_career": "essential_advanced",
+    "linkedin_optimization": "professional",
+    "interview_preparation": "elite",
+    "custom_cover_letter": "professional",
+    "translation_tls": "basic"
+  },
+  "purchasedPlanToGrantPlanId": {
+    "addon_linkedin": "professional",
+    "addon_interview": "elite",
+    "addon_cover_letter": "professional",
+    "addon_translation": "basic"
   }
 }

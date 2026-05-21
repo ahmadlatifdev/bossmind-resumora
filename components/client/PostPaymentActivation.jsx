@@ -10,14 +10,22 @@ const STEPS = [
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
 
-function resolveSteps(lang, luxuryStages, activation, attempt, failed) {
+function resolveSteps(lang, luxuryStages, activation, attempt, softExtended) {
   if (Array.isArray(luxuryStages) && luxuryStages.length) {
-    return luxuryStages.map((s) => ({
-      key: s.key,
-      label: s.label || (lang === "fr" ? STEPS.find((x) => x.key === s.key)?.fr : STEPS.find((x) => x.key === s.key)?.en) || s.key,
-      done: failed ? false : Boolean(s.done),
-      active: failed ? false : Boolean(s.active),
-    }));
+    return luxuryStages.map((s, i) => {
+      const done = Boolean(s.done);
+      let active = Boolean(s.active);
+      if (softExtended && i === 4 && !done) active = true;
+      return {
+        key: s.key,
+        label:
+          s.label ||
+          (lang === "fr" ? STEPS.find((x) => x.key === s.key)?.fr : STEPS.find((x) => x.key === s.key)?.en) ||
+          s.key,
+        done,
+        active,
+      };
+    });
   }
   return STEPS.map((step, i) => {
     const flags = [
@@ -27,8 +35,9 @@ function resolveSteps(lang, luxuryStages, activation, attempt, failed) {
       activation?.uploadsUnlocked,
       activation?.generationReady,
     ];
-    const done = failed ? false : Boolean(flags[i]) || attempt > i + 1;
-    const active = !failed && !done && (attempt === i + 1 || (attempt === 0 && i === 0));
+    const done = Boolean(flags[i]) || attempt > i + 1;
+    let active = !done && (attempt === i + 1 || (attempt === 0 && i === 0));
+    if (softExtended && i === 4 && !done) active = true;
     return {
       key: step.key,
       label: lang === "fr" ? step.fr : step.en,
@@ -45,17 +54,21 @@ export default function PostPaymentActivation({
   luxuryStages = null,
   conciergeMessage = "",
   progressPercent = null,
+  softExtended = false,
+  needsSignIn = false,
+  signInHref = "/login",
   failed = false,
   onRecover,
   recoveryEmail = "",
   onRecoveryEmailChange,
   onEmailRecover,
 }) {
-  const steps = resolveSteps(lang, luxuryStages, activation, attempt, failed);
+  const useSoft = softExtended && !failed;
+  const steps = resolveSteps(lang, luxuryStages, activation, attempt, useSoft);
   const pct =
     typeof progressPercent === "number"
       ? progressPercent
-      : Math.min(100, Math.round((steps.filter((s) => s.done).length / steps.length) * 100));
+      : Math.min(useSoft ? 92 : 100, Math.round((steps.filter((s) => s.done).length / steps.length) * 100));
 
   const headline = failed
     ? L(
@@ -63,23 +76,33 @@ export default function PostPaymentActivation({
         "We could not complete automatic activation yet. Please click Recover Purchase.",
         "Nous n'avons pas pu terminer l'activation automatique. Cliquez sur Recuperer l'achat."
       )
-    : L(
-        lang,
-        "Payment confirmed. Preparing your secure Resumora workspace...",
-        "Paiement confirme. Preparation de votre espace securise Resumora..."
-      );
+    : useSoft
+      ? L(
+          lang,
+          "Payment confirmed. Still securing your Resumora workspace...",
+          "Paiement confirme. Securisation de votre espace Resumora en cours..."
+        )
+      : L(
+          lang,
+          "Payment confirmed. Preparing your secure Resumora workspace...",
+          "Paiement confirme. Preparation de votre espace securise Resumora..."
+        );
 
   const concierge =
     conciergeMessage ||
     L(
       lang,
-      "Your AI concierge is orchestrating workspace preparation in the background.",
-      "Votre concierge IA prepare votre espace en arriere-plan."
+      useSoft
+        ? "Your AI concierge is completing verification with Stripe — no action needed."
+        : "Your AI concierge is orchestrating workspace preparation in the background.",
+      useSoft
+        ? "Votre concierge IA termine la verification avec Stripe — aucune action requise."
+        : "Votre concierge IA prepare votre espace en arriere-plan."
     );
 
   return (
     <section
-      className={`rs-post-payment-activation${failed ? " rs-post-payment-activation--failed" : ""}`}
+      className={`rs-post-payment-activation${failed ? " rs-post-payment-activation--failed" : ""}${useSoft ? " rs-post-payment-activation--extended" : ""}`}
       data-rs-post-payment-activation="1"
       aria-live="polite"
     >
@@ -99,6 +122,19 @@ export default function PostPaymentActivation({
             </p>
             <p className="rs-post-payment-activation-concierge">{concierge}</p>
           </>
+        ) : null}
+
+        {needsSignIn && !failed ? (
+          <p className="rs-post-payment-activation-signin">
+            {L(
+              lang,
+              "Sign in with the same email you used at checkout to open your workspace.",
+              "Connectez-vous avec le courriel utilise au paiement pour ouvrir votre espace."
+            )}{" "}
+            <Link href={signInHref} className="rs-post-payment-activation-signin-link">
+              {L(lang, "Sign in now", "Se connecter")}
+            </Link>
+          </p>
         ) : null}
 
         <ol className="rs-post-payment-activation-steps">
@@ -129,9 +165,6 @@ export default function PostPaymentActivation({
             <Link href="/studio" className="rs-btn-ghost">
               {L(lang, "Open My Secure Workspace", "Ouvrir mon espace securise")}
             </Link>
-            <Link href="/pricing#pricing" className="rs-btn-ghost">
-              {L(lang, "Choose a Plan", "Choisir un forfait")}
-            </Link>
           </div>
         ) : (
           <p className="rs-post-payment-activation-hint">
@@ -140,10 +173,18 @@ export default function PostPaymentActivation({
           </p>
         )}
 
+        {useSoft && onRecover ? (
+          <p className="rs-post-payment-activation-soft-recover">
+            <button type="button" className="rs-link-quiet" onClick={onRecover}>
+              {L(lang, "Having trouble? Retry secure sync", "Un souci? Relancer la synchronisation")}
+            </button>
+          </p>
+        ) : null}
+
         {failed ? (
           <div className="rs-checkout-recovery">
             <label>
-              {L(lang, "Or recover with checkout email", "Ou recuperez avec le courriel de paiement")}
+              {L(lang, "Recover with checkout email", "Recuperer avec le courriel de paiement")}
               <input
                 className="rs-input"
                 type="email"

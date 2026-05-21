@@ -50,9 +50,16 @@ export default async function handler(req, res) {
       });
     }
 
+    const entitled =
+      plans.length > 0 ||
+      (activation.plansCount > 0) ||
+      (activation.planActivated === true && activation.ok === true);
+
     return res.status(200).json({
       ok: true,
       signedIn: Boolean(profileId),
+      needsSignIn: !profileId && activation.planActivated === true && plans.length === 0,
+      stripeCheckoutEmail: activation.stripeCheckoutEmail || null,
       activation: activation.activation || {
         paymentConfirmed: activation.planActivated === true,
         planActivated: activation.planActivated === true,
@@ -67,9 +74,9 @@ export default async function handler(req, res) {
       preload: activation.preload || { studio: "/studio" },
       planId: activation.planId || plans[0]?.planId || null,
       displayName: activation.displayName || null,
-      hasAccess: plans.length > 0,
+      hasAccess: entitled,
       plans,
-      plansCount: plans.length,
+      plansCount: Math.max(plans.length, activation.plansCount || 0),
       fulfillmentOk: activation.planActivated === true,
     });
   } catch (e) {

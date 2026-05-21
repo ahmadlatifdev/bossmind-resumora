@@ -5047,6 +5047,37 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   max-width: 42rem;
   padding: 1.5rem 0 2rem;
 }
+.rs-post-payment-activation-signin {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+.rs-post-payment-activation-signin-link {
+  color: #e8d48a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rs-post-payment-activation-soft-recover {
+  margin: 0.75rem 0 0;
+  text-align: center;
+}
+.rs-link-quiet {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rs-link-quiet:hover {
+  color: rgba(201, 162, 39, 0.85);
+}
+.rs-post-payment-activation--extended .rs-post-payment-activation-steps li.is-active {
+  color: rgba(255, 255, 255, 0.95);
+}
 .rs-post-payment-activation-eyebrow {
   margin: 0 0 0.5rem;
   font-size: 0.78rem;
