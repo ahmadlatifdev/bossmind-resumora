@@ -239,6 +239,10 @@ export default function ClientStudioHub({ lang }) {
       if (await finishActivationSuccess(sid, data)) return { ok: true };
     }
 
+    if (data.fulfillmentOk && data.signedIn) {
+      if (await finishActivationSuccess(sid, data)) return { ok: true };
+    }
+
     if (data.needsSignIn && data.fulfillmentOk) {
       setState("activating");
       return { ok: false, needsSignIn: true };
@@ -272,12 +276,27 @@ export default function ClientStudioHub({ lang }) {
     finishActivationSuccess,
   ]);
 
+  const signInHref = useMemo(() => {
+    const sid = resolveSessionId();
+    const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
+    return `/login?next=${encodeURIComponent(next)}`;
+  }, [resolveSessionId]);
+
   useEffect(() => {
     if (!router.isReady) return;
     const sid = firstQuery(router.query.session_id);
     if (sid) persistSessionId(sid);
+    if (hasPendingCheckout(router)) setActivationExtended(true);
     load(sid);
-  }, [router.isReady, router.query.session_id, load]);
+  }, [router.isReady, router.query.session_id, load, router]);
+
+  useEffect(() => {
+    if (!needsSignIn) return;
+    const t = setTimeout(() => {
+      router.push(signInHref).catch(() => {});
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [needsSignIn, signInHref, router]);
 
   useEffect(() => {
     refreshJourney();
@@ -331,11 +350,13 @@ export default function ClientStudioHub({ lang }) {
       }
       if (!cancelled && activationRunRef.current === runId) {
         setActivationExtended(true);
-        for (let t = 0; t < 24 && !cancelled && activationRunRef.current === runId; t++) {
-          setActivationAttempt(MAX_ACTIVATION_ATTEMPTS + t + 1);
+        let tail = 0;
+        while (!cancelled && activationRunRef.current === runId) {
+          setActivationAttempt(MAX_ACTIVATION_ATTEMPTS + tail + 1);
+          tail += 1;
           const result = await runActivationAttempt();
           if (result?.ok) return;
-          await new Promise((r) => setTimeout(r, 10000));
+          await new Promise((r) => setTimeout(r, tail <= 24 ? 10000 : 15000));
         }
       }
     })();
@@ -391,20 +412,13 @@ export default function ClientStudioHub({ lang }) {
     }
   }
 
-  const signInHref = useMemo(() => {
-    const sid = resolveSessionId();
-    const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
-    return `/login?next=${encodeURIComponent(next)}`;
-  }, [resolveSessionId]);
-
   const activationViewProps = {
     lang,
     attempt: activationAttempt,
     activation,
     luxuryStages,
     conciergeMessage,
-    progressPercent,
-    softExtended: activationExtended,
+    progressPercent: progressPercent ?? (activationExtended ? 88 : null),
     needsSignIn,
     signInHref,
     onRecover: manualRecoverPurchase,

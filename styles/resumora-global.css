@@ -5058,6 +5058,17 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.rs-post-payment-activation-signin-cta {
+  margin: 0 0 1.1rem;
+}
+.rs-post-payment-activation-signin-cta .rs-btn-accent {
+  display: inline-block;
+}
+.rs-checkout-recovery--assist {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
 .rs-post-payment-activation-soft-recover {
   margin: 0.75rem 0 0;
   text-align: center;

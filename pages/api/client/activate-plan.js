@@ -50,15 +50,30 @@ export default async function handler(req, res) {
       });
     }
 
-    const entitled =
-      plans.length > 0 ||
-      (activation.plansCount > 0) ||
-      (activation.planActivated === true && activation.ok === true);
+    if (profileId && sessionId && plans.length === 0 && activation.planActivated) {
+      const retry = await activateBySessionId(sessionId, actor, lang);
+      if (retry.plansCount > 0) {
+        activation = retry;
+        const base = await getWorkspaceOverview(profileId, actor.profileEmail, lang);
+        plans = base.plans.map((p) => {
+          const d = getDeliverableForPlan(p.planId, lang);
+          return {
+            ...p,
+            displayName: d?.displayName || p.planId,
+            studioPath: d?.studioPath || "/studio",
+            features: d?.features || [],
+            freeEditsLabel: d?.freeEditsLabel || "",
+          };
+        });
+      }
+    }
+
+    const entitled = plans.length > 0 || activation.plansCount > 0;
 
     return res.status(200).json({
       ok: true,
       signedIn: Boolean(profileId),
-      needsSignIn: !profileId && activation.planActivated === true && plans.length === 0,
+      needsSignIn: !profileId && (activation.planActivated === true || activation.paymentConfirmed === true),
       stripeCheckoutEmail: activation.stripeCheckoutEmail || null,
       activation: activation.activation || {
         paymentConfirmed: activation.planActivated === true,
