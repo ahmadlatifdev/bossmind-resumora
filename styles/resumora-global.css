@@ -4990,6 +4990,63 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: linear-gradient(165deg, rgba(20, 18, 12, 0.92), rgba(12, 12, 14, 0.96));
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
+.rs-post-payment-activation-card--enter {
+  animation: rsActivationCardEnter 0.55s ease-out both;
+}
+@keyframes rsActivationCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rs-post-payment-activation-concierge {
+  margin: 0 0 1.1rem;
+  font-size: 0.92rem;
+  color: rgba(201, 162, 39, 0.88);
+  line-height: 1.5;
+  font-style: italic;
+}
+.rs-post-payment-activation-pulse {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: #c9a227;
+  vertical-align: middle;
+  animation: rsActivationPulse 1.2s ease-in-out infinite;
+}
+@keyframes rsActivationPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.rs-post-payment-activation-steps li.is-active .rs-post-payment-step-icon {
+  animation: rsStepActive 1s ease-in-out infinite;
+}
+@keyframes rsStepActive {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.rs-client-hub--premium-prep {
+  max-width: 42rem;
+  padding: 1.5rem 0 2rem;
+}
 .rs-post-payment-activation-eyebrow {
   margin: 0 0 0.5rem;
   font-size: 0.78rem;

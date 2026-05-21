@@ -43,6 +43,19 @@ function persistSessionId(sid) {
   }
 }
 
+function preloadStudioAssets(preload) {
+  if (typeof document === "undefined" || !preload) return;
+  const urls = [preload.onboarding, preload.studio, preload.essentialAdvanced].filter(Boolean);
+  for (const href of urls) {
+    if (document.querySelector(`link[data-rs-preload="${href}"]`)) continue;
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.href = href;
+    link.setAttribute("data-rs-preload", href);
+    document.head.appendChild(link);
+  }
+}
+
 function formatDate(value) {
   if (!value) return "—";
   const d = new Date(value);
@@ -65,6 +78,9 @@ export default function ClientStudioHub({ lang }) {
   const [showUploadWizard, setShowUploadWizard] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [activation, setActivation] = useState(null);
+  const [luxuryStages, setLuxuryStages] = useState(null);
+  const [conciergeMessage, setConciergeMessage] = useState("");
+  const [progressPercent, setProgressPercent] = useState(null);
   const [activationAttempt, setActivationAttempt] = useState(0);
   const activationRunRef = useRef(0);
   const [uploadingPlan, setUploadingPlan] = useState("");
@@ -144,6 +160,10 @@ export default function ClientStudioHub({ lang }) {
     );
     const data = await res.json();
     if (data.activation) setActivation(data.activation);
+    if (Array.isArray(data.luxuryStages)) setLuxuryStages(data.luxuryStages);
+    if (data.conciergeMessage) setConciergeMessage(data.conciergeMessage);
+    if (typeof data.progressPercent === "number") setProgressPercent(data.progressPercent);
+    if (data.preload) preloadStudioAssets(data.preload);
 
     if (data.hasAccess || data.fulfillmentOk) {
       persistSessionId(sid);
@@ -196,6 +216,35 @@ export default function ClientStudioHub({ lang }) {
   useEffect(() => {
     refreshJourney();
   }, [refreshJourney]);
+
+  useEffect(() => {
+    if (state !== "activating" && state !== "loading") return;
+    preloadStudioAssets({
+      studio: "/studio",
+      onboarding: `/api/client/onboarding?lang=${lang}`,
+      essentialAdvanced: "/studio/essential-advanced",
+    });
+  }, [state, lang]);
+
+  useEffect(() => {
+    if (state !== "no_plan" || !hub?.email) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(
+          `/api/client/checkout-recovery?email=${encodeURIComponent(hub.email)}&lang=${lang}`,
+          { credentials: "same-origin" }
+        );
+        const j = await r.json();
+        if (!cancelled && j.recovered) await load(resolveSessionId(), { skipActivatingGate: true });
+      } catch {
+        /* silent */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state, hub?.email, lang, load, resolveSessionId]);
 
   useEffect(() => {
     if (state !== "activating") return;
@@ -319,8 +368,10 @@ export default function ClientStudioHub({ lang }) {
           <PostPaymentActivation
             lang={lang}
             attempt={activationAttempt}
-            maxAttempts={MAX_ACTIVATION_ATTEMPTS}
             activation={activation}
+            luxuryStages={luxuryStages}
+            conciergeMessage={conciergeMessage}
+            progressPercent={progressPercent}
           />
         ) : null}
       </div>
@@ -343,8 +394,10 @@ export default function ClientStudioHub({ lang }) {
       <PostPaymentActivation
         lang={lang}
         attempt={activationAttempt}
-        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
         activation={activation}
+        luxuryStages={luxuryStages}
+        conciergeMessage={conciergeMessage}
+        progressPercent={progressPercent}
       />
     );
   }
@@ -354,8 +407,10 @@ export default function ClientStudioHub({ lang }) {
       <PostPaymentActivation
         lang={lang}
         attempt={activationAttempt}
-        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
         activation={activation}
+        luxuryStages={luxuryStages}
+        conciergeMessage={conciergeMessage}
+        progressPercent={progressPercent}
         failed
         onRecover={manualRecoverPurchase}
         recoveryEmail={recoveryEmail}
@@ -367,21 +422,36 @@ export default function ClientStudioHub({ lang }) {
 
   if (state === "no_plan") {
     return (
-      <div className="rs-client-hub rs-client-hub--no-plan">
-        <h1>{L(lang, "Your Resumora workspace", "Votre espace Resumora")}</h1>
-        <p>
+      <div className="rs-client-hub rs-client-hub--no-plan rs-client-hub--premium-prep">
+        <p className="rs-post-payment-activation-eyebrow">
+          {L(lang, "Resumora Executive Studio", "Studio executif Resumora")}
+        </p>
+        <h1>{L(lang, "Your secure workspace awaits", "Votre espace securise vous attend")}</h1>
+        <p className="rs-post-payment-activation-sub">
           {L(
             lang,
-            "Choose a plan to unlock your secure upload workspace and resume generation dashboard.",
-            "Choisissez un forfait pour debloquer votre espace de televersement et la generation de CV."
+            "Select an executive plan to activate upload channels, resume generation, and complimentary edits.",
+            "Selectionnez un forfait executif pour activer televersement, generation CV et retouches incluses."
           )}
         </p>
-        <Link href="/pricing#pricing" className="rs-btn-accent">
-          {L(lang, "Choose a Plan", "Choisir un forfait")}
-        </Link>
-        <Link href="/login" className="rs-btn-ghost">
-          {L(lang, "Sign in", "Connexion")}
-        </Link>
+        <p className="rs-post-payment-activation-concierge">
+          {L(
+            lang,
+            "Already purchased? We are checking your account for entitlements automatically.",
+            "Deja achete? Verification automatique de vos droits sur votre compte."
+          )}
+        </p>
+        <div className="rs-post-payment-activation-actions">
+          <Link href="/pricing#pricing" className="rs-btn-accent">
+            {L(lang, "Choose a Plan", "Choisir un forfait")}
+          </Link>
+          <button type="button" className="rs-btn-ghost" onClick={manualRecoverPurchase}>
+            {L(lang, "Recover Purchase", "Recuperer l'achat")}
+          </button>
+          <Link href="/login" className="rs-btn-ghost">
+            {L(lang, "Sign in", "Connexion")}
+          </Link>
+        </div>
       </div>
     );
   }
