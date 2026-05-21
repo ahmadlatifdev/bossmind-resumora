@@ -1,0 +1,200 @@
+{
+  "schema": "bossmind-client-journey-autonomous-repair-v1",
+  "startedAt": "2026-05-21T22:08:50.502Z",
+  "root": "D:\\BossMind\\bossmind-resumora",
+  "phases": [
+    {
+      "phase": "diagnose",
+      "ok": true,
+      "issues": []
+    },
+    {
+      "phase": "build",
+      "ok": true,
+      "status": 0
+    },
+    {
+      "phase": "commit",
+      "ok": true,
+      "skipped": "clean"
+    }
+  ],
+  "fileDiagnosis": {
+    "issues": [],
+    "checks": [
+      {
+        "file": "pages/success.js",
+        "exists": true
+      },
+      {
+        "file": "pages/success.js",
+        "marker": "redirectedRef",
+        "ok": true
+      },
+      {
+        "file": "pages/success.js",
+        "marker": "prefetchCheckoutActivation",
+        "ok": true
+      },
+      {
+        "file": "pages/success.js",
+        "marker": "shouldBlockRedirect",
+        "ok": true
+      },
+      {
+        "file": "pages/_app.js",
+        "exists": true
+      },
+      {
+        "file": "pages/_app.js",
+        "marker": "CheckoutJourneyGuard",
+        "ok": true
+      },
+      {
+        "file": "pages/_app.js",
+        "marker": "clearStaleServiceWorkerCaches",
+        "ok": true
+      },
+      {
+        "file": "public/sw.js",
+        "exists": true
+      },
+      {
+        "file": "public/sw.js",
+        "marker": "20260521-journey-v3",
+        "ok": true
+      },
+      {
+        "file": "public/sw.js",
+        "marker": "mustBypassHtml",
+        "ok": true
+      },
+      {
+        "file": "public/sw.js",
+        "marker": "BYPASS_HTML_PREFIXES",
+        "ok": true
+      },
+      {
+        "file": "routes/stripe.js",
+        "exists": true
+      },
+      {
+        "file": "routes/stripe.js",
+        "marker": "NEXT_PUBLIC_SITE_URL",
+        "ok": true
+      },
+      {
+        "file": "routes/stripe.js",
+        "marker": "/success?session_id",
+        "ok": true
+      },
+      {
+        "file": "lib/client/checkout-runtime.js",
+        "exists": true
+      },
+      {
+        "file": "lib/client/checkout-runtime.js",
+        "marker": "shouldBlockRedirect",
+        "ok": true
+      },
+      {
+        "file": "lib/client/checkout-runtime.js",
+        "marker": "prefetchCheckoutActivation",
+        "ok": true
+      },
+      {
+        "file": "pages/api/client/runtime-log.js",
+        "exists": true
+      }
+    ]
+  },
+  "localGitHead": "2d7f55b97bf5bc9be08821ee4383ac260adf6318",
+  "live": [
+    {
+      "origin": "https://www.resumora.net",
+      "probes": {
+        "health": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": false,
+          "hasSwV3": true,
+          "cacheControl": null
+        },
+        "studio": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": true,
+          "hasSwV3": false,
+          "cacheControl": null
+        },
+        "success": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": true,
+          "hasSwV3": true,
+          "cacheControl": null
+        },
+        "login": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": false,
+          "hasSwV3": true,
+          "cacheControl": null
+        }
+      },
+      "gitCommit": "826d083096f655a492b814e24c9ff329439da1d7",
+      "checkoutReady": false,
+      "commerceReady": false,
+      "ok": true
+    },
+    {
+      "origin": "https://bossmind-resumora-web.onrender.com",
+      "probes": {
+        "health": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": false,
+          "hasSwV3": true,
+          "cacheControl": null
+        },
+        "studio": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": true,
+          "hasSwV3": false,
+          "cacheControl": null
+        },
+        "success": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": true,
+          "hasSwV3": true,
+          "cacheControl": null
+        },
+        "login": {
+          "status": 200,
+          "location": null,
+          "hasCalmPrepare": false,
+          "hasSwV3": true,
+          "cacheControl": null
+        }
+      },
+      "gitCommit": "826d083096f655a492b814e24c9ff329439da1d7",
+      "checkoutReady": false,
+      "commerceReady": false,
+      "ok": true
+    }
+  ],
+  "infiniteLoopMitigations": {
+    "redirectGuard": true,
+    "swCheckoutBypass": true,
+    "successSingleRedirect": true,
+    "runtimeLogging": true
+  },
+  "remainingRisks": [
+    "STRIPE_SECRET_KEY and publishable keys must be set on Render (checkoutReady:false)",
+    "deploy_drift: production commit differs from local HEAD"
+  ],
+  "completedAt": "2026-05-21T22:10:14.485Z",
+  "ok": true
+}
