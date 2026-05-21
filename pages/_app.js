@@ -1,7 +1,14 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
+import {
+  clearStaleServiceWorkerCaches,
+  isCheckoutSensitivePath,
+  logCheckoutRuntime,
+  recordRedirect,
+  shouldBlockRedirect,
+} from "@/lib/client/checkout-runtime";
 
 import "@/styles/resumora-global.css";
 
@@ -10,10 +17,40 @@ export default function App({ Component, pageProps }) {
     <LanguageProvider>
       <div className="rs-root-font">
         <PwaAndAnalytics />
+        <CheckoutJourneyGuard />
         <Component {...pageProps} />
       </div>
     </LanguageProvider>
   );
+}
+
+/** Global anti-loop: block ping-pong redirects on checkout/auth routes. */
+function CheckoutJourneyGuard() {
+  const router = useRouter();
+  const lastPathRef = useRef("");
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const path = router.asPath || router.pathname;
+    if (isCheckoutSensitivePath(router.pathname)) {
+      clearStaleServiceWorkerCaches(router.pathname);
+    }
+
+    const prev = lastPathRef.current;
+    if (prev && prev !== path) {
+      if (shouldBlockRedirect(prev, path)) {
+        logCheckoutRuntime("app_redirect_loop_break", { from: prev, to: path });
+        router.replace("/studio?recovery=loop").catch(() => {});
+        return;
+      }
+      recordRedirect(prev, path);
+      logCheckoutRuntime("route_change", { from: prev, to: path });
+    }
+    lastPathRef.current = path;
+  }, [router.isReady, router.asPath, router.pathname, router]);
+
+  return null;
 }
 
 function PwaAndAnalytics() {
@@ -22,14 +59,17 @@ function PwaAndAnalytics() {
 
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
-    window.addEventListener("load", () => {
+    const onLoad = () => {
       navigator.serviceWorker
         .register("/sw.js")
         .then((reg) => {
           reg.update().catch(() => {});
+          logCheckoutRuntime("sw_registered", { scope: reg.scope });
         })
-        .catch(() => {});
-    });
+        .catch((e) => logCheckoutRuntime("sw_register_error", { message: e?.message }));
+    };
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
   }, []);
 
   useEffect(() => {

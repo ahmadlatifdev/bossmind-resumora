@@ -1,24 +1,30 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-// Mock success page (no Stripe call)
-router.get('/success', (req, res) => {
-  const sessionId = req.query.session_id;
-  if (sessionId) {
-    res.send('<h1>Payment successful!</h1><p>Your account is now active. (Mock mode)</p>');
-  } else {
-    res.redirect('/cancel');
+const SITE = String(process.env.NEXT_PUBLIC_SITE_URL || "https://www.resumora.net").replace(/\/$/, "");
+
+/** Legacy Express routes — forward to Next.js production journey (no mock HTML loops). */
+router.get("/success", (req, res) => {
+  const sessionId = String(req.query.session_id || "").trim();
+  if (!sessionId) {
+    return res.redirect(302, `${SITE}/studio`);
   }
+  return res.redirect(
+    302,
+    `${SITE}/success?session_id=${encodeURIComponent(sessionId)}`
+  );
 });
 
-// Mock cancel page
-router.get('/cancel', (req, res) => {
-  res.send('<h1>Payment cancelled</h1><p>No charge was made. Try again. (Mock mode)</p>');
+router.get("/cancel", (req, res) => {
+  res.redirect(302, `${SITE}/cancel`);
 });
 
-// Optional: create-checkout endpoint (mock)
-router.post('/create-checkout', (req, res) => {
-  res.json({ url: '/stripe/success?session_id=mock_123' });
+router.post("/create-checkout", (req, res) => {
+  res.status(410).json({
+    error: "deprecated",
+    message: "Use /api/checkout on the Next.js app",
+    studioUrl: `${SITE}/studio`,
+  });
 });
 
 module.exports = router;

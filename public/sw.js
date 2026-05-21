@@ -1,9 +1,22 @@
 /**
- * Offline shell — precaches versioned branding assets (see config/branding-asset-version.json).
- * HTML/navigation: network-first (never serve stale homepage/pricing from cache).
+ * Resumora SW — static assets only. Never cache auth/checkout HTML (prevents redirect loops).
+ * Version: 20260521-journey-v3
  */
-const BRANDING_ASSET_QUERY = "?v=20260517-rs5-official-jpg";
-const CACHE = "resumora-shell-20260517-rs5-official-jpg";
+const SW_VERSION = "20260521-journey-v3";
+const BRANDING_ASSET_QUERY = "?v=20260521-journey-v3";
+const CACHE = `resumora-shell-${SW_VERSION}`;
+
+const BYPASS_HTML_PREFIXES = [
+  "/login",
+  "/register",
+  "/studio",
+  "/pricing",
+  "/success",
+  "/dashboard",
+  "/cancel",
+  "/reset-password",
+  "/forgot-password",
+];
 
 const q = () => BRANDING_ASSET_QUERY;
 
@@ -11,6 +24,10 @@ function isHtmlNavigation(request) {
   if (request.mode === "navigate") return true;
   const accept = request.headers.get("accept") || "";
   return accept.includes("text/html");
+}
+
+function mustBypassHtml(pathname) {
+  return BYPASS_HTML_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 self.addEventListener("install", (event) => {
@@ -62,10 +79,19 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
+
   if (isHtmlNavigation(request)) {
+    if (mustBypassHtml(url.pathname)) {
+      event.respondWith(fetch(request, { cache: "no-store", redirect: "follow" }));
+      return;
+    }
     event.respondWith(
       fetch(request, { cache: "no-store" }).catch(() =>
-        caches.match(request).then((cached) => cached || caches.match("/"))
+        Response.error()
       )
     );
     return;
@@ -102,9 +128,5 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    fetch(request)
-      .then((res) => res)
-      .catch(() => caches.match(request))
-  );
+  event.respondWith(fetch(request, { cache: "no-store" }).catch(() => caches.match(request)));
 });
