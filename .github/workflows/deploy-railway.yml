@@ -1,0 +1,13 @@
+name: Deploy Railway
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-railway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm Railway deploy placeholder
+        run: echo "Railway deploy workflow detected. Add RAILWAY_TOKEN and SERVICE_ID secrets to activate live deployment."
