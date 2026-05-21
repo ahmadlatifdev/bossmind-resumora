@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
+import PostPaymentActivation from "@/components/client/PostPaymentActivation";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -15,6 +16,8 @@ const DOC_TYPE_OPTIONS = [
 ];
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
+const MAX_ACTIVATION_ATTEMPTS = 5;
+const ACTIVATION_RETRY_MS = 3000;
 
 function firstQuery(value) {
   if (typeof value === "string") return value;
@@ -22,10 +25,33 @@ function firstQuery(value) {
   return "";
 }
 
+function getStoredSessionId() {
+  if (typeof sessionStorage === "undefined") return "";
+  try {
+    return sessionStorage.getItem("rs_last_checkout_session") || "";
+  } catch {
+    return "";
+  }
+}
+
+function persistSessionId(sid) {
+  if (!sid || typeof sessionStorage === "undefined") return;
+  try {
+    sessionStorage.setItem("rs_last_checkout_session", sid);
+  } catch {
+    /* ignore */
+  }
+}
+
 function formatDate(value) {
   if (!value) return "—";
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+}
+
+function hasPendingCheckout(router) {
+  const sid = firstQuery(router.query.session_id) || getStoredSessionId();
+  return Boolean(sid) || firstQuery(router.query.checkout) === "success";
 }
 
 export default function ClientStudioHub({ lang }) {
@@ -38,63 +64,19 @@ export default function ClientStudioHub({ lang }) {
   const [checkoutVerify, setCheckoutVerify] = useState(null);
   const [showUploadWizard, setShowUploadWizard] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
-  const [redirectCountdown, setRedirectCountdown] = useState(0);
   const [activation, setActivation] = useState(null);
+  const [activationAttempt, setActivationAttempt] = useState(0);
+  const activationRunRef = useRef(0);
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
   const [editNotes, setEditNotes] = useState({});
   const [docTypes, setDocTypes] = useState({});
 
-  const load = useCallback(async (sessionId = "") => {
-    setState("loading");
-    try {
-      let sid = sessionId;
-      if (!sid) {
-        try {
-          sid = sessionStorage.getItem("rs_last_checkout_session") || "";
-        } catch {
-          sid = "";
-        }
-      }
-      const qs = new URLSearchParams({ lang });
-      if (sid) qs.set("session_id", sid);
-      const res = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
-      const data = await res.json();
-      if (!res.ok) {
-        setState("error");
-        return;
-      }
-      if (data.activation) setActivation(data.activation);
-      if (!data.signedIn) {
-        setState("auth");
-        setHub(data);
-        return;
-      }
-      if (!data.hasAccess && sid) {
-        const actRes = await fetch(`/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
-          credentials: "same-origin",
-        });
-        const act = await actRes.json();
-        if (act.activation) setActivation(act.activation);
-        if (act.hasAccess) {
-          const retry = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
-          const retryData = await retry.json();
-          setHub(retryData);
-          setState(retryData.hasAccess ? "ready" : "empty");
-          return;
-        }
-      }
-      setHub(data);
-      setState(data.hasAccess ? "ready" : "empty");
-    } catch {
-      setState("error");
-    }
-  }, [lang]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const resolveSessionId = useCallback(() => {
+    const fromQuery = firstQuery(router.query.session_id);
+    return fromQuery || getStoredSessionId();
+  }, [router.query.session_id]);
 
   const refreshJourney = useCallback(async () => {
     try {
@@ -106,9 +88,140 @@ export default function ClientStudioHub({ lang }) {
     }
   }, [lang]);
 
+  const load = useCallback(
+    async (sessionId = "", { skipActivatingGate = false } = {}) => {
+      const sid = sessionId || resolveSessionId();
+      const pending = Boolean(sid) || hasPendingCheckout(router);
+
+      if (!skipActivatingGate && pending) {
+        setState("activating");
+      } else {
+        setState("loading");
+      }
+
+      try {
+        const qs = new URLSearchParams({ lang });
+        if (sid) qs.set("session_id", sid);
+        const res = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
+        const data = await res.json();
+        if (!res.ok) {
+          setState("error");
+          return;
+        }
+        if (data.activation) setActivation(data.activation);
+        if (!data.signedIn) {
+          setState("auth");
+          setHub(data);
+          return;
+        }
+        if (data.hasAccess) {
+          setHub(data);
+          setState("ready");
+          setShowUploadWizard(true);
+          return;
+        }
+        if (pending) {
+          setHub(data);
+          setState("activating");
+          return;
+        }
+        setHub(data);
+        setState("no_plan");
+      } catch {
+        setState("error");
+      }
+    },
+    [lang, router, resolveSessionId]
+  );
+
+  const runActivationAttempt = useCallback(async () => {
+    const sid = resolveSessionId();
+    if (!sid) return { ok: false };
+
+    const res = await fetch(
+      `/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
+      { credentials: "same-origin" }
+    );
+    const data = await res.json();
+    if (data.activation) setActivation(data.activation);
+
+    if (data.hasAccess || data.fulfillmentOk) {
+      persistSessionId(sid);
+      const qs = new URLSearchParams({ lang, session_id: sid });
+      const ws = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
+      const wsData = await ws.json();
+      if (wsData.activation) setActivation(wsData.activation);
+      if (wsData.hasAccess) {
+        setHub(wsData);
+        setState("ready");
+        setShowUploadWizard(true);
+        setCheckoutVerify({
+          status: "success",
+          planId: data.planId,
+          displayName: data.displayName,
+        });
+        setToast(
+          L(
+            lang,
+            "Your secure workspace is ready. Upload your documents to begin.",
+            "Votre espace securise est pret. Televersez vos documents pour commencer."
+          )
+        );
+        await refreshJourney();
+        return { ok: true };
+      }
+    }
+
+    if (hub?.email) {
+      const emailRes = await fetch(
+        `/api/client/checkout-recovery?email=${encodeURIComponent(hub.email)}&lang=${lang}`,
+        { credentials: "same-origin" }
+      );
+      const emailData = await emailRes.json();
+      if (emailData.recovered) {
+        return load(sid, { skipActivatingGate: true });
+      }
+    }
+
+    return { ok: false };
+  }, [lang, resolveSessionId, hub?.email, load, refreshJourney]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const sid = firstQuery(router.query.session_id);
+    if (sid) persistSessionId(sid);
+    load(sid);
+  }, [router.isReady, router.query.session_id, load]);
+
   useEffect(() => {
     refreshJourney();
   }, [refreshJourney]);
+
+  useEffect(() => {
+    if (state !== "activating") return;
+
+    const runId = ++activationRunRef.current;
+    let cancelled = false;
+
+    (async () => {
+      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
+        if (cancelled || activationRunRef.current !== runId) return;
+        setActivationAttempt(i + 1);
+        const result = await runActivationAttempt();
+        if (result?.ok) return;
+        if (i < MAX_ACTIVATION_ATTEMPTS - 1) {
+          await new Promise((r) => setTimeout(r, ACTIVATION_RETRY_MS));
+        }
+      }
+      if (!cancelled && activationRunRef.current === runId) {
+        setState("activation_failed");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state, runActivationAttempt]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -116,93 +229,41 @@ export default function ClientStudioHub({ lang }) {
     const sid = firstQuery(router.query.session_id);
     if (!sid) return;
 
+    persistSessionId(sid);
+    setState("activating");
     setCheckoutVerify({ status: "pending" });
-    fetch(`/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`, {
-      credentials: "same-origin",
-    })
-      .then((r) => r.json())
-      .then(async (data) => {
-        setCheckoutVerify({
-          status: data.hasAccess || data.fulfillmentOk ? "success" : "invalid",
-          planId: data.planId,
-          displayName: data.displayName,
-          freeEditsLabel: data.freeEditsLabel,
-        });
-        if (data.activation) setActivation(data.activation);
-        if (data.hasAccess || data.fulfillmentOk) {
-          try {
-            sessionStorage.setItem("rs_last_checkout_session", sid);
-          } catch {
-            /* ignore */
-          }
-          setShowUploadWizard(true);
-          setToast(
-            L(lang, "Payment confirmed — plan activated. Upload your documents.", "Paiement confirme — forfait active. Televersez vos documents.")
-          );
-          await load(sid);
-          await refreshJourney();
-        }
-        router.replace("/studio", undefined, { shallow: true }).catch(() => {});
-      })
-      .catch(async () => {
-        setCheckoutVerify({ status: "error" });
-        try {
-          const last = sessionStorage.getItem("rs_last_checkout_session");
-          if (last) {
-            const r = await fetch(
-              `/api/client/checkout-recovery?session_id=${encodeURIComponent(last)}&lang=${lang}`,
-              { credentials: "same-origin" }
-            );
-            const j = await r.json();
-            if (j.recovered) {
-              setCheckoutVerify({ status: "success", planId: j.planId, displayName: j.displayName });
-              await load();
-            }
-          }
-        } catch {
-          /* ignore */
-        }
-      });
-  }, [router.isReady, router.query.checkout, router.query.session_id, lang, load, refreshJourney, router]);
+    router.replace("/studio", undefined, { shallow: true }).catch(() => {});
+  }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
-  useEffect(() => {
-    if (!router.isReady || firstQuery(router.query.checkout) === "success") return;
-    try {
-      const last = sessionStorage.getItem("rs_last_checkout_session");
-      if (!last) return;
-      setRedirectCountdown(8);
-      const tick = setInterval(() => setRedirectCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
-      fetch(`/api/client/checkout-recovery?session_id=${encodeURIComponent(last)}&lang=${lang}`, {
-        credentials: "same-origin",
-      })
-        .then((r) => r.json())
-        .then(async (j) => {
-          if (j.recovered) {
-            setCheckoutVerify({ status: "success", planId: j.planId, displayName: j.displayName });
-            setShowUploadWizard(true);
-            await load();
-          }
-        })
-        .catch(() => {});
-      return () => clearInterval(tick);
-    } catch {
-      /* ignore */
+  async function manualRecoverPurchase() {
+    setState("activating");
+    setActivationAttempt(0);
+    activationRunRef.current += 1;
+    const result = await runActivationAttempt();
+    if (!result?.ok) {
+      for (let i = 0; i < MAX_ACTIVATION_ATTEMPTS; i++) {
+        setActivationAttempt(i + 1);
+        const r = await runActivationAttempt();
+        if (r?.ok) return;
+        await new Promise((res) => setTimeout(res, ACTIVATION_RETRY_MS));
+      }
+      setState("activation_failed");
     }
-  }, [router.isReady, router.query.checkout, lang, load]);
+  }
 
   async function recoverWorkspaceByEmail() {
     const email = recoveryEmail.trim();
     if (!email.includes("@")) return;
+    setState("activating");
     const r = await fetch(`/api/client/checkout-recovery?email=${encodeURIComponent(email)}&lang=${lang}`, {
       credentials: "same-origin",
     });
     const j = await r.json();
     if (j.recovered) {
-      setToast(L(lang, "Workspace restored.", "Espace client restaure."));
-      await load();
+      await load(resolveSessionId(), { skipActivatingGate: true });
       await refreshJourney();
-      if (j.continueUrl) router.push(j.continueUrl).catch(() => {});
     } else {
+      setState("activation_failed");
       setToast(L(lang, "No purchase found for this email.", "Aucun achat trouve pour ce courriel."));
     }
   }
@@ -221,15 +282,26 @@ export default function ClientStudioHub({ lang }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planId: plan.planId }),
       })
-        .then(() => load())
+        .then(() => load(resolveSessionId(), { skipActivatingGate: true }))
         .catch(() => {});
     }, 4000);
     return () => clearInterval(tick);
-  }, [hub, load]);
+  }, [hub, load, resolveSessionId]);
+
+  if (state === "loading" && hasPendingCheckout(router)) {
+    return (
+      <PostPaymentActivation
+        lang={lang}
+        attempt={0}
+        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
+        activation={activation}
+      />
+    );
+  }
 
   if (state === "loading") {
     return (
-      <div className="rs-client-hub">
+      <div className="rs-client-hub rs-client-hub--loading">
         <p>{t.clientHubLoading}</p>
       </div>
     );
@@ -243,6 +315,14 @@ export default function ClientStudioHub({ lang }) {
         <Link href="/login" className="rs-btn-accent">
           {t.clientHubAuthCta}
         </Link>
+        {hasPendingCheckout(router) ? (
+          <PostPaymentActivation
+            lang={lang}
+            attempt={activationAttempt}
+            maxAttempts={MAX_ACTIVATION_ATTEMPTS}
+            activation={activation}
+          />
+        ) : null}
       </div>
     );
   }
@@ -251,39 +331,56 @@ export default function ClientStudioHub({ lang }) {
     return (
       <div className="rs-client-hub">
         <p>{t.clientHubError}</p>
-        <button type="button" className="rs-btn-ghost" onClick={load}>
+        <button type="button" className="rs-btn-ghost" onClick={() => load(resolveSessionId())}>
           {t.clientHubRetry}
         </button>
       </div>
     );
   }
 
-  if (state === "empty") {
+  if (state === "activating") {
     return (
-      <div className="rs-client-hub">
-        <h1>{t.clientHubEmptyTitle}</h1>
-        <p>{t.clientHubEmptyLead}</p>
-        <p className="rs-payment-confirmed-banner rs-payment-confirmed-banner--pending">
-          {L(lang, "Activating your plan…", "Activation de votre forfait…")}
+      <PostPaymentActivation
+        lang={lang}
+        attempt={activationAttempt}
+        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
+        activation={activation}
+      />
+    );
+  }
+
+  if (state === "activation_failed") {
+    return (
+      <PostPaymentActivation
+        lang={lang}
+        attempt={activationAttempt}
+        maxAttempts={MAX_ACTIVATION_ATTEMPTS}
+        activation={activation}
+        failed
+        onRecover={manualRecoverPurchase}
+        recoveryEmail={recoveryEmail}
+        onRecoveryEmailChange={setRecoveryEmail}
+        onEmailRecover={recoverWorkspaceByEmail}
+      />
+    );
+  }
+
+  if (state === "no_plan") {
+    return (
+      <div className="rs-client-hub rs-client-hub--no-plan">
+        <h1>{L(lang, "Your Resumora workspace", "Votre espace Resumora")}</h1>
+        <p>
+          {L(
+            lang,
+            "Choose a plan to unlock your secure upload workspace and resume generation dashboard.",
+            "Choisissez un forfait pour debloquer votre espace de televersement et la generation de CV."
+          )}
         </p>
-        <button
-          type="button"
-          className="rs-btn-accent"
-          onClick={async () => {
-            const sid = sessionStorage.getItem("rs_last_checkout_session") || "";
-            await fetch(`/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${lang}`, {
-              credentials: "same-origin",
-            });
-            await load(sid);
-          }}
-        >
-          {L(lang, "Activate my purchase now", "Activer mon achat maintenant")}
-        </button>
-        <Link href="/studio" className="rs-btn-ghost">
-          {L(lang, "Continue To My Studio", "Continuer vers mon studio")}
+        <Link href="/pricing#pricing" className="rs-btn-accent">
+          {L(lang, "Choose a Plan", "Choisir un forfait")}
         </Link>
-        <Link href="/pricing#pricing" className="rs-btn-ghost">
-          {t.clientHubEmptyCta}
+        <Link href="/login" className="rs-btn-ghost">
+          {L(lang, "Sign in", "Connexion")}
         </Link>
       </div>
     );
@@ -303,7 +400,7 @@ export default function ClientStudioHub({ lang }) {
         body: form,
       });
       setToast(L(lang, "Upload saved.", "Televersement enregistre."));
-      await load();
+      await load(resolveSessionId(), { skipActivatingGate: true });
     } finally {
       setUploadingPlan("");
     }
@@ -316,7 +413,7 @@ export default function ClientStudioHub({ lang }) {
       credentials: "same-origin",
     });
     setToast(L(lang, "Document removed.", "Document supprime."));
-    await load();
+    await load(resolveSessionId(), { skipActivatingGate: true });
   }
 
   async function requestFreeEdit(planId) {
@@ -331,7 +428,7 @@ export default function ClientStudioHub({ lang }) {
         body: JSON.stringify({ planId, notes }),
       });
       setEditNotes((s) => ({ ...s, [planId]: "" }));
-      await load();
+      await load(resolveSessionId(), { skipActivatingGate: true });
     } finally {
       setRequestingPlan("");
     }
@@ -349,17 +446,14 @@ export default function ClientStudioHub({ lang }) {
         credentials: "same-origin",
         body: form,
       });
-      await load();
+      await load(resolveSessionId(), { skipActivatingGate: true });
     } finally {
       setReplacingId(0);
     }
   }
 
   const docTypeLabels = useMemo(
-    () =>
-      Object.fromEntries(
-        DOC_TYPE_OPTIONS.map((x) => [x.key, lang === "fr" ? x.fr : x.en])
-      ),
+    () => Object.fromEntries(DOC_TYPE_OPTIONS.map((x) => [x.key, lang === "fr" ? x.fr : x.en])),
     [lang]
   );
 
@@ -375,96 +469,32 @@ export default function ClientStudioHub({ lang }) {
         </p>
       </header>
 
-      {checkoutVerify?.status === "pending" ? (
-        <p className="rs-payment-confirmed-banner rs-payment-confirmed-banner--pending" role="status">
-          {L(lang, "Verifying your payment…", "Verification du paiement…")}
-        </p>
-      ) : null}
-      {activation ? (
-        <ul className="rs-activation-states">
-          <li className={activation.paymentConfirmed ? "is-on" : ""}>
-            {activation.paymentConfirmed ? "✓" : "○"} {L(lang, "Payment confirmed", "Paiement confirme")}
-          </li>
-          <li className={activation.planActivated ? "is-on" : ""}>
-            {activation.planActivated ? "✓" : "○"} {L(lang, "Plan activated", "Forfait active")}
-          </li>
-          <li className={activation.workspaceReady ? "is-on" : ""}>
-            {activation.workspaceReady ? "✓" : "○"} {L(lang, "Workspace ready", "Espace pret")}
-          </li>
-          <li className={activation.uploadsUnlocked ? "is-on" : ""}>
-            {activation.uploadsUnlocked ? "✓" : "○"} {L(lang, "Uploads unlocked", "Televersements debloques")}
-          </li>
-          <li className={activation.generationReady ? "is-on" : ""}>
-            {activation.generationReady ? "✓" : "○"} {L(lang, "Resume generation ready", "Generation CV prete")}
-          </li>
-        </ul>
-      ) : null}
       {checkoutVerify?.status === "success" ? (
         <div className="rs-payment-confirmed-banner" role="status">
           <strong>{L(lang, "Payment confirmed", "Paiement confirme")}</strong>
           {checkoutVerify.displayName ? (
             <p>
-              {L(lang, "Plan", "Forfait")}: {checkoutVerify.displayName}
-              {checkoutVerify.freeEditsLabel ? ` · ${checkoutVerify.freeEditsLabel}` : ""}
+              {L(lang, "Plan activated", "Forfait active")}: <strong>{checkoutVerify.displayName}</strong>
             </p>
           ) : null}
           <p>
             {L(
               lang,
-              "Next: upload your resume and job description using the guided steps below.",
-              "Etape suivante : televersez votre CV et la description de poste ci-dessous."
+              "Your invoice confirmation has been sent. Upload your documents below to begin generation.",
+              "Votre confirmation de facture a ete envoyee. Televersez vos documents ci-dessous."
             )}
           </p>
         </div>
       ) : null}
-      {checkoutVerify?.status === "invalid" || checkoutVerify?.status === "error" ? (
-        <div className="rs-payment-confirmed-banner rs-payment-confirmed-banner--warn" role="alert">
-          <p>
-            {L(lang, "We could not verify this payment session. Contact support if you were charged.", "Impossible de verifier cette session. Contactez le support si vous avez ete debite.")}
-          </p>
-          <Link href="/studio" className="rs-btn-accent">
-            {L(lang, "Continue To My Studio", "Continuer vers mon studio")}
-          </Link>
-        </div>
-      ) : null}
-      <p className="rs-client-hub-continue">
-        <Link href="/studio" className="rs-btn-ghost">
-          {L(lang, "Continue To My Studio", "Continuer vers mon studio")}
-        </Link>
-        {redirectCountdown > 0 ? (
-          <span className="rs-success-countdown">
-            {" "}
-            {L(lang, `Restoring session ${redirectCountdown}s…`, `Restauration ${redirectCountdown}s…`)}
-          </span>
-        ) : null}
-      </p>
-      <div className="rs-checkout-recovery">
-        <label>
-          {L(lang, "Recover workspace by email", "Recuperer par courriel")}
-          <input
-            className="rs-input"
-            type="email"
-            value={recoveryEmail}
-            onChange={(e) => setRecoveryEmail(e.target.value)}
-            placeholder={L(lang, "you@email.com", "vous@courriel.com")}
-          />
-        </label>
-        <button type="button" className="rs-btn-ghost" onClick={recoverWorkspaceByEmail}>
-          {L(lang, "Restore access", "Restaurer l'acces")}
-        </button>
-      </div>
 
       {journey?.progress?.steps?.length ? (
         <OnboardingProgress steps={journey.progress.steps} percent={journey.progress.percent} lang={lang} />
       ) : null}
-      {journey?.next?.path ? (
-        <p className="rs-client-hub-continue">
-          <Link href={journey.next.path} className="rs-btn-accent">
-            {journey.next.label || L(lang, "Continue", "Continuer")}
-          </Link>
+      {toast ? (
+        <p className="rs-upload-toast" role="status">
+          {toast}
         </p>
       ) : null}
-      {toast ? <p className="rs-upload-toast" role="status">{toast}</p> : null}
 
       <div className="rs-client-hub-grid">
         {hub.plans.map((plan) => (
@@ -521,14 +551,20 @@ export default function ClientStudioHub({ lang }) {
                 lang={lang}
                 planId={plan.planId}
                 documents={plan.documents || []}
-                onUpload={() => load()}
-                onComplete={() => load()}
+                onUpload={() => load(resolveSessionId(), { skipActivatingGate: true })}
+                onComplete={() => load(resolveSessionId(), { skipActivatingGate: true })}
               />
             ) : null}
             {plan.planId === "essential_advanced" ? (
               <div className="rs-premium-dashboard">
                 <h3>{L(lang, "Essential Advanced Premium", "Essential Advanced Premium")}</h3>
-                <p>{L(lang, "3 interview videos · Q&A library · 20 tips · EN/FR delivery", "3 videos · bibliotheque Q&R · 20 conseils · livraison EN/FR")}</p>
+                <p>
+                  {L(
+                    lang,
+                    "3 interview videos · Q&A library · 20 tips · bilingual EN/FR delivery",
+                    "3 videos · bibliotheque Q&R · 20 conseils · livraison EN/FR"
+                  )}
+                </p>
                 <Link href="/studio/essential-advanced" className="rs-btn-accent">
                   {L(lang, "Open Premium Studio", "Ouvrir le studio premium")}
                 </Link>
@@ -537,8 +573,7 @@ export default function ClientStudioHub({ lang }) {
             {plan.delivery ? (
               <div className="rs-client-hub-delivery">
                 <p>
-                  <strong>{L(lang, "Delivery status", "Statut de livraison")}:</strong>{" "}
-                  {plan.delivery.status}
+                  <strong>{L(lang, "Delivery status", "Statut de livraison")}:</strong> {plan.delivery.status}
                 </p>
                 {plan.delivery.message ? <p>{plan.delivery.message}</p> : null}
                 {plan.delivery?.download_url || plan.generationStatus === "ready" ? (
@@ -591,8 +626,8 @@ export default function ClientStudioHub({ lang }) {
               <ul className="rs-client-hub-files">
                 {(plan.documents || []).map((doc) => (
                   <li key={doc.id}>
-                    <strong>{doc.original_name}</strong> · {docTypeLabels[doc.doc_type] || doc.doc_type} ·{" "}
-                    {doc.status} · {formatDate(doc.created_at)}
+                    <strong>{doc.original_name}</strong> · {docTypeLabels[doc.doc_type] || doc.doc_type} · {doc.status}{" "}
+                    · {formatDate(doc.created_at)}
                     {" · "}
                     <a href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=preview`} target="_blank" rel="noreferrer">
                       {L(lang, "Preview", "Apercu")}
@@ -659,14 +694,6 @@ export default function ClientStudioHub({ lang }) {
               <Link href={plan.studioPath} className="rs-btn-accent">
                 {t.clientHubOpenStudio}
               </Link>
-              {plan.welcomeDownloadUrl ? (
-                <a href={plan.welcomeDownloadUrl} className="rs-btn-ghost" download>
-                  {t.clientHubDownloadWelcome}
-                </a>
-              ) : null}
-              <a href={`mailto:${hub?.supportEmail || "support@resumora.net"}?subject=${encodeURIComponent("Resumora Support")}`} className="rs-btn-ghost">
-                {L(lang, "Contact Support", "Contacter le support")}
-              </a>
             </div>
           </article>
         ))}

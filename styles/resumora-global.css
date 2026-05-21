@@ -4978,6 +4978,100 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
+.rs-post-payment-activation {
+  margin: 0 auto;
+  max-width: 42rem;
+  padding: 1.5rem 0 2rem;
+}
+.rs-post-payment-activation-card {
+  padding: 1.75rem 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: linear-gradient(165deg, rgba(20, 18, 12, 0.92), rgba(12, 12, 14, 0.96));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.rs-post-payment-activation-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 39, 0.85);
+}
+.rs-post-payment-activation-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.35rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.rs-post-payment-activation-sub {
+  margin: 0 0 1.25rem;
+  color: var(--rs-text-secondary, rgba(255, 255, 255, 0.72));
+  line-height: 1.55;
+}
+.rs-post-payment-activation-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: grid;
+  gap: 0.55rem;
+}
+.rs-post-payment-activation-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.25s ease;
+}
+.rs-post-payment-activation-steps li.is-done {
+  color: rgba(200, 230, 200, 0.95);
+}
+.rs-post-payment-activation-steps li.is-active {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+.rs-post-payment-step-icon {
+  width: 1.25rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rs-post-payment-activation-progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.rs-post-payment-activation-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9a7b1a, #e8d48a);
+  transition: width 0.45s ease;
+}
+.rs-post-payment-activation-hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+.rs-post-payment-activation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.rs-client-hub--no-plan {
+  max-width: 36rem;
+  padding: 1rem 0;
+}
+@media (max-width: 640px) {
+  .rs-post-payment-activation-card {
+    padding: 1.25rem 1rem;
+  }
+  .rs-post-payment-activation-actions .rs-btn-accent,
+  .rs-post-payment-activation-actions .rs-btn-ghost {
+    width: 100%;
+    text-align: center;
+  }
+}
 .rs-activation-states {
   list-style: none;
   padding: 0;
