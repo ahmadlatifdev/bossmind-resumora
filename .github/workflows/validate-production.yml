@@ -1,0 +1,13 @@
+name: Validate Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Production validation placeholder
+        run: echo "Production validation workflow active. Add live URL health tests and E2E verification next."
