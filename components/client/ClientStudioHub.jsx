@@ -89,8 +89,9 @@ export default function ClientStudioHub({ lang }) {
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [activation, setActivation] = useState(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
-  const initStartedRef = useRef(false);
+  const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
+  const [prepareTimedOut, setPrepareTimedOut] = useState(false);
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -152,10 +153,15 @@ export default function ClientStudioHub({ lang }) {
           setState("error");
           return false;
         }
-        if (data.hasAccess) applyActivationPayload(data);
+        const studioReady =
+          data.hasAccess || (data.signedIn && data.fulfillmentOk && data.planId);
+        if (studioReady) applyActivationPayload(data);
         if (data.email) {
           accountEmailRef.current = data.email;
           setRecoveryEmail((prev) => prev || data.email);
+        }
+        if (data.stripeCheckoutEmail) {
+          setRecoveryEmail((prev) => prev || data.stripeCheckoutEmail);
         }
         if (!data.signedIn) {
           setHub(data);
@@ -164,13 +170,27 @@ export default function ClientStudioHub({ lang }) {
             router.replace(`/login?next=${encodeURIComponent(next)}`).catch(() => {});
           }
           setState("auth");
-          return;
+          return false;
         }
-        if (data.hasAccess) {
-          setHub({ ...data, plans: data.plans || [] });
+        if (studioReady) {
+          const plans =
+            data.plans?.length > 0
+              ? data.plans
+              : data.planId
+                ? [
+                    {
+                      planId: data.planId,
+                      displayName: data.displayName || data.planId,
+                      documents: [],
+                      generationStatus: "queued",
+                    },
+                  ]
+                : [];
+          setHub({ ...data, plans });
           setState("ready");
           setShowUploadWizard(true);
           setNeedsSignIn(false);
+          setPrepareTimedOut(false);
           if (pending) clearCheckoutFromUrl(router);
           return true;
         }
@@ -198,8 +218,16 @@ export default function ClientStudioHub({ lang }) {
       const ws = await fetch(`/api/client/workspace?${qs.toString()}`, { credentials: "same-origin" });
       const wsData = await ws.json();
       if (wsData.activation) setActivation(wsData.activation);
-      if (wsData.hasAccess) {
-        setHub(wsData);
+      const wsReady =
+        wsData.hasAccess || (wsData.signedIn && wsData.fulfillmentOk && (wsData.planId || meta.planId));
+      if (wsReady) {
+        const plans =
+          wsData.plans?.length > 0
+            ? wsData.plans
+            : meta.planId
+              ? [{ planId: meta.planId, displayName: meta.displayName || meta.planId, documents: [] }]
+              : [];
+        setHub({ ...wsData, plans });
         setState("ready");
         setShowUploadWizard(true);
         setNeedsSignIn(false);
@@ -250,7 +278,12 @@ export default function ClientStudioHub({ lang }) {
           return { ok: false, needsSignIn: true };
         }
         applyActivationPayload(sync.data);
-        if (sync.data.hasAccess && (await finishActivationSuccess(sid, sync.data))) {
+        const syncReady =
+          sync.data.hasAccess || (sync.data.signedIn && sync.data.fulfillmentOk && sync.data.planId);
+        if (syncReady && (await finishActivationSuccess(sid, sync.data))) {
+          return { ok: true };
+        }
+        if (syncReady && (await load(sid, { signal }))) {
           return { ok: true };
         }
       }
@@ -282,30 +315,45 @@ export default function ClientStudioHub({ lang }) {
   }, [router.isReady, router.query.checkout, router.query.session_id, router]);
 
   useEffect(() => {
-    if (!router.isReady || initStartedRef.current) return;
-    initStartedRef.current = true;
+    if (!router.isReady) return;
 
+    const runId = ++orchestrationRunRef.current;
     const ac = new AbortController();
     const sid = resolveSessionId();
     if (sid) persistSessionId(sid);
+    setPrepareTimedOut(false);
 
     (async () => {
       setState("loading");
       if (await load(sid, { signal: ac.signal })) return;
-      if (!sid || ac.signal.aborted) return;
+      if (!sid || ac.signal.aborted || runId !== orchestrationRunRef.current) return;
 
       const result = await runSilentCheckout(ac.signal);
-      if (ac.signal.aborted) return;
+      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
       if (result?.ok) return;
 
       const ok = await load(sid, { signal: ac.signal });
-      if (!ok && !ac.signal.aborted && !result?.needsSignIn) {
+      if (ac.signal.aborted || runId !== orchestrationRunRef.current) return;
+      if (!ok && !result?.needsSignIn) {
         setState("no_plan");
       }
     })();
 
-    return () => ac.abort();
-  }, [router.isReady, resolveSessionId, load, runSilentCheckout, router]);
+    return () => {
+      ac.abort();
+    };
+  }, [router.isReady, router.query.session_id, resolveSessionId, load, runSilentCheckout]);
+
+  useEffect(() => {
+    if (state !== "loading") {
+      setPrepareTimedOut(false);
+      return;
+    }
+    const sid = resolveSessionId();
+    if (!sid) return;
+    const timer = setTimeout(() => setPrepareTimedOut(true), 48000);
+    return () => clearTimeout(timer);
+  }, [state, resolveSessionId]);
 
   useEffect(() => {
     if (!needsSignIn) return;
@@ -388,9 +436,32 @@ export default function ClientStudioHub({ lang }) {
   }, [state, hub, load, resolveSessionId]);
 
   if (state === "loading") {
+    const stripeEmail = recoveryEmail || hub?.email || "";
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
+        {prepareTimedOut ? (
+          <div className="rs-studio-calm-prepare-actions">
+            <p className="rs-studio-calm-prepare-hint">
+              {L(
+                lang,
+                "Your payment is confirmed. Continue setup to open your workspace.",
+                "Votre paiement est confirme. Poursuivez pour ouvrir votre espace."
+              )}
+            </p>
+            <button type="button" className="rs-btn-accent" onClick={manualRecoverPurchase}>
+              {L(lang, "Continue workspace setup", "Poursuivre la configuration")}
+            </button>
+            <Link href={signInHref} className="rs-btn-ghost">
+              {L(lang, "Sign in", "Connexion")}
+            </Link>
+            {stripeEmail.includes("@") ? (
+              <p className="rs-studio-calm-prepare-hint">
+                {L(lang, `Use the same email as checkout: ${stripeEmail}`, `Utilisez le meme courriel qu'a l'achat : ${stripeEmail}`)}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     );
   }

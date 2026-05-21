@@ -125,6 +125,8 @@
     "bossmind:render:env-handsfree": "node scripts/bossmind-render-env-handsfree.mjs",
     "bossmind:maximum:stabilize": "node scripts/bossmind-maximum-stabilization.mjs",
     "bossmind:checkout:proof": "node scripts/bossmind-checkout-orchestration-proof.mjs",
+    "bossmind:enterprise:refinement": "node scripts/bossmind-enterprise-refinement-mission.mjs",
+    "bossmind:enterprise:refinement:safe": "node scripts/bossmind-enterprise-refinement-mission.mjs --apply-safe",
     "bossmind:ultra:stabilize": "node scripts/bossmind-ultra-stabilization.mjs",
     "bossmind:ultra:stabilize:redeploy": "node scripts/bossmind-ultra-stabilization.mjs --redeploy",
     "bossmind:ultra:optimize": "node scripts/bossmind-ultra-optimization.mjs",

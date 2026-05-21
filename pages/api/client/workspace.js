@@ -21,21 +21,23 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, signedIn: false, hasAccess: false, plans: [] });
     }
 
+    let activationMeta = null;
     if (sessionId) {
-      await activateBySessionId(sessionId, actor, lang).catch(() => {});
+      activationMeta = await activateBySessionId(sessionId, actor, lang).catch(() => null);
     }
 
     let base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
     if (!base.plans?.length) {
-      await retryActivateForActor(actor, {
+      const retry = await retryActivateForActor(actor, {
         sessionId: sessionId || undefined,
         email: actor.profileEmail,
         lang,
-      }).catch(() => {});
+      }).catch(() => null);
+      if (retry?.result) activationMeta = retry.result;
       base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
     }
 
-    const plans = base.plans.map((p) => {
+    let plans = base.plans.map((p) => {
       const deliverable = getDeliverableForPlan(p.planId, lang);
       return {
         ...p,
@@ -46,11 +48,31 @@ export default async function handler(req, res) {
       };
     });
 
+    if (!plans.length && activationMeta?.planId) {
+      const deliverable = getDeliverableForPlan(activationMeta.planId, lang);
+      plans = [
+        {
+          planId: activationMeta.planId,
+          displayName: deliverable?.displayName || activationMeta.planId,
+          studioPath: deliverable?.studioPath || "/studio",
+          features: deliverable?.features || [],
+          freeEditsLabel: deliverable?.freeEditsLabel || "",
+          documents: [],
+          generationStatus: "queued",
+        },
+      ];
+    }
+
+    const fulfillmentOk = activationMeta?.planActivated === true;
     return res.status(200).json({
       ok: true,
       signedIn: true,
       email: actor.profileEmail || null,
       hasAccess: plans.length > 0,
+      fulfillmentOk,
+      planId: activationMeta?.planId || plans[0]?.planId || null,
+      displayName: activationMeta?.displayName || plans[0]?.displayName || null,
+      stripeCheckoutEmail: activationMeta?.stripeCheckoutEmail || null,
       supportEmail: process.env.RESUMORA_SUPPORT_EMAIL || "support@resumora.net",
       plans,
       activation: {
