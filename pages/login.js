@@ -39,6 +39,28 @@ export default function LoginPage() {
     if (sid) persistCheckoutSessionId(sid);
   }, [router.isReady, router.query.plan, router.query.next]);
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(`/api/client/workspace?lang=${lang}`, { credentials: "same-origin" });
+        const data = await r.json().catch(() => ({}));
+        if (cancelled || !data?.signedIn) return;
+        const sid = extractSessionIdFromPath(firstQuery(router.query.next)) || getStoredCheckoutSessionId();
+        const target = sid
+          ? `/studio?session_id=${encodeURIComponent(sid)}`
+          : resolvePostAuthRedirect(router);
+        await router.replace(target);
+      } catch {
+        /* not signed in */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router.isReady, router.query.next, lang, router]);
+
   async function onSubmit(e) {
     e.preventDefault();
     setMessage("");

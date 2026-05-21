@@ -346,7 +346,21 @@ export default function ClientStudioHub({ lang }) {
         return;
       }
 
-      if (outcome.status === "needs_sign_in") {
+      if (outcome.status === "activation_pending" || (data?.signedIn && !data?.activationSuccess)) {
+        const loaded = await load(sid);
+        if (loaded) return;
+        setToast(
+          L(
+            lang,
+            "Payment received — finalizing your workspace. This may take a moment.",
+            "Paiement recu — finalisation de votre espace en cours."
+          )
+        );
+        setState("loading");
+        return;
+      }
+
+      if (outcome.status === "needs_sign_in" && data?.needsSignIn !== false && !data?.signedIn) {
         if (loginRedirectCountRef.current >= MAX_LOGIN_REDIRECTS) {
           setState("error");
           return;
@@ -358,10 +372,15 @@ export default function ClientStudioHub({ lang }) {
         return;
       }
 
-      if (loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
+      const loaded = await load(sid);
+      if (!loaded && loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
         loginRedirectCountRef.current += 1;
-        router.replace(data.redirectTo || signInHref).catch(() => {});
-      } else {
+        if (!data?.signedIn) {
+          router.replace(data.redirectTo || signInHref).catch(() => {});
+        } else {
+          setState("loading");
+        }
+      } else if (!loaded) {
         setState("error");
       }
     })();
@@ -370,7 +389,7 @@ export default function ClientStudioHub({ lang }) {
       clearTimeout(timeoutId);
       ac.abort();
     };
-  }, [router.isReady, router.query.session_id, lang, enterStudioFromPayload, refreshJourney, router]);
+  }, [router.isReady, router.query.session_id, lang, enterStudioFromPayload, refreshJourney, router, load, signInHref]);
 
   useEffect(() => {
     if (state !== "ready") return;
