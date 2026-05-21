@@ -307,6 +307,11 @@ export default function ClientStudioHub({ lang }) {
         return;
       }
 
+      if (outcome.status === "recovery" && (data?.needsSignIn || data?.redirectTo?.includes("/login"))) {
+        router.replace(data.redirectTo || signInHref).catch(() => {});
+        return;
+      }
+
       if (outcome.status !== "aborted") {
         setState("checkout_recovery");
       }
@@ -377,6 +382,10 @@ export default function ClientStudioHub({ lang }) {
         router.replace(data.redirectTo || signInHref).catch(() => {});
         return;
       }
+      if (data?.needsSignIn) {
+        router.replace(data.redirectTo || signInHref).catch(() => {});
+        return;
+      }
       setState("checkout_recovery");
     } finally {
       clearTimeout(timeoutId);
@@ -430,8 +439,7 @@ export default function ClientStudioHub({ lang }) {
 
   if (state === "checkout_recovery") {
     return (
-      <div className="rs-client-hub rs-client-hub--calm-prepare">
-        <StudioCalmPrepare lang={lang} />
+      <div className="rs-client-hub rs-client-hub--calm-prepare rs-client-hub--checkout-recovery-only">
         <StudioCheckoutRecovery lang={lang} onContinue={continueToWorkspace} busy={recoveryBusy} />
       </div>
     );
