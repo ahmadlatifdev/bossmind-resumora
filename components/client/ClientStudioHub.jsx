@@ -4,7 +4,8 @@ import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
-import StudioLuxuryLoader from "@/components/client/StudioLuxuryLoader";
+import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
+import { silentCheckoutSync } from "@/lib/client/silent-checkout-sync";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -16,12 +17,6 @@ const DOC_TYPE_OPTIONS = [
 ];
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
-const MAX_ACTIVATION_ATTEMPTS = 30;
-const ACTIVATION_RETRY_BASE_MS = 2000;
-
-function activationRetryDelay(attemptIndex) {
-  return Math.min(8000, ACTIVATION_RETRY_BASE_MS + attemptIndex * 350);
-}
 
 function firstQuery(value) {
   if (typeof value === "string") return value;
@@ -93,13 +88,9 @@ export default function ClientStudioHub({ lang }) {
   const [showUploadWizard, setShowUploadWizard] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [activation, setActivation] = useState(null);
-  const [luxuryStages, setLuxuryStages] = useState(null);
-  const [conciergeMessage, setConciergeMessage] = useState("");
-  const [progressPercent, setProgressPercent] = useState(null);
-  const [activationAttempt, setActivationAttempt] = useState(0);
-  const [activationExtended, setActivationExtended] = useState(false);
   const [needsSignIn, setNeedsSignIn] = useState(false);
-  const activationRunRef = useRef(0);
+  const initStartedRef = useRef(false);
+  const urlNormalizedRef = useRef(false);
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -124,9 +115,6 @@ export default function ClientStudioHub({ lang }) {
 
   const applyActivationPayload = useCallback((data) => {
     if (data?.activation) setActivation(data.activation);
-    if (Array.isArray(data?.luxuryStages)) setLuxuryStages(data.luxuryStages);
-    if (data?.conciergeMessage) setConciergeMessage(data.conciergeMessage);
-    if (typeof data?.progressPercent === "number") setProgressPercent(data.progressPercent);
     if (data?.preload) preloadStudioAssets(data.preload);
     if (data?.stripeCheckoutEmail) {
       setRecoveryEmail(data.stripeCheckoutEmail);
@@ -137,32 +125,34 @@ export default function ClientStudioHub({ lang }) {
   }, []);
 
   const load = useCallback(
-    async (sessionId = "", { skipActivatingGate = false } = {}) => {
+    async (sessionId = "", { signal } = {}) => {
       const sid = sessionId || resolveSessionId();
       const pending = Boolean(sid) || hasPendingCheckout(router);
 
-      if (!skipActivatingGate && pending) setState("provisioning");
-      else setState("loading");
+      setState((prev) => (prev === "ready" ? "ready" : "loading"));
 
       try {
         const qs = new URLSearchParams({ lang });
         if (sid) qs.set("session_id", sid);
         let endpoint = sid ? "/api/client/checkout-bootstrap" : "/api/client/workspace";
-        let res = await fetch(`${endpoint}?${qs.toString()}`, { credentials: "same-origin" });
+        let res = await fetch(`${endpoint}?${qs.toString()}`, {
+          credentials: "same-origin",
+          signal,
+        });
         if (!res.ok && sid && endpoint.includes("checkout-bootstrap")) {
           await fetch(
             `/api/client/activate-plan?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`,
-            { credentials: "same-origin" }
+            { credentials: "same-origin", signal }
           ).catch(() => {});
           endpoint = "/api/client/workspace";
-          res = await fetch(`${endpoint}?${qs.toString()}`, { credentials: "same-origin" });
+          res = await fetch(`${endpoint}?${qs.toString()}`, { credentials: "same-origin", signal });
         }
         const data = await res.json();
         if (!res.ok) {
           setState("error");
-          return;
+          return false;
         }
-        applyActivationPayload(data);
+        if (data.hasAccess) applyActivationPayload(data);
         if (data.email) {
           accountEmailRef.current = data.email;
           setRecoveryEmail((prev) => prev || data.email);
@@ -180,20 +170,20 @@ export default function ClientStudioHub({ lang }) {
           setHub({ ...data, plans: data.plans || [] });
           setState("ready");
           setShowUploadWizard(true);
-          setActivationExtended(false);
           setNeedsSignIn(false);
           if (pending) clearCheckoutFromUrl(router);
           return true;
         }
         if (pending) {
           setHub({ ...data, plans: data.plans || [] });
-          setState("provisioning");
+          setState("loading");
           return false;
         }
         setHub(data);
         setState("no_plan");
         return false;
-      } catch {
+      } catch (err) {
+        if (err?.name === "AbortError") return false;
         setState("error");
         return false;
       }
@@ -212,7 +202,6 @@ export default function ClientStudioHub({ lang }) {
         setHub(wsData);
         setState("ready");
         setShowUploadWizard(true);
-        setActivationExtended(false);
         setNeedsSignIn(false);
         setCheckoutVerify({
           status: "success",
