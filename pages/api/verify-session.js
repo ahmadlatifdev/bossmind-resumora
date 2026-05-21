@@ -7,6 +7,11 @@ const {
 } = require("../../lib/client/entitlements-store");
 const { provisionAfterPayment } = require("../../lib/client/post-purchase-provision");
 const { markOnboarding } = require("../../lib/client/onboarding-journey");
+const { readEngagementActor } = require("../../lib/engagement/http-context");
+const {
+  linkEntitlementsToProfile,
+  grantEntitlement,
+} = require("../../lib/client/entitlements-store");
 const { getDeliverableForPlan } = require("../../lib/client/deliverables-catalog");
 const { planPolicySummary } = require("../../lib/client/plan-policy");
 
@@ -26,11 +31,18 @@ export default async function handler(req, res) {
   const projectKey = bossmindProjectKey();
 
   try {
+    const actor = await readEngagementActor(req, res);
     const session = await stripe.checkout.sessions.retrieve(String(session_id));
     const valid = session.payment_status === "paid";
 
     let planId = null;
     let fulfillment = null;
+    const customerEmail =
+      session.customer_details?.email ||
+      session.customer_email ||
+      session.metadata?.customer_email ||
+      actor.profileEmail ||
+      null;
 
     if (valid) {
       await ensureEngagementSchema().catch(() => {});
@@ -38,9 +50,21 @@ export default async function handler(req, res) {
       fulfillment = await fulfillStripeCheckoutSession(session).catch(() => ({
         ok: false,
       }));
+      if (actor.profileId && customerEmail) {
+        await linkEntitlementsToProfile(actor.profileId, customerEmail).catch(() => {});
+        if (planId) {
+          await grantEntitlement({
+            planId,
+            profileId: actor.profileId,
+            customerEmail,
+            stripeSessionId: session.id,
+            metadata: session.metadata || {},
+          }).catch(() => {});
+        }
+      }
       if (fulfillment?.ok) {
         await provisionAfterPayment(session, fulfillment).catch(() => {});
-        const pid = fulfillment.entitlement?.profile_id;
+        const pid = fulfillment.entitlement?.profile_id || actor.profileId;
         if (pid) {
           await markOnboarding(pid, {
             paymentCompleted: true,
@@ -89,12 +113,18 @@ export default async function handler(req, res) {
       valid,
       planId,
       essentialAdvanced: planId === "essential_advanced",
-      studioPath: deliverable?.studioPath || (planId ? "/studio" : null),
+      studioPath: "/studio",
       clientHubPath: "/studio",
       fulfillmentOk: fulfillment?.ok === true,
       freeEdits: policy?.freeEdits ?? 0,
       freeEditsLabel: policy?.freeEditsLabel || deliverable?.freeEditsLabel || "",
       displayName: deliverable?.displayName || null,
+      paymentConfirmed: valid,
+      invoiceReference: session.payment_intent || session.id,
+      amountTotal: session.amount_total,
+      currency: session.currency,
+      customerEmail: customerEmail ? `${String(customerEmail).slice(0, 3)}***` : null,
+      emailProvisioned: fulfillment?.ok === true,
     });
   } catch {
     res.status(200).json({ valid: false });

@@ -16,6 +16,12 @@ const DOC_TYPE_OPTIONS = [
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
 
+function firstQuery(value) {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return "";
+}
+
 function formatDate(value) {
   if (!value) return "—";
   const d = new Date(value);
@@ -29,6 +35,8 @@ export default function ClientStudioHub({ lang }) {
   const [hub, setHub] = useState(null);
   const [journey, setJourney] = useState(null);
   const [toast, setToast] = useState("");
+  const [checkoutVerify, setCheckoutVerify] = useState(null);
+  const [showUploadWizard, setShowUploadWizard] = useState(false);
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
@@ -60,12 +68,51 @@ export default function ClientStudioHub({ lang }) {
     load();
   }, [load]);
 
-  useEffect(() => {
-    fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" })
-      .then((r) => r.json())
-      .then((j) => setJourney(j))
-      .catch(() => {});
+  const refreshJourney = useCallback(async () => {
+    try {
+      const r = await fetch(`/api/client/onboarding?lang=${lang}`, { credentials: "same-origin" });
+      const j = await r.json();
+      setJourney(j);
+    } catch {
+      /* ignore */
+    }
   }, [lang]);
+
+  useEffect(() => {
+    refreshJourney();
+  }, [refreshJourney]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (firstQuery(router.query.checkout) !== "success") return;
+    const sid = firstQuery(router.query.session_id);
+    if (!sid) return;
+
+    setCheckoutVerify({ status: "pending" });
+    fetch(`/api/verify-session?session_id=${encodeURIComponent(sid)}&lang=${encodeURIComponent(lang)}`, {
+      credentials: "same-origin",
+    })
+      .then((r) => r.json())
+      .then(async (data) => {
+        setCheckoutVerify({
+          status: data.valid ? "success" : "invalid",
+          planId: data.planId,
+          displayName: data.displayName,
+          freeEditsLabel: data.freeEditsLabel,
+          invoiceReference: data.invoiceReference,
+        });
+        if (data.valid) {
+          setShowUploadWizard(true);
+          setToast(
+            L(lang, "Payment confirmed. Upload your documents to begin.", "Paiement confirme. Televersez vos documents.")
+          );
+          await load();
+          await refreshJourney();
+        }
+        router.replace("/studio", undefined, { shallow: true }).catch(() => {});
+      })
+      .catch(() => setCheckoutVerify({ status: "error" }));
+  }, [router.isReady, router.query.checkout, router.query.session_id, lang, load, refreshJourney, router]);
 
   useEffect(() => {
     if (!hub?.plans?.length) return;
@@ -216,6 +263,35 @@ export default function ClientStudioHub({ lang }) {
         </p>
       </header>
 
+      {checkoutVerify?.status === "pending" ? (
+        <p className="rs-payment-confirmed-banner rs-payment-confirmed-banner--pending" role="status">
+          {L(lang, "Verifying your payment…", "Verification du paiement…")}
+        </p>
+      ) : null}
+      {checkoutVerify?.status === "success" ? (
+        <div className="rs-payment-confirmed-banner" role="status">
+          <strong>{L(lang, "Payment confirmed", "Paiement confirme")}</strong>
+          {checkoutVerify.displayName ? (
+            <p>
+              {L(lang, "Plan", "Forfait")}: {checkoutVerify.displayName}
+              {checkoutVerify.freeEditsLabel ? ` · ${checkoutVerify.freeEditsLabel}` : ""}
+            </p>
+          ) : null}
+          <p>
+            {L(
+              lang,
+              "Next: upload your resume and job description using the guided steps below.",
+              "Etape suivante : televersez votre CV et la description de poste ci-dessous."
+            )}
+          </p>
+        </div>
+      ) : null}
+      {checkoutVerify?.status === "invalid" || checkoutVerify?.status === "error" ? (
+        <p className="rs-payment-confirmed-banner rs-payment-confirmed-banner--warn" role="alert">
+          {L(lang, "We could not verify this payment session. Contact support if you were charged.", "Impossible de verifier cette session. Contactez le support si vous avez ete debite.")}
+        </p>
+      ) : null}
+
       {journey?.progress?.steps?.length ? (
         <OnboardingProgress steps={journey.progress.steps} percent={journey.progress.percent} lang={lang} />
       ) : null}
@@ -276,7 +352,9 @@ export default function ClientStudioHub({ lang }) {
                 </p>
               </div>
             ) : null}
-            {router.query?.onboarding === "upload" || !(plan.documents || []).some((d) => d.doc_type === "resume") ? (
+            {showUploadWizard ||
+            router.query?.onboarding === "upload" ||
+            !(plan.documents || []).some((d) => d.doc_type === "resume") ? (
               <UploadWizard
                 lang={lang}
                 planId={plan.planId}

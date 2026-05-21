@@ -9,6 +9,10 @@ const { auditStripeEnv } = require("../../lib/marketing/stripe-env-audit");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 const { checkoutMetadata } = require("../../lib/marketing/bossmind-brand-authority");
 const { getFreeEditsCount } = require("../../lib/client/plan-policy");
+const {
+  getStudioCheckoutSuccessUrl,
+  getStudioCheckoutCancelUrl,
+} = require("../../lib/marketing/stripe-checkout-urls");
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -139,8 +143,8 @@ export default async function handler(req, res) {
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",
-      success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/cancel`,
+      success_url: getStudioCheckoutSuccessUrl(),
+      cancel_url: getStudioCheckoutCancelUrl(req.headers.origin),
       metadata: {
         ...Object.fromEntries(Object.entries(brandMeta).map(([k, v]) => [k, metaSlice(v)])),
         service_scope: metaSlice(summaryStr),

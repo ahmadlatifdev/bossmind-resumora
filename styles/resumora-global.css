@@ -4961,3 +4961,20 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 .rs-client-hub-continue {
   margin: 0.5rem 0 1rem;
 }
+
+.rs-payment-confirmed-banner {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border-radius: 12px;
+  background: rgba(76, 175, 80, 0.14);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  line-height: 1.55;
+}
+.rs-payment-confirmed-banner--pending {
+  background: rgba(201, 162, 39, 0.12);
+  border-color: rgba(201, 162, 39, 0.35);
+}
+.rs-payment-confirmed-banner--warn {
+  background: rgba(220, 80, 80, 0.12);
+  border-color: rgba(220, 80, 80, 0.35);
+}
