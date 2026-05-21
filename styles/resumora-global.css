@@ -4978,11 +4978,101 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
-/* Legacy checkout screens removed — hide if an old cached bundle still injects them */
+/* Legacy full-page checkout blockers — hide if old cached bundle loads them */
 .rs-post-payment-activation,
 .rs-studio-checkout-sync,
 .rs-client-hub--checkout-sync {
   display: none !important;
+}
+
+.rs-studio-luxury-loader {
+  max-width: 40rem;
+  margin: 0 auto 1.5rem;
+  padding: 1.25rem 1.35rem;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: linear-gradient(160deg, rgba(18, 16, 12, 0.94), rgba(8, 8, 10, 0.98));
+}
+.rs-studio-luxury-loader-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(201, 162, 39, 0.85);
+}
+.rs-studio-luxury-loader-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.rs-studio-luxury-loader-concierge {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  color: rgba(201, 162, 39, 0.88);
+  font-style: italic;
+}
+.rs-studio-luxury-loader-meter {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
+.rs-studio-luxury-loader-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9a7b1a, #e8d48a);
+  transition: width 0.45s ease;
+}
+.rs-studio-luxury-loader-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rs-studio-luxury-loader-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.rs-studio-luxury-loader-steps li.is-done {
+  color: rgba(200, 230, 200, 0.95);
+  border-color: rgba(201, 162, 39, 0.25);
+}
+.rs-studio-luxury-loader-steps li.is-active {
+  color: #fff;
+  border-color: rgba(201, 162, 39, 0.45);
+}
+.rs-client-hub--provisioning {
+  padding: 0.5rem 0 2rem;
+}
+.rs-client-hub-skeleton {
+  display: grid;
+  gap: 1rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  opacity: 0.35;
+}
+.rs-skeleton-card {
+  min-height: 10rem;
+  border-radius: 12px;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: rsSkeletonShimmer 1.4s ease-in-out infinite;
+}
+@keyframes rsSkeletonShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 
 /* Compact post-checkout sync — studio stays visible, no full-page blocker */
