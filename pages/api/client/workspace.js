@@ -2,6 +2,10 @@ require("../../../lib/shared/ensure-project-env");
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { getWorkspaceOverview } = require("../../../lib/client/workspace-store");
 const { getDeliverableForPlan } = require("../../../lib/client/deliverables-catalog");
+const {
+  activateBySessionId,
+  retryActivateForActor,
+} = require("../../../lib/client/entitlement-activation");
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -9,12 +13,28 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
   const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
+  const sessionId = String(req.query.session_id || "").trim();
+
   try {
     const actor = await readEngagementActor(req, res);
     if (!actor.profileId) {
       return res.status(200).json({ ok: true, signedIn: false, hasAccess: false, plans: [] });
     }
-    const base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
+
+    if (sessionId) {
+      await activateBySessionId(sessionId, actor, lang).catch(() => {});
+    }
+
+    let base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
+    if (!base.plans?.length) {
+      await retryActivateForActor(actor, {
+        sessionId: sessionId || undefined,
+        email: actor.profileEmail,
+        lang,
+      }).catch(() => {});
+      base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
+    }
+
     const plans = base.plans.map((p) => {
       const deliverable = getDeliverableForPlan(p.planId, lang);
       return {
@@ -25,6 +45,7 @@ export default async function handler(req, res) {
         freeEditsLabel: deliverable?.freeEditsLabel || "",
       };
     });
+
     return res.status(200).json({
       ok: true,
       signedIn: true,
@@ -32,6 +53,13 @@ export default async function handler(req, res) {
       hasAccess: plans.length > 0,
       supportEmail: process.env.RESUMORA_SUPPORT_EMAIL || "support@resumora.net",
       plans,
+      activation: {
+        paymentConfirmed: plans.length > 0,
+        planActivated: plans.length > 0,
+        workspaceReady: plans.length > 0,
+        uploadsUnlocked: plans.length > 0,
+        generationReady: plans.length > 0,
+      },
     });
   } catch (e) {
     return res.status(500).json({ error: e.message || "Server error" });

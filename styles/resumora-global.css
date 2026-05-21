@@ -4978,6 +4978,17 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   background: rgba(220, 80, 80, 0.12);
   border-color: rgba(220, 80, 80, 0.35);
 }
+.rs-activation-states {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+.rs-activation-states li.is-on {
+  color: rgba(144, 238, 144, 0.95);
+}
 .rs-checkout-recovery {
   margin: 0 0 1.25rem;
   display: flex;

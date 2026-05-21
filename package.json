@@ -104,6 +104,7 @@
     "bossmind:stripe:payment-links:verify": "node scripts/bossmind-stripe-payment-links-verify.mjs",
     "bossmind:stripe:payment-links:sync-redirects": "node scripts/bossmind-stripe-payment-links-sync-redirects.mjs",
     "bossmind:final:production-validation": "node scripts/bossmind-final-production-validation.mjs",
+    "bossmind:entitlement:proof": "node scripts/bossmind-entitlement-activation-proof.mjs",
     "bossmind:registration-checkout:recover": "node scripts/bossmind-registration-checkout-recovery.mjs",
     "bossmind:production-runtime:activate": "node scripts/bossmind-production-runtime-activate.mjs",
     "bossmind:production:e2e-local": "node scripts/bossmind-production-e2e-local.mjs",

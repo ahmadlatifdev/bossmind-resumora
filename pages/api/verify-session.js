@@ -1,17 +1,8 @@
 require("../../lib/shared/ensure-project-env");
 const { createStripeServerClient } = require("../../lib/marketing/stripe-server");
 const { getSqlClient, saveEvent, ensureEngagementSchema } = require("../../lib/shared/neon-memory");
-const {
-  fulfillStripeCheckoutSession,
-  resolvePlanIdFromStripeSession,
-} = require("../../lib/client/entitlements-store");
-const { provisionAfterPayment } = require("../../lib/client/post-purchase-provision");
-const { markOnboarding } = require("../../lib/client/onboarding-journey");
+const { activateFromStripeSession } = require("../../lib/client/entitlement-activation");
 const { readEngagementActor } = require("../../lib/engagement/http-context");
-const {
-  linkEntitlementsToProfile,
-  grantEntitlement,
-} = require("../../lib/client/entitlements-store");
 const { getDeliverableForPlan } = require("../../lib/client/deliverables-catalog");
 const { planPolicySummary } = require("../../lib/client/plan-policy");
 
@@ -29,50 +20,21 @@ export default async function handler(req, res) {
   }
 
   const projectKey = bossmindProjectKey();
+  const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
 
   try {
     const actor = await readEngagementActor(req, res);
     const session = await stripe.checkout.sessions.retrieve(String(session_id));
     const valid = session.payment_status === "paid";
 
-    let planId = null;
-    let fulfillment = null;
-    const customerEmail =
-      session.customer_details?.email ||
-      session.customer_email ||
-      session.metadata?.customer_email ||
-      actor.profileEmail ||
-      null;
-
+    let activation = { ok: false, planId: null };
     if (valid) {
       await ensureEngagementSchema().catch(() => {});
-      planId = resolvePlanIdFromStripeSession(session);
-      fulfillment = await fulfillStripeCheckoutSession(session).catch(() => ({
-        ok: false,
-      }));
-      if (actor.profileId && customerEmail) {
-        await linkEntitlementsToProfile(actor.profileId, customerEmail).catch(() => {});
-        if (planId) {
-          await grantEntitlement({
-            planId,
-            profileId: actor.profileId,
-            customerEmail,
-            stripeSessionId: session.id,
-            metadata: session.metadata || {},
-          }).catch(() => {});
-        }
-      }
-      if (fulfillment?.ok) {
-        await provisionAfterPayment(session, fulfillment).catch(() => {});
-        const pid = fulfillment.entitlement?.profile_id || actor.profileId;
-        if (pid) {
-          await markOnboarding(pid, {
-            paymentCompleted: true,
-            planSelected: true,
-            activePlanId: planId,
-          }).catch(() => {});
-        }
-      }
+      activation = await activateFromStripeSession(session, {
+        profileId: actor.profileId,
+        profileEmail: actor.profileEmail,
+        lang,
+      });
 
       const eventKey = `checkout:${session.id}`;
       const sql = getSqlClient();
@@ -95,17 +57,16 @@ export default async function handler(req, res) {
             amount_total: session.amount_total,
             currency: session.currency,
             metadata: session.metadata || {},
-            plan_id: planId,
-            fulfillment_ok: fulfillment?.ok === true,
-            utm_source: session.metadata?.utm_source,
-            utm_medium: session.metadata?.utm_medium,
-            utm_campaign: session.metadata?.utm_campaign,
+            plan_id: activation.planId,
+            fulfillment_ok: activation.planActivated === true,
+            plans_count: activation.plansCount,
+            profile_id: actor.profileId || null,
           },
         }).catch(() => {});
       }
     }
 
-    const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
+    const planId = activation.planId || null;
     const deliverable = planId ? getDeliverableForPlan(planId, lang) : null;
     const policy = planId ? planPolicySummary(planId, lang) : null;
 
@@ -115,7 +76,9 @@ export default async function handler(req, res) {
       essentialAdvanced: planId === "essential_advanced",
       studioPath: "/studio",
       clientHubPath: "/studio",
-      fulfillmentOk: fulfillment?.ok === true,
+      fulfillmentOk: activation.planActivated === true,
+      hasAccess: activation.plansCount > 0,
+      plansCount: activation.plansCount || 0,
       freeEdits: policy?.freeEdits ?? 0,
       freeEditsLabel: policy?.freeEditsLabel || deliverable?.freeEditsLabel || "",
       displayName: deliverable?.displayName || null,
@@ -123,8 +86,7 @@ export default async function handler(req, res) {
       invoiceReference: session.payment_intent || session.id,
       amountTotal: session.amount_total,
       currency: session.currency,
-      customerEmail: customerEmail ? `${String(customerEmail).slice(0, 3)}***` : null,
-      emailProvisioned: fulfillment?.ok === true,
+      activation: activation.activation || null,
     });
   } catch {
     res.status(200).json({ valid: false });

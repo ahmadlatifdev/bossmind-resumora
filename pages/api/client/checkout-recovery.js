@@ -1,16 +1,10 @@
 require("../../../lib/shared/ensure-project-env");
-const { createStripeServerClient } = require("../../../lib/marketing/stripe-server");
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
-const { ensureEngagementSchema, getSqlClient } = require("../../../lib/shared/neon-memory");
+const { ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
 const {
-  fulfillStripeCheckoutSession,
-  resolvePlanIdFromStripeSession,
-  linkEntitlementsToProfile,
-  grantEntitlement,
-  listEntitlementsForUser,
-} = require("../../../lib/client/entitlements-store");
-const { provisionAfterPayment } = require("../../../lib/client/post-purchase-provision");
-const { markOnboarding } = require("../../../lib/client/onboarding-journey");
+  activateBySessionId,
+  retryActivateForActor,
+} = require("../../../lib/client/entitlement-activation");
 const { getDeliverableForPlan } = require("../../../lib/client/deliverables-catalog");
 const { getStudioCheckoutSuccessUrl } = require("../../../lib/marketing/stripe-checkout-urls");
 
@@ -29,78 +23,30 @@ export default async function handler(req, res) {
   try {
     await ensureEngagementSchema();
     const actor = await readEngagementActor(req, res);
-    const sql = getSqlClient();
 
     if (sessionId) {
-      const { stripe } = createStripeServerClient();
-      if (!stripe) return res.status(503).json({ error: "stripe_unconfigured" });
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-      const valid = session.payment_status === "paid";
-      let fulfillment = null;
-      const planId = valid ? resolvePlanIdFromStripeSession(session) : null;
-      const email =
-        session.customer_details?.email ||
-        session.customer_email ||
-        actor.profileEmail ||
-        null;
-
-      if (valid) {
-        fulfillment = await fulfillStripeCheckoutSession(session).catch(() => ({ ok: false }));
-        if (actor.profileId && email) {
-          await linkEntitlementsToProfile(actor.profileId, email).catch(() => {});
-          if (planId) {
-            await grantEntitlement({
-              planId,
-              profileId: actor.profileId,
-              customerEmail: email,
-              stripeSessionId: session.id,
-              metadata: session.metadata || {},
-            }).catch(() => {});
-          }
-        }
-        if (fulfillment?.ok) {
-          await provisionAfterPayment(session, fulfillment).catch(() => {});
-          const pid = fulfillment.entitlement?.profile_id || actor.profileId;
-          if (pid && planId) {
-            await markOnboarding(pid, {
-              paymentCompleted: true,
-              planSelected: true,
-              activePlanId: planId,
-            }).catch(() => {});
-          }
-        }
-      }
-
-      const deliverable = planId ? getDeliverableForPlan(planId, lang) : null;
+      const activation = await activateBySessionId(sessionId, actor, lang);
+      const deliverable = activation.planId ? getDeliverableForPlan(activation.planId, lang) : null;
       return res.status(200).json({
         ok: true,
-        recovered: valid,
-        valid,
-        planId,
+        recovered: activation.ok || activation.plansCount > 0,
+        valid: activation.planActivated,
+        planId: activation.planId,
         studioPath: "/studio",
         continueUrl: `/studio?checkout=success&session_id=${encodeURIComponent(sessionId)}`,
-        displayName: deliverable?.displayName || planId,
-        fulfillmentOk: fulfillment?.ok === true,
+        displayName: deliverable?.displayName || activation.displayName,
+        fulfillmentOk: activation.planActivated === true,
+        hasAccess: activation.plansCount > 0,
+        activation: activation.activation,
       });
     }
 
-    if (emailLookup && sql) {
-      const rows = await sql.query(
-        `SELECT plan_id, profile_id, granted_at FROM client_entitlements
-         WHERE LOWER(customer_email) = $1
-         ORDER BY granted_at DESC LIMIT 5`,
-        [emailLookup]
-      );
-      const entitlements = rows || [];
-      if (actor.profileId) {
-        await linkEntitlementsToProfile(actor.profileId, emailLookup).catch(() => {});
-      }
-      const plans = actor.profileId
-        ? await listEntitlementsForUser(actor.profileId, emailLookup)
-        : entitlements;
+    if (emailLookup) {
+      const retry = await retryActivateForActor(actor, { email: emailLookup, lang });
+      const plans = retry.result?.plans || [];
       return res.status(200).json({
         ok: true,
-        recovered: plans.length > 0,
+        recovered: retry.ok,
         email: emailLookup,
         plans: plans.map((p) => ({
           planId: p.plan_id,
@@ -108,6 +54,7 @@ export default async function handler(req, res) {
           displayName: getDeliverableForPlan(p.plan_id, lang)?.displayName || p.plan_id,
         })),
         continueUrl: plans.length ? "/studio" : "/pricing",
+        activation: retry.result?.activation,
       });
     }
 
