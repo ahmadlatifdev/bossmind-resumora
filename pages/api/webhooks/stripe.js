@@ -10,7 +10,7 @@ const {
   ensureEngagementSchema,
   getSqlClient,
 } = require("../../../lib/shared/neon-memory");
-const { activateFromStripeSession } = require("../../../lib/client/entitlement-activation");
+const { runActivationEngine } = require("../../../lib/client/activation-engine");
 
 export const config = {
   api: {
@@ -64,10 +64,15 @@ export default async function handler(req, res) {
   await ensureEngagementSchema().catch(() => {});
 
   if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
     try {
-      await activateFromStripeSession(event.data.object, { lang: "en" });
+      await runActivationEngine(
+        { profileId: null, profileEmail: null },
+        session.id,
+        { lang: "en", stripeSession: session, maxAttempts: 2 }
+      );
     } catch (e) {
-      console.error("checkout fulfillment:", e.message);
+      console.error("[stripe-webhook] checkout_activation_failed", session?.id, e.message);
     }
   }
 

@@ -5,7 +5,6 @@ import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import UploadWizard from "@/components/client/UploadWizard";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
-import StudioCheckoutRecovery from "@/components/client/StudioCheckoutRecovery";
 import {
   runLuxuryCheckoutActivation,
   LUXURY_CHECKOUT_TIMEOUT_MS,
@@ -96,7 +95,6 @@ export default function ClientStudioHub({ lang }) {
   const orchestrationRunRef = useRef(0);
   const urlNormalizedRef = useRef(false);
   const loadRef = useRef(null);
-  const [recoveryBusy, setRecoveryBusy] = useState(false);
   const accountEmailRef = useRef("");
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
@@ -155,7 +153,14 @@ export default function ClientStudioHub({ lang }) {
       setShowUploadWizard(true);
       setNeedsSignIn(false);
       setCheckoutVerify({ status: "success", planId: data.planId, displayName: data.displayName });
-      if (sid) clearCheckoutFromUrl(router);
+      try {
+        sessionStorage.removeItem("rs_last_checkout_session");
+      } catch {
+        /* ignore */
+      }
+      router.replace("/studio", "/studio", { shallow: false }).catch(() => {
+        if (typeof window !== "undefined") window.location.assign("/studio");
+      });
       return true;
     },
     [applyActivationPayload, router]
@@ -307,14 +312,8 @@ export default function ClientStudioHub({ lang }) {
         return;
       }
 
-      if (outcome.status === "recovery" && (data?.needsSignIn || data?.redirectTo?.includes("/login"))) {
-        router.replace(data.redirectTo || signInHref).catch(() => {});
-        return;
-      }
-
-      if (outcome.status !== "aborted") {
-        setState("checkout_recovery");
-      }
+      const target = data.redirectTo || signInHref;
+      router.replace(target).catch(() => {});
     })();
 
     return () => {
@@ -359,39 +358,6 @@ export default function ClientStudioHub({ lang }) {
     })();
     return () => ac.abort();
   }, [state, hub?.email, lang, load, resolveSessionId]);
-
-  async function continueToWorkspace() {
-    const sid = resolveSessionId();
-    if (!sid) {
-      await load("");
-      return;
-    }
-    setRecoveryBusy(true);
-    setState("loading");
-    const ac = new AbortController();
-    const timeoutId = setTimeout(() => ac.abort(), LUXURY_CHECKOUT_TIMEOUT_MS);
-    try {
-      const outcome = await runLuxuryCheckoutActivation(sid, lang, { signal: ac.signal });
-      const data = outcome.data || {};
-      if (outcome.status === "complete") {
-        enterStudioFromPayload(data, sid);
-        await refreshJourney();
-        return;
-      }
-      if (outcome.status === "needs_sign_in") {
-        router.replace(data.redirectTo || signInHref).catch(() => {});
-        return;
-      }
-      if (data?.needsSignIn) {
-        router.replace(data.redirectTo || signInHref).catch(() => {});
-        return;
-      }
-      setState("checkout_recovery");
-    } finally {
-      clearTimeout(timeoutId);
-      setRecoveryBusy(false);
-    }
-  }
 
   async function recoverWorkspaceByEmail() {
     const email = recoveryEmail.trim();
@@ -468,7 +434,6 @@ export default function ClientStudioHub({ lang }) {
     return (
       <div className="rs-client-hub rs-client-hub--calm-prepare">
         <StudioCalmPrepare lang={lang} />
-        <StudioCheckoutRecovery lang={lang} onContinue={continueToWorkspace} busy={recoveryBusy} />
       </div>
     );
   }
