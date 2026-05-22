@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Upload } from "lucide-react";
 import { UPLOAD_WIZARD_STEPS } from "@/lib/client/upload-wizard-steps";
 
 const LABELS = {
@@ -12,6 +13,9 @@ const LABELS = {
     complete: "Next step",
     saved: "File saved.",
     failed: "Upload failed",
+    uploading: "Uploading…",
+    dropTitle: "Drop file for this step",
+    dropHint: "or click to browse",
   },
   fr: {
     title: "Televersement guide",
@@ -23,6 +27,9 @@ const LABELS = {
     complete: "Etape suivante",
     saved: "Fichier enregistre.",
     failed: "Echec du televersement",
+    uploading: "Televersement…",
+    dropTitle: "Deposez le fichier pour cette etape",
+    dropHint: "ou cliquez pour parcourir",
   },
 };
 
@@ -32,6 +39,7 @@ export default function UploadWizard({ lang = "en", planId, documents = [], onUp
   const [stepIndex, setStepIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [dragOver, setDragOver] = useState(false);
 
   const current = steps[stepIndex] || steps[0];
   const uploadedTypes = new Set(
@@ -71,28 +79,65 @@ export default function UploadWizard({ lang = "en", planId, documents = [], onUp
   if (!planId) return null;
 
   return (
-    <section className="rs-upload-wizard" data-rs-upload-wizard="1">
-      <h3>{t.title}</h3>
-      <p>
-        {t.current}: <strong>{lang === "fr" ? current.fr : current.en}</strong> ·{" "}
-        {current.required ? t.required : t.optional}
+    <section className="rs-upload-wizard rs-upload-wizard--lux" data-rs-upload-wizard="1">
+      <h3 className="rs-upload-wizard__title">{t.title}</h3>
+      <p className="rs-upload-wizard__step">
+        {t.current}: <strong>{lang === "fr" ? current.fr : current.en}</strong>
+        <span className={`rs-upload-wizard__tag${current.required ? " is-required" : ""}`}>
+          {current.required ? t.required : t.optional}
+        </span>
       </p>
       <div className="rs-upload-wizard-bar">
         <div className="rs-upload-wizard-fill" style={{ width: `${pct}%` }} />
       </div>
-      <p>{pct}%</p>
-      <label className="rs-upload-wizard-label">
-        {t.upload}
-        <input type="file" disabled={busy} onChange={(e) => handleFile(e.target.files?.[0])} />
+      <p className="rs-upload-wizard__pct">{pct}%</p>
+
+      <label
+        className={`rs-studio-dropzone rs-studio-dropzone--compact${dragOver ? " rs-studio-dropzone--active" : ""}${busy ? " rs-studio-dropzone--busy" : ""}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!busy) setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          if (!busy) handleFile(e.dataTransfer?.files?.[0]);
+        }}
+      >
+        <Upload className="rs-studio-dropzone-icon" size={22} strokeWidth={1.5} aria-hidden />
+        <span className="rs-studio-dropzone-title">{busy ? t.uploading : t.dropTitle}</span>
+        <span className="rs-studio-dropzone-hint">{t.dropHint}</span>
+        <input
+          type="file"
+          className="rs-studio-file-input"
+          disabled={busy}
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
       </label>
-      {message ? <p className="rs-upload-toast" role="status">{message}</p> : null}
+
+      {message ? (
+        <p className="rs-upload-toast" role="status">
+          {message}
+        </p>
+      ) : null}
       <div className="rs-upload-wizard-actions">
         {!current.required ? (
-          <button type="button" className="rs-btn-ghost" onClick={() => setStepIndex((i) => Math.min(i + 1, steps.length - 1))} disabled={busy}>
+          <button
+            type="button"
+            className="rs-btn-ghost"
+            onClick={() => setStepIndex((i) => Math.min(i + 1, steps.length - 1))}
+            disabled={busy}
+          >
             {t.skip}
           </button>
         ) : null}
-        <button type="button" className="rs-btn-accent" onClick={() => setStepIndex((i) => Math.min(i + 1, steps.length - 1))} disabled={busy || stepIndex >= steps.length - 1}>
+        <button
+          type="button"
+          className="rs-btn-accent"
+          onClick={() => setStepIndex((i) => Math.min(i + 1, steps.length - 1))}
+          disabled={busy || stepIndex >= steps.length - 1}
+        >
           {t.complete}
         </button>
       </div>

@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
-import UploadWizard from "@/components/client/UploadWizard";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
+import StudioWorkspaceCard from "@/components/client/StudioWorkspaceCard";
 import {
   runLuxuryCheckoutActivation,
   STUDIO_UI_HARD_TIMEOUT_MS,
@@ -656,7 +656,7 @@ export default function ClientStudioHub({ lang: langProp }) {
             ));
 
     return (
-      <div className="rs-client-hub rs-client-hub--recovery">
+      <div className="rs-client-hub rs-client-hub--recovery rs-simple-card rs-studio-recovery-card">
         <p className="rs-post-payment-activation-eyebrow">
           {L(lang, "Workspace recovery", "Recuperation de l'espace")}
         </p>
@@ -671,10 +671,11 @@ export default function ClientStudioHub({ lang: langProp }) {
           {L(lang, "Diagnostic", "Diagnostic")}: <code>{step}</code>
           {recoveryDetail?.attempts ? ` · ${L(lang, "Attempts", "Tentatives")}: ${recoveryDetail.attempts}` : ""}
         </p>
-        <label className="rs-client-hub-recovery-email">
-          {L(lang, "Email used at checkout", "Email utilise au paiement")}
+        <label className="rs-studio-field rs-client-hub-recovery-email">
+          <span className="rs-studio-field__label">{L(lang, "Email used at checkout", "Email utilise au paiement")}</span>
           <input
             type="email"
+            className="rs-input"
             value={recoveryEmail}
             onChange={(e) => setRecoveryEmail(e.target.value)}
             placeholder="you@company.com"
@@ -823,14 +824,17 @@ export default function ClientStudioHub({ lang: langProp }) {
   }
 
   return (
-    <div className="rs-client-hub" data-rs-client-hub="1">
-      <header className="rs-client-hub-header">
+    <div className="rs-client-hub rs-studio-workspace" data-rs-client-hub="1">
+      <header className="rs-client-hub-header rs-studio-workspace__header">
+        <p className="rs-eyebrow">{L(lang, "Executive client workspace", "Espace client executif")}</p>
         <h1>{t.clientHubTitle}</h1>
-        <p>{t.clientHubLead}</p>
+        <p className="rs-client-hub-lead">{t.clientHubLead}</p>
         {hub?.email ? <p className="rs-client-hub-email">{hub.email}</p> : null}
         <p className="rs-client-hub-email">
           {L(lang, "Support", "Support")}:{" "}
-          <a href={`mailto:${hub?.supportEmail || "support@resumora.net"}`}>{hub?.supportEmail || "support@resumora.net"}</a>
+          <a className="rs-shell-link" href={`mailto:${hub?.supportEmail || "support@resumora.net"}`}>
+            {hub?.supportEmail || "support@resumora.net"}
+          </a>
         </p>
       </header>
 
@@ -861,206 +865,30 @@ export default function ClientStudioHub({ lang: langProp }) {
         </p>
       ) : null}
 
-      <div className="rs-client-hub-grid">
+      <div className="rs-client-hub-grid rs-studio-workspace__grid">
         {(hub?.plans || []).map((plan) => (
-          <article key={plan.planId} className="rs-client-hub-card" data-plan={plan.planId}>
-            <h2>{plan.displayName}</h2>
-            {plan.freeEditsLabel ? (
-              <p className="rs-client-hub-free-edits">
-                {t.clientHubFreeEdits}: <strong>{plan.freeEditsLabel}</strong>
-              </p>
-            ) : null}
-            <ul className="rs-client-hub-features">
-              {plan.features.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
-            <p className="rs-client-hub-free-edits">
-              {L(lang, "Free edits remaining", "Retouches gratuites restantes")}:{" "}
-              <strong>{plan.freeEdits?.remaining ?? 0}</strong>
-              {" / "}
-              {plan.freeEdits?.included ?? 0}
-            </p>
-            {plan.progressTracker ? (
-              <div className="rs-client-hub-delivery">
-                <p>
-                  <strong>{L(lang, "Onboarding progress", "Progression onboarding")}:</strong>{" "}
-                  {plan.progressTracker.percent}%
-                </p>
-                <ol className="rs-client-hub-files">
-                  {plan.progressTracker.steps.map((s) => (
-                    <li key={s.key}>
-                      {s.done ? "✓" : "○"} {s.label}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ) : null}
-            {(plan.delivery?.status === "ready" || plan.generationStatus === "ready") ? (
-              <div className="rs-resume-ready-banner" role="status">
-                {L(lang, "Resume Ready — download your deliverables below.", "CV pret — telechargez vos livrables ci-dessous.")}
-              </div>
-            ) : null}
-            {plan.generationStatus ? (
-              <div className="rs-generation-tracker">
-                <p>
-                  <strong>{L(lang, "Generation", "Generation")}:</strong> {plan.generationStatus}
-                  {plan.generationMeta?.stageMessage ? ` — ${plan.generationMeta.stageMessage}` : ""}
-                </p>
-              </div>
-            ) : null}
-            {showUploadWizard ||
-            router.query?.onboarding === "upload" ||
-            !(plan.documents || []).some((d) => d.doc_type === "resume") ? (
-              <UploadWizard
-                lang={lang}
-                planId={plan.planId}
-                documents={plan.documents || []}
-                onUpload={() => load(resolveSessionId(), {})}
-                onComplete={() => load(resolveSessionId(), {})}
-              />
-            ) : null}
-            {plan.planId === "essential_advanced" ? (
-              <div className="rs-premium-dashboard">
-                <h3>{L(lang, "Essential Advanced Premium", "Essential Advanced Premium")}</h3>
-                <p>
-                  {L(
-                    lang,
-                    "3 interview videos · Q&A library · 20 tips · bilingual EN/FR delivery",
-                    "3 videos · bibliotheque Q&R · 20 conseils · livraison EN/FR"
-                  )}
-                </p>
-                <Link href="/studio/essential-advanced" className="rs-btn-accent">
-                  {L(lang, "Open Premium Studio", "Ouvrir le studio premium")}
-                </Link>
-              </div>
-            ) : null}
-            {plan.delivery ? (
-              <div className="rs-client-hub-delivery">
-                <p>
-                  <strong>{L(lang, "Delivery status", "Statut de livraison")}:</strong> {plan.delivery.status}
-                </p>
-                {plan.delivery.message ? <p>{plan.delivery.message}</p> : null}
-                {plan.delivery?.download_url || plan.generationStatus === "ready" ? (
-                  <div className="rs-delivery-downloads">
-                    <a
-                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=pdf&lang=${lang}`}
-                      className="rs-btn-accent"
-                    >
-                      {L(lang, "Download PDF", "Telecharger PDF")}
-                    </a>
-                    <a
-                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=docx&lang=${lang}`}
-                      className="rs-btn-ghost"
-                    >
-                      {L(lang, "Download DOCX", "Telecharger DOCX")}
-                    </a>
-                    <a
-                      href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&lang=${lang === "fr" ? "en" : "fr"}`}
-                      className="rs-btn-ghost"
-                    >
-                      {L(lang, "Bilingual pack (EN/FR)", "Pack bilingue EN/FR")}
-                    </a>
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <p>{L(lang, "Delivery status: In progress", "Statut de livraison : en cours")}</p>
-            )}
-            <div className="rs-client-hub-upload">
-              <h3>{L(lang, "Secure uploads", "Televersements securises")}</h3>
-              <label>
-                {L(lang, "Document type", "Type de document")}
-                <select
-                  value={docTypes[plan.planId] || "supporting_file"}
-                  onChange={(e) => setDocTypes((s) => ({ ...s, [plan.planId]: e.target.value }))}
-                >
-                  {DOC_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt.key} value={opt.key}>
-                      {lang === "fr" ? opt.fr : opt.en}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <input
-                type="file"
-                onChange={(e) => uploadFile(plan.planId, e.target.files?.[0])}
-                disabled={uploadingPlan === plan.planId}
-              />
-              <p>{L(lang, "Uploaded files", "Fichiers televerses")}</p>
-              <ul className="rs-client-hub-files">
-                {(plan.documents || []).map((doc) => (
-                  <li key={doc.id}>
-                    <strong>{doc.original_name}</strong> · {docTypeLabels[doc.doc_type] || doc.doc_type} · {doc.status}{" "}
-                    · {formatDate(doc.created_at)}
-                    {" · "}
-                    <a href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=preview`} target="_blank" rel="noreferrer">
-                      {L(lang, "Preview", "Apercu")}
-                    </a>
-                    {" · "}
-                    <a href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=download`}>
-                      {L(lang, "Download", "Telecharger")}
-                    </a>
-                    {" · "}
-                    <label style={{ display: "inline-block" }}>
-                      {L(lang, "Replace", "Remplacer")}
-                      <input
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={(e) => replaceDocument(plan.planId, doc.id, e.target.files?.[0])}
-                        disabled={replacingId === doc.id}
-                      />
-                    </label>
-                    <button type="button" className="rs-btn-ghost" onClick={() => removeDocument(doc.id)}>
-                      {L(lang, "Remove", "Supprimer")}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rs-client-hub-edits">
-              <h3>{L(lang, "Request Free Edit", "Demander une retouche gratuite")}</h3>
-              <textarea
-                value={editNotes[plan.planId] || ""}
-                onChange={(e) => setEditNotes((s) => ({ ...s, [plan.planId]: e.target.value }))}
-                placeholder={L(
-                  lang,
-                  "Describe required updates to your resume deliverable...",
-                  "Decrivez les modifications demandees..."
-                )}
-              />
-              <button
-                type="button"
-                className="rs-btn-accent"
-                onClick={() => requestFreeEdit(plan.planId)}
-                disabled={requestingPlan === plan.planId || (plan.freeEdits?.remaining ?? 0) <= 0}
-              >
-                {L(lang, "Request Free Edit", "Demander une retouche gratuite")}
-              </button>
-              <ul className="rs-client-hub-files">
-                {(plan.editRequests || []).map((r) => (
-                  <li key={r.id}>
-                    #{r.id} · {r.status} · {formatDate(r.requested_at)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rs-client-hub-actions">
-              <button
-                type="button"
-                className="rs-btn-ghost"
-                onClick={() => {
-                  const i = document.querySelector(`article[data-plan="${plan.planId}"] input[type="file"]`);
-                  if (i) i.click();
-                }}
-              >
-                {L(lang, "Upload Files", "Televerser des fichiers")}
-              </button>
-              <Link href={plan.studioPath} className="rs-btn-accent">
-                {t.clientHubOpenStudio}
-              </Link>
-            </div>
-          </article>
+          <StudioWorkspaceCard
+            key={plan.planId}
+            plan={plan}
+            lang={lang}
+            t={t}
+            docTypeLabels={docTypeLabels}
+            docTypes={docTypes}
+            setDocTypes={setDocTypes}
+            uploadingPlan={uploadingPlan}
+            replacingId={replacingId}
+            requestingPlan={requestingPlan}
+            editNotes={editNotes}
+            setEditNotes={setEditNotes}
+            showUploadWizard={showUploadWizard}
+            router={router}
+            onUploadFile={uploadFile}
+            onReplaceDocument={replaceDocument}
+            onRemoveDocument={removeDocument}
+            onRequestFreeEdit={requestFreeEdit}
+            onReload={() => load(resolveSessionId(), {})}
+            formatDate={formatDate}
+          />
         ))}
       </div>
     </div>
