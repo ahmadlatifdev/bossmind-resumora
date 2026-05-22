@@ -4,7 +4,6 @@ import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
 import UploadPanel from "@/components/marketing/sections/UploadPanel";
 import TrustAuthorityStrip from "@/components/marketing/sections/TrustAuthorityStrip";
-import ExecutiveFlowStrip from "@/components/marketing/sections/ExecutiveFlowStrip";
 import { useLanguage } from "@/context/LanguageContext";
 import { getSiteUrl } from "@/lib/marketing/seo-config";
 import { brandAbsoluteUrl } from "@/lib/marketing/branding-assets";
@@ -57,8 +56,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        <ExecutiveFlowStrip />
 
         <UploadPanel sectionId="home-intake" />
         <PricingPanel />
