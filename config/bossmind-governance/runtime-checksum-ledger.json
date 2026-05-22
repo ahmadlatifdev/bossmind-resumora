@@ -1,4 +1,123 @@
 {
   "schema": "bossmind-runtime-checksum-ledger-v1",
-  "entries": []
+  "entries": [
+    {
+      "at": "2026-05-22T11:54:36.490Z",
+      "gitCommit": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+      "fingerprint": {
+        "workspaceHash": "ab0f2fa133340055c1f957bbca8334f85af926845fedd6f53bbaec5e1632bf21",
+        "missing": [],
+        "swVersion": "20260521-journey-v3",
+        "gitHead": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+        "at": "2026-05-22T11:54:34.896Z"
+      },
+      "liveAlign": {
+        "localGitHead": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+        "probes": [
+          {
+            "origin": "https://www.resumora.net",
+            "ok": true,
+            "gitCommit": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+            "checkoutReady": false,
+            "databaseOk": true,
+            "commerceReady": false
+          }
+        ],
+        "driftDetected": false,
+        "driftSites": [],
+        "ok": true
+      },
+      "blockDeploy": false,
+      "checks": [
+        {
+          "id": "local_git_clean",
+          "pass": true
+        },
+        {
+          "id": "fingerprint_paths",
+          "pass": true,
+          "missing": []
+        },
+        {
+          "id": "sw_version_locked",
+          "pass": true
+        },
+        {
+          "id": "no_deployment_drift",
+          "pass": true
+        },
+        {
+          "id": "live_health_reachable",
+          "pass": true
+        },
+        {
+          "id": "route_integrity",
+          "pass": true
+        },
+        {
+          "id": "ui_snapshot_verify",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "at": "2026-05-22T11:54:38.082Z",
+      "gitCommit": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+      "fingerprint": {
+        "workspaceHash": "ab0f2fa133340055c1f957bbca8334f85af926845fedd6f53bbaec5e1632bf21",
+        "missing": [],
+        "swVersion": "20260521-journey-v3",
+        "gitHead": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+        "at": "2026-05-22T11:54:37.488Z"
+      },
+      "liveAlign": {
+        "localGitHead": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+        "probes": [
+          {
+            "origin": "https://www.resumora.net",
+            "ok": true,
+            "gitCommit": "ab831b52a809f0df27990dc6d3e7ee4a019d3cc7",
+            "checkoutReady": false,
+            "databaseOk": true,
+            "commerceReady": false
+          }
+        ],
+        "driftDetected": false,
+        "driftSites": [],
+        "ok": true
+      },
+      "blockDeploy": false,
+      "checks": [
+        {
+          "id": "local_git_clean",
+          "pass": true
+        },
+        {
+          "id": "fingerprint_paths",
+          "pass": true,
+          "missing": []
+        },
+        {
+          "id": "sw_version_locked",
+          "pass": true
+        },
+        {
+          "id": "no_deployment_drift",
+          "pass": true
+        },
+        {
+          "id": "live_health_reachable",
+          "pass": true
+        },
+        {
+          "id": "route_integrity",
+          "pass": true
+        },
+        {
+          "id": "ui_snapshot_verify",
+          "pass": true
+        }
+      ]
+    }
+  ]
 }
