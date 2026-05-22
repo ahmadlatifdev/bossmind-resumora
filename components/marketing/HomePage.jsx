@@ -60,25 +60,6 @@ export default function HomePage() {
 
         <ExecutiveFlowStrip />
 
-        <section className="rs-section rs-section-muted rs-section--compact">
-          <div className="rs-container">
-            <div className="rs-cta-strip rs-cta-strip--compact">
-              <div>
-                <h2 className="rs-h2 rs-h2-compact">{t.homeStripTitle}</h2>
-                <p className="rs-subtitle rs-subtitle-tight">{t.homeStripSubtitle}</p>
-              </div>
-              <div className="rs-cta-strip-actions">
-                <Link href="/capabilities" className="rs-btn-accent">
-                  {t.navCapabilities}
-                </Link>
-                <Link href="/chat" className="rs-btn-ghost">
-                  {t.homeStripSecondary}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <UploadPanel sectionId="home-intake" />
         <PricingPanel />
 

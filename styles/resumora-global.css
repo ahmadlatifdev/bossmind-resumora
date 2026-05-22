@@ -4056,7 +4056,7 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 }
 
 .rs-section--flow {
-  padding-block: clamp(0.65rem, 1.4vw, 1.1rem);
+  padding-block: clamp(0.5rem, 1vw, 0.85rem);
 }
 
 .rs-executive-flow {
@@ -4064,8 +4064,15 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.rs-executive-flow--minimal .rs-executive-flow-step {
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(8, 14, 32, 0.32);
 }
 
 .rs-executive-flow-step {
@@ -4073,37 +4080,21 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   border-radius: var(--rs-radius-md);
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(8, 14, 32, 0.45);
-  transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
-}
-
-.rs-executive-flow-step:hover {
-  border-color: rgba(201, 162, 39, 0.28);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-}
-
-.rs-executive-flow-index {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--rs-gold-mid);
-  margin-bottom: 0.35rem;
 }
 
 .rs-executive-flow-title {
-  margin: 0 0 0.25rem;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  margin: 0 0 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--rs-text);
+  color: var(--rs-gold-mid);
 }
 
 .rs-executive-flow-line {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
+  font-size: 0.78rem;
+  line-height: 1.35;
   color: var(--rs-text-secondary);
 }
 
