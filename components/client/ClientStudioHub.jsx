@@ -85,9 +85,10 @@ function clearCheckoutFromUrl(router) {
   }
 }
 
-export default function ClientStudioHub({ lang }) {
+export default function ClientStudioHub({ lang: langProp }) {
   const router = useRouter();
-  const t = translations[lang];
+  const lang = langProp === "fr" ? "fr" : "en";
+  const t = translations[lang] || translations.en;
   const [state, setState] = useState("loading");
   const [hub, setHub] = useState(null);
   const [journey, setJourney] = useState(null);
@@ -108,15 +109,20 @@ export default function ClientStudioHub({ lang }) {
   const MAX_LOGIN_REDIRECTS = 2;
   const MAX_ACTIVATION_ATTEMPTS = 3;
   const accountEmailRef = useRef("");
-  useEffect(() => {
-    hubStateRef.current = state;
-  }, [state]);
-
+  const [mounted, setMounted] = useState(false);
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
   const [editNotes, setEditNotes] = useState({});
   const [docTypes, setDocTypes] = useState({});
+
+  useEffect(() => {
+    hubStateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const resolveSessionId = useCallback(() => {
     const fromQuery = firstQuery(router.query.session_id);
@@ -339,7 +345,13 @@ export default function ClientStudioHub({ lang }) {
     return `/login?next=${encodeURIComponent(next)}`;
   }, [resolveSessionId]);
 
+  const docTypeLabels = useMemo(
+    () => Object.fromEntries(DOC_TYPE_OPTIONS.map((x) => [x.key, lang === "fr" ? x.fr : x.en])),
+    [lang]
+  );
+
   useEffect(() => {
+    if (!mounted) return;
     if (!router.isReady || urlNormalizedRef.current) return;
     const sid = firstQuery(router.query.session_id) || getStoredSessionId();
     if (!sid) return;
@@ -348,12 +360,12 @@ export default function ClientStudioHub({ lang }) {
       persistSessionId(sid);
       router.replace(`/studio?session_id=${encodeURIComponent(sid)}`, undefined, { shallow: true }).catch(() => {});
     }
-  }, [router.isReady, router.query.checkout, router.query.session_id, router]);
+  }, [router.isReady, router.query.checkout, router.query.session_id, router, mounted]);
 
   loadRef.current = load;
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!mounted || !router.isReady) return;
 
     const runId = ++orchestrationRunRef.current;
     const sid = firstQuery(router.query.session_id) || getStoredSessionId();
@@ -482,10 +494,10 @@ export default function ClientStudioHub({ lang }) {
       clearTimeout(timeoutId);
       ac.abort();
     };
-  }, [router.isReady, router.query.session_id, router.query.recovery, lang, enterStudioFromPayload, refreshJourney, router, signInHref, enterRecovery]);
+  }, [router.isReady, router.query.session_id, router.query.recovery, lang, enterStudioFromPayload, refreshJourney, router, signInHref, enterRecovery, mounted]);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!mounted || !router.isReady) return;
     const sid = resolveSessionId();
     if (!sid) return;
 
@@ -505,10 +517,10 @@ export default function ClientStudioHub({ lang }) {
     }, STUDIO_UI_HARD_TIMEOUT_MS + 400);
 
     return () => clearTimeout(timer);
-  }, [router.isReady, router.query.session_id, lang, enterRecovery, resolveSessionId]);
+  }, [router.isReady, router.query.session_id, lang, enterRecovery, resolveSessionId, mounted]);
 
   useEffect(() => {
-    if (state !== "ready") return;
+    if (!mounted || state !== "ready") return;
     refreshJourney();
   }, [state, refreshJourney]);
 
@@ -612,6 +624,14 @@ export default function ClientStudioHub({ lang }) {
     }, 10000);
     return () => clearInterval(tick);
   }, [state, hub, load, resolveSessionId]);
+
+  if (!mounted || !router.isReady) {
+    return (
+      <div className="rs-client-hub rs-client-hub--calm-prepare">
+        <StudioCalmPrepare lang={lang} />
+      </div>
+    );
+  }
 
   if (state === "recovery") {
     const step = recoveryDetail?.failedStep || "activation_incomplete";
@@ -757,7 +777,7 @@ export default function ClientStudioHub({ lang }) {
   }
 
   async function removeDocument(docId) {
-    if (!window.confirm(L(lang, "Remove this uploaded document?", "Supprimer ce document televerse ?"))) return;
+    if (typeof window !== "undefined" && !window.confirm(L(lang, "Remove this uploaded document?", "Supprimer ce document televerse ?"))) return;
     await fetch(`/api/client/documents?id=${encodeURIComponent(docId)}&confirm=yes`, {
       method: "DELETE",
       credentials: "same-origin",
@@ -801,11 +821,6 @@ export default function ClientStudioHub({ lang }) {
       setReplacingId(0);
     }
   }
-
-  const docTypeLabels = useMemo(
-    () => Object.fromEntries(DOC_TYPE_OPTIONS.map((x) => [x.key, lang === "fr" ? x.fr : x.en])),
-    [lang]
-  );
 
   return (
     <div className="rs-client-hub" data-rs-client-hub="1">
