@@ -17,9 +17,30 @@ export default async function handler(req, res) {
 
   const lang = String(req.query.lang || req.body?.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
   const sessionId = String(req.query.session_id || req.body?.session_id || "").trim();
+  const clientAttempt = Number(req.query.attempt || req.body?.attempt || 1) || 1;
+
+  if (!sessionId) {
+    console.error("[checkout-complete] missing_session_id");
+    return res.status(400).json({
+      ok: false,
+      activationStatus: "failed",
+      activationSuccess: false,
+      failedStep: "missing_session_id",
+      recoveryRequired: true,
+    });
+  }
+
+  console.info("[checkout-complete] session_id_received", {
+    sessionIdPrefix: sessionId.slice(0, 22),
+    clientAttempt,
+  });
 
   try {
     const actor = await readEngagementActor(req, res);
+    console.info("[checkout-complete] user_resolved", {
+      signedIn: Boolean(actor?.profileId),
+      profileId: actor?.profileId ? String(actor.profileId).slice(0, 8) : null,
+    });
     let payload = null;
     const serverAttempts = 3;
 
@@ -51,11 +72,36 @@ export default async function handler(req, res) {
     }
 
     const { logs, failedStep, ...clientSafe } = payload;
+    const stripeLookup = logs?.find((e) => e.phase === "payment_verified");
+    console.info("[checkout-complete] activation_result", {
+      sessionIdPrefix: sessionId.slice(0, 22),
+      activationStatus: payload.activationStatus,
+      activationSuccess: payload.activationSuccess === true,
+      failedStep: payload.failedStep || null,
+      stripeLookupOk: stripeLookup?.ok,
+      hasAccess: payload.hasAccess === true,
+      signedIn: payload.signedIn === true,
+    });
+    if (payload.activationSuccess) {
+      console.info("[checkout-complete] studio_unlocked", {
+        planId: payload.planId || null,
+        plansCount: payload.plansCount || payload.plans?.length || 0,
+      });
+    } else if (payload.failedStep) {
+      console.error("[checkout-complete] failure_reason", {
+        failedStep: payload.failedStep,
+        activationStatus: payload.activationStatus,
+      });
+    }
+
     return res.status(200).json({
       ok: payload.ok !== false,
       ...clientSafe,
       activationStatus: payload.activationStatus,
       activationSuccess: payload.activationSuccess === true,
+      recoveryRequired: payload.recoveryRequired === true,
+      sessionInvalid: payload.sessionInvalid === true,
+      clientAttempt,
     });
   } catch (e) {
     console.error("[checkout-complete] server_error", e.message);

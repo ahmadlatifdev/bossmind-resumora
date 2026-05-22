@@ -25,19 +25,35 @@ export default async function handler(req, res) {
     const actor = await readEngagementActor(req, res);
 
     if (sessionId) {
+      console.info("[checkout-recovery] session_lookup", {
+        sessionIdPrefix: sessionId.slice(0, 22),
+        signedIn: Boolean(actor?.profileId),
+      });
       const activation = await activateBySessionId(sessionId, actor, lang);
       const deliverable = activation.planId ? getDeliverableForPlan(activation.planId, lang) : null;
+      const recovered = activation.ok || activation.plansCount > 0;
+      const valid = activation.planActivated === true;
+      console.info("[checkout-recovery] result", {
+        recovered,
+        valid,
+        reason: activation.reason || null,
+        planId: activation.planId || null,
+      });
       return res.status(200).json({
         ok: true,
-        recovered: activation.ok || activation.plansCount > 0,
-        valid: activation.planActivated,
+        recovered,
+        valid,
+        sessionInvalid: !valid && Boolean(activation.reason),
+        failureReason: activation.reason || null,
         planId: activation.planId,
         studioPath: "/studio",
-        continueUrl: `/studio?checkout=success&session_id=${encodeURIComponent(sessionId)}`,
+        continueUrl: recovered ? "/studio" : `/studio?recovery=session&session_id=${encodeURIComponent(sessionId)}`,
         displayName: deliverable?.displayName || activation.displayName,
         fulfillmentOk: activation.planActivated === true,
         hasAccess: activation.plansCount > 0,
         activation: activation.activation,
+        needsSignIn: !actor?.profileId && (activation.planActivated || activation.paymentConfirmed),
+        stripeCheckoutEmail: activation.stripeCheckoutEmail || null,
       });
     }
 

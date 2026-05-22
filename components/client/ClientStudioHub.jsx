@@ -7,8 +7,13 @@ import UploadWizard from "@/components/client/UploadWizard";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
 import {
   runLuxuryCheckoutActivation,
-  LUXURY_CHECKOUT_TIMEOUT_MS,
+  STUDIO_UI_HARD_TIMEOUT_MS,
 } from "@/lib/client/luxury-checkout-client";
+import {
+  logCheckoutRuntime,
+  recordRedirect,
+  shouldBlockRedirect,
+} from "@/lib/client/checkout-runtime";
 
 const DOC_TYPE_OPTIONS = [
   { key: "resume", en: "Resume", fr: "CV" },
@@ -90,14 +95,23 @@ export default function ClientStudioHub({ lang }) {
   const [checkoutVerify, setCheckoutVerify] = useState(null);
   const [showUploadWizard, setShowUploadWizard] = useState(false);
   const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryDetail, setRecoveryDetail] = useState(null);
   const [activation, setActivation] = useState(null);
   const [needsSignIn, setNeedsSignIn] = useState(false);
   const orchestrationRunRef = useRef(0);
+  const orchestratedSidRef = useRef("");
+  const hubStateRef = useRef("loading");
   const urlNormalizedRef = useRef(false);
   const loadRef = useRef(null);
   const loginRedirectCountRef = useRef(0);
+  const activationAttemptsRef = useRef(0);
   const MAX_LOGIN_REDIRECTS = 2;
+  const MAX_ACTIVATION_ATTEMPTS = 3;
   const accountEmailRef = useRef("");
+  useEffect(() => {
+    hubStateRef.current = state;
+  }, [state]);
+
   const [uploadingPlan, setUploadingPlan] = useState("");
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
@@ -133,6 +147,34 @@ export default function ClientStudioHub({ lang }) {
     if (data?.needsSignIn) setNeedsSignIn(true);
     else if (data?.signedIn && data?.hasAccess) setNeedsSignIn(false);
   }, []);
+
+  const enterRecovery = useCallback(
+    (detail = {}) => {
+      const sid = resolveSessionId();
+      logCheckoutRuntime("studio_recovery_shown", {
+        failedStep: detail.failedStep || "unknown",
+        activationStatus: detail.activationStatus,
+        attempts: detail.attempts ?? activationAttemptsRef.current,
+      });
+      setRecoveryDetail({
+        failedStep: detail.failedStep || "activation_incomplete",
+        activationStatus: detail.activationStatus || "recovery_required",
+        attempts: detail.attempts ?? activationAttemptsRef.current,
+        stripeCheckoutEmail: detail.stripeCheckoutEmail || recoveryEmail || "",
+        message: detail.message || "",
+      });
+      setState("recovery");
+      setToast("");
+      if (sid && router?.replace) {
+        const target = "/studio?recovery=activation";
+        if (!shouldBlockRedirect(router.asPath, target)) {
+          recordRedirect(router.asPath, target);
+          router.replace(target, undefined, { shallow: true }).catch(() => {});
+        }
+      }
+    },
+    [resolveSessionId, recoveryEmail, router]
+  );
 
   const enterStudioFromPayload = useCallback(
     (data, sid) => {
@@ -218,7 +260,7 @@ export default function ClientStudioHub({ lang }) {
               /* ignore */
             }
             if (postLogin) {
-              setState("loading");
+              setTimeout(() => loadRef.current?.(sid), 500);
               return false;
             }
             if (loginRedirectCountRef.current >= MAX_LOGIN_REDIRECTS) {
@@ -234,7 +276,14 @@ export default function ClientStudioHub({ lang }) {
             }
             loginRedirectCountRef.current += 1;
             const next = sid ? `/studio?session_id=${encodeURIComponent(sid)}` : "/studio";
-            router.replace(`/login?next=${encodeURIComponent(next)}`).catch(() => {});
+            const loginTarget = `/login?next=${encodeURIComponent(next)}`;
+            if (!shouldBlockRedirect(router.asPath, loginTarget)) {
+              recordRedirect(router.asPath, loginTarget);
+              logCheckoutRuntime("studio_redirect_login", { next });
+              router.replace(loginTarget).catch(() => {});
+            } else {
+              enterRecovery({ failedStep: "redirect_loop", activationStatus: "needs_sign_in" });
+            }
           }
           setState("auth");
           return false;
@@ -262,7 +311,14 @@ export default function ClientStudioHub({ lang }) {
         }
         if (pending) {
           setHub({ ...data, plans: data.plans || [] });
-          setState("loading");
+          if (activationAttemptsRef.current >= MAX_ACTIVATION_ATTEMPTS) {
+            enterRecovery({
+              failedStep: data.failedStep || "entitlement_missing",
+              activationStatus: data.activationStatus,
+            });
+          } else {
+            setState("loading");
+          }
           return false;
         }
         setHub(data);
@@ -274,7 +330,7 @@ export default function ClientStudioHub({ lang }) {
         return false;
       }
     },
-    [lang, router, resolveSessionId, applyActivationPayload]
+    [lang, router, resolveSessionId, applyActivationPayload, enterRecovery]
   );
 
   const signInHref = useMemo(() => {
@@ -301,8 +357,15 @@ export default function ClientStudioHub({ lang }) {
 
     const runId = ++orchestrationRunRef.current;
     const sid = firstQuery(router.query.session_id) || getStoredSessionId();
+    const recoveryQuery = firstQuery(router.query.recovery);
 
     if (!sid) {
+      orchestratedSidRef.current = "";
+      if (recoveryQuery) {
+        setState("recovery");
+        setRecoveryDetail((d) => d || { failedStep: recoveryQuery, activationStatus: "recovery_required" });
+        return;
+      }
       (async () => {
         setState("loading");
         await load("");
@@ -310,12 +373,17 @@ export default function ClientStudioHub({ lang }) {
       return;
     }
 
+    orchestratedSidRef.current = sid;
+    activationAttemptsRef.current += 1;
     persistSessionId(sid);
+    logCheckoutRuntime("studio_session_id_received", { sessionIdPrefix: sid.slice(0, 20), attempt: activationAttemptsRef.current });
+
     const ac = new AbortController();
-    const timeoutId = setTimeout(() => ac.abort(), LUXURY_CHECKOUT_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => ac.abort(), STUDIO_UI_HARD_TIMEOUT_MS);
 
     (async () => {
       setState("loading");
+      setRecoveryDetail(null);
 
       const outcome = await runLuxuryCheckoutActivation(sid, lang, { signal: ac.signal });
       if (runId !== orchestrationRunRef.current) return;
@@ -324,6 +392,7 @@ export default function ClientStudioHub({ lang }) {
       if (data.stripeCheckoutEmail) setRecoveryEmail(data.stripeCheckoutEmail);
 
       if (outcome.status === "complete") {
+        logCheckoutRuntime("studio_entitlement_activated", { planId: data.planId });
         enterStudioFromPayload(data, sid);
         await refreshJourney();
         return;
@@ -339,57 +408,104 @@ export default function ClientStudioHub({ lang }) {
         );
         if (loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
           loginRedirectCountRef.current += 1;
-          router.replace(signInHref).catch(() => {});
+          const target = data.redirectTo || signInHref;
+          if (!shouldBlockRedirect(router.asPath, target)) {
+            recordRedirect(router.asPath, target);
+            router.replace(target).catch(() => {});
+          } else {
+            enterRecovery({ ...data, failedStep: "auth_email_mismatch", attempts: outcome.attempts });
+          }
         } else {
-          setState("error");
+          enterRecovery({ ...data, failedStep: "auth_email_mismatch", attempts: outcome.attempts });
         }
         return;
       }
 
-      if (outcome.status === "activation_pending" || (data?.signedIn && !data?.activationSuccess)) {
-        const loaded = await load(sid);
-        if (loaded) return;
-        setToast(
-          L(
-            lang,
-            "Payment received — finalizing your workspace. This may take a moment.",
-            "Paiement recu — finalisation de votre espace en cours."
-          )
-        );
-        setState("loading");
-        return;
-      }
-
-      if (outcome.status === "needs_sign_in" && data?.needsSignIn !== false && !data?.signedIn) {
+      if (outcome.status === "needs_sign_in" && !data?.signedIn) {
         if (loginRedirectCountRef.current >= MAX_LOGIN_REDIRECTS) {
-          setState("error");
+          enterRecovery({ ...data, failedStep: "needs_sign_in", attempts: outcome.attempts });
           return;
         }
         loginRedirectCountRef.current += 1;
         const target =
           data.redirectTo || `/login?next=${encodeURIComponent(`/studio?session_id=${encodeURIComponent(sid)}`)}`;
-        router.replace(target).catch(() => {});
+        if (!shouldBlockRedirect(router.asPath, target)) {
+          recordRedirect(router.asPath, target);
+          router.replace(target).catch(() => {});
+        } else {
+          enterRecovery({ ...data, failedStep: "redirect_loop", attempts: outcome.attempts });
+        }
+        return;
+      }
+
+      if (outcome.status === "recovery" || outcome.status === "timeout") {
+        const loaded = await load(sid);
+        if (loaded) return;
+        enterRecovery({
+          ...data,
+          failedStep: data.failedStep || (outcome.status === "timeout" ? "client_timeout" : "activation_failed"),
+          attempts: outcome.attempts,
+        });
+        return;
+      }
+
+      if (outcome.status === "activation_pending") {
+        const loaded = await load(sid);
+        if (loaded) return;
+        if (activationAttemptsRef.current >= MAX_ACTIVATION_ATTEMPTS) {
+          enterRecovery({
+            ...data,
+            failedStep: data.failedStep || "activation_pending",
+            attempts: outcome.attempts,
+          });
+        } else {
+          enterRecovery({
+            ...data,
+            failedStep: data.failedStep || "stripe_unconfigured",
+            attempts: outcome.attempts,
+            message: L(
+              lang,
+              "We received your payment but could not verify it on this server yet. Use recovery below or sign in with your checkout email.",
+              "Paiement recu — verification impossible sur ce serveur. Utilisez la recuperation ci-dessous."
+            ),
+          });
+        }
         return;
       }
 
       const loaded = await load(sid);
-      if (!loaded && loginRedirectCountRef.current < MAX_LOGIN_REDIRECTS) {
-        loginRedirectCountRef.current += 1;
-        if (!data?.signedIn) {
-          router.replace(data.redirectTo || signInHref).catch(() => {});
-        } else {
-          setState("loading");
-        }
-      } else if (!loaded) {
-        setState("error");
-      }
+      if (loaded) return;
+      enterRecovery({ ...data, failedStep: data.failedStep || "activation_incomplete", attempts: outcome.attempts });
     })();
 
     return () => {
       clearTimeout(timeoutId);
       ac.abort();
     };
-  }, [router.isReady, router.query.session_id, lang, enterStudioFromPayload, refreshJourney, router, load, signInHref]);
+  }, [router.isReady, router.query.session_id, router.query.recovery, lang, enterStudioFromPayload, refreshJourney, router, signInHref, enterRecovery]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const sid = resolveSessionId();
+    if (!sid) return;
+
+    const timer = setTimeout(() => {
+      if (hubStateRef.current === "loading" || hubStateRef.current === "auth") {
+        enterRecovery({
+          failedStep: "client_timeout",
+          activationStatus: "recovery_required",
+          attempts: activationAttemptsRef.current,
+          message: L(
+            lang,
+            "Activation is taking longer than expected. Use the options below to continue.",
+            "L'activation prend plus de temps que prevu. Utilisez les options ci-dessous."
+          ),
+        });
+      }
+    }, STUDIO_UI_HARD_TIMEOUT_MS + 400);
+
+    return () => clearTimeout(timer);
+  }, [router.isReady, router.query.session_id, lang, enterRecovery, resolveSessionId]);
 
   useEffect(() => {
     if (state !== "ready") return;
@@ -422,6 +538,44 @@ export default function ClientStudioHub({ lang }) {
     })();
     return () => ac.abort();
   }, [state, hub?.email, lang, load, resolveSessionId]);
+
+  async function retryCheckoutActivation() {
+    const sid = resolveSessionId();
+    if (!sid) {
+      enterRecovery({ failedStep: "missing_session_id" });
+      return;
+    }
+    if (activationAttemptsRef.current >= MAX_ACTIVATION_ATTEMPTS) {
+      enterRecovery({ failedStep: "max_attempts", attempts: activationAttemptsRef.current });
+      return;
+    }
+    orchestratedSidRef.current = "";
+    orchestrationRunRef.current += 1;
+    activationAttemptsRef.current += 1;
+    setState("loading");
+    setRecoveryDetail(null);
+    logCheckoutRuntime("studio_activation_retry", { attempt: activationAttemptsRef.current });
+    const ac = new AbortController();
+    const outcome = await runLuxuryCheckoutActivation(sid, lang, { signal: ac.signal });
+    const data = outcome.data || {};
+    if (outcome.status === "complete") {
+      enterStudioFromPayload(data, sid);
+      await refreshJourney();
+      return;
+    }
+    if (outcome.status === "needs_sign_in" && !data?.signedIn) {
+      router.replace(signInHref).catch(() => {});
+      return;
+    }
+    const loaded = await load(sid);
+    if (!loaded) {
+      enterRecovery({
+        ...data,
+        failedStep: data.failedStep || outcome.status,
+        attempts: outcome.attempts,
+      });
+    }
+  }
 
   async function recoverWorkspaceByEmail() {
     const email = recoveryEmail.trim();
@@ -458,6 +612,71 @@ export default function ClientStudioHub({ lang }) {
     }, 10000);
     return () => clearInterval(tick);
   }, [state, hub, load, resolveSessionId]);
+
+  if (state === "recovery") {
+    const step = recoveryDetail?.failedStep || "activation_incomplete";
+    const recoveryMessage =
+      recoveryDetail?.message ||
+      (step === "stripe_unconfigured"
+        ? L(
+            lang,
+            "Payment verification is temporarily unavailable on this server. Sign in with your Stripe checkout email or contact support@resumora.net.",
+            "La verification du paiement est temporairement indisponible. Connectez-vous avec l'email Stripe ou contactez support@resumora.net."
+          )
+        : step === "payment_not_paid" || step === "session"
+          ? L(
+              lang,
+              "This checkout session is invalid or expired. Start a new plan from pricing or contact support with your receipt.",
+              "Cette session de paiement est invalide ou expiree. Reprenez depuis les forfaits ou contactez le support."
+            )
+          : L(
+              lang,
+              "We could not unlock your studio automatically. Try recovery below or sign in with the email used at checkout.",
+              "Impossible d'ouvrir le studio automatiquement. Utilisez la recuperation ci-dessous."
+            ));
+
+    return (
+      <div className="rs-client-hub rs-client-hub--recovery">
+        <p className="rs-post-payment-activation-eyebrow">
+          {L(lang, "Workspace recovery", "Recuperation de l'espace")}
+        </p>
+        <h1>{L(lang, "Let's get your studio open", "Ouvrons votre studio")}</h1>
+        <p className="rs-post-payment-activation-sub">{recoveryMessage}</p>
+        {recoveryDetail?.stripeCheckoutEmail ? (
+          <p className="rs-client-hub-email">
+            {L(lang, "Checkout email", "Email de paiement")}: <strong>{recoveryDetail.stripeCheckoutEmail}</strong>
+          </p>
+        ) : null}
+        <p className="rs-client-hub-email">
+          {L(lang, "Diagnostic", "Diagnostic")}: <code>{step}</code>
+          {recoveryDetail?.attempts ? ` · ${L(lang, "Attempts", "Tentatives")}: ${recoveryDetail.attempts}` : ""}
+        </p>
+        <label className="rs-client-hub-recovery-email">
+          {L(lang, "Email used at checkout", "Email utilise au paiement")}
+          <input
+            type="email"
+            value={recoveryEmail}
+            onChange={(e) => setRecoveryEmail(e.target.value)}
+            placeholder="you@company.com"
+          />
+        </label>
+        <div className="rs-post-payment-activation-actions">
+          <button type="button" className="rs-btn-accent" onClick={() => retryCheckoutActivation()}>
+            {L(lang, "Retry activation", "Reessayer l'activation")}
+          </button>
+          <button type="button" className="rs-btn-ghost" onClick={() => recoverWorkspaceByEmail()}>
+            {L(lang, "Recover by email", "Recuperer par email")}
+          </button>
+          <Link href={signInHref} className="rs-btn-ghost">
+            {L(lang, "Sign in", "Connexion")}
+          </Link>
+          <Link href="/pricing#pricing" className="rs-btn-ghost">
+            {L(lang, "View pricing", "Voir les forfaits")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (state === "loading") {
     return (

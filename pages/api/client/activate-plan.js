@@ -1,12 +1,22 @@
 require("../../../lib/shared/ensure-project-env");
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { ensureEngagementSchema } = require("../../../lib/shared/neon-memory");
-const {
-  activateBySessionId,
-  retryActivateForActor,
-} = require("../../../lib/client/entitlement-activation");
+const { runActivationEngine } = require("../../../lib/client/activation-engine");
 const { getWorkspaceOverview } = require("../../../lib/client/workspace-store");
 const { getDeliverableForPlan } = require("../../../lib/client/deliverables-catalog");
+
+function mapPlans(base, lang) {
+  return (base.plans || []).map((p) => {
+    const d = getDeliverableForPlan(p.planId, lang);
+    return {
+      ...p,
+      displayName: d?.displayName || p.planId,
+      studioPath: d?.studioPath || "/studio",
+      features: d?.features || [],
+      freeEditsLabel: d?.freeEditsLabel || "",
+    };
+  });
+}
 
 export default async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "POST") {
@@ -16,85 +26,64 @@ export default async function handler(req, res) {
 
   const lang = String(req.query.lang || req.body?.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
   const sessionId = String(req.query.session_id || req.body?.session_id || "").trim();
-  const email = String(req.query.email || req.body?.email || "").trim();
 
   try {
     await ensureEngagementSchema();
     const actor = await readEngagementActor(req, res);
 
-    let activation = { ok: false };
-    if (sessionId) {
-      activation = await activateBySessionId(sessionId, actor, lang);
-    } else if (actor.profileId) {
-      activation = await retryActivateForActor(actor, { email: email || actor.profileEmail, lang });
-      if (activation.ok) activation = activation.result;
-    }
+    console.info("[activate-plan] session_id_received", {
+      sessionIdPrefix: sessionId ? sessionId.slice(0, 22) : null,
+      signedIn: Boolean(actor?.profileId),
+    });
 
-    if (!activation.ok && sessionId) {
-      activation = await activateBySessionId(sessionId, actor, lang);
-    }
-
-    const profileId = actor.profileId;
-    let plans = [];
-    if (profileId) {
-      const base = await getWorkspaceOverview(profileId, actor.profileEmail, lang);
-      plans = base.plans.map((p) => {
-        const d = getDeliverableForPlan(p.planId, lang);
-        return {
-          ...p,
-          displayName: d?.displayName || p.planId,
-          studioPath: d?.studioPath || "/studio",
-          features: d?.features || [],
-          freeEditsLabel: d?.freeEditsLabel || "",
-        };
+    if (!sessionId) {
+      return res.status(400).json({
+        ok: false,
+        error: "session_id_required",
+        recoveryRequired: true,
       });
     }
 
-    if (profileId && sessionId && plans.length === 0 && activation.planActivated) {
-      const retry = await activateBySessionId(sessionId, actor, lang);
-      if (retry.plansCount > 0) {
-        activation = retry;
-        const base = await getWorkspaceOverview(profileId, actor.profileEmail, lang);
-        plans = base.plans.map((p) => {
-          const d = getDeliverableForPlan(p.planId, lang);
-          return {
-            ...p,
-            displayName: d?.displayName || p.planId,
-            studioPath: d?.studioPath || "/studio",
-            features: d?.features || [],
-            freeEditsLabel: d?.freeEditsLabel || "",
-          };
-        });
-      }
+    const payload = await runActivationEngine(actor, sessionId, { lang, maxAttempts: 2 });
+    console.info("[activate-plan] entitlement_result", {
+      activationSuccess: payload.activationSuccess === true,
+      activationStatus: payload.activationStatus,
+      failedStep: payload.failedStep || null,
+      hasAccess: payload.hasAccess === true,
+    });
+
+    let plans = payload.plans || [];
+    if (actor.profileId && !plans.length && payload.planId) {
+      const base = await getWorkspaceOverview(actor.profileId, actor.profileEmail, lang);
+      plans = mapPlans(base, lang);
     }
 
-    const entitled = plans.length > 0 || activation.plansCount > 0;
+    const entitled = plans.length > 0 || payload.hasAccess === true;
 
+    if (entitled) {
+      console.info("[activate-plan] studio_unlocked", { planId: payload.planId || plans[0]?.planId });
+    }
+
+    const { logs, ...clientSafe } = payload;
     return res.status(200).json({
-      ok: true,
-      signedIn: Boolean(profileId),
-      needsSignIn: !profileId && (activation.planActivated === true || activation.paymentConfirmed === true),
-      stripeCheckoutEmail: activation.stripeCheckoutEmail || null,
-      activation: activation.activation || {
-        paymentConfirmed: activation.planActivated === true,
-        planActivated: activation.planActivated === true,
-        workspaceReady: plans.length > 0,
-        uploadsUnlocked: plans.length > 0,
-        generationReady: plans.length > 0,
-        interviewToolkitReady: (activation.planId || plans[0]?.planId) === "essential_advanced",
-      },
-      luxuryStages: activation.luxuryStages || [],
-      conciergeMessage: activation.conciergeMessage || null,
-      progressPercent: activation.progressPercent ?? (plans.length ? 100 : 0),
-      preload: activation.preload || { studio: "/studio" },
-      planId: activation.planId || plans[0]?.planId || null,
-      displayName: activation.displayName || null,
+      ok: payload.ok !== false,
+      ...clientSafe,
+      signedIn: Boolean(actor.profileId),
+      needsSignIn: payload.needsSignIn === true,
       hasAccess: entitled,
       plans,
-      plansCount: Math.max(plans.length, activation.plansCount || 0),
-      fulfillmentOk: activation.planActivated === true,
+      plansCount: Math.max(plans.length, payload.plansCount || 0),
+      fulfillmentOk: payload.fulfillmentOk === true || entitled,
+      activationSuccess: payload.activationSuccess === true,
+      recoveryRequired: payload.recoveryRequired === true,
     });
   } catch (e) {
-    return res.status(500).json({ error: e.message || "activation_failed" });
+    console.error("[activate-plan] server_error", e.message);
+    return res.status(500).json({
+      ok: false,
+      error: e.message || "activation_failed",
+      recoveryRequired: true,
+      failedStep: "server_error",
+    });
   }
 }

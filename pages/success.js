@@ -13,6 +13,7 @@ import {
   recordRedirect,
   shouldBlockRedirect,
 } from "@/lib/client/checkout-runtime";
+import { STUDIO_UI_HARD_TIMEOUT_MS } from "@/lib/client/luxury-checkout-client";
 
 /** Stripe return — persist session, prefetch activation once, single redirect to studio. */
 export default function SuccessPage() {
@@ -34,7 +35,7 @@ export default function SuccessPage() {
 
     const from = router.asPath || "/success";
     const target = sid
-      ? `/studio?session_id=${encodeURIComponent(sid)}&checkout=success`
+      ? `/studio?session_id=${encodeURIComponent(sid)}`
       : "/studio";
 
     if (shouldBlockRedirect(from, target)) {
@@ -43,16 +44,31 @@ export default function SuccessPage() {
       return;
     }
 
+    const failSafe = setTimeout(() => {
+      logCheckoutRuntime("success_redirect_failsafe", { target });
+      router.replace(sid ? `/studio?recovery=activation&session_id=${encodeURIComponent(sid)}` : "/studio?recovery=session").catch(() => {});
+    }, STUDIO_UI_HARD_TIMEOUT_MS);
+
     (async () => {
-      if (sid) {
-        persistCheckoutSessionId(sid);
-        clearRedirectTrace();
-        await prefetchCheckoutActivation(sid, lang === "fr" ? "fr" : "en");
+      try {
+        if (sid) {
+          persistCheckoutSessionId(sid);
+          clearRedirectTrace();
+          logCheckoutRuntime("success_session_id_received", { sessionIdPrefix: sid.slice(0, 20) });
+          await Promise.race([
+            prefetchCheckoutActivation(sid, lang === "fr" ? "fr" : "en"),
+            new Promise((r) => setTimeout(r, STUDIO_UI_HARD_TIMEOUT_MS - 500)),
+          ]);
+        }
+        recordRedirect(from, target);
+        logCheckoutRuntime("success_redirect", { target, hasSessionId: Boolean(sid) });
+        await router.replace(target);
+      } finally {
+        clearTimeout(failSafe);
       }
-      recordRedirect(from, target);
-      logCheckoutRuntime("success_redirect", { target, hasSessionId: Boolean(sid) });
-      await router.replace(target);
     })();
+
+    return () => clearTimeout(failSafe);
   }, [router.isReady, sid, router, lang]);
 
   return (
