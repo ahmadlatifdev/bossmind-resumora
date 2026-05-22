@@ -1,0 +1,16 @@
+{
+  "schema": "bossmind-stable-release-v1",
+  "markedStable": false,
+  "gitCommit": null,
+  "gitBranch": "main",
+  "markedAt": null,
+  "origins": {},
+  "runtimeFingerprint": null,
+  "verification": {
+    "buildOk": false,
+    "journeyE2eOk": false,
+    "runtimeStabilityOk": false,
+    "checkoutReady": false
+  },
+  "notes": "Updated only when closed-loop deployment completes all required stages."
+}

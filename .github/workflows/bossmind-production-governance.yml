@@ -1,0 +1,64 @@
+name: BossMind Production Governance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 */4 * * *"
+
+concurrency:
+  group: production-governance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  governance-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Anti-leak gate
+        run: npm run bossmind:antileak
+
+      - name: Enterprise governance + immunity
+        env:
+          BOSSMIND_REALITY_LIVE_URL: https://www.resumora.net
+        run: npm run bossmind:governance:cycle
+
+      - name: Upload governance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-${{ github.sha }}
+          path: |
+            .bossmind/governance/
+            config/bossmind-governance/
+          if-no-files-found: ignore
+
+  closed-loop-on-dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    needs: governance-cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Closed-loop deployment validation
+        env:
+          BOSSMIND_REALITY_LIVE_URL: https://www.resumora.net
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: npm run bossmind:governance:cycle -- --closed-loop

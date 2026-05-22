@@ -1,0 +1,39 @@
+{
+  "schema": "bossmind-orchestration-integrity-v1",
+  "closedLoopStages": [
+    { "id": "commit_verify", "required": true, "failFast": true },
+    { "id": "build", "required": true, "failFast": true },
+    { "id": "antileak", "required": true, "failFast": true },
+    { "id": "local_validate", "required": true, "failFast": true },
+    { "id": "deploy_render", "required": false, "failFast": false },
+    { "id": "verify_runtime", "required": true, "failFast": true },
+    { "id": "verify_auth", "required": true, "failFast": true },
+    { "id": "verify_stripe", "required": true, "failFast": false },
+    { "id": "verify_studio", "required": true, "failFast": true },
+    { "id": "verify_apis", "required": true, "failFast": true },
+    { "id": "verify_session", "required": true, "failFast": true },
+    { "id": "save_proof", "required": true, "failFast": false },
+    { "id": "mark_stable", "required": true, "failFast": false }
+  ],
+  "selfHealingTriggers": [
+    "deployment_drift",
+    "redirect_loop",
+    "checkout_not_ready",
+    "runtime_stability_fail",
+    "journey_e2e_fail",
+    "immutable_drift",
+    "stale_service_worker"
+  ],
+  "rollbackPolicy": {
+    "enabled": true,
+    "preserveLastHealthy": true,
+    "autoRedeployStable": false,
+    "maxRollbackAttempts": 1
+  },
+  "runtimeImmunity": {
+    "redirectLoopBreaker": true,
+    "sessionMaxAgeHours": 48,
+    "serviceWorkerVersion": "20260521-journey-v3",
+    "cacheBypassRoutes": ["/login", "/register", "/studio", "/pricing", "/success", "/dashboard"]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "bossmind-production-lock-v1",
+  "enabled": true,
+  "projectKey": "resumora",
+  "protectedBranch": "main",
+  "productionOrigins": [
+    "https://www.resumora.net",
+    "https://bossmind-resumora-web.onrender.com"
+  ],
+  "primaryOrigin": "https://www.resumora.net",
+  "renderService": "bossmind-resumora-web",
+  "rules": {
+    "blockUnverifiedDeploy": true,
+    "requireBuildPass": true,
+    "requireJourneyE2ePass": true,
+    "requireCheckoutReadyWarningOnly": true,
+    "preventSilentRollback": true,
+    "maxDeploymentDriftCommits": 0,
+    "verifyRouteIntegrity": true,
+    "verifyUiSnapshots": true,
+    "enforceProductionCommit": true
+  },
+  "immutableConfig": "config/bossmind-immutable-production-baseline.json",
+  "protectedSurface": "config/bossmind-protected-surface.json",
+  "lastHealthyRelease": null,
+  "updatedAt": null
+}

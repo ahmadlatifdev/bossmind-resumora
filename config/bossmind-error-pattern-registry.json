@@ -56,6 +56,37 @@
       "severity": "medium",
       "fixPattern": "Guard browser-only APIs with useEffect or typeof window checks in marketing components.",
       "command": null
+    },
+    {
+      "id": "deployment_drift",
+      "errorType": "deployment_drift",
+      "severity": "critical",
+      "symptom": "governance",
+      "fixPattern": "npm run bossmind:governance:cycle -- --closed-loop; sync Render deploy; verify /api/health gitCommit",
+      "command": "npm run bossmind:render:deploy-validate"
+    },
+    {
+      "id": "redirect_loop",
+      "errorType": "runtime_stability",
+      "severity": "critical",
+      "symptom": "verify_runtime",
+      "fixPattern": "npm run bossmind:client-journey:autonomous-repair; hard refresh; SW v3 cache clear",
+      "command": "npm run bossmind:client-journey:autonomous-repair"
+    },
+    {
+      "id": "stripe_env",
+      "errorType": "stripe_env",
+      "severity": "high",
+      "symptom": "verify_stripe",
+      "fixPattern": "Sync STRIPE_SECRET_KEY to Render via render-env-sync or dashboard",
+      "command": "npm run bossmind:render:env-sync -- --apply"
+    },
+    {
+      "id": "journey_e2e_fail",
+      "errorType": "journey_e2e",
+      "severity": "critical",
+      "fixPattern": "npm run bossmind:production:journey-e2e; fix failing route before deploy",
+      "command": "npm run bossmind:production:journey-e2e"
     }
   ]
 }
