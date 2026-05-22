@@ -18,7 +18,7 @@
   "routeOwnershipRegistry": "config/bossmind-route-ownership.json",
   "validation": {
     "postDeployRequired": true,
-    "paths": ["/", "/pricing", "/services", "/capabilities"],
+    "paths": ["/", "/pricing", "/login", "/register", "/studio", "/success", "/services", "/capabilities"],
     "pricingUiMarker": "data-rs-pricing-ui=\"20260517-lux-v4\"",
     "pricingOrder": ["basic", "professional", "elite", "essential_advanced"],
     "logoPath": "/brand/resumora-logo-official.jpg",

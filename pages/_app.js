@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
 import {
+  cleanupStaleCheckoutSession,
   clearStaleServiceWorkerCaches,
   isCheckoutSensitivePath,
   logCheckoutRuntime,
@@ -33,6 +34,7 @@ function CheckoutJourneyGuard() {
     if (!router.isReady) return;
 
     const path = router.asPath || router.pathname;
+    cleanupStaleCheckoutSession(48);
     if (isCheckoutSensitivePath(router.pathname)) {
       clearStaleServiceWorkerCaches(router.pathname);
     }

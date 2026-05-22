@@ -2,12 +2,37 @@ name: Deploy Railway
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   deploy-railway:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Confirm Railway deploy placeholder
-        run: echo "Railway deploy workflow detected. Add RAILWAY_TOKEN and SERVICE_ID secrets to activate live deployment."
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ] || [ -z "$RAILWAY_SERVICE_ID" ]; then
+            echo "RAILWAY_TOKEN or RAILWAY_SERVICE_ID not set — skipping Railway deploy."
+            exit 0
+          fi
+          npm i -g @railway/cli@3
+          railway link "$RAILWAY_SERVICE_ID" --yes
+          railway up --detach
+          echo "Railway deploy triggered"
+
+      - name: Post-deploy health probe
+        if: env.RAILWAY_PUBLIC_URL != ''
+        env:
+          RAILWAY_PUBLIC_URL: ${{ secrets.RAILWAY_PUBLIC_URL }}
+        run: |
+          if [ -n "$RAILWAY_PUBLIC_URL" ]; then
+            curl -fsS "$RAILWAY_PUBLIC_URL/api/health" | head -c 2000
+          fi

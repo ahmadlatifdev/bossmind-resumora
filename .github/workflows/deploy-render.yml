@@ -3,11 +3,52 @@ name: Deploy Render
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
+
+concurrency:
+  group: deploy-render-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy-render:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - name: Confirm Render deploy placeholder
-        run: echo "Render deploy workflow detected. Add RENDER_DEPLOY_HOOK_URL secret to activate live deployment."
+      - uses: actions/checkout@v4
+
+      - name: Trigger Render deploy hook
+        id: hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL not set — skipping live hook (add secret to enable)."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Wait and validate Render deploy
+        if: steps.hook.outputs.skipped != 'true'
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          BOSSMIND_REALITY_LIVE_URL: https://bossmind-resumora-web.onrender.com
+        run: |
+          EXPECTED=$(git rev-parse HEAD)
+          for i in $(seq 1 40); do
+            node scripts/bossmind-render-deploy-validate.mjs --expected-commit="$EXPECTED" && exit 0
+            echo "Deploy not ready (attempt $i/40), waiting 20s..."
+            sleep 20
+          done
+          echo "Render deploy validation timed out"
+          exit 1

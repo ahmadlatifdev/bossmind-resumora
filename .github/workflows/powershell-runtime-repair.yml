@@ -2,15 +2,35 @@ name: PowerShell Runtime Repair
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
+  schedule:
+    - cron: "0 */6 * * *"
 
 jobs:
   runtime-repair:
     runs-on: windows-latest
+    timeout-minutes: 45
     steps:
-      - name: Runtime repair placeholder
-        shell: powershell
-        run: |
-          Write-Host "BossMind PowerShell runtime repair workflow active."
-          Write-Host "Add autonomous repair scripts and diagnostics next."
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Enterprise stabilization cycle
+        run: npm run bossmind:enterprise:stabilization -- --skip-build
+        continue-on-error: true
+
+      - name: Client journey autonomous repair
+        run: npm run bossmind:client-journey:autonomous-repair -- --skip-push
+
+      - name: Upload repair logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-repair-${{ github.sha }}
+          path: |
+            windows-heal/reports/
+            .bossmind/
+          if-no-files-found: ignore

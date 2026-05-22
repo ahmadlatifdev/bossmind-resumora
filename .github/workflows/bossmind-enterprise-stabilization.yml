@@ -1,0 +1,100 @@
+name: BossMind Enterprise Stabilization
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: enterprise-stabilization-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      commit: ${{ steps.sha.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - id: sha
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Enterprise stabilization cycle
+        env:
+          BOSSMIND_REALITY_LIVE_URL: https://www.resumora.net
+        run: npm run bossmind:enterprise:stabilization -- --skip-build
+
+      - name: Fail on critical journey break
+        run: |
+          node -e "
+          const fs=require('fs');
+          const p='.bossmind/enterprise-stabilization/latest.json';
+          if(!fs.existsSync(p)){console.log('no cycle report yet');process.exit(0)}
+          const r=JSON.parse(fs.readFileSync(p,'utf8'));
+          const stab=r.phases?.find(p=>p.phase==='runtime_stability');
+          if(stab?.loopDetected||stab?.blockDeploy||r.criticalJourneyOk===false)process.exit(2);
+          "
+
+  render-env-and-deploy:
+    needs: build-and-validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Sync Render env (when secrets present)
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          if [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+            node scripts/bossmind-render-production-env-sync.mjs --apply || true
+          fi
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+          fi
+
+  post-deploy-verify:
+    needs: render-env-and-deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Wait for deploy propagation
+        run: sleep 90
+      - name: Journey E2E + post-deploy validation
+        env:
+          BOSSMIND_REALITY_LIVE_URL: https://www.resumora.net
+        run: |
+          npm run bossmind:production:journey-e2e
+          npm run bossmind:production:post-deploy-validation

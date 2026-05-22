@@ -146,6 +146,8 @@
     "bossmind:production:autonomous:closed-loop": "node scripts/bossmind-production-autonomous.mjs --closed-loop",
     "bossmind:production:autonomous:loop": "node scripts/bossmind-production-autonomous-loop.mjs",
     "bossmind:client-journey:autonomous-repair": "node scripts/bossmind-client-journey-autonomous-repair.mjs",
+    "bossmind:enterprise:stabilization": "node scripts/bossmind-enterprise-stabilization-cycle.mjs",
+    "bossmind:production:journey-e2e": "node scripts/bossmind-production-journey-e2e.mjs",
     "bossmind:production:post-deploy-validation": "node scripts/bossmind-post-deploy-validation.mjs",
     "bossmind:antileak": "node scripts/bossmind-antileak-guard.mjs",
     "bossmind:self-heal": "node scripts/bossmind-self-heal.mjs",

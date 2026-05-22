@@ -3,11 +3,44 @@ name: Validate Production
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
+  workflow_run:
+    workflows: [Deploy Render]
+    types: [completed]
 
 jobs:
   validate-production:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Production validation placeholder
-        run: echo "Production validation workflow active. Add live URL health tests and E2E verification next."
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+
+      - name: Production build gate
+        run: npm run build
+
+      - name: Runtime stability + journey E2E
+        env:
+          BOSSMIND_REALITY_LIVE_URL: https://www.resumora.net
+          BOSSMIND_COMPLETION_PROBE_ORIGIN: https://www.resumora.net
+        run: |
+          npm run bossmind:production:journey-e2e
+          npm run bossmind:production:post-deploy-validation
+          npm run bossmind:enterprise:stabilization -- --skip-build --skip-repair
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-validation-${{ github.sha }}
+          path: |
+            .bossmind/validation/
+            .bossmind/enterprise-stabilization/
+          if-no-files-found: ignore

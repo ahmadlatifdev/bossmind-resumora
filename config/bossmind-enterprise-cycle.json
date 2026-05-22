@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "projectKey": "resumora",
+  "origins": [
+    "https://www.resumora.net",
+    "https://bossmind-resumora-web.onrender.com"
+  ],
+  "primaryOrigin": "https://www.resumora.net",
+  "deploy": {
+    "renderDeployTimeoutMs": 900000,
+    "renderPollIntervalMs": 15000,
+    "railwayDeployTimeoutMs": 600000,
+    "maxDeployRetries": 2,
+    "rollbackOnCriticalFailure": false
+  },
+  "validation": {
+    "criticalPaths": [
+      "/",
+      "/pricing",
+      "/login",
+      "/register",
+      "/studio",
+      "/success",
+      "/api/health",
+      "/api/runtime/database-health"
+    ],
+    "journeyPaths": ["/login", "/register", "/pricing", "/studio", "/success"],
+    "minValidationPercent": 72,
+    "requireCheckoutReadyForFullPass": false
+  },
+  "selfHealing": {
+    "autoRepairOnFailure": true,
+    "maxRepairAttempts": 2,
+    "safeStages": [
+      "live_verification",
+      "memory_save",
+      "client_journey_repair",
+      "post_deploy_validation"
+    ]
+  },
+  "session": {
+    "checkoutSessionMaxAgeHours": 48,
+    "redirectLoopMaxInWindow": 8
+  },
+  "serviceWorker": {
+    "expectedVersion": "20260521-journey-v3"
+  }
+}

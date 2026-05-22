@@ -13,6 +13,8 @@ import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const skipPush = process.argv.includes("--skip-push");
+const skipBuild =
+  process.argv.includes("--skip-build") || process.env.BOSSMIND_CLIENT_REPAIR_SKIP_BUILD === "1";
 const origins = [
   process.env.BOSSMIND_REALITY_LIVE_URL || "https://www.resumora.net",
   "https://bossmind-resumora-web.onrender.com",
@@ -119,12 +121,16 @@ async function main() {
   report.fileDiagnosis = diag;
   report.phases.push({ phase: "diagnose", ok: diag.issues.length === 0, issues: diag.issues });
 
-  const build = run("npm", ["run", "build"]);
-  report.phases.push({ phase: "build", ok: build.ok, status: build.status });
-  if (!build.ok) {
-    report.buildTail = (build.stdout + build.stderr).slice(-4000);
-    writeReports(report, stamp);
-    process.exit(2);
+  if (!skipBuild) {
+    const build = run("npm", ["run", "build"]);
+    report.phases.push({ phase: "build", ok: build.ok, status: build.status });
+    if (!build.ok) {
+      report.buildTail = (build.stdout + build.stderr).slice(-4000);
+      writeReports(report, stamp);
+      process.exit(2);
+    }
+  } else {
+    report.phases.push({ phase: "build", ok: true, skipped: true });
   }
 
   const localHead = run("git", ["rev-parse", "HEAD"]).stdout.trim();
