@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "accountId": "377426330385",
+  "userName": "bossmind-resumora-storage",
+  "bucketName": "bossmind-resumora-uploads-377426330385",
+  "requiredManagedPolicyArns": [
+    "arn:aws:iam::377426330385:policy/ResumoraStorageS3Access-377426330385",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  ],
+  "requiredInlinePolicyName": "ResumoraStorageS3Inline",
+  "validateCommand": "npm run bossmind:aws:validate-storage",
+  "fixCommand": "npm run bossmind:aws:ensure-storage-iam",
+  "adminCredentialSources": [
+    ".bossmind/aws-admin.env",
+    "profile bossmind-admin in ~/.aws/credentials",
+    "BOSSMIND_AWS_ADMIN_ACCESS_KEY_ID / BOSSMIND_AWS_ADMIN_SECRET_ACCESS_KEY"
+  ],
+  "notes": "Re-run fix after IAM changes; manifest is updated automatically on successful fix."
+}

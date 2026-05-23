@@ -1,0 +1,13 @@
+﻿{
+    "headBucket":  {
+                       "ok":  false,
+                       "output":  ""
+                   },
+    "timestamp":  "2026-05-23T17:30:32.0584350Z",
+    "objectCrud":  {
+                       "ok":  false,
+                       "skippedReason":  "listBucket denied"
+                   },
+    "success":  false,
+    "bucketName":  "bossmind-resumora-uploads-377426330385"
+}

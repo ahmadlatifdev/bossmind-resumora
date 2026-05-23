@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-23T17:27:03.107Z",
+  "bucket": "bossmind-resumora-uploads-377426330385",
+  "region": "us-east-1",
+  "localFilesUpdated": [
+    "D:\\BossMind\\bossmind-resumora\\.env.local",
+    "D:\\BossMind\\bossmind-resumora\\.env",
+    "D:\\BossMind\\bossmind-resumora\\.bossmind\\render-production-env.env",
+    "D:\\BossMind\\bossmind-shared\\automation\\.env.master.local"
+  ],
+  "render": {
+    "attempted": false,
+    "keys": [],
+    "hint": "Set RENDER_API_KEY + RENDER_SERVICE_ID to sync Render automatically"
+  },
+  "keysPatched": [
+    "S3_BUCKET",
+    "AWS_REGION",
+    "AWS_DEFAULT_REGION",
+    "CLIENT_DOCUMENT_STORAGE",
+    "AWS_ACCESS_KEY_ID"
+  ]
+}

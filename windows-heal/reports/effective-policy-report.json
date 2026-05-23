@@ -1,0 +1,22 @@
+﻿{
+    "accountId":  "377426330385",
+    "timestamp":  "2026-05-23T17:30:32.0584350Z",
+    "layers":  {
+                   "likelyRootCauses":  [
+                                            "Permissions boundary caps user despite console showing AmazonS3FullAccess",
+                                            "Policy attached to wrong IAM user or different AWS account",
+                                            "Policy attached to a group the user is not a member of",
+                                            "Managed policy attach did not persist (console error overlooked)"
+                                        ],
+                   "adminCredentialsPresent":  false,
+                   "note":  "IAM user layer requires admin credentials. CLI errors indicate zero effective identity-based S3 allows.",
+                   "storageCallerIdentity":  {
+                                                 "UserId":  "AIDAVPYC4YMIRVHOR5YET",
+                                                 "Account":  "377426330385",
+                                                 "Arn":  "arn:aws:iam::377426330385:user/bossmind-resumora-storage"
+                                             }
+               },
+    "userName":  "bossmind-resumora-storage",
+    "success":  false,
+    "bucketName":  "bossmind-resumora-uploads-377426330385"
+}
