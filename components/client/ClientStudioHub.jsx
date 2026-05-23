@@ -5,6 +5,10 @@ import { translations } from "@/lib/marketing/site-copy";
 import OnboardingProgress from "@/components/client/OnboardingProgress";
 import StudioCalmPrepare from "@/components/client/StudioCalmPrepare";
 import StudioWorkspaceCard from "@/components/client/StudioWorkspaceCard";
+import StudioUpgradeDrawer from "@/components/client/StudioUpgradeDrawer";
+import StudioUpgradeControls from "@/components/client/StudioUpgradeControls";
+import { useStripeCheckout } from "@/lib/marketing/client-hooks";
+import { hasUpgradeOffers } from "@/lib/client/studio-plan-upgrades";
 import {
   runLuxuryCheckoutActivation,
   STUDIO_UI_HARD_TIMEOUT_MS,
@@ -116,6 +120,18 @@ export default function ClientStudioHub({ lang: langProp }) {
   const [editNotes, setEditNotes] = useState({});
   const [editResumeLength, setEditResumeLength] = useState({});
   const [docTypes, setDocTypes] = useState({});
+  const [upgradeDrawerOpen, setUpgradeDrawerOpen] = useState(false);
+  const [upgradeDrawerMode, setUpgradeDrawerMode] = useState("all");
+  const [upgradeSuccess, setUpgradeSuccess] = useState(null);
+  const prevPlanIdsRef = useRef("");
+  const { busyPlan, handleCheckout, checkoutError } = useStripeCheckout();
+
+  const ownedPlanIds = useMemo(() => (hub?.plans || []).map((p) => p.planId), [hub?.plans]);
+
+  const openUpgradeDrawer = useCallback((mode = "all") => {
+    setUpgradeDrawerMode(mode);
+    setUpgradeDrawerOpen(true);
+  }, []);
 
   useEffect(() => {
     hubStateRef.current = state;
@@ -526,6 +542,35 @@ export default function ClientStudioHub({ lang: langProp }) {
   }, [state, refreshJourney]);
 
   useEffect(() => {
+    if (state !== "ready" || !hub?.plans?.length) return;
+    const key = hub.plans
+      .map((p) => p.planId)
+      .sort()
+      .join(",");
+    const prev = prevPlanIdsRef.current;
+    if (prev && key !== prev) {
+      const prevSet = new Set(prev.split(",").filter(Boolean));
+      const added = hub.plans.find((p) => !prevSet.has(p.planId));
+      if (added) {
+        setUpgradeSuccess({
+          planId: added.planId,
+          displayName: added.displayName || added.planId,
+        });
+        logCheckoutRuntime("studio_upgrade_entitlement_added", { planId: added.planId });
+      }
+    }
+    prevPlanIdsRef.current = key;
+  }, [state, hub?.plans]);
+
+  useEffect(() => {
+    if (checkoutVerify?.status !== "success") return;
+    setUpgradeSuccess({
+      planId: checkoutVerify.planId || "",
+      displayName: checkoutVerify.displayName || checkoutVerify.planId || "",
+    });
+  }, [checkoutVerify?.status, checkoutVerify?.displayName, checkoutVerify?.planId]);
+
+  useEffect(() => {
     if (state !== "loading" && state !== "ready") return;
     preloadStudioAssets({
       studio: "/studio",
@@ -745,15 +790,26 @@ export default function ClientStudioHub({ lang: langProp }) {
         <p className="rs-post-payment-activation-sub">
           {L(
             lang,
-            "Select an executive plan to begin your secure checkout.",
-            "Selectionnez un forfait executif pour commencer votre paiement securise."
+            "Activate an executive plan below — Stripe checkout opens in-app without leaving your studio.",
+            "Activez un forfait executif ci-dessous — paiement Stripe dans le studio, sans navigation externe."
           )}
         </p>
-        <div className="rs-post-payment-activation-actions">
-          <Link href="/pricing#pricing" className="rs-btn-accent">
-            {L(lang, "View Plans", "Voir les forfaits")}
-          </Link>
+        <div className="rs-studio-dashboard-bar rs-studio-dashboard-bar--empty">
+          <StudioUpgradeControls lang={lang} ownedPlanIds={[]} onOpen={openUpgradeDrawer} />
         </div>
+        <StudioUpgradeDrawer
+          open={upgradeDrawerOpen}
+          mode={upgradeDrawerMode}
+          lang={lang}
+          ownedPlanIds={[]}
+          busyPlan={busyPlan}
+          checkoutError={checkoutError}
+          onClose={() => setUpgradeDrawerOpen(false)}
+          onSelectPlan={(planId, planName, planPrice) => {
+            setUpgradeDrawerOpen(false);
+            handleCheckout(planId, planName, planPrice);
+          }}
+        />
       </div>
     );
   }
@@ -841,7 +897,24 @@ export default function ClientStudioHub({ lang: langProp }) {
         </p>
       </header>
 
-      {checkoutVerify?.status === "success" ? (
+      {upgradeSuccess ? (
+        <div className="rs-studio-upgrade-success" role="status">
+          <span className="rs-studio-upgrade-success__badge" aria-hidden>
+            ✦
+          </span>
+          <div>
+            <strong>{L(lang, "New executive service activated", "Nouveau service executif active")}</strong>
+            <p>
+              {L(lang, "Workspace updated", "Espace mis a jour")}: <strong>{upgradeSuccess.displayName}</strong>
+            </p>
+          </div>
+          <button type="button" className="rs-studio-action-btn" onClick={() => setUpgradeSuccess(null)}>
+            {L(lang, "Dismiss", "Fermer")}
+          </button>
+        </div>
+      ) : null}
+
+      {checkoutVerify?.status === "success" && !upgradeSuccess ? (
         <div className="rs-payment-confirmed-banner" role="status">
           <strong>{L(lang, "Payment confirmed", "Paiement confirme")}</strong>
           {checkoutVerify.displayName ? (
@@ -852,10 +925,26 @@ export default function ClientStudioHub({ lang: langProp }) {
           <p>
             {L(
               lang,
-              "Your invoice confirmation has been sent. Upload your documents below to begin generation.",
-              "Votre confirmation de facture a ete envoyee. Televersez vos documents ci-dessous."
+              "Upload your documents below to begin generation — add more services anytime from this studio.",
+              "Televersez vos documents ci-dessous — ajoutez des services depuis ce studio."
             )}
           </p>
+        </div>
+      ) : null}
+
+      {state === "ready" && hasUpgradeOffers(ownedPlanIds, "all") ? (
+        <div className="rs-studio-dashboard-bar">
+          <div className="rs-studio-dashboard-bar__copy">
+            <p className="rs-eyebrow">{L(lang, "Billing & upgrades", "Facturation et mises a niveau")}</p>
+            <p className="rs-studio-dashboard-bar__lead">
+              {L(
+                lang,
+                "Add executive services without leaving your workspace — Stripe checkout opens in one click.",
+                "Ajoutez des services executifs sans quitter votre espace — paiement Stripe en un clic."
+              )}
+            </p>
+          </div>
+          <StudioUpgradeControls lang={lang} ownedPlanIds={ownedPlanIds} onOpen={openUpgradeDrawer} />
         </div>
       ) : null}
 
@@ -892,11 +981,27 @@ export default function ClientStudioHub({ lang: langProp }) {
             onReplaceDocument={replaceDocument}
             onRemoveDocument={removeDocument}
             onRequestFreeEdit={requestFreeEdit}
+            ownedPlanIds={ownedPlanIds}
+            onOpenUpgrade={openUpgradeDrawer}
             onReload={() => load(resolveSessionId(), {})}
             formatDate={formatDate}
           />
         ))}
       </div>
+
+      <StudioUpgradeDrawer
+        open={upgradeDrawerOpen}
+        mode={upgradeDrawerMode}
+        lang={lang}
+        ownedPlanIds={ownedPlanIds}
+        busyPlan={busyPlan}
+        checkoutError={checkoutError}
+        onClose={() => setUpgradeDrawerOpen(false)}
+        onSelectPlan={(planId, planName, planPrice) => {
+          setUpgradeDrawerOpen(false);
+          handleCheckout(planId, planName, planPrice);
+        }}
+      />
     </div>
   );
 }

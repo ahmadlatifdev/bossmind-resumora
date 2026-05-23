@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, Clock, FileText, Sparkles } from "lucide-react";
 import { UPLOAD_WIZARD_STEPS } from "@/lib/client/upload-wizard-steps";
 import StudioUploadWorkspace from "@/components/client/StudioUploadWorkspace";
+import StudioUpgradeControls from "@/components/client/StudioUpgradeControls";
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
 
@@ -53,6 +54,8 @@ export default function StudioWorkspaceCard({
   showUploadWizard,
   router,
   paymentConfirmed = false,
+  ownedPlanIds = [],
+  onOpenUpgrade,
   onUploadFile,
   onReplaceDocument,
   onRemoveDocument,
@@ -85,11 +88,21 @@ export default function StudioWorkspaceCard({
     <article className="rs-studio-workspace-card" data-plan={plan.planId}>
       <header className="rs-studio-workspace-card__head">
         <div className="rs-studio-workspace-card__title-row">
-          <h2 className="rs-studio-workspace-card__title">{plan.displayName}</h2>
-          <span className={badge.className}>
-            <BadgeIcon size={14} strokeWidth={2} aria-hidden />
-            {badge.label}
-          </span>
+          <div className="rs-studio-workspace-card__title-block">
+            <h2 className="rs-studio-workspace-card__title">{plan.displayName}</h2>
+            <span className={badge.className}>
+              <BadgeIcon size={14} strokeWidth={2} aria-hidden />
+              {badge.label}
+            </span>
+          </div>
+          {onOpenUpgrade ? (
+            <StudioUpgradeControls
+              lang={lang}
+              ownedPlanIds={ownedPlanIds}
+              onOpen={onOpenUpgrade}
+              compact
+            />
+          ) : null}
         </div>
         <p className="rs-studio-workspace-card__meta">
           {plan.freeEditsLabel ? (

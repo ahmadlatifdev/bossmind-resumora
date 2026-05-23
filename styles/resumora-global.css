@@ -5634,9 +5634,18 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 .rs-studio-workspace-card__title-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.65rem 1rem;
+}
+
+.rs-studio-workspace-card__title-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  flex: 1 1 12rem;
+  min-width: 0;
 }
 
 .rs-studio-workspace-card__title {
@@ -6182,6 +6191,337 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   margin-top: 0.75rem;
 }
 
+/* Studio upgrade center — drawer, controls, success */
+.rs-studio-dashboard-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--rs-radius-md);
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  background: linear-gradient(135deg, rgba(5, 12, 28, 0.92), rgba(8, 18, 42, 0.88));
+  box-shadow: 0 0 24px rgba(201, 162, 39, 0.06);
+}
+
+.rs-studio-dashboard-bar--empty {
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.rs-studio-dashboard-bar__copy {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.rs-studio-dashboard-bar__lead {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--rs-text-secondary);
+  line-height: 1.5;
+  max-width: 36rem;
+}
+
+.rs-studio-upgrade-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.rs-studio-upgrade-controls--compact {
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+.rs-studio-upgrade-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--rs-border);
+  background: rgba(5, 10, 24, 0.65);
+  color: var(--rs-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.rs-studio-upgrade-btn:hover {
+  border-color: rgba(201, 162, 39, 0.45);
+  color: var(--rs-gold-soft);
+  box-shadow: 0 0 14px rgba(201, 162, 39, 0.18);
+}
+
+.rs-studio-upgrade-btn--primary {
+  border-color: rgba(201, 162, 39, 0.5);
+  color: var(--rs-gold-soft);
+  background: rgba(201, 162, 39, 0.08);
+  box-shadow: 0 0 18px rgba(201, 162, 39, 0.12);
+}
+
+.rs-studio-upgrade-btn--primary:hover {
+  box-shadow: 0 0 22px rgba(201, 162, 39, 0.28);
+  transform: translateY(-1px);
+}
+
+.rs-studio-upgrade-btn--compact {
+  padding: 0.32rem 0.55rem;
+  font-size: 0.68rem;
+}
+
+.rs-studio-upgrade-drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.rs-studio-upgrade-drawer-root > * {
+  pointer-events: auto;
+}
+
+.rs-studio-upgrade-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(2, 6, 18, 0.72);
+  backdrop-filter: blur(4px);
+  animation: rs-studio-fade-in 0.28s ease;
+  cursor: pointer;
+}
+
+.rs-studio-upgrade-drawer {
+  position: relative;
+  width: min(420px, 100vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #050a18 0%, #0a1428 100%);
+  border-left: 1px solid rgba(201, 162, 39, 0.28);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.45);
+  animation: rs-studio-slide-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rs-studio-upgrade-drawer__head {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.35rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--rs-border);
+}
+
+.rs-studio-upgrade-drawer__head h2 {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--rs-text);
+}
+
+.rs-studio-upgrade-drawer__sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--rs-text-secondary);
+  line-height: 1.45;
+}
+
+.rs-studio-upgrade-drawer__close {
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: inline-flex;
+  padding: 0.4rem;
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-sm);
+  background: transparent;
+  color: var(--rs-text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.rs-studio-upgrade-drawer__close:hover {
+  color: var(--rs-gold-soft);
+  border-color: rgba(201, 162, 39, 0.4);
+}
+
+.rs-studio-upgrade-drawer__error {
+  margin: 0.75rem 1.25rem 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid rgba(220, 80, 80, 0.4);
+  background: rgba(220, 80, 80, 0.08);
+  font-size: 0.82rem;
+  color: #f5a8a8;
+}
+
+.rs-studio-upgrade-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem 1.5rem;
+}
+
+.rs-studio-upgrade-offers {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.rs-studio-upgrade-offer {
+  padding: 1rem;
+  border-radius: var(--rs-radius-md);
+  border: 1px solid var(--rs-border);
+  background: rgba(5, 10, 24, 0.55);
+  transition: border-color 0.2s ease, box-shadow 0.25s ease;
+}
+
+.rs-studio-upgrade-offer:hover {
+  border-color: rgba(201, 162, 39, 0.35);
+  box-shadow: 0 0 20px rgba(201, 162, 39, 0.08);
+}
+
+.rs-studio-upgrade-offer.is-featured {
+  border-color: rgba(201, 162, 39, 0.45);
+  background: rgba(201, 162, 39, 0.06);
+}
+
+.rs-studio-upgrade-offer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.rs-studio-upgrade-offer__top h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--rs-text);
+}
+
+.rs-studio-upgrade-offer__price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--rs-gold-soft);
+  white-space: nowrap;
+}
+
+.rs-studio-upgrade-offer__benefit {
+  margin: 0.5rem 0 0;
+  font-size: 0.84rem;
+  color: var(--rs-text-secondary);
+  line-height: 1.45;
+}
+
+.rs-studio-upgrade-offer__revs {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.78rem;
+  color: var(--rs-text-muted);
+}
+
+.rs-studio-upgrade-offer__cta {
+  width: 100%;
+  margin-top: 0.25rem;
+  box-shadow: 0 0 20px rgba(201, 162, 39, 0.2);
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.rs-studio-upgrade-offer__cta:hover:not(:disabled) {
+  box-shadow: 0 0 28px rgba(201, 162, 39, 0.38);
+  transform: translateY(-1px);
+}
+
+.rs-studio-upgrade-drawer__empty {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--rs-text-secondary);
+  line-height: 1.5;
+}
+
+.rs-studio-upgrade-success {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--rs-radius-md);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: linear-gradient(90deg, rgba(201, 162, 39, 0.12), rgba(5, 12, 28, 0.9));
+  animation: rs-studio-success-in 0.45s ease;
+}
+
+.rs-studio-upgrade-success__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  color: var(--rs-gold-soft);
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  background: rgba(201, 162, 39, 0.15);
+  animation: rs-studio-badge-pulse 1.6s ease-in-out infinite;
+}
+
+.rs-studio-upgrade-success strong {
+  display: block;
+  color: var(--rs-gold-soft);
+  font-size: 0.95rem;
+}
+
+.rs-studio-upgrade-success p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--rs-text-secondary);
+}
+
+@keyframes rs-studio-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rs-studio-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes rs-studio-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rs-studio-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(201, 162, 39, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(201, 162, 39, 0.45);
+  }
+}
+
 @media (max-width: 640px) {
   .rs-studio-doc-row__actions {
     width: 100%;
@@ -6201,5 +6541,23 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 
   .rs-studio-edit-cta {
     max-width: none;
+  }
+
+  .rs-studio-workspace-card__title-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rs-studio-upgrade-controls--compact {
+    justify-content: flex-start;
+  }
+
+  .rs-studio-upgrade-drawer {
+    width: 100vw;
+  }
+
+  .rs-studio-dashboard-bar {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
