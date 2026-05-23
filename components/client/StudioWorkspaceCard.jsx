@@ -49,6 +49,8 @@ export default function StudioWorkspaceCard({
   requestingPlan,
   editNotes,
   setEditNotes,
+  editResumeLength,
+  setEditResumeLength,
   showUploadWizard,
   router,
   onUploadFile,
@@ -62,6 +64,18 @@ export default function StudioWorkspaceCard({
   const BadgeIcon = badge.icon;
   const docs = plan.documents || [];
   const isUploading = uploadingPlan === plan.planId;
+  const selectedResumeLength = editResumeLength?.[plan.planId] === "2_pages" ? "2_pages" : "standard";
+
+  function setResumeLengthForPlan(next) {
+    setEditResumeLength((s) => ({ ...s, [plan.planId]: next === "2_pages" ? "2_pages" : "standard" }));
+  }
+
+  function resumeLengthLabel(value) {
+    if (value === "2_pages") {
+      return L(lang, "2-page resume", "CV 2 pages");
+    }
+    return L(lang, "Standard length", "Longueur standard");
+  }
 
   return (
     <article className="rs-studio-workspace-card" data-plan={plan.planId}>
@@ -268,6 +282,47 @@ export default function StudioWorkspaceCard({
 
       <div className="rs-studio-panel rs-studio-panel--edit">
         <h3 className="rs-studio-panel__heading">{L(lang, "Request Free Edit", "Demander une retouche gratuite")}</h3>
+        <fieldset className="rs-studio-edit-length">
+          <legend className="rs-studio-edit-length__legend">
+            {L(lang, "Resume format for this edit", "Format du CV pour cette retouche")}
+          </legend>
+          <label
+            className={`rs-studio-edit-length__option${selectedResumeLength === "standard" ? " is-selected" : ""}`}
+          >
+            <input
+              type="radio"
+              name={`resume-length-${plan.planId}`}
+              value="standard"
+              checked={selectedResumeLength === "standard"}
+              onChange={() => setResumeLengthForPlan("standard")}
+            />
+            <span className="rs-studio-edit-length__title">{L(lang, "Standard resume length", "Longueur de CV standard")}</span>
+            <span className="rs-studio-edit-length__hint">
+              {L(lang, "Default deliverable length for your plan.", "Longueur livrable par defaut pour votre forfait.")}
+            </span>
+          </label>
+          <label
+            className={`rs-studio-edit-length__option rs-studio-edit-length__option--two-page${selectedResumeLength === "2_pages" ? " is-selected" : ""}`}
+          >
+            <input
+              type="radio"
+              name={`resume-length-${plan.planId}`}
+              value="2_pages"
+              checked={selectedResumeLength === "2_pages"}
+              onChange={() => setResumeLengthForPlan("2_pages")}
+            />
+            <span className="rs-studio-edit-length__title">
+              {L(lang, "Apply this edit to a 2-page resume", "Appliquer cette retouche a un CV de 2 pages")}
+            </span>
+            <span className="rs-studio-edit-length__hint">
+              {L(
+                lang,
+                "Your strategist will format this included edit as a two-page executive resume.",
+                "Votre strategiste formatera cette retouche incluse en CV executif de deux pages."
+              )}
+            </span>
+          </label>
+        </fieldset>
         <textarea
           className="rs-studio-textarea"
           value={editNotes[plan.planId] || ""}
@@ -295,6 +350,11 @@ export default function StudioWorkspaceCard({
               <li key={r.id}>
                 <span className="rs-studio-edit-history__id">#{r.id}</span>
                 <span className="rs-studio-edit-history__status">{r.status}</span>
+                <span
+                  className={`rs-studio-edit-history__length${r.resumeLength === "2_pages" ? " is-two-page" : ""}`}
+                >
+                  {resumeLengthLabel(r.resumeLength)}
+                </span>
                 <span className="rs-studio-edit-history__date">{formatDate(r.requested_at)}</span>
               </li>
             ))}

@@ -5897,6 +5897,71 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   color: #ffc9c9;
 }
 
+.rs-studio-edit-length {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.rs-studio-edit-length__legend {
+  margin: 0 0 0.35rem;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rs-text-muted);
+}
+
+.rs-studio-edit-length__option {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem 0.75rem 2.35rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid var(--rs-border);
+  background: rgba(5, 10, 24, 0.65);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rs-studio-edit-length__option input[type="radio"] {
+  position: absolute;
+  left: 0.85rem;
+  top: 0.95rem;
+  accent-color: var(--rs-gold-mid);
+}
+
+.rs-studio-edit-length__option:hover {
+  border-color: rgba(201, 162, 39, 0.35);
+}
+
+.rs-studio-edit-length__option.is-selected {
+  border-color: rgba(201, 162, 39, 0.55);
+  background: rgba(201, 162, 39, 0.08);
+  box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.12);
+}
+
+.rs-studio-edit-length__option--two-page.is-selected {
+  border-color: rgba(201, 162, 39, 0.7);
+  background: linear-gradient(135deg, rgba(201, 162, 39, 0.12) 0%, rgba(5, 10, 24, 0.75) 100%);
+}
+
+.rs-studio-edit-length__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rs-text);
+  line-height: 1.35;
+}
+
+.rs-studio-edit-length__hint {
+  font-size: 0.78rem;
+  color: var(--rs-text-muted);
+  line-height: 1.45;
+}
+
 .rs-studio-edit-cta {
   margin-top: 0.65rem;
   width: 100%;
@@ -5925,6 +5990,23 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
 .rs-studio-edit-history__status {
   color: var(--rs-gold-soft);
   font-weight: 600;
+}
+
+.rs-studio-edit-history__length {
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--rs-border);
+  color: var(--rs-text-muted);
+}
+
+.rs-studio-edit-history__length.is-two-page {
+  color: var(--rs-gold-soft);
+  border-color: rgba(201, 162, 39, 0.45);
+  background: rgba(201, 162, 39, 0.1);
 }
 
 .rs-studio-workspace-card__foot {

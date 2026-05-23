@@ -114,6 +114,7 @@ export default function ClientStudioHub({ lang: langProp }) {
   const [requestingPlan, setRequestingPlan] = useState("");
   const [replacingId, setReplacingId] = useState(0);
   const [editNotes, setEditNotes] = useState({});
+  const [editResumeLength, setEditResumeLength] = useState({});
   const [docTypes, setDocTypes] = useState({});
 
   useEffect(() => {
@@ -792,13 +793,15 @@ export default function ClientStudioHub({ lang: langProp }) {
     if (notes.length < 8) return;
     setRequestingPlan(planId);
     try {
+      const resumeLength = editResumeLength[planId] === "2_pages" ? "2_pages" : "standard";
       await fetch("/api/client/edit-requests", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, notes }),
+        body: JSON.stringify({ planId, notes, resumeLength }),
       });
       setEditNotes((s) => ({ ...s, [planId]: "" }));
+      setEditResumeLength((s) => ({ ...s, [planId]: "standard" }));
       await load(resolveSessionId(), {});
     } finally {
       setRequestingPlan("");
@@ -880,6 +883,8 @@ export default function ClientStudioHub({ lang: langProp }) {
             requestingPlan={requestingPlan}
             editNotes={editNotes}
             setEditNotes={setEditNotes}
+            editResumeLength={editResumeLength}
+            setEditResumeLength={setEditResumeLength}
             showUploadWizard={showUploadWizard}
             router={router}
             onUploadFile={uploadFile}

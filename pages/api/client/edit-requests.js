@@ -26,6 +26,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const planId = String(req.body?.planId || "").trim().toLowerCase();
     const notes = String(req.body?.notes || "").trim();
+    const resumeLength = String(req.body?.resumeLength || "standard").trim();
     if (!planId || notes.length < 8) {
       return res.status(400).json({ error: "planId and notes(min 8 chars) required" });
     }
@@ -35,7 +36,12 @@ export default async function handler(req, res) {
     if (freeEdits.remaining <= 0) {
       return res.status(409).json({ error: "no_free_edits_remaining", freeEdits });
     }
-    const created = await createEditRequest({ profileId: actor.profileId, planId, notes });
+    const created = await createEditRequest({
+      profileId: actor.profileId,
+      planId,
+      notes,
+      resumeLength,
+    });
     if (!created.ok) return res.status(400).json({ error: created.error || "request_failed" });
     const requests = await listEditRequests(actor.profileId, planId);
     return res.status(200).json({ ok: true, request: created.request, requests, freeEdits });
