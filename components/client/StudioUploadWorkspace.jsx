@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { UPLOAD_WIZARD_STEPS } from "@/lib/client/upload-wizard-steps";
 import StudioFileDropzone from "@/components/client/StudioFileDropzone";
+import StudioLuxuryUploadStatus from "@/components/client/StudioLuxuryUploadStatus";
+import { uploadClientDocument, validateClientFile } from "@/lib/client/upload-client";
+import { mapApiErrorToMessage, uploadErrorMessage } from "@/lib/client/studio-upload-i18n";
 
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
 
@@ -22,14 +25,80 @@ export default function StudioUploadWorkspace({
 }) {
   const docs = documents || [];
   const [stepIndex, setStepIndex] = useState(0);
-  const [localBusy, setLocalBusy] = useState(false);
+  const [uploadState, setUploadState] = useState("idle");
+  const [uploadPct, setUploadPct] = useState(0);
+  const [uploadError, setUploadError] = useState("");
+  const [pendingFile, setPendingFile] = useState(null);
+  const [pendingDocType, setPendingDocType] = useState("");
+  const [etaSeconds, setEtaSeconds] = useState(null);
+  const [speedKbps, setSpeedKbps] = useState(null);
   const [message, setMessage] = useState("");
   const [fileSyncWarnings, setFileSyncWarnings] = useState({});
+  const uploadStartedRef = useRef(0);
 
   const syncMessage = L(
     lang,
     "Your file is being synchronized securely. Please refresh or re-upload if the issue persists.",
     "Votre fichier est en cours de synchronisation securisee. Actualisez ou televersez a nouveau si le probleme persiste."
+  );
+
+  const runUpload = useCallback(
+    async (file, docType) => {
+      setPendingFile(file);
+      setPendingDocType(docType);
+      setUploadError("");
+      setUploadPct(0);
+      setEtaSeconds(null);
+      setSpeedKbps(null);
+      uploadStartedRef.current = Date.now();
+
+      setUploadState("validating");
+      const clientCheck = validateClientFile(file, lang);
+      if (!clientCheck.ok) {
+        setUploadState("failed");
+        setUploadError(clientCheck.message);
+        return false;
+      }
+
+      setUploadState("scanning");
+      await new Promise((r) => setTimeout(r, 280));
+      setUploadState("uploading");
+
+      try {
+        await uploadClientDocument({
+          file,
+          planId,
+          docType,
+          lang,
+          onStateChange: (state) => {
+            if (state === "uploading") setUploadState("uploading");
+            if (state === "retrying") setUploadState("retrying");
+            if (state === "success") setUploadState("syncing");
+          },
+          onProgress: ({ loaded, total, percent }) => {
+            setUploadPct(percent);
+            const elapsed = (Date.now() - uploadStartedRef.current) / 1000;
+            if (elapsed > 0.4 && total > 0) {
+              const speed = loaded / 1024 / elapsed;
+              setSpeedKbps(Math.round(speed));
+              const remaining = total - loaded;
+              setEtaSeconds(remaining > 0 && speed > 0 ? Math.max(1, Math.round(remaining / 1024 / speed)) : null);
+            }
+          },
+        });
+        setUploadState("success");
+        setMessage(uploadErrorMessage("upload_success", lang));
+        setPendingFile(null);
+        await onReload?.();
+        setTimeout(() => setUploadState("idle"), 2400);
+        return true;
+      } catch (e) {
+        setUploadState("failed");
+        setUploadError(e.message || mapApiErrorToMessage({ error: "upload_failed" }, lang));
+        return false;
+      }
+    },
+    [lang, planId, onReload]
   );
 
   async function handleFileAction(doc, mode) {
@@ -41,15 +110,19 @@ export default function StudioUploadWorkspace({
     try {
       const res = await fetch(
         `/api/client/file?id=${encodeURIComponent(doc.id)}&mode=${mode}&lang=${lang}`,
-        { credentials: "same-origin" }
+        { credentials: "same-origin", headers: { Accept: "application/json" } }
       );
-      if (!res.ok) {
+      if (!res.ok && res.status !== 302) {
         const data = await res.json().catch(() => ({}));
         if (data.error === "file_missing" || data.code === "file_sync") {
           setFileSyncWarnings((s) => ({ ...s, [doc.id]: data.message || syncMessage }));
           return;
         }
-        throw new Error(data.error || "file_unavailable");
+        throw new Error(data.message || data.error || "file_unavailable");
+      }
+      if (res.redirected || res.url.includes("X-Amz") || res.url.includes("amazonaws")) {
+        window.open(res.url, mode === "preview" ? "_blank" : "_self", "noopener,noreferrer");
+        return;
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -96,38 +169,24 @@ export default function StudioUploadWorkspace({
 
   const wizardDoneCount = UPLOAD_WIZARD_STEPS.filter((s) => uploadedTypes.has(s.docType)).length;
   const wizardPct = Math.round((wizardDoneCount / UPLOAD_WIZARD_STEPS.length) * 100);
-  const busy = isUploading || localBusy;
+  const busy =
+    isUploading ||
+    replacingId ||
+    ["validating", "uploading", "scanning", "syncing", "retrying"].includes(uploadState);
 
   async function handleDrop(file) {
     if (!file || busy) return;
     setMessage("");
+
     if (wizardActive) {
-      setLocalBusy(true);
-      try {
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("planId", planId);
-        fd.append("docType", effectiveDocType);
-        const res = await fetch("/api/client/documents", {
-          method: "POST",
-          credentials: "same-origin",
-          body: fd,
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "upload_failed");
-        setMessage(L(lang, "File saved.", "Fichier enregistre."));
-        if (wizardStepIndex < UPLOAD_WIZARD_STEPS.length - 1) {
-          setStepIndex(wizardStepIndex + 1);
-        }
-        await onReload?.();
-      } catch (e) {
-        setMessage(e.message || L(lang, "Upload failed.", "Echec du televersement."));
-      } finally {
-        setLocalBusy(false);
+      const ok = await runUpload(file, effectiveDocType);
+      if (ok && wizardStepIndex < UPLOAD_WIZARD_STEPS.length - 1) {
+        setStepIndex(wizardStepIndex + 1);
       }
       return;
     }
-    await onUploadFile(planId, file, effectiveDocType);
+
+    await runUpload(file, effectiveDocType);
   }
 
   function skipOptionalStep() {
@@ -180,10 +239,21 @@ export default function StudioUploadWorkspace({
         </div>
       )}
 
+      <StudioLuxuryUploadStatus
+        lang={lang}
+        state={uploadState}
+        percent={uploadPct}
+        errorMessage={uploadError}
+        etaSeconds={etaSeconds}
+        speedKbps={speedKbps}
+        pendingFile={pendingFile}
+        onRetry={() => pendingFile && runUpload(pendingFile, pendingDocType || effectiveDocType)}
+      />
+
       <StudioFileDropzone lang={lang} busy={busy} inputDataAttr={planId} onFile={handleDrop} />
 
       {message ? (
-        <p className="rs-upload-toast" role="status">
+        <p className="rs-upload-toast rs-upload-toast--success" role="status">
           {message}
         </p>
       ) : null}
@@ -224,7 +294,8 @@ export default function StudioUploadWorkspace({
                   <input
                     type="file"
                     className="rs-studio-file-input"
-                    disabled={replacingId === doc.id}
+                    disabled={replacingId === doc.id || busy}
+                    accept=".pdf,.doc,.docx"
                     onChange={(e) => onReplaceDocument(planId, doc.id, e.target.files?.[0])}
                   />
                 </label>

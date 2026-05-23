@@ -136,6 +136,47 @@ export default function StudioWorkspaceCard({
         ) : null}
       </div>
 
+      <div className="rs-studio-delivery-timeline" aria-label={L(lang, "Delivery progress", "Progression de livraison")}>
+        {[
+          {
+            key: "started",
+            en: "Resume generation started",
+            fr: "Generation du CV commencee",
+            active: ["queued", "analyzing", "generating"].includes(plan.generationStatus),
+            done: plan.documents?.length > 0,
+          },
+          {
+            key: "review",
+            en: "Executive review in progress",
+            fr: "Revue executive en cours",
+            active: ["reviewing", "finalizing"].includes(plan.generationStatus),
+            done: ["ready", "reviewing", "finalizing"].includes(plan.generationStatus),
+          },
+          {
+            key: "ready",
+            en: "Delivery ready",
+            fr: "Livraison prete",
+            active: isReady,
+            done: isReady,
+          },
+          {
+            key: "download",
+            en: "Download package available",
+            fr: "Forfait telechargeable disponible",
+            active: isReady && Boolean(plan.delivery?.download_url),
+            done: isReady && Boolean(plan.delivery?.download_url),
+          },
+        ].map((step) => (
+          <div
+            key={step.key}
+            className={`rs-studio-delivery-timeline__item${step.active ? " is-active" : ""}${step.done ? " is-done" : ""}`}
+          >
+            <span className="rs-studio-delivery-timeline__dot" aria-hidden />
+            {L(lang, step.en, step.fr)}
+          </div>
+        ))}
+      </div>
+
       {showCompactProgress ? (
         <div className="rs-studio-progress-compact">
           <div className="rs-studio-progress-bar">

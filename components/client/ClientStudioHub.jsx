@@ -817,18 +817,27 @@ export default function ClientStudioHub({ lang: langProp }) {
   async function uploadFile(planId, file, docTypeOverride) {
     if (!file) return;
     setUploadingPlan(planId);
-    const form = new FormData();
-    form.append("file", file);
-    form.append("planId", planId);
-    form.append("docType", docTypeOverride || docTypes[planId] || "supporting_file");
+    const docType = docTypeOverride || docTypes[planId] || "supporting_file";
     try {
-      await fetch("/api/client/documents", {
-        method: "POST",
-        credentials: "same-origin",
-        body: form,
+      const { uploadClientDocument, validateClientFile } = await import("@/lib/client/upload-client");
+      const { uploadErrorMessage } = await import("@/lib/client/studio-upload-i18n");
+      const check = validateClientFile(file, lang);
+      if (!check.ok) {
+        setToast(check.message);
+        return;
+      }
+      await uploadClientDocument({
+        file,
+        planId,
+        docType,
+        lang,
+        onStateChange: () => {},
+        onProgress: () => {},
       });
-      setToast(L(lang, "Upload saved.", "Televersement enregistre."));
+      setToast(uploadErrorMessage("upload_success", lang));
       await load(resolveSessionId(), {});
+    } catch (e) {
+      setToast(e.message || L(lang, "Upload failed.", "Echec du televersement."));
     } finally {
       setUploadingPlan("");
     }

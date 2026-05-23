@@ -1,11 +1,15 @@
 require("../../../lib/shared/ensure-project-env");
 const { readEngagementActor } = require("../../../lib/engagement/http-context");
 const { ensureEngagementSchema, getSqlClient } = require("../../../lib/shared/neon-memory");
+const { sendJson, withJsonApi } = require("../../../lib/api/json-api-handler");
 const {
   openDocumentStream,
   fileSyncMessage,
   logStorageDiag,
   getStorageStatus,
+  presignEnabled,
+  createPresignedReadUrl,
+  isS3Ref,
 } = require("../../../lib/client/document-storage");
 
 function contentTypeFor(name = "") {
@@ -14,8 +18,6 @@ function contentTypeFor(name = "") {
   if (lower.endsWith(".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   if (lower.endsWith(".doc")) return "application/msword";
   if (lower.endsWith(".txt") || lower.endsWith(".md")) return "text/plain; charset=utf-8";
-  if (lower.endsWith(".png")) return "image/png";
-  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
   return "application/octet-stream";
 }
 
@@ -33,8 +35,8 @@ function renderMissingFileHtml(message) {
   <title>Resumora — Document sync</title>
   <style>
     body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #050a18; color: #e8ecf4; font-family: Georgia, serif; }
-    .card { max-width: 28rem; padding: 2rem; border: 1px solid rgba(201,162,39,.35); border-radius: 12px; background: rgba(8,18,42,.92); box-shadow: 0 0 32px rgba(201,162,39,.12); }
-    h1 { margin: 0 0 .75rem; font-size: 1.15rem; color: #c9a227; font-weight: 600; }
+    .card { max-width: 28rem; padding: 2rem; border: 1px solid rgba(201,162,39,.35); border-radius: 12px; background: rgba(8,18,42,.92); }
+    h1 { margin: 0 0 .75rem; font-size: 1.15rem; color: #c9a227; }
     p { margin: 0; line-height: 1.55; color: #b8c0d4; font-size: .95rem; }
   </style>
 </head>
@@ -47,20 +49,29 @@ function renderMissingFileHtml(message) {
 </html>`;
 }
 
-export default async function handler(req, res) {
+async function handleFile(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
-    return res.status(405).json({ error: "Method not allowed" });
+    return sendJson(res, 405, { error: "method_not_allowed" });
   }
-  const actor = await readEngagementActor(req, res);
-  if (!actor.profileId) return res.status(401).json({ error: "sign_in_required" });
+
+  let actor;
+  try {
+    actor = await readEngagementActor(req, res);
+  } catch {
+    return sendJson(res, 401, { error: "sign_in_required" });
+  }
+  if (!actor.profileId) return sendJson(res, 401, { error: "sign_in_required" });
+
   const id = Number(req.query.id || 0);
   const mode = String(req.query.mode || "download");
-  const lang = String(req.query.lang || "en").toLowerCase() === "fr" ? "fr" : "en";
-  if (!id) return res.status(400).json({ error: "id required" });
+  const lang = String(req.query.lang || req.headers["x-resumora-lang"] || "en").toLowerCase() === "fr" ? "fr" : "en";
+  if (!id) return sendJson(res, 400, { error: "id_required" });
+
   await ensureEngagementSchema();
   const sql = getSqlClient();
-  if (!sql) return res.status(503).json({ error: "database_unavailable" });
+  if (!sql) return sendJson(res, 503, { error: "database_unavailable" });
+
   const rows = await sql.query(
     `SELECT id, original_name, stored_name, storage_path, mime_type, plan_id, profile_id
      FROM client_workspace_documents
@@ -69,7 +80,25 @@ export default async function handler(req, res) {
     [id, actor.profileId]
   );
   const doc = rows?.[0];
-  if (!doc) return res.status(404).json({ error: "not_found" });
+  if (!doc) return sendJson(res, 404, { error: "not_found" });
+
+  const disposition =
+    mode === "preview"
+      ? `inline; filename="${String(doc.original_name || "file").replace(/"/g, "")}"`
+      : `attachment; filename="${String(doc.original_name || "file").replace(/"/g, "")}"`;
+
+  if (presignEnabled() && isS3Ref(doc.storage_path)) {
+    const signed = await createPresignedReadUrl(doc.storage_path, {
+      expiresIn: 600,
+      disposition,
+    });
+    if (signed.ok && signed.url) {
+      logStorageDiag("file_presign_redirect", { docId: doc.id, mode });
+      res.setHeader("Cache-Control", "private, no-store");
+      res.setHeader("X-Resumora-File-Access", "presigned");
+      return res.redirect(302, signed.url);
+    }
+  }
 
   const opened = await openDocumentStream(doc.storage_path, {
     docId: doc.id,
@@ -92,7 +121,7 @@ export default async function handler(req, res) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.status(404).send(renderMissingFileHtml(message));
     }
-    return res.status(404).json({ error: "file_missing", message, code: "file_sync" });
+    return sendJson(res, 404, { error: "file_missing", message, code: "file_sync" });
   }
 
   const name = String(doc.original_name || "file");
@@ -100,6 +129,7 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", contentType);
   res.setHeader("Cache-Control", "private, no-store");
   res.setHeader("X-Resumora-Storage-Provider", opened.provider || "unknown");
+
   if (mode !== "preview") {
     res.setHeader("Content-Disposition", `attachment; filename="${name.replace(/"/g, "")}"`);
   }
@@ -113,11 +143,10 @@ export default async function handler(req, res) {
 
   opened.stream.on("error", (err) => {
     logStorageDiag("file_stream_error", { docId: doc.id, message: err.message });
-    if (!res.headersSent) {
-      res.status(500).json({ error: "stream_failed" });
-    } else {
-      res.end();
-    }
+    if (!res.headersSent) sendJson(res, 500, { error: "stream_failed" });
+    else res.end();
   });
   opened.stream.pipe(res);
 }
+
+export default withJsonApi(handleFile, { source: "client-file" });
