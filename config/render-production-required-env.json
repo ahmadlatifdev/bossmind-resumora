@@ -17,7 +17,11 @@
     "BOSSMIND_PROJECT_KEY",
     "RESUMORA_POST_PURCHASE_WEBHOOK_URL",
     "RESUMORA_POST_PURCHASE_WEBHOOK_SECRET",
-    "NEXT_PUBLIC_SITE_URL"
+    "NEXT_PUBLIC_SITE_URL",
+    "S3_BUCKET",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_REGION"
   ],
   "syncScript": "npm run bossmind:render:env-sync -- --apply",
   "validateScript": "npm run bossmind:production-runtime:activate"

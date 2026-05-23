@@ -5977,6 +5977,17 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   color: var(--rs-text-muted);
 }
 
+.rs-studio-file-sync-warning {
+  margin: 0.45rem 0 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: rgba(201, 162, 39, 0.08);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--rs-gold-soft);
+}
+
 .rs-studio-doc-row__actions {
   display: flex;
   flex-wrap: wrap;

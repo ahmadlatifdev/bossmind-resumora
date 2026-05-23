@@ -24,6 +24,51 @@ export default function StudioUploadWorkspace({
   const [stepIndex, setStepIndex] = useState(0);
   const [localBusy, setLocalBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [fileSyncWarnings, setFileSyncWarnings] = useState({});
+
+  const syncMessage = L(
+    lang,
+    "Your file is being synchronized securely. Please refresh or re-upload if the issue persists.",
+    "Votre fichier est en cours de synchronisation securisee. Actualisez ou televersez a nouveau si le probleme persiste."
+  );
+
+  async function handleFileAction(doc, mode) {
+    setFileSyncWarnings((s) => {
+      const next = { ...s };
+      delete next[doc.id];
+      return next;
+    });
+    try {
+      const res = await fetch(
+        `/api/client/file?id=${encodeURIComponent(doc.id)}&mode=${mode}&lang=${lang}`,
+        { credentials: "same-origin" }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "file_missing" || data.code === "file_sync") {
+          setFileSyncWarnings((s) => ({ ...s, [doc.id]: data.message || syncMessage }));
+          return;
+        }
+        throw new Error(data.error || "file_unavailable");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (mode === "preview") {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = doc.original_name || "download";
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (e) {
+      setFileSyncWarnings((s) => ({ ...s, [doc.id]: e.message || syncMessage }));
+    }
+  }
 
   const uploadedTypes = useMemo(
     () => new Set(docs.filter((d) => d.status !== "removed").map((d) => d.doc_type)),
@@ -153,22 +198,27 @@ export default function StudioUploadWorkspace({
                 <span className="rs-studio-doc-row__meta">
                   {docTypeLabels[doc.doc_type] || doc.doc_type} · {doc.status} · {formatDate(doc.created_at)}
                 </span>
+                {fileSyncWarnings[doc.id] ? (
+                  <p className="rs-studio-file-sync-warning" role="alert">
+                    {fileSyncWarnings[doc.id]}
+                  </p>
+                ) : null}
               </div>
               <div className="rs-studio-doc-row__actions">
-                <a
-                  href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=preview`}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
                   className="rs-studio-action-btn"
+                  onClick={() => handleFileAction(doc, "preview")}
                 >
                   {L(lang, "Preview", "Apercu")}
-                </a>
-                <a
-                  href={`/api/client/file?id=${encodeURIComponent(doc.id)}&mode=download`}
+                </button>
+                <button
+                  type="button"
                   className="rs-studio-action-btn"
+                  onClick={() => handleFileAction(doc, "download")}
                 >
                   {L(lang, "Download", "Telecharger")}
-                </a>
+                </button>
                 <label className="rs-studio-action-btn rs-studio-action-btn--replace">
                   {replacingId === doc.id ? L(lang, "Replacing…", "Remplacement…") : L(lang, "Replace", "Remplacer")}
                   <input
