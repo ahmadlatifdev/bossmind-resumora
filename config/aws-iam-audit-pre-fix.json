@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-05-23T16:39:00.000Z",
+  "accountId": "377426330385",
+  "userName": "bossmind-resumora-storage",
+  "bucketName": "bossmind-resumora-uploads-377426330385",
+  "callerIdentity": {
+    "UserId": "AIDAVPYC4YMIRVHOR5YET",
+    "Account": "377426330385",
+    "Arn": "arn:aws:iam::377426330385:user/bossmind-resumora-storage"
+  },
+  "findings": {
+    "zeroEffectiveS3Permissions": true,
+    "storageUserCannotModifyIam": true,
+    "consoleAttachLikelyNotEffective": true,
+    "topCauses": [
+      "Permissions boundary on user caps all access (most common when S3FullAccess appears attached but CLI still denies)",
+      "AmazonS3FullAccess attached to a group the user is not in",
+      "Policy attached in console under a different AWS account",
+      "Managed policy attach did not save (console error overlooked)"
+    ]
+  },
+  "cliProof": {
+    "awsS3Ls": "AccessDenied s3:ListAllMyBuckets",
+    "awsS3LsBucket": "AccessDenied s3:ListBucket",
+    "awsS3PutObject": "AccessDenied s3:PutObject"
+  },
+  "remediation": {
+    "automatedScript": "scripts/aws-ensure-resumora-storage-iam.ps1",
+    "requiresAdminCredentials": true,
+    "policyDocument": "config/iam/resumora-storage-s3-policy.json"
+  }
+}
