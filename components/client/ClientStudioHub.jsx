@@ -758,13 +758,13 @@ export default function ClientStudioHub({ lang: langProp }) {
     );
   }
 
-  async function uploadFile(planId, file) {
+  async function uploadFile(planId, file, docTypeOverride) {
     if (!file) return;
     setUploadingPlan(planId);
     const form = new FormData();
     form.append("file", file);
     form.append("planId", planId);
-    form.append("docType", docTypes[planId] || "supporting_file");
+    form.append("docType", docTypeOverride || docTypes[planId] || "supporting_file");
     try {
       await fetch("/api/client/documents", {
         method: "POST",
@@ -859,7 +859,7 @@ export default function ClientStudioHub({ lang: langProp }) {
         </div>
       ) : null}
 
-      {journey?.progress?.steps?.length ? (
+      {journey?.progress?.steps?.length && checkoutVerify?.status !== "success" ? (
         <OnboardingProgress steps={journey.progress.steps} percent={journey.progress.percent} lang={lang} />
       ) : null}
       {toast ? (
@@ -887,6 +887,7 @@ export default function ClientStudioHub({ lang: langProp }) {
             setEditResumeLength={setEditResumeLength}
             showUploadWizard={showUploadWizard}
             router={router}
+            paymentConfirmed={checkoutVerify?.status === "success"}
             onUploadFile={uploadFile}
             onReplaceDocument={replaceDocument}
             onRemoveDocument={removeDocument}
