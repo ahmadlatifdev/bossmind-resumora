@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Resumora — sitemap.xml (static fallback)
+  Canonical domain: https://resumora.net
+
+  Place at: public/sitemap.xml
+  Served at: https://resumora.net/sitemap.xml
+
+  If you have a dynamic sitemap generator (pages/sitemap.xml.js or
+  app/sitemap.js), ensure it calls getSiteUrl() from seo-config.js
+  so all URLs resolve to https://resumora.net.
+
+  This static version covers the primary marketing pages.
+  Update <lastmod> after significant content changes.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://resumora.net/</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://resumora.net/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://resumora.net/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://resumora.net/"/>
+  </url>
+
+  <!-- Pricing -->
+  <url>
+    <loc>https://resumora.net/pricing</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://resumora.net/pricing"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://resumora.net/pricing"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://resumora.net/pricing"/>
+  </url>
+
+  <!-- Services -->
+  <url>
+    <loc>https://resumora.net/services</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://resumora.net/services"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://resumora.net/services"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://resumora.net/services"/>
+  </url>
+
+  <!-- Capabilities -->
+  <url>
+    <loc>https://resumora.net/capabilities</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://resumora.net/about</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact -->
+  <url>
+    <loc>https://resumora.net/contact</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Testimonials -->
+  <url>
+    <loc>https://resumora.net/testimonials</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Delivery protocols -->
+  <url>
+    <loc>https://resumora.net/delivery-protocols</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Client engagement -->
+  <url>
+    <loc>https://resumora.net/client-engagement</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
