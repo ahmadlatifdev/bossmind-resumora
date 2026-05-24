@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { handleCheckoutSessionCompleted } from "../../../lib/client/webhook-activation";
 
 export const config = {
   api: {
@@ -74,6 +75,8 @@ export default async function handler(req, res) {
     });
   }
 
+  let activationResult = null;
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -89,6 +92,14 @@ export default async function handler(req, res) {
           metadata: session.metadata || {},
         });
 
+        activationResult = await handleCheckoutSessionCompleted(session);
+        console.log("STRIPE_WEBHOOK_ACTIVATION", {
+          sessionIdPrefix: String(session.id).slice(0, 22),
+          ok: activationResult?.ok,
+          idempotent: activationResult?.idempotent || false,
+          planId: activationResult?.planId || null,
+          reason: activationResult?.reason || null,
+        });
         break;
       }
 
@@ -118,6 +129,7 @@ export default async function handler(req, res) {
       received: true,
       eventType: event.type,
       eventId: event.id,
+      activation: activationResult,
     });
   } catch (error) {
     console.error("STRIPE_WEBHOOK_HANDLER_FAILED", error);
