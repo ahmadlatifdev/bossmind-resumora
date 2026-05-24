@@ -1,0 +1,418 @@
+{
+  "schema": "bossmind-production-autonomy-audit/v1",
+  "timestamp": "2026-05-24T00:18:35.374Z",
+  "project": "resumora",
+  "origin": "https://www.resumora.net",
+  "designLock": {
+    "preserved": true,
+    "immutableVerifyOk": false,
+    "protectedUiAuthorityVersion": 2,
+    "authorityKey": "luxury_ui_baseline",
+    "note": "No client-facing UI components modified in this optimization pass."
+  },
+  "autonomy": {
+    "percent": 72,
+    "earned": 72,
+    "max": 100
+  },
+  "systems": {
+    "active": [
+      {
+        "name": "productionHealth",
+        "ok": true,
+        "status": 200,
+        "detail": true
+      },
+      {
+        "name": "stripeHealth",
+        "ok": true,
+        "partial": true,
+        "status": 200,
+        "checkoutReady": false,
+        "commerceReady": null,
+        "webhookConfigured": null
+      },
+      {
+        "name": "stripeEnv",
+        "ok": true,
+        "partial": true,
+        "masked": {
+          "STRIPE_SECRET_KEY": "sk_t…OUit",
+          "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_t…CRET"
+        }
+      },
+      {
+        "name": "webhookSecret",
+        "ok": true,
+        "partial": true,
+        "localPresent": false,
+        "productionPresent": true,
+        "note": "Webhook secret required for server-side entitlement activation on checkout.session.completed."
+      },
+      {
+        "name": "neonDb",
+        "ok": true,
+        "partial": true
+      },
+      {
+        "name": "webhookActivationModule",
+        "ok": true,
+        "path": "lib/client/webhook-activation.js"
+      },
+      {
+        "name": "sharedMemoryHub",
+        "ok": true,
+        "partial": true,
+        "memoryRoot": "D:\\Shakhsy11\\BossMind\\core\\memory",
+        "liveStateAge": "2026-05-24T00:04:46.5023439Z",
+        "validationOk": null,
+        "jsonl": {
+          "shared-memory-log.jsonl": {
+            "exists": true,
+            "bytes": 1496
+          },
+          "error-memory-log.jsonl": {
+            "exists": true,
+            "bytes": 7373
+          },
+          "task-state-log.jsonl": {
+            "exists": true,
+            "bytes": 333
+          }
+        }
+      },
+      {
+        "name": "errorMemoryLogs",
+        "ok": true,
+        "bytes": 7373
+      },
+      {
+        "name": "automationRegistry",
+        "ok": true
+      },
+      {
+        "name": "s3Configured",
+        "ok": true,
+        "partial": true
+      }
+    ],
+    "partial": [],
+    "broken": [
+      {
+        "name": "orchestrationHealth",
+        "ok": false,
+        "partial": false,
+        "bossmindHealth": {
+          "error": "Unauthorized"
+        }
+      },
+      {
+        "name": "immutableBaseline",
+        "ok": false,
+        "verify": {
+          "raw": "bossmind-immutable-verify: locked production mode active (baseline JSON).",
+          "stderr": "bossmind-immutable-verify: FAILED\n  LUXURY_SLICE_MISMATCH current=209cab7d0312dd01d4bb6572dafdcc59c2ef315e31905765334912e69b14641d expected=505d59e38614c0ac985fc89d733c6c9daab9e2fd1464b65adce4dbea952cc87c\n"
+        }
+      },
+      {
+        "name": "designLockIntact",
+        "ok": false,
+        "authorityKey": "luxury_ui_baseline"
+      }
+    ]
+  },
+  "checks": {
+    "productionHealth": {
+      "ok": true,
+      "status": 200,
+      "detail": true
+    },
+    "stripeHealth": {
+      "ok": true,
+      "partial": true,
+      "status": 200,
+      "checkoutReady": false,
+      "commerceReady": null,
+      "webhookConfigured": null
+    },
+    "orchestrationHealth": {
+      "ok": false,
+      "partial": false,
+      "bossmindHealth": {
+        "error": "Unauthorized"
+      }
+    },
+    "stripeEnv": {
+      "ok": true,
+      "partial": true,
+      "masked": {
+        "STRIPE_SECRET_KEY": "sk_t…OUit",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_t…CRET"
+      }
+    },
+    "webhookSecret": {
+      "ok": true,
+      "partial": true,
+      "localPresent": false,
+      "productionPresent": true,
+      "note": "Webhook secret required for server-side entitlement activation on checkout.session.completed."
+    },
+    "neonDb": {
+      "ok": true,
+      "partial": true
+    },
+    "immutableBaseline": {
+      "ok": false,
+      "verify": {
+        "raw": "bossmind-immutable-verify: locked production mode active (baseline JSON).",
+        "stderr": "bossmind-immutable-verify: FAILED\n  LUXURY_SLICE_MISMATCH current=209cab7d0312dd01d4bb6572dafdcc59c2ef315e31905765334912e69b14641d expected=505d59e38614c0ac985fc89d733c6c9daab9e2fd1464b65adce4dbea952cc87c\n"
+      }
+    },
+    "webhookActivationModule": {
+      "ok": true,
+      "path": "lib/client/webhook-activation.js"
+    },
+    "sharedMemoryHub": {
+      "ok": true,
+      "partial": true,
+      "memoryRoot": "D:\\Shakhsy11\\BossMind\\core\\memory",
+      "liveStateAge": "2026-05-24T00:04:46.5023439Z",
+      "validationOk": null,
+      "jsonl": {
+        "shared-memory-log.jsonl": {
+          "exists": true,
+          "bytes": 1496
+        },
+        "error-memory-log.jsonl": {
+          "exists": true,
+          "bytes": 7373
+        },
+        "task-state-log.jsonl": {
+          "exists": true,
+          "bytes": 333
+        }
+      }
+    },
+    "errorMemoryLogs": {
+      "ok": true,
+      "bytes": 7373
+    },
+    "automationRegistry": {
+      "ok": true
+    },
+    "s3Configured": {
+      "ok": true,
+      "partial": true
+    },
+    "designLockIntact": {
+      "ok": false,
+      "authorityKey": "luxury_ui_baseline"
+    }
+  },
+  "deploymentHealth": {
+    "productionUrl": "https://www.resumora.net",
+    "probes": {
+      "health": {
+        "ok": true,
+        "status": 200,
+        "url": "https://www.resumora.net/api/health",
+        "json": {
+          "ok": true,
+          "env": "production",
+          "port": "10000",
+          "render": true,
+          "gitCommit": "f9eb74d7ae4a42f4752fc782eab837debcd2b28d",
+          "gitBranch": "main",
+          "ts": 1779581916159,
+          "uptime": 23758.595505845,
+          "rss": 137486336,
+          "heapUsed": 55229536,
+          "database": {
+            "ok": true,
+            "configured": true,
+            "source": "NEON_DATABASE_URL",
+            "checkedKeys": [
+              "NEON_DATABASE_URL",
+              "DATABASE_URL",
+              "POSTGRES_URL",
+              "POSTGRES_PRISMA_URL",
+              "SUPABASE_DATABASE_URL"
+            ],
+            "reason": null
+          },
+          "stripe": {
+            "checkoutReady": true,
+            "financialPipelineReady": true,
+            "mode": "test",
+            "operational": {
+              "paymentLinksOperational": true,
+              "pricesResolvable": true,
+              "lockPriceIdsPresent": true,
+              "publishableOptionalWhenLinks": false
+            }
+          },
+          "commerceReady": true,
+          "essentialAdvanced": {
+            "ready": true,
+            "studioPath": "/studio/essential-advanced",
+            "stripePriceConfigured": true,
+            "paymentLinkConfigured": true
+          },
+          "plans": {
+            "ok": true,
+            "allDeliverables": true,
+            "allStripePrices": true,
+            "allPaymentLinks": true,
+            "plans": {
+              "basic": {
+                "deliverable": true,
+                "studioPath": "/studio",
+                "bilingual": true,
+                "freeEdits": 1,
+                "stripePriceConfigured": true,
+                "paymentLinkConfigured": true,
+                "paymentLinkTestMode": true
+              },
+              "professional": {
+                "deliverable": true,
+                "studioPath": "/studio",
+                "bilingual": true,
+                "freeEdits": 2,
+                "stripePriceConfigured": true,
+                "paymentLinkConfigured": true,
+                "paymentLinkTestMode": true
+              },
+              "elite": {
+                "deliverable": true,
+                "studioPath": "/studio",
+                "bilingual": true,
+                "freeEdits": 3,
+                "stripePriceConfigured": true,
+                "paymentLinkConfigured": true,
+                "paymentLinkTestMode": true
+              },
+              "essential_advanced": {
+                "deliverable": true,
+                "studioPath": "/studio/essential-advanced",
+                "bilingual": true,
+                "freeEdits": 2,
+                "stripePriceConfigured": true,
+                "paymentLinkConfigured": true,
+                "paymentLinkTestMode": true
+              }
+            }
+          },
+          "recoveryHint": null,
+          "monitoring": "/api/runtime/database-health"
+        }
+      },
+      "stripeHealth": {
+        "ok": true,
+        "status": 200,
+        "url": "https://www.resumora.net/api/runtime/stripe-health",
+        "json": {
+          "ok": true,
+          "env": "production",
+          "checkoutReady": false,
+          "webhookReady": true,
+          "stripe": {
+            "STRIPE_SECRET_KEY": {
+              "present": true,
+              "mode": "test"
+            },
+            "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": {
+              "present": true,
+              "mode": "test"
+            },
+            "STRIPE_WEBHOOK_SECRET": {
+              "present": true,
+              "mode": "webhook_secret"
+            },
+            "NEXT_PUBLIC_STRIPE_PRICE_BASIC": {
+              "present": true,
+              "mode": "webhook_secret"
+            },
+            "NEXT_PUBLIC_STRIPE_PRICE_PRO": {
+              "present": true,
+              "mode": "price_id"
+            },
+            "NEXT_PUBLIC_STRIPE_PRICE_ELITE": {
+              "present": false,
+              "mode": "missing"
+            },
+            "NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED": {
+              "present": false,
+              "mode": "missing"
+            }
+          }
+        }
+      },
+      "orchestrationHealth": {
+        "ok": false,
+        "status": 401,
+        "url": "https://www.resumora.net/api/orchestration/bossmind-health",
+        "json": {
+          "error": "Unauthorized"
+        }
+      }
+    }
+  },
+  "sharedMemoryHealth": {
+    "ok": true,
+    "partial": true,
+    "memoryRoot": "D:\\Shakhsy11\\BossMind\\core\\memory",
+    "liveStateAge": "2026-05-24T00:04:46.5023439Z",
+    "validationOk": null,
+    "jsonl": {
+      "shared-memory-log.jsonl": {
+        "exists": true,
+        "bytes": 1496
+      },
+      "error-memory-log.jsonl": {
+        "exists": true,
+        "bytes": 7373
+      },
+      "task-state-log.jsonl": {
+        "exists": true,
+        "bytes": 333
+      }
+    }
+  },
+  "errorMemoryHealth": {
+    "logExists": true,
+    "logBytes": 7373
+  },
+  "automationEngineHealth": {
+    "registryOk": true,
+    "orchestration": {
+      "error": "Unauthorized"
+    }
+  },
+  "bottlenecks": [
+    "BossMind orchestration health endpoint partial — review neon-memory and watcher daemons."
+  ],
+  "blockers": [
+    {
+      "severity": "medium",
+      "area": "design_lock",
+      "message": "Immutable luxury UI baseline verify did not pass locally (design lock enforcement)."
+    }
+  ],
+  "repairSummary": {
+    "appliedThisSession": [
+      "lib/client/webhook-activation.js — server-side Stripe webhook entitlement activation (idempotent)",
+      "pages/api/webhooks/stripe.js — checkout.session.completed now activates entitlements",
+      "D:/Shakhsy11/BossMind/core/memory/bossmind-filesystem-inventory.ps1 — Import-Module Microsoft.PowerShell.Utility",
+      "D:/Shakhsy11/BossMind/core/memory/bossmind-live-state-watcher.ps1 — Import-Module Microsoft.PowerShell.Utility",
+      "D:/Shakhsy11/BossMind/core/memory/bossmind-install-memory-scheduler.ps1 — explicit PowerShell 5.1 path",
+      "D:/Shakhsy11/BossMind/core/memory/bossmind-install-watcher-scheduler.ps1 — explicit PowerShell 5.1 path",
+      "bossmind-shared/automation/projects.json — real Resumora + hub paths",
+      "bossmind-shared/automation/health-endpoints.json — production probe URLs"
+    ],
+    "requiresDeploy": [
+      "Deploy bossmind-resumora webhook activation to Render for production instant unlock",
+      "Confirm STRIPE_WEBHOOK_SECRET on Render matches Stripe Dashboard webhook signing secret"
+    ]
+  },
+  "recommendedNextUpgrade": "Deploy webhook activation to Render (git push main), then npm run bossmind:enterprise:post-deploy"
+}
