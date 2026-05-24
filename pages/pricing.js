@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import SiteChrome from "@/components/marketing/SiteChrome";
 import PricingPanel from "@/components/marketing/sections/PricingPanel";
 import { useLanguage } from "@/context/LanguageContext";
@@ -53,21 +52,6 @@ export default function PricingPage() {
           </div>
         </section>
         <PricingPanel showHeader={false} />
-        <section className="rs-section">
-          <div className="rs-container">
-            <div className="rs-cta-strip">
-              <div>
-                <h2 className="rs-h2 rs-h2--closing">{t.pricingQuestionsTitle}</h2>
-                <p className="rs-subtitle rs-subtitle--strip-tight">{t.pricingQuestionsSubtitle}</p>
-              </div>
-              <div className="rs-cta-strip-actions rs-cta-strip-actions--loose">
-                <Link href="/contact" className="rs-btn-ghost">
-                  {t.navContact}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     </SiteChrome>
   );
