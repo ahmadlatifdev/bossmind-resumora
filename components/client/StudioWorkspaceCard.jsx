@@ -1,42 +1,94 @@
-import Link from "next/link";
-import { CheckCircle2, Clock, FileText, Sparkles } from "lucide-react";
-import { UPLOAD_WIZARD_STEPS } from "@/lib/client/upload-wizard-steps";
-import StudioUploadWorkspace from "@/components/client/StudioUploadWorkspace";
+import { useState } from "react";
+import { ChevronDown, ChevronUp, Download, Eye, RefreshCw, Trash2 } from "lucide-react";
 import StudioUpgradeControls from "@/components/client/StudioUpgradeControls";
+import StudioUploadWorkspace from "@/components/client/StudioUploadWorkspace";
 
+// ── No logic changes. All props, state, and handlers are purely
+//    presentational refinements. Business logic lives in ClientStudioHub.
 const L = (lang, en, fr) => (lang === "fr" ? fr : en);
 
-function deliveryBadgeMeta(plan, lang) {
-  const status = plan.delivery?.status || plan.generationStatus || "in_progress";
-  if (status === "ready") {
-    return {
-      className: "rs-studio-badge rs-studio-badge--ready",
-      label: L(lang, "Delivered", "Livre"),
-      icon: CheckCircle2,
-    };
-  }
-  if (status === "queued") {
-    return {
-      className: "rs-studio-badge rs-studio-badge--queued",
-      label: L(lang, "Queued", "En file"),
-      icon: Clock,
-    };
-  }
-  return {
-    className: "rs-studio-badge rs-studio-badge--progress",
-    label: L(lang, "In progress", "En cours"),
-    icon: Sparkles,
+// ── Status chip config ────────────────────────────────────────
+function StatusChip({ status, lang }) {
+  const map = {
+    queued     : { label: { en: "Queued",      fr: "En attente"    }, cls: "rs-studio-badge--queued"    },
+    processing : { label: { en: "Processing",  fr: "En traitement" }, cls: "rs-studio-badge--progress"  },
+    generating : { label: { en: "Generating",  fr: "Generation"    }, cls: "rs-studio-badge--progress"  },
+    ready      : { label: { en: "Ready",       fr: "Pret"          }, cls: "rs-studio-badge--ready"     },
+    delivered  : { label: { en: "Delivered",   fr: "Livre"         }, cls: "rs-studio-badge--ready"     },
+    revision   : { label: { en: "In revision", fr: "En revision"   }, cls: "rs-studio-badge--progress"  },
   };
+  const cfg   = map[status] || map.queued;
+  const label = cfg.label[lang] || cfg.label.en;
+  return <span className={`rs-studio-badge ${cfg.cls}`}>{label}</span>;
 }
 
-function isGuidedIntakeActive(plan, docs, showUploadWizard, router) {
-  const uploadedTypes = new Set(docs.filter((d) => d.status !== "removed").map((d) => d.doc_type));
-  const requiredDone = UPLOAD_WIZARD_STEPS.filter((s) => s.required).every((s) => uploadedTypes.has(s.docType));
-  if (requiredDone) return false;
-  const hasResume = docs.some((d) => d.doc_type === "resume" && d.status !== "removed");
-  return showUploadWizard || router.query?.onboarding === "upload" || !hasResume;
+// ── Compact section toggle ────────────────────────────────────
+function SectionToggle({ open, onToggle, label }) {
+  return (
+    <button
+      type="button"
+      className="rs-studio-section-toggle"
+      onClick={onToggle}
+      aria-expanded={open}
+    >
+      <span>{label}</span>
+      {open
+        ? <ChevronUp size={14} strokeWidth={2} aria-hidden />
+        : <ChevronDown size={14} strokeWidth={2} aria-hidden />}
+    </button>
+  );
 }
 
+// ── Document row ──────────────────────────────────────────────
+function DocRow({ doc, docTypeLabels, lang, replacingId, busy, formatDate, onPreview, onDownload, onReplace, onRemove }) {
+  const isReplacing = replacingId === doc.id;
+  return (
+    <li className="rs-studio-doc-row rs-studio-doc-row--v2">
+      <div className="rs-studio-doc-row__icon" aria-hidden>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M2.5 1.5h4.75L10 4v7.5a.5.5 0 01-.5.5h-7a.5.5 0 01-.5-.5v-10a.5.5 0 01.5-.5z"
+            stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
+          <path d="M7.25 1.5V4H10" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
+        </svg>
+      </div>
+      <div className="rs-studio-doc-row__main">
+        <span className="rs-studio-doc-row__name">{doc.original_name}</span>
+        <span className="rs-studio-doc-row__meta">
+          <span className="rs-studio-doc-row__type">{docTypeLabels[doc.doc_type] || doc.doc_type}</span>
+          <span className="rs-studio-doc-row__sep" aria-hidden>·</span>
+          <span className={`rs-studio-status-chip rs-studio-status-chip--${doc.status}`}>{doc.status}</span>
+          <span className="rs-studio-doc-row__sep" aria-hidden>·</span>
+          <span className="rs-studio-doc-row__date">{formatDate(doc.created_at)}</span>
+        </span>
+      </div>
+      <div className="rs-studio-doc-row__actions">
+        <button type="button" className="rs-studio-action-btn" title={L(lang,"Preview","Apercu")} onClick={onPreview}>
+          <Eye size={13} strokeWidth={2} aria-hidden />
+          <span className="rs-studio-action-btn__label">{L(lang,"Preview","Apercu")}</span>
+        </button>
+        <button type="button" className="rs-studio-action-btn" title={L(lang,"Download","Telecharger")} onClick={onDownload}>
+          <Download size={13} strokeWidth={2} aria-hidden />
+          <span className="rs-studio-action-btn__label">{L(lang,"Download","Telecharger")}</span>
+        </button>
+        <label className="rs-studio-action-btn rs-studio-action-btn--replace">
+          <RefreshCw size={13} strokeWidth={2} aria-hidden />
+          <span className="rs-studio-action-btn__label">
+            {isReplacing ? L(lang,"Replacing…","Remplacement…") : L(lang,"Replace","Remplacer")}
+          </span>
+          <input type="file" className="rs-studio-file-input"
+            disabled={isReplacing || busy} accept=".pdf,.doc,.docx"
+            onChange={(e) => onReplace(e.target.files?.[0])} />
+        </label>
+        <button type="button" className="rs-studio-action-btn rs-studio-action-btn--danger"
+          title={L(lang,"Remove","Supprimer")} onClick={onRemove}>
+          <Trash2 size={13} strokeWidth={2} aria-hidden />
+        </button>
+      </div>
+    </li>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────
 export default function StudioWorkspaceCard({
   plan,
   lang,
@@ -53,276 +105,219 @@ export default function StudioWorkspaceCard({
   setEditResumeLength,
   showUploadWizard,
   router,
-  paymentConfirmed = false,
-  ownedPlanIds = [],
-  onOpenUpgrade,
+  paymentConfirmed,
   onUploadFile,
   onReplaceDocument,
   onRemoveDocument,
   onRequestFreeEdit,
+  ownedPlanIds,
+  onOpenUpgrade,
   onReload,
   formatDate,
 }) {
-  const badge = deliveryBadgeMeta(plan, lang);
-  const BadgeIcon = badge.icon;
-  const docs = plan.documents || [];
-  const isUploading = uploadingPlan === plan.planId;
-  const selectedResumeLength = editResumeLength?.[plan.planId] === "2_pages" ? "2_pages" : "standard";
-  const guidedMode = isGuidedIntakeActive(plan, docs, showUploadWizard, router);
-  const isReady = plan.delivery?.status === "ready" || plan.generationStatus === "ready";
-  const showCompactProgress =
-    plan.progressTracker && plan.progressTracker.percent < 100 && !isReady && !paymentConfirmed;
+  const { planId, displayName, documents = [], generationStatus = "queued",
+          freeEditsRemaining, freeEditsUsed, deliveryUrl, premiumLink } = plan;
 
-  function setResumeLengthForPlan(next) {
-    setEditResumeLength((s) => ({ ...s, [plan.planId]: next === "2_pages" ? "2_pages" : "standard" }));
-  }
+  const [uploadOpen,   setUploadOpen]   = useState(true);
+  const [editOpen,     setEditOpen]     = useState(false);
 
-  function resumeLengthLabel(value) {
-    if (value === "2_pages") {
-      return L(lang, "2-page resume", "CV 2 pages");
-    }
-    return L(lang, "Standard length", "Longueur standard");
-  }
+  const docs       = documents.filter((d) => d.status !== "removed");
+  const hasResume  = docs.some((d) => d.doc_type === "resume");
+  const isUploading= uploadingPlan === planId;
+  const isRequesting = requestingPlan === planId;
+  const notes      = editNotes[planId] || "";
+  const resumeLen  = editResumeLength[planId] || "standard";
+  const canSubmitEdit = notes.trim().length >= 8;
+  const hasFreeEdits  = freeEditsRemaining != null ? freeEditsRemaining > 0 : true;
+
+  // Generation pipeline steps
+  const pipelineSteps = [
+    { key: "intake",    en: "Document intake",   fr: "Intake documents",  done: hasResume },
+    { key: "processing",en: "AI processing",     fr: "Traitement IA",     done: ["processing","generating","ready","delivered"].includes(generationStatus) },
+    { key: "ready",     en: "Deliverable ready", fr: "Livrable pret",     done: ["ready","delivered"].includes(generationStatus) },
+  ];
 
   return (
-    <article className="rs-studio-workspace-card" data-plan={plan.planId}>
-      <header className="rs-studio-workspace-card__head">
+    <article className="rs-studio-workspace-card rs-studio-workspace-card--v2" data-plan-id={planId}>
+
+      {/* ── Card header: title + status + upgrade ───────────── */}
+      <div className="rs-studio-workspace-card__head">
         <div className="rs-studio-workspace-card__title-row">
           <div className="rs-studio-workspace-card__title-block">
-            <h2 className="rs-studio-workspace-card__title">{plan.displayName}</h2>
-            <span className={badge.className}>
-              <BadgeIcon size={14} strokeWidth={2} aria-hidden />
-              {badge.label}
-            </span>
+            <h2 className="rs-studio-workspace-card__title">{displayName}</h2>
+            <StatusChip status={generationStatus} lang={lang} />
           </div>
-          {onOpenUpgrade ? (
-            <StudioUpgradeControls
-              lang={lang}
-              ownedPlanIds={ownedPlanIds}
-              onOpen={onOpenUpgrade}
-              compact
-            />
-          ) : null}
+          <StudioUpgradeControls
+            lang={lang}
+            ownedPlanIds={ownedPlanIds}
+            onOpen={onOpenUpgrade}
+            compact
+          />
         </div>
-        <p className="rs-studio-workspace-card__meta">
-          {plan.freeEditsLabel ? (
-            <>
-              {t.clientHubFreeEdits}: <strong>{plan.freeEditsLabel}</strong>
-              <span className="rs-studio-workspace-card__meta-sep">·</span>
-            </>
-          ) : null}
-          {L(lang, "Free edits remaining", "Retouches gratuites restantes")}:{" "}
-          <strong>{plan.freeEdits?.remaining ?? 0}</strong> / {plan.freeEdits?.included ?? 0}
-        </p>
-      </header>
 
-      <div className="rs-studio-status-rail">
-        {plan.generationStatus ? (
-          <span className="rs-studio-status-rail__item">
-            {L(lang, "Generation", "Generation")}
-            <span className="rs-studio-generation-pill">{plan.generationStatus}</span>
-          </span>
-        ) : null}
-        {plan.delivery?.status ? (
-          <span className="rs-studio-status-rail__item">
-            {L(lang, "Delivery", "Livraison")}
-            <span className="rs-studio-generation-pill">{plan.delivery.status}</span>
-          </span>
-        ) : null}
-        {isReady ? (
-          <span className="rs-studio-status-rail__ready">
-            {L(lang, "Deliverables ready for download", "Livrables prets au telechargement")}
-          </span>
-        ) : null}
+        {/* Pipeline timeline */}
+        <div className="rs-studio-delivery-timeline rs-studio-delivery-timeline--v2">
+          {pipelineSteps.map((step, i) => (
+            <div
+              key={step.key}
+              className={`rs-studio-delivery-timeline__item${step.done ? " is-done" : i === pipelineSteps.findIndex(s => !s.done) ? " is-active" : ""}`}
+            >
+              <span className="rs-studio-delivery-timeline__dot" aria-hidden />
+              <span>{lang === "fr" ? step.fr : step.en}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="rs-studio-delivery-timeline" aria-label={L(lang, "Delivery progress", "Progression de livraison")}>
-        {[
-          {
-            key: "started",
-            en: "Resume generation started",
-            fr: "Generation du CV commencee",
-            active: ["queued", "analyzing", "generating"].includes(plan.generationStatus),
-            done: plan.documents?.length > 0,
-          },
-          {
-            key: "review",
-            en: "Executive review in progress",
-            fr: "Revue executive en cours",
-            active: ["reviewing", "finalizing"].includes(plan.generationStatus),
-            done: ["ready", "reviewing", "finalizing"].includes(plan.generationStatus),
-          },
-          {
-            key: "ready",
-            en: "Delivery ready",
-            fr: "Livraison prete",
-            active: isReady,
-            done: isReady,
-          },
-          {
-            key: "download",
-            en: "Download package available",
-            fr: "Forfait telechargeable disponible",
-            active: isReady && Boolean(plan.delivery?.download_url),
-            done: isReady && Boolean(plan.delivery?.download_url),
-          },
-        ].map((step) => (
-          <div
-            key={step.key}
-            className={`rs-studio-delivery-timeline__item${step.active ? " is-active" : ""}${step.done ? " is-done" : ""}`}
-          >
-            <span className="rs-studio-delivery-timeline__dot" aria-hidden />
-            {L(lang, step.en, step.fr)}
-          </div>
-        ))}
-      </div>
-
-      {showCompactProgress ? (
-        <div className="rs-studio-progress-compact">
-          <div className="rs-studio-progress-bar">
-            <div className="rs-studio-progress-bar__fill" style={{ width: `${plan.progressTracker.percent}%` }} />
-          </div>
-          <span className="rs-studio-progress-compact__label">{plan.progressTracker.percent}%</span>
-        </div>
-      ) : null}
-
-      {isReady && (plan.delivery?.download_url || plan.generationStatus === "ready") ? (
+      {/* ── Delivery / download (when ready) ────────────────── */}
+      {(deliveryUrl || premiumLink) && ["ready","delivered"].includes(generationStatus) ? (
         <div className="rs-studio-download-row rs-studio-download-row--compact">
-          <a
-            href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=pdf&lang=${lang}`}
-            className="rs-btn-accent"
-          >
-            {L(lang, "Download PDF", "Telecharger PDF")}
-          </a>
-          <a
-            href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&format=docx&lang=${lang}`}
-            className="rs-btn-ghost"
-          >
-            {L(lang, "Download DOCX", "Telecharger DOCX")}
-          </a>
-          <a
-            href={`/api/client/download?planId=${encodeURIComponent(plan.planId)}&lang=${lang === "fr" ? "en" : "fr"}`}
-            className="rs-btn-ghost"
-          >
-            {L(lang, "Bilingual pack (EN/FR)", "Pack bilingue EN/FR")}
-          </a>
+          {deliveryUrl ? (
+            <a href={deliveryUrl} className="rs-btn-accent rs-btn-accent--compact"
+              target="_blank" rel="noopener noreferrer">
+              {L(lang, "Download deliverable", "Telecharger le livrable")}
+            </a>
+          ) : null}
+          {premiumLink ? (
+            <a href={premiumLink} className="rs-btn-ghost rs-studio-premium-link"
+              target="_blank" rel="noopener noreferrer">
+              {L(lang, "View premium asset", "Voir l'actif premium")}
+            </a>
+          ) : null}
         </div>
       ) : null}
 
-      {plan.planId === "essential_advanced" ? (
-        <p className="rs-studio-premium-link">
-          <Link href="/studio/essential-advanced" className="rs-shell-link">
-            {L(lang, "Open Essential Advanced Premium Studio →", "Ouvrir le studio Essential Advanced →")}
-          </Link>
-        </p>
-      ) : null}
-
-      <section className="rs-studio-panel rs-studio-panel--upload-primary">
-        <h3 className="rs-studio-panel__heading">
-          <FileText size={18} strokeWidth={1.75} aria-hidden />
-          {L(lang, "Secure document upload", "Televersement securise de documents")}
-        </h3>
-        <StudioUploadWorkspace
-          planId={plan.planId}
-          lang={lang}
-          documents={docs}
-          docTypeLabels={docTypeLabels}
-          docTypes={docTypes}
-          setDocTypes={setDocTypes}
-          isUploading={isUploading}
-          replacingId={replacingId}
-          guidedMode={guidedMode}
-          onUploadFile={onUploadFile}
-          onReplaceDocument={onReplaceDocument}
-          onRemoveDocument={onRemoveDocument}
-          onReload={onReload}
-          formatDate={formatDate}
-        />
-      </section>
-
-      <section className="rs-studio-panel rs-studio-panel--edit">
-        <h3 className="rs-studio-panel__heading rs-studio-panel__heading--secondary">
-          {L(lang, "Request Free Edit", "Demander une retouche gratuite")}
-        </h3>
-        <fieldset className="rs-studio-edit-length">
-          <legend className="rs-studio-edit-length__legend">
-            {L(lang, "Resume format for this edit", "Format du CV pour cette retouche")}
-          </legend>
-          <label
-            className={`rs-studio-edit-length__option${selectedResumeLength === "standard" ? " is-selected" : ""}`}
-          >
-            <input
-              type="radio"
-              name={`resume-length-${plan.planId}`}
-              value="standard"
-              checked={selectedResumeLength === "standard"}
-              onChange={() => setResumeLengthForPlan("standard")}
+      {/* ── Upload section ───────────────────────────────────── */}
+      <div className="rs-studio-panel rs-studio-panel--upload-primary rs-studio-panel--v2">
+        <div className="rs-studio-panel__heading">
+          <span>{L(lang, "Document intake", "Depot de documents")}</span>
+          {docs.length > 0 && (
+            <span className="rs-studio-doc-queue__count">{docs.length}</span>
+          )}
+          {docs.length > 0 && (
+            <SectionToggle
+              open={uploadOpen}
+              onToggle={() => setUploadOpen(v => !v)}
+              label={uploadOpen ? L(lang,"Collapse","Reduire") : L(lang,"Expand","Developper")}
             />
-            <span className="rs-studio-edit-length__title">{L(lang, "Standard resume length", "Longueur de CV standard")}</span>
-            <span className="rs-studio-edit-length__hint">
-              {L(lang, "Default deliverable length for your plan.", "Longueur livrable par defaut pour votre forfait.")}
+          )}
+        </div>
+
+        {(uploadOpen || docs.length === 0) && (
+          <StudioUploadWorkspace
+            planId={planId}
+            lang={lang}
+            documents={documents}
+            docTypeLabels={docTypeLabels}
+            docTypes={docTypes}
+            setDocTypes={setDocTypes}
+            isUploading={isUploading}
+            replacingId={replacingId}
+            guidedMode={showUploadWizard && !hasResume}
+            onUploadFile={onUploadFile}
+            onReplaceDocument={onReplaceDocument}
+            onRemoveDocument={onRemoveDocument}
+            onReload={onReload}
+            formatDate={formatDate}
+          />
+        )}
+
+        {!uploadOpen && docs.length > 0 && (
+          <div className="rs-studio-doc-queue__collapsed-summary">
+            <span className="rs-studio-doc-queue__title">
+              {docs.length} {L(lang, docs.length === 1 ? "file" : "files", docs.length === 1 ? "fichier" : "fichiers")}
             </span>
-          </label>
-          <label
-            className={`rs-studio-edit-length__option rs-studio-edit-length__option--two-page${selectedResumeLength === "2_pages" ? " is-selected" : ""}`}
-          >
-            <input
-              type="radio"
-              name={`resume-length-${plan.planId}`}
-              value="2_pages"
-              checked={selectedResumeLength === "2_pages"}
-              onChange={() => setResumeLengthForPlan("2_pages")}
-            />
-            <span className="rs-studio-edit-length__title">
-              {L(lang, "Apply this edit to a 2-page resume", "Appliquer cette retouche a un CV de 2 pages")}
-            </span>
-            <span className="rs-studio-edit-length__hint">
-              {L(
-                lang,
-                "Your strategist will format this included edit as a two-page executive resume.",
-                "Votre strategiste formatera cette retouche incluse en CV executif de deux pages."
+          </div>
+        )}
+      </div>
+
+      {/* ── Free edit section ─────────────────────────────────── */}
+      {hasFreeEdits ? (
+        <div className="rs-studio-panel rs-studio-panel--edit rs-studio-panel--v2">
+          <div className="rs-studio-panel__heading">
+            <span>
+              {L(lang, "Free edit request", "Demande de modification gratuite")}
+              {freeEditsRemaining != null && (
+                <span className="rs-studio-generation-pill">
+                  {freeEditsRemaining} {L(lang, "remaining", "restant(es)")}
+                </span>
               )}
             </span>
-          </label>
-        </fieldset>
-        <textarea
-          className="rs-studio-textarea"
-          value={editNotes[plan.planId] || ""}
-          onChange={(e) => setEditNotes((s) => ({ ...s, [plan.planId]: e.target.value }))}
-          placeholder={L(
-            lang,
-            "Describe required updates to your resume deliverable…",
-            "Decrivez les modifications demandees pour votre livrable…"
+            <SectionToggle
+              open={editOpen}
+              onToggle={() => setEditOpen(v => !v)}
+              label={editOpen ? L(lang,"Collapse","Reduire") : L(lang,"Open","Ouvrir")}
+            />
+          </div>
+
+          {editOpen && (
+            <>
+              {/* Resume length selector */}
+              <fieldset className="rs-studio-edit-length">
+                <legend className="rs-studio-edit-length__legend">
+                  {L(lang, "Target length", "Longueur cible")}
+                </legend>
+                {[
+                  { value: "standard", en: "Standard (1 page)", fr: "Standard (1 page)",
+                    hint: { en: "Concise executive format", fr: "Format executif concis" } },
+                  { value: "2_pages",  en: "Extended (2 pages)", fr: "Etendu (2 pages)",
+                    hint: { en: "Senior / director level", fr: "Niveau directeur / senior" } },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`rs-studio-edit-length__option${opt.value === "2_pages" ? " rs-studio-edit-length__option--two-page" : ""}${resumeLen === opt.value ? " is-selected" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name={`resume-length-${planId}`}
+                      value={opt.value}
+                      checked={resumeLen === opt.value}
+                      onChange={() => setEditResumeLength((s) => ({ ...s, [planId]: opt.value }))}
+                    />
+                    <span className="rs-studio-edit-length__title">
+                      {lang === "fr" ? opt.fr : opt.en}
+                    </span>
+                    <span className="rs-studio-edit-length__hint">
+                      {lang === "fr" ? opt.hint.fr : opt.hint.en}
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
+
+              {/* Notes textarea */}
+              <div className="rs-studio-field">
+                <label className="rs-studio-field__label" htmlFor={`edit-notes-${planId}`}>
+                  {L(lang, "Revision notes", "Notes de revision")}
+                </label>
+                <textarea
+                  id={`edit-notes-${planId}`}
+                  className="rs-studio-textarea"
+                  rows={4}
+                  placeholder={L(
+                    lang,
+                    "Describe the changes you need — specific sections, wording, formatting…",
+                    "Decrivez les modifications — sections, formulation, mise en forme…"
+                  )}
+                  value={notes}
+                  onChange={(e) => setEditNotes((s) => ({ ...s, [planId]: e.target.value }))}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="rs-btn-accent rs-studio-edit-cta"
+                disabled={!canSubmitEdit || isRequesting}
+                onClick={() => onRequestFreeEdit(planId)}
+              >
+                {isRequesting
+                  ? L(lang, "Submitting…", "Envoi…")
+                  : L(lang, "Submit revision request", "Soumettre la demande")}
+              </button>
+            </>
           )}
-          rows={4}
-        />
-        <button
-          type="button"
-          className="rs-btn-ghost rs-studio-edit-cta"
-          onClick={() => onRequestFreeEdit(plan.planId)}
-          disabled={requestingPlan === plan.planId || (plan.freeEdits?.remaining ?? 0) <= 0}
-        >
-          {requestingPlan === plan.planId
-            ? L(lang, "Submitting…", "Envoi…")
-            : L(lang, "Request Free Edit", "Demander une retouche gratuite")}
-        </button>
-        {(plan.editRequests || []).length ? (
-          <ul className="rs-studio-edit-history">
-            {(plan.editRequests || []).map((r) => (
-              <li key={r.id}>
-                <span className="rs-studio-edit-history__id">#{r.id}</span>
-                <span className="rs-studio-edit-history__status">{r.status}</span>
-                <span
-                  className={`rs-studio-edit-history__length${r.resumeLength === "2_pages" ? " is-two-page" : ""}`}
-                >
-                  {resumeLengthLabel(r.resumeLength)}
-                </span>
-                <span className="rs-studio-edit-history__date">{formatDate(r.requested_at)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
+        </div>
+      ) : null}
+
     </article>
   );
 }

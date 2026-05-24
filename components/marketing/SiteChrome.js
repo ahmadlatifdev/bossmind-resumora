@@ -159,17 +159,14 @@ export default function SiteChrome({ children }) {
 
         <InstallPrompt />
 
-        <footer className="rs-footer rs-footer-enterprise rs-footer-minimal">
-          <div className="rs-footer-enterprise-grid rs-footer-enterprise-grid--tight">
-            <div className="rs-footer-block">
-              <ResumoraLogo variant="footer" linkHome />
-              <p className="rs-footer-about">{t.footerAboutLuxury}</p>
-            </div>
+        {/* ── REFINED FOOTER: logo block removed, two-column info grid ── */}
+        <footer className="rs-footer rs-footer-enterprise rs-footer-enterprise--compact rs-footer-minimal">
+          <div className="rs-footer-enterprise-grid rs-footer-enterprise-grid--two-col">
 
             <div className="rs-footer-block">
               <h4 className="rs-footer-heading">{t.footerColReach}</h4>
               <p className="rs-footer-line">
-                <a href={`mailto:${t.footerEmail}`} className="rs-footer-link">
+                <a href={`mailto:${t.footerEmail}`} className="rs-footer-link rs-footer-link--gold">
                   {t.footerEmail}
                 </a>
               </p>
@@ -184,28 +181,21 @@ export default function SiteChrome({ children }) {
             <div className="rs-footer-block">
               <h4 className="rs-footer-heading">{t.footerColLegal}</h4>
               <ul className="rs-footer-link-list">
-                <li>
-                  <Link href="/terms">{t.footerTerms}</Link>
-                </li>
-                <li>
-                  <Link href="/privacy">{t.footerPrivacy}</Link>
-                </li>
-                <li>
-                  <Link href="/refund">{t.footerRefund}</Link>
-                </li>
-                <li>
-                  <Link href="/system-policy">{t.footerSystemPolicy}</Link>
-                </li>
+                <li><Link href="/terms">{t.footerTerms}</Link></li>
+                <li><Link href="/privacy">{t.footerPrivacy}</Link></li>
+                <li><Link href="/refund">{t.footerRefund}</Link></li>
+                <li><Link href="/system-policy">{t.footerSystemPolicy}</Link></li>
               </ul>
             </div>
+
           </div>
 
           <FooterUniversalDock />
 
-          <div className="rs-footer-lang-row">
+          <div className="rs-footer-bottom-row">
             <LanguageSwitcher variant="compact" />
+            <span className="rs-footer-meta rs-footer-meta--inline">{t.footerCopy}</span>
           </div>
-          <div className="rs-footer-meta">{t.footerCopy}</div>
         </footer>
       </div>
     </div>

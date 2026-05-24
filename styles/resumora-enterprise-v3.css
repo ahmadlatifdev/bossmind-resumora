@@ -1,0 +1,361 @@
+/* ============================================================
+   RESUMORA STUDIO - ENTERPRISE ORCHESTRATION LAYER v3
+   Append to resumora-global.css.
+   Zero breaking changes. Additive modifier classes only.
+   ============================================================ */
+
+/* - Workspace card v2 - */
+.rs-studio-workspace-card--v2 {
+  padding: clamp(1rem, 2vw, 1.35rem);
+  transition: box-shadow 0.25s ease;
+}
+
+.rs-studio-workspace-card--v2:hover {
+  box-shadow: var(--rs-shadow-card), 0 0 0 1px rgba(201, 162, 39, 0.1);
+}
+
+/* - Panel v2: tighter, no redundant margin - */
+.rs-studio-panel--v2 {
+  margin: 0.65rem 0 0;
+}
+
+.rs-studio-panel--v2 + .rs-studio-panel--v2 {
+  margin-top: 0.55rem;
+}
+
+/* - Panel heading: inline label + badge + toggle - */
+.rs-studio-panel__heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* - Section collapse toggle - */
+.rs-studio-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--rs-border);
+  background: transparent;
+  color: var(--rs-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.rs-studio-section-toggle:hover {
+  color: var(--rs-gold-soft);
+  border-color: rgba(201, 162, 39, 0.35);
+  background: rgba(201, 162, 39, 0.06);
+}
+
+/* - Delivery timeline v2: horizontal compact - */
+.rs-studio-delivery-timeline--v2 {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--rs-text-muted);
+  flex-shrink: 0;
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-done {
+  color: var(--rs-text-secondary);
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-active {
+  color: var(--rs-gold-soft);
+  font-weight: 600;
+}
+
+/* Connector line between steps */
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item + .rs-studio-delivery-timeline__item::before {
+  content: "";
+  display: inline-block;
+  width: 1.5rem;
+  height: 1px;
+  background: var(--rs-border);
+  margin-right: 0.35rem;
+  flex-shrink: 0;
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-done + .rs-studio-delivery-timeline__item::before {
+  background: rgba(201, 162, 39, 0.25);
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--rs-border);
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-done .rs-studio-delivery-timeline__dot {
+  background: rgba(76, 175, 80, 0.65);
+}
+
+.rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-active .rs-studio-delivery-timeline__dot {
+  background: var(--rs-gold);
+  box-shadow: 0 0 6px rgba(201, 162, 39, 0.5);
+  animation: rs-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes rs-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.7); }
+}
+
+/* - Status chip system (extended) - */
+.rs-studio-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+.rs-studio-status-chip--ready,
+.rs-studio-status-chip--delivered {
+  color: #9ee8b8;
+  background: rgba(76, 175, 80, 0.12);
+  border-color: rgba(76, 175, 80, 0.32);
+}
+
+.rs-studio-status-chip--processing,
+.rs-studio-status-chip--generating,
+.rs-studio-status-chip--revision {
+  color: var(--rs-gold-soft);
+  background: rgba(201, 162, 39, 0.1);
+  border-color: rgba(201, 162, 39, 0.28);
+  animation: rs-chip-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes rs-chip-glow {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 8px rgba(201, 162, 39, 0.2); }
+}
+
+.rs-studio-status-chip--queued,
+.rs-studio-status-chip--pending {
+  color: var(--rs-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--rs-border);
+}
+
+/* - Doc row v2: icon + info + compact actions - */
+.rs-studio-doc-row--v2 {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr auto;
+  align-items: start;
+  gap: 0.4rem 0.55rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--rs-radius-sm);
+  border: 1px solid var(--rs-border);
+  background: rgba(8, 14, 32, 0.65);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.rs-studio-doc-row--v2:hover {
+  border-color: rgba(201, 162, 39, 0.25);
+  background: rgba(8, 14, 32, 0.85);
+}
+
+.rs-studio-doc-row__icon {
+  color: var(--rs-text-muted);
+  padding-top: 0.18rem;
+  flex-shrink: 0;
+}
+
+.rs-studio-doc-row--v2 .rs-studio-doc-row__name {
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rs-studio-doc-row--v2 .rs-studio-doc-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.3rem;
+  margin-top: 0.18rem;
+}
+
+.rs-studio-doc-row__type  { font-size: 0.72rem; color: var(--rs-text-muted); }
+.rs-studio-doc-row__sep   { font-size: 0.72rem; color: var(--rs-text-muted); opacity: 0.4; }
+.rs-studio-doc-row__date  { font-size: 0.72rem; color: var(--rs-text-muted); }
+
+/* Action buttons with icon + label */
+.rs-studio-doc-row--v2 .rs-studio-doc-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  flex-wrap: nowrap;
+}
+
+.rs-studio-action-btn__label {
+  display: none;
+}
+
+/* Show label on wider screens */
+@media (min-width: 640px) {
+  .rs-studio-action-btn__label {
+    display: inline;
+  }
+}
+
+/* - Doc queue count badge - */
+.rs-studio-doc-queue__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(201, 162, 39, 0.14);
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  color: var(--rs-gold-soft);
+}
+
+/* - Collapsed doc summary - */
+.rs-studio-doc-queue__collapsed-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.82rem;
+  color: var(--rs-text-muted);
+  border-radius: var(--rs-radius-sm);
+  background: rgba(5, 10, 24, 0.35);
+}
+
+/* - Onboarding progress v2 - */
+.rs-onboarding-progress--v2 {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.rs-onboarding-progress__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.rs-onboarding-progress__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rs-text-muted);
+  flex: 1;
+}
+
+.rs-onboarding-progress__counter {
+  font-size: 0.78rem;
+  color: var(--rs-text-secondary);
+}
+
+.rs-onboarding-progress__counter strong {
+  color: var(--rs-gold-soft);
+}
+
+.rs-onboarding-progress__pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--rs-gold-soft);
+  min-width: 2.2rem;
+  text-align: right;
+}
+
+.rs-onboarding-steps--v2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.45rem 0 0;
+}
+
+.rs-onboarding-steps--v2 li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--rs-text-muted);
+}
+
+.rs-onboarding-steps--v2 li.is-done {
+  color: var(--rs-text-secondary);
+}
+
+.rs-onboarding-dot {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* - Responsive: mobile doc rows - */
+@media (max-width: 640px) {
+  .rs-studio-doc-row--v2 {
+    grid-template-columns: 1.25rem 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .rs-studio-doc-row--v2 .rs-studio-doc-row__actions {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+    padding-top: 0.35rem;
+    border-top: 1px solid var(--rs-border);
+    margin-top: 0.2rem;
+  }
+
+  .rs-studio-action-btn__label {
+    display: inline;
+  }
+
+  .rs-studio-delivery-timeline--v2 {
+    flex-wrap: wrap;
+    gap: 0.35rem 0;
+  }
+
+  .rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item + .rs-studio-delivery-timeline__item::before {
+    width: 0.65rem;
+    margin-right: 0.2rem;
+  }
+}
+
+/* - Reduced motion - */
+@media (prefers-reduced-motion: reduce) {
+  .rs-studio-status-chip--processing,
+  .rs-studio-status-chip--generating,
+  .rs-studio-status-chip--revision,
+  .rs-studio-delivery-timeline--v2 .rs-studio-delivery-timeline__item.is-active .rs-studio-delivery-timeline__dot {
+    animation: none;
+  }
+}

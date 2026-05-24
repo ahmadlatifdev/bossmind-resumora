@@ -1,0 +1,61 @@
+/* ============================================================
+   RESUMORA FOOTER — EXECUTIVE COMPACT REFINEMENT
+   Append to resumora-global.css (after existing footer rules).
+   Zero breaking changes — additive only.
+   ============================================================ */
+
+/* ── Compact footer modifier ─────────────────────────────── */
+.rs-footer-enterprise--compact {
+  padding-block: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+/* ── Two-column info grid (contact + legal) ──────────────── */
+.rs-footer-enterprise-grid--two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-bottom: clamp(0.85rem, 1.8vw, 1.25rem);
+  border-bottom: 1px solid var(--rs-border);
+  margin-bottom: clamp(0.85rem, 1.8vw, 1.25rem);
+}
+
+@media (max-width: 520px) {
+  .rs-footer-enterprise-grid--two-col {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+/* ── Gold email link ─────────────────────────────────────── */
+.rs-footer-link--gold {
+  color: var(--rs-gold-soft);
+  font-weight: 600;
+}
+
+.rs-footer-link--gold:hover {
+  color: var(--rs-text);
+}
+
+/* ── Bottom row: lang switcher + copyright inline ────────── */
+.rs-footer-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: clamp(0.65rem, 1.5vw, 1rem);
+}
+
+.rs-footer-meta--inline {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--rs-text-muted);
+}
+
+@media (max-width: 480px) {
+  .rs-footer-bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
