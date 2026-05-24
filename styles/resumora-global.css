@@ -3653,11 +3653,14 @@ body[data-rs-pricing-active="1"] .rs-install-banner {
   padding-block: clamp(0.85rem, 1.6vw, 1.35rem);
 }
 
-.rs-week-hero--lux {
-  padding-block: clamp(2rem, 5vw, 3rem);
-  background: radial-gradient(ellipse 85% 50% at 50% -20%, rgba(201, 162, 39, 0.12), transparent 62%),
-    radial-gradient(ellipse 70% 40% at 100% 0%, rgba(90, 120, 200, 0.05), transparent 50%);
+.rs-week-hero--streamlined {
+  padding-block-end: clamp(1.35rem, 2.8vw, 2.15rem);
 }
+
+.rs-lead--hero-final {
+  margin-bottom: 0;
+}
+
 
 .rs-hero-lux-wrap {
   position: relative;

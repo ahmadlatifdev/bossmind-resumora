@@ -1,98 +1,109 @@
 /**
- * Resumora — middleware.js (Next.js Edge Middleware)
+ * Resumora -- middleware.js (Next.js Edge Middleware)
  *
- * Edge-level canonical redirect: enforces resumora.net as the sole
- * public-facing domain. Runs before any page renders, so crawlers
- * and social bots receive the 308 immediately without loading a page.
+ * Canonical redirect: any *.onrender.com host -> https://resumora.net
+ *
+ * Root cause fixes applied:
+ *   1. Was matching only "bossmind-resumora-web.onrender.com" exactly.
+ *      Render exposes both bossmind-resumora-web.onrender.com AND
+ *      bossmind-resumora.onrender.com. Now matches ALL *.onrender.com hosts.
+ *   2. Render's reverse proxy may rewrite the Host header before Next.js
+ *      receives it. Added X-Forwarded-Host header as fallback so the real
+ *      public-facing hostname is always detected correctly.
  *
  * SAFE EXCLUSIONS (never redirected):
- *   - /api/stripe/*        — Stripe webhooks (called by Stripe servers to Render URL)
- *   - /api/webhooks/*      — any other webhooks
- *   - /api/health          — Render health check
- *   - /_next/*             — Next.js internal assets
- *   - /favicon.ico         — static assets
+ *   /api/*       -- all API routes including webhooks and Stripe
+ *   /_next/*     -- Next.js internal assets
+ *   /favicon.ico -- static
+ *   /robots.txt  -- must be reachable on both domains
+ *   /sitemap.xml -- must be reachable on both domains
  *
- * All other paths arriving on bossmind-resumora-web.onrender.com
- * receive a 308 permanent redirect to https://resumora.net/<same-path>.
- *
- * Does NOT touch:
- *   - auth/session logic
- *   - upload processing
- *   - Stripe checkout flow
- *   - PRAE systems
- *   - API contracts
+ * Local dev: localhost never matches *.onrender.com -> pass through.
+ * Does NOT touch: auth, session, Stripe, uploads, PRAE, API contracts.
  */
 
 import { NextResponse } from "next/server";
 
-/** The internal Render domain to redirect away from. */
-const RENDER_HOST = "bossmind-resumora-web.onrender.com";
-
-/** The canonical production domain. */
 const CANONICAL_HOST = "resumora.net";
 
 /**
- * Paths that must NEVER be redirected.
- * Stripe calls webhooks directly to the Render URL — redirecting
- * those would break webhook delivery because Stripe does not follow
- * redirects on POST requests.
+ * Returns true if the hostname is a Render internal domain.
+ * Matches: bossmind-resumora-web.onrender.com, bossmind-resumora.onrender.com,
+ *          any-variant.onrender.com
+ * Does NOT match: resumora.net, localhost, 127.0.0.1
+ */
+function isRenderHost(hostname) {
+  if (!hostname) return false;
+  return hostname.endsWith(".onrender.com") || hostname === "onrender.com";
+}
+
+/**
+ * Paths that must never be redirected.
+ * /api/ covers all API routes including:
+ *   /api/stripe/webhook, /api/webhooks/stripe,
+ *   /api/client/*, /api/engagement/*, /api/health
  */
 const EXCLUDED_PREFIXES = [
-  "/api/stripe",
-  "/api/webhooks",
-  "/api/health",
-  "/_next",
+  "/api/",
+  "/_next/",
   "/favicon.ico",
   "/robots.txt",
   "/sitemap.xml",
 ];
 
 export function middleware(request) {
-  const { hostname, pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
-  // Only act on Render internal domain traffic
-  if (hostname !== RENDER_HOST) {
+  // Resolve the real public-facing hostname.
+  // Render's load balancer may rewrite the Host header to an internal value.
+  // X-Forwarded-Host carries the original client-facing hostname reliably.
+  const xForwardedHost = request.headers.get("x-forwarded-host") || "";
+  const hostHeader     = request.headers.get("host") || "";
+  const effectiveHost  = (xForwardedHost || hostHeader)
+    .split(",")[0].trim().toLowerCase();
+
+  // Already on canonical domain -- pass through immediately.
+  if (
+    effectiveHost === CANONICAL_HOST ||
+    effectiveHost === `www.${CANONICAL_HOST}`
+  ) {
     return NextResponse.next();
   }
 
-  // Never redirect excluded paths (webhooks, assets, health)
-  const isExcluded = EXCLUDED_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix)
-  );
-  if (isExcluded) {
+  // Not a Render host (local dev, staging, other) -- pass through.
+  if (!isRenderHost(effectiveHost)) {
     return NextResponse.next();
   }
 
-  // Stripe-signature header means this is a webhook POST — never redirect
-  const hasStripeSignature = request.headers.has("stripe-signature");
-  if (hasStripeSignature) {
+  // Stripe webhook: stripe-signature header means Stripe is calling us directly.
+  // Never redirect -- Stripe does not follow redirects on POST.
+  if (request.headers.has("stripe-signature")) {
     return NextResponse.next();
   }
 
-  // Build the canonical redirect URL, preserving path and query string
+  // Never redirect excluded paths (API routes, static assets).
+  if (EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+
+  // Build the canonical redirect URL, preserving path + query string exactly.
   const redirectUrl = new URL(request.url);
   redirectUrl.hostname = CANONICAL_HOST;
   redirectUrl.protocol = "https:";
-  redirectUrl.port     = "";         // remove any explicit port
+  redirectUrl.port     = "";
 
-  // 308 Permanent Redirect — preserves HTTP method (safe for all flows)
+  // 308 Permanent Redirect -- preserves HTTP method, signals crawlers to update.
   return NextResponse.redirect(redirectUrl.toString(), {
     status: 308,
-    headers: {
-      // Tell crawlers to update their indexes
-      "Cache-Control": "public, max-age=3600",
-    },
+    headers: { "Cache-Control": "public, max-age=3600" },
   });
 }
 
 export const config = {
-  /**
-   * Run middleware on all routes except:
-   * - Next.js internal routes (_next/*)
-   * - Static file routes (favicon, images, etc.)
-   * The EXCLUDED_PREFIXES check above provides a second layer of safety.
-   */
   matcher: [
+    // Match all paths except Next.js static assets and favicon.
+    // /api/* is NOT excluded here -- middleware needs to run to check
+    // stripe-signature header. EXCLUDED_PREFIXES handles /api/ safely.
     "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 };

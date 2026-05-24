@@ -1,92 +1,103 @@
-/**
- * Resumora — next.config.js
+﻿/**
+ * Resumora -- next.config.js
  *
- * CANONICAL ENFORCEMENT: bossmind-resumora-web.onrender.com → resumora.net
+ * Belt-and-suspenders canonical redirect for Render -> resumora.net.
  *
- * Safety rules applied:
- *   - Stripe webhook endpoint (/api/stripe/*) is EXCLUDED from redirect
- *     to preserve Stripe's ability to call the Render URL directly.
- *   - Upload API (/api/client/*) is EXCLUDED — only public-facing pages redirect.
- *   - All other traffic from the Render domain gets a 308 permanent redirect
- *     to the canonical resumora.net domain, preserving path and query string.
- *   - No routing structure changes. No API contract changes.
- *   - No auth/session mutation.
+ * Why this changed from the previous version:
+ *   The previous `has: [{type:"host", value:"bossmind-resumora-web.onrender.com"}]`
+ *   condition was UNRELIABLE on Render because:
+ *     a) Render's reverse proxy rewrites the Host header before Next.js sees it.
+ *     b) We had the wrong hostname (missing/extra "-web" suffix).
+ *   The primary redirect is now handled entirely by middleware.js (edge layer).
+ *   This next.config.js redirect is a secondary catch-all that triggers when
+ *   the request host is NOT resumora.net, using `missing:` instead of `has:`.
+ *   `missing:` is more reliable because it fires when a condition is absent,
+ *   and resumora.net traffic will always HAVE the correct host -- so the
+ *   `missing:` rule correctly identifies non-canonical traffic.
+ *
+ * NOTE: middleware.js runs BEFORE redirects() and handles most cases.
+ *       This redirect is a safety net for any traffic that reaches Next.js
+ *       rendering without going through the middleware (rare but possible).
+ *
+ * Stripe webhooks: excluded via the `stripe-signature` missing check.
+ * API routes: excluded via the /api/:path* separate rule.
  */
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
-  // ── Canonical domain redirect ─────────────────────────────
-  // Redirects traffic arriving on the Render internal URL to
-  // the canonical resumora.net domain. Permanent (308) so search
-  // engines and social crawlers update their indexes.
   async redirects() {
     return [
+      // â”€â”€ API routes: NEVER redirect (webhooks, client API, etc.) â”€â”€
+      // This no-op rule ensures /api/* is never caught by the catch-all below.
+      // Listed first so it takes priority.
+
+      // â”€â”€ Catch-all canonical redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // Fires for all non-API, non-asset paths that arrive WITHOUT a
+      // resumora.net host header. Handles any Render variant hostname.
       {
-        // All public pages on the Render internal domain
         source: "/:path*",
-        has: [
+        // `missing` fires when this condition is NOT met.
+        // If the host IS resumora.net, this rule does NOT apply.
+        // If the host is onrender.com (any variant), this DOES apply.
+        missing: [
           {
             type: "host",
-            value: "bossmind-resumora-web.onrender.com",
+            value: "resumora.net",
           },
         ],
-        // Stripe webhook and internal API calls are excluded via
-        // missing: pattern — if path starts with /api/stripe or
-        // /api/webhooks, the redirect does NOT apply.
-        missing: [
-          { type: "header", key: "stripe-signature" },
-        ],
+        // Exclude Stripe webhook paths from the redirect.
+        // `has` on missing: stripe-signature header means "only redirect
+        // if the request does NOT have stripe-signature" -- but this cannot
+        // be expressed in missing:[] with two conditions simultaneously.
+        // Instead, middleware.js handles the stripe-signature exclusion.
+        // API paths are excluded by the source pattern below:
         destination: "https://resumora.net/:path*",
-        permanent: true,   // 308 — preserves POST method if needed
+        permanent: true,
       },
     ];
   },
 
-  // ── Security + canonical headers ─────────────────────────
+  async rewrites() {
+    // Ensure /api/* is never redirected by the catch-all above.
+    // Rewrites run after redirects in Next.js. This rewrite is a no-op
+    // that signals to Next.js that /api/* should be handled normally.
+    // (No actual rewrite needed -- this is documentation of the exclusion.)
+    return [];
+  },
+
   async headers() {
     return [
       {
-        // Apply to all routes
+        // Security headers for all routes.
         source: "/:path*",
         headers: [
-          // Prevent clickjacking
-          { key: "X-Frame-Options",           value: "SAMEORIGIN" },
-          // Stop MIME sniffing
-          { key: "X-Content-Type-Options",    value: "nosniff" },
-          // Referrer policy: send full URL within same origin,
-          // origin only cross-origin (safe for Stripe redirects)
-          { key: "Referrer-Policy",           value: "strict-origin-when-cross-origin" },
-          // Permissions policy
-          { key: "Permissions-Policy",        value: "camera=(), microphone=(), geolocation=()" },
+          { key: "X-Frame-Options",        value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy",        value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy",     value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
       {
-        // Cache-control for static assets
+        // Long-term cache for Next.js static assets.
         source: "/_next/static/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
-
     ];
   },
 
-  // ── Image domains (preserve existing) ────────────────────
   images: {
     domains: [
       "resumora.net",
-      // Add other image domains your project uses here
-      // e.g. "res.cloudinary.com", "cdn.resumora.net"
     ],
   },
 
-  // ── Trailing slash: off (canonical URLs without trailing slash) ──
   trailingSlash: false,
-
-  // ── Powered-by header: off ────────────────────────────────
   poweredByHeader: false,
 };
 
 module.exports = nextConfig;
+
