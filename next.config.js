@@ -23,8 +23,13 @@
  * API routes: excluded via the /api/:path* separate rule.
  */
 
+const path = require("path");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: path.join(__dirname),
+  },
   reactStrictMode: true,
 
   async redirects() {

@@ -2,6 +2,10 @@
   "name": "resumora-fresh",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "node scripts/dev-with-browser.mjs",
     "dev:plain": "next dev --webpack",
@@ -233,16 +237,16 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.0",
+    "@tailwindcss/postcss": "4.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.5.0",
+    "autoprefixer": "10.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
-    "postcss": "^8.5.15",
+    "postcss": "8.5.15",
     "sharp": "^0.34.5",
-    "tailwindcss": "^4.3.0",
+    "tailwindcss": "4.3.0",
     "to-ico": "^1.1.2",
     "typescript": "^5"
   },
