@@ -1,0 +1,117 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0.85rem 0;
+}
+
+.navbarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--lux-white);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.brandMark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, var(--lux-gold-light), var(--lux-gold));
+  box-shadow: 0 8px 24px rgba(201, 169, 98, 0.35);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink {
+  color: var(--lux-muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  transition: color 0.2s ease;
+}
+
+.navLink:hover {
+  color: var(--lux-white);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--lux-black);
+  background: linear-gradient(135deg, var(--lux-gold-light), var(--lux-gold));
+}
+
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--lux-glass-border);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--lux-white);
+  cursor: pointer;
+}
+
+.mobilePanel {
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.mobilePanelOpen {
+  display: flex;
+}
+
+.mobileLink {
+  padding: 0.75rem 0.5rem;
+  color: var(--lux-muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 768px) {
+  .navLinks,
+  .navActions .navCta {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+}

@@ -1,0 +1,225 @@
+.hero {
+  position: relative;
+  padding: clamp(7rem, 14vw, 10rem) 0 clamp(4rem, 8vw, 6rem);
+  text-align: center;
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 20%, rgba(201, 169, 98, 0.14), transparent 55%);
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lux-gold-light);
+}
+
+.heroTitle {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.heroSubtitle {
+  margin: 0 auto 2rem;
+  max-width: 42rem;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--lux-muted);
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+
+.ctaPrimary,
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.ctaPrimary {
+  color: var(--lux-black);
+  background: linear-gradient(135deg, var(--lux-gold-light), var(--lux-gold));
+  box-shadow: 0 12px 40px rgba(201, 169, 98, 0.28);
+}
+
+.ctaPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(201, 169, 98, 0.38);
+}
+
+.ctaSecondary {
+  color: var(--lux-white);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--lux-glass-border);
+}
+
+.ctaSecondary:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.heroStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.statCard {
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+
+.statValue {
+  display: block;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.82rem;
+  color: var(--lux-muted);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
+}
+
+.sectionEyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lux-gold);
+}
+
+.sectionTitle {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sectionDesc {
+  margin: 0 auto;
+  max-width: 36rem;
+  color: var(--lux-muted);
+  line-height: 1.6;
+}
+
+.testimonialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.testimonialCard {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quote {
+  margin: 0;
+  line-height: 1.65;
+  color: var(--lux-muted);
+  font-size: 0.98rem;
+}
+
+.author {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.role {
+  font-size: 0.8rem;
+  color: var(--lux-gold);
+}
+
+.faqList {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.faqItem {
+  overflow: hidden;
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--lux-white);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faqAnswer {
+  padding: 0 1.25rem 1.15rem;
+  margin: 0;
+  line-height: 1.65;
+  color: var(--lux-muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .testimonialGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroStats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .ctaRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+  }
+}

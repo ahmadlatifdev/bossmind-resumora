@@ -1,0 +1,99 @@
+:root {
+  --lux-navy: #0a0e1a;
+  --lux-navy-soft: #121829;
+  --lux-black: #050608;
+  --lux-gold: #c9a962;
+  --lux-gold-light: #e4c988;
+  --lux-white: #f8f6f2;
+  --lux-muted: rgba(248, 246, 242, 0.72);
+  --lux-glass: rgba(18, 24, 41, 0.55);
+  --lux-glass-border: rgba(201, 169, 98, 0.22);
+  --lux-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  --lux-radius: 16px;
+  --lux-font-display: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --lux-font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--lux-font-body);
+  color: var(--lux-white);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201, 169, 98, 0.12), transparent),
+    linear-gradient(180deg, var(--lux-black) 0%, var(--lux-navy) 45%, var(--lux-navy-soft) 100%);
+  -webkit-font-smoothing: antialiased;
+}
+
+.lux-page {
+  overflow-x: hidden;
+}
+
+.lux-container {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.lux-section {
+  padding: clamp(3.5rem, 8vw, 6rem) 0;
+}
+
+.lux-glass {
+  background: var(--lux-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--lux-glass-border);
+  border-radius: var(--lux-radius);
+  box-shadow: var(--lux-shadow);
+}
+
+.lux-gold-text {
+  background: linear-gradient(135deg, var(--lux-gold-light), var(--lux-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes lux-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lux-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.lux-animate-in {
+  animation: lux-fade-up 0.8s ease both;
+}
+
+.lux-animate-in-delay {
+  animation: lux-fade-up 0.8s ease 0.15s both;
+}
+
+@media (max-width: 768px) {
+  .lux-container {
+    width: min(1120px, calc(100% - 1.25rem));
+  }
+}
