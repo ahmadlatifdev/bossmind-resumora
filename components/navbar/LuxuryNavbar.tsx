@@ -12,9 +12,10 @@ const LINKS = [
 
 type LuxuryNavbarProps = {
   langToggle?: React.ReactNode;
+  appearanceToggle?: React.ReactNode;
 };
 
-export default function LuxuryNavbar({ langToggle }: LuxuryNavbarProps) {
+export default function LuxuryNavbar({ langToggle, appearanceToggle }: LuxuryNavbarProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -39,6 +40,7 @@ export default function LuxuryNavbar({ langToggle }: LuxuryNavbarProps) {
           </nav>
 
           <div className={styles.navActions}>
+            {appearanceToggle}
             {langToggle}
             <a href="#hero" className={styles.navCta}>
               Get Started

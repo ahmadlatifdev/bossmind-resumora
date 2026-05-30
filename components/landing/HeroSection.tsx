@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import LuxuryFooter from "@/components/footer/LuxuryFooter";
+import { AppearanceToggle } from "@/components/landing/AppearanceToggle";
 import FaqSection from "@/components/landing/FaqSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import LuxuryNavbar from "@/components/navbar/LuxuryNavbar";
@@ -136,7 +137,10 @@ export function LuxuryHomePage() {
 
   return (
     <div className="lux-page">
-      <LuxuryNavbar langToggle={<LanguageToggle lang={lang} onChange={setLang} />} />
+      <LuxuryNavbar
+        appearanceToggle={<AppearanceToggle />}
+        langToggle={<LanguageToggle lang={lang} onChange={setLang} />}
+      />
       <main>
         <HeroSection lang={lang} />
         <TestimonialsSection />

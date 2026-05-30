@@ -1,0 +1,94 @@
+.settingsWrap {
+  position: relative;
+}
+
+.settingsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--lux-glass-border);
+  background: var(--lux-glass);
+  color: var(--lux-white);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.settingsButton:hover {
+  border-color: var(--lux-gold);
+}
+
+.settingsPanel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 60;
+  min-width: 15.5rem;
+  padding: 1rem;
+}
+
+.panelTitle {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lux-gold);
+}
+
+.panelHint {
+  margin: 0 0 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--lux-muted);
+}
+
+.themeOptions {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.themeOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--lux-white);
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.themeOption:hover {
+  border-color: var(--lux-glass-border);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.themeOptionActive {
+  border-color: var(--lux-gold);
+  background: rgba(201, 169, 98, 0.12);
+}
+
+.themeBadge {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lux-gold-light);
+}
+
+@media (max-width: 768px) {
+  .settingsPanel {
+    right: -0.5rem;
+    min-width: 14rem;
+  }
+}

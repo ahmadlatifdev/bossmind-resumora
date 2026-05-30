@@ -1,17 +1,40 @@
-:root {
+/* Default: true-black dark (long-session / low eye strain) */
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
   --lux-navy: #0a0e1a;
   --lux-navy-soft: #121829;
-  --lux-black: #050608;
+  --lux-black: #000000;
+  --lux-bg-deep: #000000;
+  --lux-bg-mid: #07080c;
+  --lux-bg-soft: #0e1018;
   --lux-gold: #c9a962;
   --lux-gold-light: #e4c988;
-  --lux-white: #f8f6f2;
-  --lux-muted: rgba(248, 246, 242, 0.72);
-  --lux-glass: rgba(18, 24, 41, 0.55);
-  --lux-glass-border: rgba(201, 169, 98, 0.22);
-  --lux-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  --lux-white: #f3f1ec;
+  --lux-muted: rgba(243, 241, 236, 0.78);
+  --lux-glass: rgba(8, 10, 16, 0.72);
+  --lux-glass-border: rgba(201, 169, 98, 0.28);
+  --lux-shadow: 0 24px 80px rgba(0, 0, 0, 0.65);
   --lux-radius: 16px;
   --lux-font-display: "Segoe UI", system-ui, -apple-system, sans-serif;
   --lux-font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --lux-navy: #1a2238;
+  --lux-navy-soft: #eef1f8;
+  --lux-black: #0c1018;
+  --lux-bg-deep: #f6f4ef;
+  --lux-bg-mid: #faf8f4;
+  --lux-bg-soft: #ffffff;
+  --lux-gold: #9a7b3c;
+  --lux-gold-light: #c9a962;
+  --lux-white: #12141c;
+  --lux-muted: rgba(18, 20, 28, 0.72);
+  --lux-glass: rgba(255, 255, 255, 0.78);
+  --lux-glass-border: rgba(154, 123, 60, 0.28);
+  --lux-shadow: 0 20px 60px rgba(26, 34, 56, 0.12);
 }
 
 *,
@@ -30,13 +53,15 @@ body {
   font-family: var(--lux-font-body);
   color: var(--lux-white);
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201, 169, 98, 0.12), transparent),
-    linear-gradient(180deg, var(--lux-black) 0%, var(--lux-navy) 45%, var(--lux-navy-soft) 100%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201, 169, 98, 0.1), transparent),
+    linear-gradient(180deg, var(--lux-bg-deep) 0%, var(--lux-bg-mid) 45%, var(--lux-bg-soft) 100%);
   -webkit-font-smoothing: antialiased;
 }
 
 .lux-page {
   overflow-x: hidden;
+  min-height: 100vh;
+  background: transparent;
 }
 
 .lux-container {
@@ -72,15 +97,6 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes lux-shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
   }
 }
 
