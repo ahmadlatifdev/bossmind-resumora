@@ -1,3 +1,5 @@
-import HomePage from "@/components/marketing/HomePage";
+import "@/styles/luxury/globals.css";
 
-export default HomePage;
+import { LuxuryHomePage } from "@/components/landing/HeroSection";
+
+export default LuxuryHomePage;
