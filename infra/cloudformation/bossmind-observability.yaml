@@ -1,0 +1,231 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: BossMind Resumora observability — CloudWatch dashboard, alarms, and minimal PutMetricData IAM role.
+
+Parameters:
+  MetricNamespace:
+    Type: String
+    Default: BossMind/Resumora
+    Description: CloudWatch custom metric namespace for BossMind Resumora.
+
+  AlarmSnsTopicArn:
+    Type: String
+    Default: ""
+    Description: Optional SNS topic ARN for alarm notifications (reference only; topic must exist).
+
+  DashboardName:
+    Type: String
+    Default: BossMind-Observability-Dashboard
+
+Conditions:
+  HasSnsTopic: !Not [!Equals [!Ref AlarmSnsTopicArn, ""]]
+
+Resources:
+  PutMetricDataRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "BossMind-Resumora-PutMetricData-${AWS::StackName}"
+      Description: Minimal IAM role allowing CloudWatch PutMetricData for BossMind Resumora apps.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BossMindPutMetricDataMinimal
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: PutCustomMetrics
+                Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    cloudwatch:namespace: !Ref MetricNamespace
+
+  ObservabilityDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Ref DashboardName
+      DashboardBody: !Sub
+        - |
+          {
+            "widgets": [
+              {
+                "type": "metric",
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 6,
+                "properties": {
+                  "title": "Resume Parsing Latency",
+                  "region": "us-east-1",
+                  "period": 300,
+                  "stat": "Average",
+                  "view": "timeSeries",
+                  "metrics": [
+                    ["${MetricNamespace}", "ResumeParsingLatency", { "stat": "Average" }]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 12,
+                "y": 0,
+                "width": 12,
+                "height": 6,
+                "properties": {
+                  "title": "Resume Parsing Success",
+                  "region": "us-east-1",
+                  "period": 300,
+                  "stat": "Average",
+                  "view": "timeSeries",
+                  "metrics": [
+                    ["${MetricNamespace}", "ResumeParsingSuccess", { "stat": "Average" }]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 0,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "Sentry Error Count",
+                  "region": "us-east-1",
+                  "period": 300,
+                  "stat": "Sum",
+                  "view": "timeSeries",
+                  "metrics": [
+                    ["${MetricNamespace}", "SentryErrorCount", { "stat": "Sum" }]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 8,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "DeepSeek Token Usage",
+                  "region": "us-east-1",
+                  "period": 300,
+                  "stat": "Sum",
+                  "view": "timeSeries",
+                  "metrics": [
+                    ["${MetricNamespace}", "DeepSeekTokenUsage", { "stat": "Sum" }]
+                  ]
+                }
+              },
+              {
+                "type": "metric",
+                "x": 16,
+                "y": 6,
+                "width": 8,
+                "height": 6,
+                "properties": {
+                  "title": "API Call Count",
+                  "region": "us-east-1",
+                  "period": 300,
+                  "stat": "Sum",
+                  "view": "timeSeries",
+                  "metrics": [
+                    ["${MetricNamespace}", "APICallCount", { "stat": "Sum" }]
+                  ]
+                }
+              }
+            ]
+          }
+        - MetricNamespace: !Ref MetricNamespace
+
+  HighLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: BossMind-HighLatency
+      AlarmDescription: Resume parsing latency exceeded 5000 ms (5 min average).
+      Namespace: !Ref MetricNamespace
+      MetricName: ResumeParsingLatency
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: 5000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: BossMind-HighErrorRate
+      AlarmDescription: Resume parsing success rate dropped below 95%.
+      Namespace: !Ref MetricNamespace
+      MetricName: ResumeParsingSuccess
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: 0.95
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+
+  SentryErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: BossMind-SentryErrors
+      AlarmDescription: Sentry error count exceeded 10 in a 5-minute window.
+      Namespace: !Ref MetricNamespace
+      MetricName: SentryErrorCount
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+
+  HighTokenUsageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: BossMind-HighTokenUsage
+      AlarmDescription: DeepSeek token usage exceeded 100k tokens in a 5-minute window.
+      Namespace: !Ref MetricNamespace
+      MetricName: DeepSeekTokenUsage
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: 100000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasSnsTopic, [!Ref AlarmSnsTopicArn], !Ref AWS::NoValue]
+
+Outputs:
+  DashboardName:
+    Description: CloudWatch dashboard name
+    Value: !Ref DashboardName
+
+  PutMetricDataRoleArn:
+    Description: IAM role ARN for applications publishing custom metrics
+    Value: !GetAtt PutMetricDataRole.Arn
+
+  AlarmNames:
+    Description: Created CloudWatch alarm names
+    Value: BossMind-HighLatency, BossMind-HighErrorRate, BossMind-SentryErrors, BossMind-HighTokenUsage
+
+  SnsTopicReference:
+    Description: SNS topic ARN used for alarm actions (empty if not provided)
+    Value: !If [HasSnsTopic, !Ref AlarmSnsTopicArn, ""]

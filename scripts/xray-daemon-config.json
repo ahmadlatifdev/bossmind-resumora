@@ -1,0 +1,12 @@
+{
+  "DaemonAddress": "127.0.0.1:2000",
+  "Region": "us-east-1",
+  "LocalMode": false,
+  "Socket": {
+    "UDPAddress": "127.0.0.1:2000",
+    "TCPAddress": "127.0.0.1:2000"
+  },
+  "Logging": {
+    "LogLevel": "info"
+  }
+}

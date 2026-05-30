@@ -1,0 +1,90 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Resume Parsing Latency",
+        "region": "us-east-1",
+        "period": 300,
+        "stat": "Average",
+        "view": "timeSeries",
+        "metrics": [
+          ["BossMind/Resumora", "ResumeParsingLatency", { "stat": "Average", "label": "Avg latency (ms)" }],
+          ["...", { "stat": "p99", "label": "p99 latency (ms)" }]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Resume Parsing Success",
+        "region": "us-east-1",
+        "period": 300,
+        "stat": "Average",
+        "view": "timeSeries",
+        "metrics": [
+          ["BossMind/Resumora", "ResumeParsingSuccess", { "stat": "Average", "label": "Success rate" }]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Sentry Error Count",
+        "region": "us-east-1",
+        "period": 300,
+        "stat": "Sum",
+        "view": "timeSeries",
+        "metrics": [
+          ["BossMind/Resumora", "SentryErrorCount", { "stat": "Sum", "label": "Errors" }]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "DeepSeek Token Usage",
+        "region": "us-east-1",
+        "period": 300,
+        "stat": "Sum",
+        "view": "timeSeries",
+        "metrics": [
+          ["BossMind/Resumora", "DeepSeekTokenUsage", { "stat": "Sum", "label": "Tokens" }]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "API Call Count",
+        "region": "us-east-1",
+        "period": 300,
+        "stat": "Sum",
+        "view": "timeSeries",
+        "metrics": [
+          ["BossMind/Resumora", "APICallCount", { "stat": "Sum", "label": "API calls" }]
+        ]
+      }
+    }
+  ]
+}
