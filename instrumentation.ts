@@ -1,6 +1,21 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./sentry.server.config");
+
+    try {
+      const { bootstrapXRay } = require("./instrumentation/xray-bootstrap.js");
+      bootstrapXRay();
+    } catch (e) {
+      console.error("[instrumentation/xray]", e);
+    }
+
+    try {
+      const { startOtelTracing } = require("./instrumentation/otel-tracing.js");
+      await startOtelTracing();
+    } catch (e) {
+      console.error("[instrumentation/otel]", e);
+    }
+
     try {
       const { ensureProjectEnv } = await import("./lib/shared/ensure-project-env.js");
       ensureProjectEnv();

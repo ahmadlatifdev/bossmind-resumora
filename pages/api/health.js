@@ -5,8 +5,9 @@ const { probeDatabaseConnection } = require("../../lib/shared/neon-memory");
 const { auditStripeProductionState } = require("../../lib/marketing/stripe-env-audit");
 const { auditPlansRuntime } = require("../../lib/shared/plans-runtime-sync");
 const { databaseRecoveryHint } = require("../../lib/shared/database-resilience");
+const { withObservableApi } = require("../../lib/observability/sentry-api");
 
-export default async function handler(req, res) {
+async function healthHandler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ ok: false });
@@ -59,3 +60,5 @@ export default async function handler(req, res) {
     monitoring: "/api/runtime/database-health",
   });
 }
+
+export default withObservableApi(healthHandler, { route: "/api/health" });
