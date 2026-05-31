@@ -8,8 +8,10 @@ import FaqSection from "@/components/landing/FaqSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import LuxuryNavbar from "@/components/navbar/LuxuryNavbar";
 import styles from "@/styles/luxury/landing.module.css";
-import ServiceOfferingsGrid from "@/components/marketing/sections/ServiceOfferingsGrid";
-import PricingPanel from "@/components/marketing/sections/PricingPanel";
+import dynamic from "next/dynamic";
+const ServiceOfferingsGrid = dynamic(() => import("@/components/marketing/sections/ServiceOfferingsGrid"), { ssr: false });
+const PricingPanel = dynamic(() => import("@/components/marketing/sections/PricingPanel"), { ssr: false });
+
 
 type Lang = "en" | "fr";
 
