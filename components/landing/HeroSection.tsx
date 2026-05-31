@@ -8,6 +8,8 @@ import FaqSection from "@/components/landing/FaqSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import LuxuryNavbar from "@/components/navbar/LuxuryNavbar";
 import styles from "@/styles/luxury/landing.module.css";
+import ServiceOfferingsGrid from "@/components/marketing/sections/ServiceOfferingsGrid";
+import PricingPanel from "@/components/marketing/sections/PricingPanel";
 
 type Lang = "en" | "fr";
 
@@ -143,6 +145,8 @@ export function LuxuryHomePage() {
       />
       <main>
         <HeroSection lang={lang} />
+      <ServiceOfferingsGrid variant="capabilities" />
+      <PricingPanel />
         <TestimonialsSection />
         <FaqSection />
       </main>
