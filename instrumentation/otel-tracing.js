@@ -16,14 +16,14 @@ async function startOtelTracing() {
     const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-http");
     const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
     const { AwsInstrumentation } = require("@opentelemetry/instrumentation-aws-sdk");
-    const { Resource } = require("@opentelemetry/resources");
+    const { resourceFromAttributes } = require("@opentelemetry/resources");
     const { ATTR_SERVICE_NAME } = require("@opentelemetry/semantic-conventions");
 
     const endpoint =
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 
     const sdk = new NodeSDK({
-      resource: new Resource({
+      resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME ?? "bossmind-resumora",
       }),
       traceExporter: new OTLPTraceExporter({ url: `${endpoint}/v1/traces` }),

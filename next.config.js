@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Resumora -- next.config.js
  *
  * Belt-and-suspenders canonical redirect for Render -> resumora.net.
@@ -34,11 +34,11 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // ── API routes: NEVER redirect (webhooks, client API, etc.) ──
+      // â”€â”€ API routes: NEVER redirect (webhooks, client API, etc.) â”€â”€
       // This no-op rule ensures /api/* is never caught by the catch-all below.
       // Listed first so it takes priority.
 
-      // ── Catch-all canonical redirect ──────────────────────────────
+      // â”€â”€ Catch-all canonical redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       // Fires for all non-API, non-asset paths that arrive WITHOUT a
       // resumora.net host header. Handles any Render variant hostname.
       {
@@ -105,6 +105,7 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
 
 
 
