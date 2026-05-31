@@ -33,35 +33,9 @@ const nextConfig = {
   reactStrictMode: true,
 
   async redirects() {
-    return [
-      // â”€â”€ API routes: NEVER redirect (webhooks, client API, etc.) â”€â”€
-      // This no-op rule ensures /api/* is never caught by the catch-all below.
-      // Listed first so it takes priority.
-
-      // â”€â”€ Catch-all canonical redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-      // Fires for all non-API, non-asset paths that arrive WITHOUT a
-      // resumora.net host header. Handles any Render variant hostname.
-      {
-        source: "/:path*",
-        // `missing` fires when this condition is NOT met.
-        // If the host IS resumora.net, this rule does NOT apply.
-        // If the host is onrender.com (any variant), this DOES apply.
-        missing: [
-          {
-            type: "host",
-            value: "resumora.net",
-          },
-        ],
-        // Exclude Stripe webhook paths from the redirect.
-        // `has` on missing: stripe-signature header means "only redirect
-        // if the request does NOT have stripe-signature" -- but this cannot
-        // be expressed in missing:[] with two conditions simultaneously.
-        // Instead, middleware.js handles the stripe-signature exclusion.
-        // API paths are excluded by the source pattern below:
-        destination: "https://resumora.net/:path*",
-        permanent: true,
-      },
-    ];
+    // Canonical Render → resumora.net redirects are handled in middleware.js (edge).
+    // Empty here so localhost / 127.0.0.1 never get 308 loops in dev.
+    return [];
   },
 
   async rewrites() {
