@@ -1,0 +1,50 @@
+{
+  "services": {
+    "sectionTitle": "Executive Career Services",
+    "ats": {
+      "title": "ATS Resume Optimisation",
+      "description": "Get past automated filters with keyword-optimized resumes that score 90%+ on ATS scans.",
+      "cta": "Start Free Review"
+    },
+    "coverLetter": {
+      "title": "Strategic Cover Letter",
+      "description": "Tailored cover letters that connect your experience to the role's core requirements.",
+      "cta": "Start Free Review"
+    },
+    "linkedin": {
+      "title": "LinkedIn Repositioning",
+      "description": "Transform your LinkedIn profile to attract recruiters and showcase your executive brand.",
+      "cta": "Start Free Review"
+    },
+    "interview": {
+      "title": "Interview Preparation",
+      "description": "AI-powered mock interviews with real-time feedback and question prediction.",
+      "cta": "Start Free Review"
+    },
+    "translation": {
+      "title": "Translation / I18n",
+      "description": "Professional bilingual resume and cover letter translation (EN/FR).",
+      "cta": "Start Free Review"
+    },
+    "prioritySupport": {
+      "title": "Priority Support",
+      "description": "24/7 dedicated support with response times under 2 hours.",
+      "cta": "Start Free Review"
+    }
+  },
+  "faq": {
+    "sectionTitle": "Frequently Asked Questions",
+    "bilingual": {
+      "question": "Do you support English and French?",
+      "answer": "Yes. All deliverables are natively produced in English and French by bilingual executive editors. Toggle the language switcher in the navbar."
+    },
+    "mobile": {
+      "question": "Is this homepage mobile optimized?",
+      "answer": "Yes. Every component is responsive across breakpoints, from 320px mobile to 4K desktop."
+    },
+    "gettingStarted": {
+      "question": "How do I get started?",
+      "answer": "Click 'Start Free Assessment' on the hero. Upload your current resume, and receive a diagnostic within 24 hours."
+    }
+  }
+}
