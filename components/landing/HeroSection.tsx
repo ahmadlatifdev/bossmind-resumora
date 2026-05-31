@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
 import LuxuryFooter from "@/components/footer/LuxuryFooter";
+import { useLanguage } from "@/context/LanguageContext";
 import { AppearanceToggle } from "@/components/landing/AppearanceToggle";
 import FaqSection from "@/components/landing/FaqSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
@@ -131,24 +130,22 @@ export function HeroSection({ lang }: { lang: Lang }) {
   );
 }
 
-export function useLandingLang(defaultLang: Lang = "en") {
-  return useState<Lang>(defaultLang);
-}
-
 /** Shared luxury homepage shell for `/` (Pages Router) and `/luxury` (App Router preview). */
 export function LuxuryHomePage() {
-  const [lang, setLang] = useLandingLang("en");
+  const { lang, setLang } = useLanguage();
+  const locale: Lang = lang === "fr" ? "fr" : "en";
+  const setLocale = (next: Lang) => setLang(next);
 
   return (
     <div className="lux-page">
       <LuxuryNavbar
         appearanceToggle={<AppearanceToggle />}
-        langToggle={<LanguageToggle lang={lang} onChange={setLang} />}
+        langToggle={<LanguageToggle lang={locale} onChange={setLocale} />}
       />
       <main>
-        <HeroSection lang={lang} />
-      <ServiceOfferingsGrid variant="capabilities" />
-      <PricingPanel />
+        <HeroSection lang={locale} />
+        <ServiceOfferingsGrid variant="capabilities" />
+        <PricingPanel />
         <TestimonialsSection />
         <FaqSection />
       </main>
