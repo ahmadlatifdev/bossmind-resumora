@@ -1,5 +1,11 @@
-"use client";
+import dynamic from "next/dynamic";
 
-import { LuxuryHomePage } from "@/components/landing/HeroSection";
+const LuxuryHomePage = dynamic(
+  () =>
+    import("@/components/landing/HeroSection").then((mod) => mod.LuxuryHomePage),
+  { ssr: false },
+);
 
-export default LuxuryHomePage;
+export default function LuxuryPage() {
+  return <LuxuryHomePage />;
+}

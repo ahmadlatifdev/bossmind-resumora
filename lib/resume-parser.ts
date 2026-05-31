@@ -66,7 +66,7 @@ function buildIntelOptions(
   overrides: BossMindParseResumeOptions = {},
 ): ResumeIntelOptions {
   return {
-    model: resolveDeepSeekModel() as ResumeIntelOptions["model"],
+    model: resolveDeepSeekModel() as unknown as ResumeIntelOptions["model"],
     layoutStrategy: "spatial",
     useTaskDecomposition: true,
     maxRetries: 3,
