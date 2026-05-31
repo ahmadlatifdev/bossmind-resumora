@@ -134,13 +134,19 @@ export function HeroSection({ lang }: { lang: Lang }) {
 export function LuxuryHomePage() {
   const { lang, setLang } = useLanguage();
   const locale: Lang = lang === "fr" ? "fr" : "en";
-  const setLocale = (next: Lang) => setLang(next);
 
   return (
     <div className="lux-page">
       <LuxuryNavbar
         appearanceToggle={<AppearanceToggle />}
-        langToggle={<LanguageToggle lang={locale} onChange={setLocale} />}
+        langToggle={
+          <LanguageToggle
+            lang={locale}
+            onChange={(next) => {
+              (setLang as (next: Lang) => void)(next);
+            }}
+          />
+        }
       />
       <main>
         <HeroSection lang={locale} />
