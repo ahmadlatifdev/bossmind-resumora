@@ -1,0 +1,13 @@
+{
+  "locked_at": "2026-06-27",
+  "firebase_project_id": "resumora-live",
+  "client_hosting_site": "client-resumora-live",
+  "orchestrator_hosting_site": "resumora-live",
+  "blocked_project_ids": ["key-journal-378204"],
+  "production_app_path": "../resumora-luxury",
+  "production_framework": "nextjs-16-firebase-web-frameworks",
+  "production_build_output": ".firebase/client-resumora-live/hosting",
+  "legacy_vite_build_output": "dist",
+  "deploy_command": "npm run deploy:hosting",
+  "note": "Luxury client UI deploys only from resumora-luxury to client-resumora-live. Never deploy bossmind-resumora/dist to client-resumora-live."
+}
