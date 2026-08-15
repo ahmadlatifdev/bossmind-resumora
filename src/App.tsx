@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { ThemeProvider, useTheme } from './theme/ThemeContext';
+import {
+  CANONICAL_STRIPE_PRICE_IDS,
+  getExpectedCentsForPlan,
+  getStripePaymentLinkForPlan,
+} from './lib/plans.js';
 import './v6-luxury.css';
+
+/** Live Gen2 Cloud Run / Firebase Functions checkout endpoint (not a relative /api path). */
+const CHECKOUT_BACKEND_URL = 'https://createcheckoutsession-lip26fm72a-uc.a.run.app';
 
 const PLAN_ID_MAP: Record<string, string> = {
   price_29: 'basic',
@@ -44,22 +52,48 @@ function AppShell() {
     }
     try {
       const planId = PLAN_ID_MAP[selectedStripePriceId];
-      const response = await fetch(
-        'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ planId, priceId: selectedStripePriceId }),
-        }
-      );
-      const session = await response.json();
+      const priceId =
+        CANONICAL_STRIPE_PRICE_IDS[planId as keyof typeof CANONICAL_STRIPE_PRICE_IDS] ||
+        selectedStripePriceId;
+      const expectedCents = getExpectedCentsForPlan(planId);
+      const response = await fetch(CHECKOUT_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          planId,
+          priceId,
+          expectedCents,
+          successUrl: `${window.location.origin}/?checkout=success&plan=${encodeURIComponent(planId)}`,
+          cancelUrl: `${window.location.origin}/?checkout=canceled&plan=${encodeURIComponent(planId)}`,
+        }),
+      });
+      const session = await response.json().catch(() => ({}));
+      console.log(session);
       if (session.url) {
         window.location.href = session.url;
-      } else {
-        alert(session.error || 'Failed to get checkout URL.');
+        return;
       }
+
+      // Reliable fallback when Cloud Function is IAM/CORS blocked.
+      const paymentLink = getStripePaymentLinkForPlan(planId);
+      if (paymentLink) {
+        window.location.href = paymentLink;
+        return;
+      }
+
+      alert(session.error || 'Failed to get checkout URL.');
     } catch (error) {
       console.error('Stripe Checkout Error:', error);
+      try {
+        const planId = PLAN_ID_MAP[selectedStripePriceId];
+        const paymentLink = getStripePaymentLinkForPlan(planId);
+        if (paymentLink) {
+          window.location.href = paymentLink;
+          return;
+        }
+      } catch {
+        /* fall through */
+      }
       alert(
         'Something went wrong. Please refresh the page and try again. If the issue persists, contact support.'
       );
@@ -102,7 +136,7 @@ function AppShell() {
             <img
               src="/resumora-logo.png"
               alt="Resumora.net"
-              className="v6-logo h-8 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </a>
         </div>
