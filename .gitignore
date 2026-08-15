@@ -24,4 +24,15 @@ dist-ssr
 *.sw?
 
 .vercel
+.cloudflare
+wrangler.toml
+wrangler.json
+wrangler.jsonc
+*.wrangler
 .env*.local
+.env
+functions/.env
+
+cloud-run-apex/dist/
+.firebase/
+

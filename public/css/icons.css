@@ -1,0 +1,33 @@
+/* Local icon glyphs — no Cloudflare / cdnjs dependency */
+.fas, .fa {
+  font-style: normal;
+  font-weight: 700;
+  font-family: Georgia, "Playfair Display", serif;
+  display: inline-block;
+  line-height: 1;
+  min-width: 1em;
+  text-align: center;
+}
+.fa-home::before { content: "⌂"; }
+.fa-tags::before { content: "$"; }
+.fa-video::before { content: "▶"; }
+.fa-file-alt::before { content: "☰"; }
+.fa-user-plus::before { content: "+"; }
+.fa-bars::before { content: "☰"; }
+.fa-arrow-right::before { content: "→"; }
+.fa-balance-scale::before { content: "⚖"; }
+.fa-briefcase::before { content: "▣"; }
+.fa-thumbs-up::before { content: "+"; }
+.fa-thumbs-down::before { content: "−"; }
+.fa-share-alt::before { content: "↗"; }
+.fa-sign-in-alt::before { content: "→"; }
+.fa-cloud-upload-alt::before { content: "↑"; }
+.fa-trash-alt::before { content: "×"; }
+.fa-check-circle::before { content: "✓"; }
+.fa-undo-alt::before { content: "↺"; }
+.fa-chevron-right::before { content: "›"; }
+.fa-comment-dots::before { content: "💬"; }
+.fa-envelope::before { content: "@"; }
+.fa-heart::before { content: "♥"; }
+.fa-gavel::before { content: "§"; }
+.fa-times::before { content: "×"; }

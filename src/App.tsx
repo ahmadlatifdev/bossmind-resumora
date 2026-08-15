@@ -1,168 +1,126 @@
 import React, { useState } from 'react';
 
-function App() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    service: 'resume',
-    price: 99
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
+const PLAN_ID_MAP: Record<string, string> = {
+  price_29: 'basic',
+  price_49: 'balanced',
+  price_79: 'professional',
+  price_110: 'advanced',
+};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+function App() {
+  // React State for the selected Stripe Price ID
+  const [selectedStripePriceId, setSelectedStripePriceId] = useState<string | null>(null);
+
+  // Handles clicking a plan card
+  const handlePlanClick = (priceId: string) => {
+    setSelectedStripePriceId(priceId);
+
+    // UI Update: Remove active class from all cards, add to the clicked one
+    document.querySelectorAll('.pricing-plan').forEach(el => el.classList.remove('active'));
+    const activeElement = document.getElementById(`plan-${priceId}`);
+    if (activeElement) activeElement.classList.add('active');
+
+    // UI Update: Change the checkout button text to show the selected price
+    const displayPriceMap: Record<string, string> = {
+      'price_29': '$29', 'price_49': '$49', 'price_79': '$79', 'price_110': '$110'
+    };
+    const checkoutBtn = document.getElementById('checkout-button-text');
+    if (checkoutBtn) {
+      checkoutBtn.innerText = `Proceed to Payment (${displayPriceMap[priceId]})`;
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setMessage('');
-
+  // Handles redirecting to Stripe Checkout
+  const redirectToStripe = async () => {
+    if (!selectedStripePriceId) {
+      alert("Please select a plan first.");
+      return;
+    }
     try {
-      const res = await fetch('https://bossmind-orchestrator.onrender.com/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: Date.now().toString(),
-          service: formData.service,
-          price: formData.price,
-          customer: { email: formData.email, name: formData.name }
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessage('✅ Order received! We’ll contact you shortly.');
-        setFormData({ name: '', email: '', service: 'resume', price: 99 });
+      const planId = PLAN_ID_MAP[selectedStripePriceId];
+      const response = await fetch(
+        'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId, priceId: selectedStripePriceId })
+        }
+      );
+      const session = await response.json();
+      if (session.url) {
+        window.location.href = session.url;
       } else {
-        setMessage('❌ Something went wrong. Please try again.');
+        alert(session.error || "Failed to get checkout URL.");
       }
-    } catch (err) {
-      setMessage('❌ Network error. Please check your connection.');
-    } finally {
-      setSubmitting(false);
+    } catch (error) {
+      console.error("Stripe Checkout Error:", error);
+      alert("Something went wrong. Please refresh the page and try again. If the issue persists, contact support.");
     }
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '10px',
-        padding: '40px',
-        maxWidth: '500px',
-        width: '100%',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>
-          Resumora – Professional Resumes
-        </h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>
-          Get a standout resume crafted by experts. Place your order now.
+    <div className="min-h-screen bg-zinc-50 text-black dark:bg-black dark:text-zinc-50 font-sans">
+      
+      {/* ====== NAVBAR ====== */}
+      <nav className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-200 dark:bg-black dark:border-gray-800">
+        <div className="main-nav-links flex flex-row items-center gap-6">
+          <a href="/" className="hover:text-blue-600 transition">Home</a>
+          <a href="/pricing" className="hover:text-blue-600 transition">Pricing</a>
+          <a href="/video-library" className="hover:text-blue-600 transition">Video Library</a>
+          <a href="/resume-studio" className="hover:text-blue-600 transition">Resume Studio</a>
+          <a href="/reset-password" className="hover:text-blue-600 transition">Reset password</a>
+        </div>
+        <a href="/" className="flex items-center"><img src="/resumora-logo.png" alt="Resumora.net" className="h-8 w-auto object-contain" /></a>
+      </nav>
+
+      {/* ====== MAIN HERO & PRICING SECTION ====== */}
+      <main className="flex flex-col items-center w-full max-w-6xl mx-auto py-20 px-4">
+        <h1 className="text-4xl font-bold mb-4 text-center">Build Your Perfect Resume</h1>
+        <p className="text-lg text-center text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl">
+          Select a plan to see exactly what is included, then continue to secure Stripe Checkout.
         </p>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Your Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-                fontSize: '16px'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-                fontSize: '16px'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Service</label>
-            <select
-              name="service"
-              value={formData.service}
-              onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-                fontSize: '16px'
-              }}
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-12">
+          {[
+            { id: 'price_29', price: '$29', name: 'Basic' },
+            { id: 'price_49', price: '$49', name: 'Pro' },
+            { id: 'price_79', price: '$79', name: 'Business' },
+            { id: 'price_110', price: '$110', name: 'Enterprise' }
+          ].map((plan) => (
+            <div 
+              key={plan.id} 
+              id={`plan-${plan.id}`} 
+              className="pricing-plan cursor-pointer border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-2xl p-6 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200 hover:shadow-lg" 
+              onClick={() => handlePlanClick(plan.id)}
             >
-              <option value="resume">Resume + 1 Free Edit – $99</option>
-              <option value="cover">Cover Letter + 1 Free Edit – $49</option>
-              <option value="package">Complete Package – $199</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{
-              width: '100%',
-              padding: '15px',
-              background: '#667eea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              cursor: submitting ? 'not-allowed' : 'pointer',
-              opacity: submitting ? 0.7 : 1
-            }}
-          >
-            {submitting ? 'Processing...' : 'Order Now'}
-          </button>
-        </form>
-
-        {message && (
-          <div style={{
-            marginTop: '20px',
-            padding: '15px',
-            background: message.startsWith('✅') ? '#d4edda' : '#f8d7da',
-            color: message.startsWith('✅') ? '#155724' : '#721c24',
-            borderRadius: '5px',
-            textAlign: 'center'
-          }}>
-            {message}
-          </div>
-        )}
-
-        <div style={{ marginTop: '30px', textAlign: 'center', fontSize: '14px', color: '#999' }}>
-          Secure order – we'll contact you within 24 hours.
+              <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {plan.price}<span className="text-sm font-normal text-zinc-500">{' /mo'}</span>
+              </p>
+              <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
+                <p>{'Standard Features'}</p>
+                <p>{'Priority Support'}</p>
+                <p>{'Advanced Tools'}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+
+        {/* Disclaimer & Checkout Button */}
+        <div className="flex flex-col items-center gap-6 w-full max-w-md">
+          <div className="text-sm text-zinc-500 text-center px-4 py-2 border border-yellow-500/30 bg-yellow-500/5 rounded-lg">
+            {'Selecting a plan never changes another plan\'s price or features.'}
+          </div>
+          <button 
+            id="checkout-button" 
+            onClick={redirectToStripe} 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold text-lg transition-colors shadow-lg"
+          >
+            <span id="checkout-button-text">{'Select a plan to continue'}</span>
+          </button>
+        </div>
+      </main>
     </div>
   );
 }

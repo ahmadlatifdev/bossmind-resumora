@@ -1,5 +1,14 @@
 {
   "projects": {
-    "default": "key-journal-378204"
+    "default": "resumora-live"
+  },
+  "targets": {
+    "resumora-live": {
+      "hosting": {
+        "client": [
+          "client-resumora-live"
+        ]
+      }
+    }
   }
 }

@@ -1,7 +1,84 @@
 {
   "hosting": {
+    "site": "client-resumora-live",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
-  }
+    "rewrites": [
+      {
+        "source": "/api/create-checkout-session",
+        "function": "createCheckoutSession"
+      },
+      {
+        "source": "/api/video/catalog",
+        "function": "heygenVideoCatalog"
+      },
+      {
+        "source": "/api/video/generate",
+        "function": "heygenVideoGenerate"
+      },
+      {
+        "source": "/api/video/status",
+        "function": "heygenVideoStatus"
+      },
+      {
+        "source": "/api/video/download",
+        "function": "heygenVideoDownload"
+      },
+      {
+        "source": "/pricing",
+        "destination": "/pricing.html"
+      },
+      {
+        "source": "/pricing/**",
+        "destination": "/pricing.html"
+      },
+      {
+        "source": "/plans",
+        "destination": "/pricing.html"
+      },
+      {
+        "source": "/studio",
+        "destination": "/studio.html"
+      },
+      {
+        "source": "/studio/**",
+        "destination": "/studio.html"
+      },
+      {
+        "source": "/videos",
+        "destination": "/videos.html"
+      },
+      {
+        "source": "/video-library",
+        "destination": "/videos.html"
+      },
+      {
+        "source": "/resume-studio",
+        "destination": "/studio.html"
+      },
+      {
+        "source": "/videos/**",
+        "destination": "/videos.html"
+      },
+      {
+        "source": "/reset-password",
+        "destination": "/reset-password.html"
+      },
+      {
+        "source": "/forgot-password",
+        "destination": "/reset-password.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "resumora-checkout",
+      "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"]
+    }
+  ]
 }
