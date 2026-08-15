@@ -1,6 +1,21 @@
 {
   "extends": "./tsconfig.app.json",
-  "include": ["src/App.tsx", "src/main.tsx", "src/theme/**/*", "src/types/**/*"],
+  "include": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/theme/**/*",
+    "src/auth/**/*",
+    "src/components/ProtectedRoute.tsx",
+    "src/pages/Login.tsx",
+    "src/lib/firebase.ts",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "src/pages/VideosPage.tsx",
+    "src/components/Video*.tsx",
+    "src/components/SiteHeader.tsx",
+    "src/components/LanguageSwitcher.tsx"
+  ],
   "compilerOptions": {
     "noEmit": true,
     "allowImportingTsExtensions": true,

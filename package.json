@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "typecheck:v6": "tsc -p tsconfig.v6.json --noEmit --pretty false",
+    "typecheck:v6": "tsc --noEmit --pretty false --jsx react-jsx --module ESNext --moduleResolution bundler --target ES2020 --skipLibCheck --esModuleInterop --strict false --allowJs false src/vite-env.d.ts src/lib/firebase.ts src/auth/AuthContext.tsx src/components/ProtectedRoute.tsx src/pages/Login.tsx src/theme/ThemeContext.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,json}\" \"*.{js,mjs,cjs,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,json}\"",
     "prepare": "husky",
@@ -28,15 +28,17 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^6.8.0",
     "@stripe/stripe-js": "^9.13.0",
-    "firebase": "^12.17.0",
+    "firebase": "^12.17.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.0",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.1",

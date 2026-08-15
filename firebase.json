@@ -74,20 +74,28 @@
         "destination": "/studio.html"
       },
       {
-        "source": "/videos",
-        "destination": "/videos.html"
-      },
-      {
-        "source": "/video-library",
-        "destination": "/videos.html"
-      },
-      {
         "source": "/resume-studio",
         "destination": "/studio.html"
       },
       {
+        "source": "/videos",
+        "destination": "/videos.html"
+      },
+      {
         "source": "/videos/**",
         "destination": "/videos.html"
+      },
+      {
+        "source": "/login",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/video-library",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/video-library/**",
+        "destination": "/index.html"
       },
       {
         "source": "/reset-password",

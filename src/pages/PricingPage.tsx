@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { Elements } from "@stripe/react-stripe-js";
-import { getStripe, startStripeCheckoutForPlan } from "../lib/stripeCheckout.js";
+import React, { useMemo, useState } from 'react';
+import { Elements } from '@stripe/react-stripe-js';
+import { getStripe, startStripeCheckoutForPlan } from '../lib/stripeCheckout.js';
 import {
   SERVICE_PLANS,
   localize,
@@ -8,14 +8,14 @@ import {
   getPlanById,
   readSelectedPlan,
   isStripeTestMode,
-} from "../lib/plans.js";
-import { getLang, setLang, t } from "../lib/i18n.js";
-import SiteHeader from "../components/SiteHeader";
+} from '../lib/plans.js';
+import { getLang, setLang, t } from '../lib/i18n.js';
+import SiteHeader from '../components/SiteHeader';
 
 function initialSelectedPlanId() {
   try {
     const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get("plan");
+    const fromUrl = params.get('plan');
     if (fromUrl && getPlanById(fromUrl)) return fromUrl;
   } catch (_) {
     /* ignore */
@@ -32,7 +32,7 @@ function PlanCard({ plan, lang, selected, busyPlanId, onSelect, onChoose }) {
   const badge = plan.badge ? localize(plan.badge, lang) : null;
   return (
     <article
-      className={`plan-card pricing-plan${plan.highlighted ? " plan-card--featured" : ""}${selected ? " plan-card--selected active" : ""}`}
+      className={`plan-card pricing-plan${plan.highlighted ? ' plan-card--featured' : ''}${selected ? ' plan-card--selected active' : ''}`}
       aria-labelledby={`plan-title-${plan.id}`}
       aria-pressed={selected}
       data-plan-id={plan.id}
@@ -41,7 +41,7 @@ function PlanCard({ plan, lang, selected, busyPlanId, onSelect, onChoose }) {
       id={`plan-${plan.stripePriceId}`}
       onClick={() => onSelect(plan.stripePriceId)}
     >
-      <div className="plan-card__badge-slot" aria-hidden={badge ? "false" : "true"}>
+      <div className="plan-card__badge-slot" aria-hidden={badge ? 'false' : 'true'}>
         {badge ? <div className="plan-badge">{badge}</div> : null}
       </div>
       <header className="plan-card__header">
@@ -69,7 +69,7 @@ function PlanCard({ plan, lang, selected, busyPlanId, onSelect, onChoose }) {
             onChoose(plan.stripePriceId);
           }}
         >
-          {isBusy ? t(lang, "pricing.redirecting") : localize(plan.cta, lang)}
+          {isBusy ? t(lang, 'pricing.redirecting') : localize(plan.cta, lang)}
         </button>
       </div>
     </article>
@@ -89,8 +89,7 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
       data-selected-price={plan.priceLabel}
     >
       <h3>
-        {t(lang, "pricing.selectedTitle")}: <span>{name}</span>{" "}
-        <strong>{plan.priceLabel}</strong>
+        {t(lang, 'pricing.selectedTitle')}: <span>{name}</span> <strong>{plan.priceLabel}</strong>
       </h3>
       <ul className="plan-breakdown__features" aria-label={`${name} features`}>
         {(Array.isArray(features) ? features : []).map((f) => (
@@ -117,15 +116,15 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
           onClick={() => onCheckout(plan.stripePriceId)}
         >
           {busy
-            ? t(lang, "pricing.redirecting")
-            : `${t(lang, "pricing.chooseCheckout")} (${plan.priceLabel})`}
+            ? t(lang, 'pricing.redirecting')
+            : `${t(lang, 'pricing.chooseCheckout')} (${plan.priceLabel})`}
         </button>
         <a className="plan-secondary-link" href="/studio">
-          {t(lang, "pricing.continueStudio")}
+          {t(lang, 'pricing.continueStudio')}
         </a>
-        {plan.id === "advanced" ? (
+        {plan.id === 'advanced' ? (
           <a className="plan-secondary-link" href="/videos">
-            {t(lang, "pricing.openVideos")}
+            {t(lang, 'pricing.openVideos')}
           </a>
         ) : null}
       </div>
@@ -137,11 +136,11 @@ function PricingInner() {
   const [lang, setLangState] = useState(() => getLang());
   const [selectedPlanId, setSelectedPlanId] = useState(initialSelectedPlanId);
   const [busyPlanId, setBusyPlanId] = useState(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const checkoutState = params.get("checkout");
+  const checkoutState = params.get('checkout');
   const selectedPlan = useMemo(() => getPlanById(selectedPlanId), [selectedPlanId]);
-  const selectedStripePriceId = selectedPlan?.stripePriceId || "";
+  const selectedStripePriceId = selectedPlan?.stripePriceId || '';
 
   function handleSelect(planId) {
     // Selection only changes highlight + breakdown — never mutates SERVICE_PLANS prices/features.
@@ -151,8 +150,8 @@ function PricingInner() {
     rememberSelectedPlan(plan.id);
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set("plan", plan.id);
-      window.history.replaceState({}, "", url.toString());
+      url.searchParams.set('plan', plan.id);
+      window.history.replaceState({}, '', url.toString());
     } catch (_) {
       /* ignore */
     }
@@ -161,45 +160,49 @@ function PricingInner() {
   async function handleChoose(planId) {
     const plan = getPlanById(planId);
     if (!plan || !plan.stripePriceId) {
-      setError("Please select a plan first.");
+      setError('Please select a plan first.');
       return;
     }
-    setError("");
+    setError('');
     handleSelect(plan.id);
     setBusyPlanId(plan.id);
     try {
       await startStripeCheckoutForPlan(plan.id);
     } catch (err) {
-      setError(err?.message || "Unable to start Stripe Checkout.");
+      setError(err?.message || 'Unable to start checkout.');
       setBusyPlanId(null);
     }
   }
 
   return (
     <div className="pricing-page">
-      <SiteHeader lang={lang} onLangChange={(next) => setLangState(setLang(next))} currentPath="/pricing" />
+      <SiteHeader
+        lang={lang}
+        onLangChange={(next) => setLangState(setLang(next))}
+        currentPath="/pricing"
+      />
 
       <header className="pricing-hero">
-        <p className="pricing-kicker">{t(lang, "pricing.kicker")}</p>
-        <h1>{t(lang, "pricing.title")}</h1>
-        <p className="pricing-sub">{t(lang, "pricing.sub")}</p>
-        <p className="pricing-advisory">{t(lang, "pricing.advisory")}</p>
+        <p className="pricing-kicker">{t(lang, 'pricing.kicker')}</p>
+        <h1>{t(lang, 'pricing.title')}</h1>
+        <p className="pricing-sub">{t(lang, 'pricing.sub')}</p>
+        <p className="pricing-advisory">{t(lang, 'pricing.advisory')}</p>
       </header>
 
       {isStripeTestMode() ? (
         <div className="pricing-banner pricing-banner--warn" role="status">
-          {t(lang, "pricing.sandboxBanner")}
+          {t(lang, 'pricing.sandboxBanner')}
         </div>
       ) : null}
 
-      {checkoutState === "success" ? (
+      {checkoutState === 'success' ? (
         <div className="pricing-banner pricing-banner--ok" role="status">
-          {t(lang, "pricing.checkoutOk")}
+          {t(lang, 'pricing.checkoutOk')}
         </div>
       ) : null}
-      {checkoutState === "canceled" ? (
+      {checkoutState === 'canceled' ? (
         <div className="pricing-banner pricing-banner--warn" role="status">
-          {t(lang, "pricing.checkoutCancel")}
+          {t(lang, 'pricing.checkoutCancel')}
         </div>
       ) : null}
       {error ? (
@@ -208,7 +211,7 @@ function PricingInner() {
         </div>
       ) : null}
 
-      <section className="plans-grid plans-grid--4" aria-label={t(lang, "pricing.title")}>
+      <section className="plans-grid plans-grid--4" aria-label={t(lang, 'pricing.title')}>
         {SERVICE_PLANS.map((plan) => (
           <PlanCard
             key={plan.id}
@@ -230,15 +233,19 @@ function PricingInner() {
         busy={Boolean(busyPlanId)}
       />
       {selectedPlan ? (
-        <p className="pricing-selected-hint muted small" data-plan={selectedPlan.id} data-stripe-price-id={selectedStripePriceId}>
+        <p
+          className="pricing-selected-hint muted small"
+          data-plan={selectedPlan.id}
+          data-stripe-price-id={selectedStripePriceId}
+        >
           {localize(selectedPlan.name, lang)} · {selectedPlan.priceLabel}
         </p>
       ) : null}
 
       <p className="pricing-foot">
-        <a href="/">{t(lang, "pricing.backHome")}</a>
-        {" · "}
-        <a href="/reset-password">{t(lang, "nav.reset")}</a>
+        <a href="/">{t(lang, 'pricing.backHome')}</a>
+        {' · '}
+        <a href="/reset-password">{t(lang, 'nav.reset')}</a>
       </p>
     </div>
   );

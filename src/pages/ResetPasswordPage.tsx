@@ -1,17 +1,22 @@
-import React, { useState } from "react";
-import SiteHeader from "../components/SiteHeader";
-import { getLang, setLang, t } from "../lib/i18n.js";
-import { getAuth, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { app } from "../lib/firebase.js";
+import React, { useState } from 'react';
+import SiteHeader from '../components/SiteHeader';
+import { getLang, setLang, t } from '../lib/i18n.js';
+import {
+  getAuth,
+  sendPasswordResetEmail,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from 'firebase/auth';
+import { app } from '../lib/firebase';
 
 export default function ResetPasswordPage() {
   const [lang, setLangState] = useState(() => getLang());
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [confirmation, setConfirmation] = useState(null);
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
   function switchLang(next) {
@@ -21,14 +26,14 @@ export default function ResetPasswordPage() {
   async function sendEmailReset(e) {
     e.preventDefault();
     setBusy(true);
-    setError("");
-    setStatus("");
+    setError('');
+    setStatus('');
     try {
       const auth = getAuth(app);
       await sendPasswordResetEmail(auth, email.trim());
-      setStatus(t(lang, "reset.sendLink") + " ✓");
+      setStatus(t(lang, 'reset.sendLink') + ' ✓');
     } catch (err) {
-      setError(err?.message || "Email reset failed.");
+      setError(err?.message || 'Email reset failed.');
     } finally {
       setBusy(false);
     }
@@ -37,20 +42,20 @@ export default function ResetPasswordPage() {
   async function sendSmsOtp(e) {
     e.preventDefault();
     setBusy(true);
-    setError("");
-    setStatus("");
+    setError('');
+    setStatus('');
     try {
       const auth = getAuth(app);
       if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-          size: "invisible",
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
         });
       }
       const result = await signInWithPhoneNumber(auth, phone.trim(), window.recaptchaVerifier);
       setConfirmation(result);
-      setStatus(t(lang, "reset.sendSms") + " ✓");
+      setStatus(t(lang, 'reset.sendSms') + ' ✓');
     } catch (err) {
-      setError(err?.message || "SMS OTP failed.");
+      setError(err?.message || 'SMS OTP failed.');
     } finally {
       setBusy(false);
     }
@@ -60,12 +65,12 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     if (!confirmation) return;
     setBusy(true);
-    setError("");
+    setError('');
     try {
       await confirmation.confirm(otp.trim());
-      setStatus(t(lang, "reset.verify") + " ✓");
+      setStatus(t(lang, 'reset.verify') + ' ✓');
     } catch (err) {
-      setError(err?.message || "Invalid OTP.");
+      setError(err?.message || 'Invalid OTP.');
     } finally {
       setBusy(false);
     }
@@ -76,8 +81,8 @@ export default function ResetPasswordPage() {
       <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/reset-password" />
 
       <main className="app-main narrow">
-        <h1>{t(lang, "reset.title")}</h1>
-        <p className="lead">{t(lang, "reset.lead")}</p>
+        <h1>{t(lang, 'reset.title')}</h1>
+        <p className="lead">{t(lang, 'reset.lead')}</p>
 
         <form className="panel" onSubmit={sendEmailReset}>
           <h2>Email</h2>
@@ -86,19 +91,24 @@ export default function ResetPasswordPage() {
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           <button className="primary" type="submit" disabled={busy}>
-            {t(lang, "reset.sendLink")}
+            {t(lang, 'reset.sendLink')}
           </button>
         </form>
 
         <form className="panel" onSubmit={sendSmsOtp}>
-          <h2>{t(lang, "reset.cell")}</h2>
+          <h2>{t(lang, 'reset.cell')}</h2>
           <label>
-            {t(lang, "reset.phoneLabel")}
-            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1…" />
+            {t(lang, 'reset.phoneLabel')}
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+1…"
+            />
           </label>
           <div id="recaptcha-container" />
           <button className="secondary" type="submit" disabled={busy || !phone.trim()}>
-            {t(lang, "reset.sendSms")}
+            {t(lang, 'reset.sendSms')}
           </button>
         </form>
 
@@ -109,7 +119,7 @@ export default function ResetPasswordPage() {
               <input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" />
             </label>
             <button className="primary" type="submit" disabled={busy}>
-              {t(lang, "reset.verify")}
+              {t(lang, 'reset.verify')}
             </button>
           </form>
         ) : null}

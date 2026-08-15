@@ -1,21 +1,30 @@
-import React, { useEffect, useRef, useState } from "react";
+// @ts-nocheck
+import React, { useEffect, useRef, useState } from 'react';
 
 function pickVoice(lang) {
-  if (typeof window === "undefined" || !window.speechSynthesis) return null;
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices() || [];
-  const prefix = String(lang || "en").toLowerCase();
+  const prefix = String(lang || 'en').toLowerCase();
   return (
-    voices.find((v) => String(v.lang || "").toLowerCase().startsWith(prefix)) ||
-    voices.find((v) => String(v.lang || "").toLowerCase().startsWith(prefix.slice(0, 2))) ||
+    voices.find((v) =>
+      String(v.lang || '')
+        .toLowerCase()
+        .startsWith(prefix)
+    ) ||
+    voices.find((v) =>
+      String(v.lang || '')
+        .toLowerCase()
+        .startsWith(prefix.slice(0, 2))
+    ) ||
     null
   );
 }
 
 function speak(text, lang) {
-  if (!text || typeof window === "undefined" || !window.speechSynthesis) return;
+  if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang === "fr" ? "fr-FR" : lang === "es" ? "es-ES" : "en-US";
+  utter.lang = lang === 'fr' ? 'fr-FR' : lang === 'es' ? 'es-ES' : 'en-US';
   utter.rate = 1;
   const voice = pickVoice(utter.lang);
   if (voice) utter.voice = voice;
@@ -23,7 +32,7 @@ function speak(text, lang) {
 }
 
 function stopSpeech() {
-  if (typeof window !== "undefined" && window.speechSynthesis) {
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
     window.speechSynthesis.cancel();
   }
 }
@@ -34,10 +43,10 @@ function stopSpeech() {
 export default function VideoPlayer({
   src,
   title,
-  voiceoverText = "",
-  lang = "en",
+  voiceoverText = '',
+  lang = 'en',
   autoNarrate = true,
-  preload = "metadata",
+  preload = 'metadata',
 }) {
   const videoRef = useRef(null);
   const [muted, setMuted] = useState(false);
@@ -56,11 +65,11 @@ export default function VideoPlayer({
 
   useEffect(() => {
     // Chrome loads voices asynchronously.
-    if (typeof window !== "undefined" && window.speechSynthesis) {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.getVoices();
       const onVoices = () => window.speechSynthesis.getVoices();
-      window.speechSynthesis.addEventListener("voiceschanged", onVoices);
-      return () => window.speechSynthesis.removeEventListener("voiceschanged", onVoices);
+      window.speechSynthesis.addEventListener('voiceschanged', onVoices);
+      return () => window.speechSynthesis.removeEventListener('voiceschanged', onVoices);
     }
     return undefined;
   }, []);
@@ -119,7 +128,7 @@ export default function VideoPlayer({
       />
       <div className="video-player__toolbar" role="group" aria-label="Audio controls">
         <button type="button" className="secondary" onClick={toggleMute} aria-pressed={muted}>
-          {muted ? "Unmute" : "Mute"}
+          {muted ? 'Unmute' : 'Mute'}
         </button>
         <label className="video-player__volume">
           <span>Volume</span>

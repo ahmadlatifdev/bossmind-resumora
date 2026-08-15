@@ -1,4 +1,4 @@
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from '@stripe/stripe-js';
 import {
   getStripePublishableKey,
   getStripePriceIdForPlan,
@@ -6,7 +6,7 @@ import {
   getPlanById,
   getExpectedCentsForPlan,
   isStripeTestMode,
-} from "./plans.js";
+} from './plans.js';
 
 let stripePromise = null;
 
@@ -14,7 +14,7 @@ export function getStripe() {
   const pk = getStripePublishableKey();
   if (!pk) {
     return Promise.reject(
-      new Error("Missing Stripe publishable key (NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY).")
+      new Error('Checkout is temporarily unavailable. Please contact support.')
     );
   }
   if (!stripePromise) {
@@ -48,7 +48,7 @@ export async function startStripeCheckoutForPlan(planId) {
       redirected: true,
       planId,
       priceId,
-      via: "payment_link",
+      via: 'payment_link',
       expectedCents,
       testMode: isStripeTestMode(),
     };
@@ -56,14 +56,14 @@ export async function startStripeCheckoutForPlan(planId) {
 
   if (!priceId) {
     throw new Error(
-      `Checkout unavailable for plan "${planId}" (expected ${plan.priceLabel}). Configure Stripe Price ID or Payment Link.`
+      `Checkout unavailable for plan "${planId}" (expected ${plan.priceLabel}). Please contact support.`
     );
   }
 
   const endpoints = [
-    "/api/create-checkout-session",
-    "https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession",
-    "https://createcheckoutsession-lip26fm72a-uc.a.run.app",
+    '/api/create-checkout-session',
+    'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
+    'https://createcheckoutsession-lip26fm72a-uc.a.run.app',
   ];
 
   let payload = null;
@@ -71,9 +71,9 @@ export async function startStripeCheckoutForPlan(planId) {
   for (const endpoint of endpoints) {
     try {
       const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        credentials: "omit",
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'omit',
         body: JSON.stringify({
           planId,
           priceId,
@@ -87,26 +87,37 @@ export async function startStripeCheckoutForPlan(planId) {
       lastError = payload.error || `Checkout session failed (${res.status})`;
       payload = null;
     } catch (err) {
-      lastError = err?.message || "Network error creating checkout session";
+      lastError = err?.message || 'Network error creating checkout session';
       payload = null;
     }
   }
 
   if (payload?.url) {
     window.location.assign(payload.url);
-    return { redirected: true, planId, priceId, sessionId: payload.sessionId || null, via: "session_url" };
+    return {
+      redirected: true,
+      planId,
+      priceId,
+      sessionId: payload.sessionId || null,
+      via: 'session_url',
+    };
   }
 
   if (payload?.sessionId) {
     const stripe = await getStripe();
-    if (!stripe) throw new Error("Stripe.js failed to initialize.");
+    if (!stripe) throw new Error('Checkout failed to initialize.');
     const { error } = await stripe.redirectToCheckout({ sessionId: payload.sessionId });
-    if (error) throw new Error(error.message || "Stripe redirect failed.");
-    return { redirected: true, planId, priceId, sessionId: payload.sessionId, via: "redirectToCheckout" };
+    if (error) throw new Error(error.message || 'Checkout redirect failed.');
+    return {
+      redirected: true,
+      planId,
+      priceId,
+      sessionId: payload.sessionId,
+      via: 'redirectToCheckout',
+    };
   }
 
   throw new Error(
-    lastError ||
-      `Checkout unavailable for plan "${planId}" (expected ${plan.priceLabel}).`
+    lastError || `Checkout unavailable for plan "${planId}" (expected ${plan.priceLabel}).`
   );
 }

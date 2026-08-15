@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { ThemeProvider, useTheme } from './theme/ThemeContext';
+import { BrowserRouter, Link, Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
+import { ThemeProvider } from './theme/ThemeContext';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './pages/Login';
+import VideosPage from './pages/VideosPage';
 import {
   CANONICAL_STRIPE_PRICE_IDS,
   getExpectedCentsForPlan,
   getStripePaymentLinkForPlan,
 } from './lib/plans.js';
 import './v6-luxury.css';
+import './app-shell.css';
 
-/** Live Gen2 Cloud Run / Firebase Functions checkout endpoint (not a relative /api path). */
+/** Live Gen2 Cloud Run checkout endpoint (not a relative /api path). */
 const CHECKOUT_BACKEND_URL = 'https://createcheckoutsession-lip26fm72a-uc.a.run.app';
 
 const PLAN_ID_MAP: Record<string, string> = {
@@ -17,8 +23,43 @@ const PLAN_ID_MAP: Record<string, string> = {
   price_110: 'advanced',
 };
 
-function AppShell() {
-  const { resolved, toggle } = useTheme();
+function SiteNav() {
+  const { user, loading } = useAuth();
+
+  return (
+    <nav className="v6-nav grid grid-cols-[auto_1fr_auto] items-center gap-4 px-8 py-5 sticky top-0 z-40">
+      <Link to="/" className="flex items-center shrink-0 justify-self-start">
+        <img src="/resumora-logo.png" alt="Resumora.net" className="h-10 w-auto object-contain" />
+      </Link>
+      <div className="main-nav-links flex flex-1 flex-wrap justify-center items-center gap-6">
+        <Link to="/" className="hover:text-[#D4AF37] transition">
+          Home
+        </Link>
+        <a href="/pricing" className="hover:text-[#D4AF37] transition">
+          Pricing
+        </a>
+        {!loading && user ? (
+          <Link to="/video-library" className="hover:text-[#D4AF37] transition">
+            Video Library
+          </Link>
+        ) : (
+          <Link to="/login" className="hover:text-[#D4AF37] transition">
+            Video Library
+          </Link>
+        )}
+        <a href="/resume-studio" className="hover:text-[#D4AF37] transition">
+          Resume Studio
+        </a>
+      </div>
+      {/* Spacer keeps center column visually middle with logo on the left */}
+      <div className="w-[2.5rem] sm:w-[6.5rem]" aria-hidden="true" />
+    </nav>
+  );
+}
+
+function HomePage() {
+  const [searchParams] = useSearchParams();
+  const showPaywall = searchParams.get('paywall') === '1';
   // React State for the selected Stripe Price ID
   const [selectedStripePriceId, setSelectedStripePriceId] = useState<string | null>(null);
 
@@ -50,6 +91,10 @@ function AppShell() {
       alert('Please select a plan first.');
       return;
     }
+    // Test/sandbox guidance: Checkout "Confirm it's you" (Link) does not send real SMS/email.
+    console.log(
+      'Sandbox checkout: if asked for a confirmation code, type `000000` to continue testing. Real emails/SMS apply in live mode.'
+    );
     try {
       const planId = PLAN_ID_MAP[selectedStripePriceId];
       const priceId =
@@ -68,13 +113,12 @@ function AppShell() {
         }),
       });
       const session = await response.json().catch(() => ({}));
-      console.log(session);
+      console.log('Backend session response:', session);
       if (session.url) {
         window.location.href = session.url;
         return;
       }
 
-      // Reliable fallback when Cloud Function is IAM/CORS blocked.
       const paymentLink = getStripePaymentLinkForPlan(planId);
       if (paymentLink) {
         window.location.href = paymentLink;
@@ -83,7 +127,7 @@ function AppShell() {
 
       alert(session.error || 'Failed to get checkout URL.');
     } catch (error) {
-      console.error('Stripe Checkout Error:', error);
+      console.error('Checkout Error:', error);
       try {
         const planId = PLAN_ID_MAP[selectedStripePriceId];
         const paymentLink = getStripePaymentLinkForPlan(planId);
@@ -103,56 +147,22 @@ function AppShell() {
   return (
     <div className="v6-shell min-h-screen font-sans">
       <div className="v6-mesh" aria-hidden="true" />
+      <SiteNav />
 
-      {/* ====== NAVBAR ====== */}
-      <nav className="v6-nav flex items-center justify-between px-8 py-5 sticky top-0 z-40">
-        <div className="main-nav-links flex flex-row items-center gap-6">
-          <a href="/" className="hover:text-[#D4AF37] transition">
-            Home
-          </a>
-          <a href="/pricing" className="hover:text-[#D4AF37] transition">
-            Pricing
-          </a>
-          <a href="/video-library" className="hover:text-[#D4AF37] transition">
-            Video Library
-          </a>
-          <a href="/resume-studio" className="hover:text-[#D4AF37] transition">
-            Resume Studio
-          </a>
-          <a href="/reset-password" className="hover:text-[#D4AF37] transition">
-            Reset password
-          </a>
-        </div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="v6-theme-btn"
-            onClick={toggle}
-            aria-label="Toggle light and dark theme"
-          >
-            {resolved === 'dark' ? 'Light' : 'Dark'}
-          </button>
-          <a href="/" className="flex items-center">
-            <img
-              src="/resumora-logo.png"
-              alt="Resumora.net"
-              className="h-10 w-auto object-contain"
-            />
-          </a>
-        </div>
-      </nav>
-
-      {/* ====== MAIN HERO & PRICING SECTION ====== */}
       <main className="flex flex-col items-center w-full px-4 py-16">
         <section className="v6-hero-panel flex flex-col items-center">
+          {showPaywall ? (
+            <p className="mb-6 text-sm text-center border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-4 py-3 rounded-lg max-w-xl">
+              Video Library requires an active subscription. Choose a plan below, then sign in.
+            </p>
+          ) : null}
           <h1 className="v6-heading text-4xl md:text-5xl mb-4 text-center">
             Build Your Perfect Resume
           </h1>
           <p className="v6-subhead text-lg text-center opacity-80 mb-10 max-w-2xl">
-            Select a plan to see exactly what is included, then continue to secure Stripe Checkout.
+            Select a plan to see exactly what is included, then proceed to checkout.
           </p>
 
-          {/* Pricing Cards Grid */}
           <div className="v6-pricing-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-12">
             {[
               { id: 'price_29', price: '$29', name: 'Basic' },
@@ -180,11 +190,7 @@ function AppShell() {
             ))}
           </div>
 
-          {/* Disclaimer & Checkout Button */}
           <div className="flex flex-col items-center gap-6 w-full max-w-md">
-            <div className="text-sm opacity-70 text-center px-4 py-2 border border-[#D4AF37]/30 bg-[#D4AF37]/5 rounded-lg">
-              {"Selecting a plan never changes another plan's price or features."}
-            </div>
             <button
               id="checkout-button"
               onClick={redirectToStripe}
@@ -199,10 +205,42 @@ function AppShell() {
   );
 }
 
+function VideoLibraryPage() {
+  return (
+    <div className="v6-shell min-h-screen font-sans">
+      <div className="v6-mesh" aria-hidden="true" />
+      <SiteNav />
+      <VideosPage />
+    </div>
+  );
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/video-library"
+        element={
+          <ProtectedRoute requireSubscription>
+            <VideoLibraryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider>
-      <AppShell />
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
