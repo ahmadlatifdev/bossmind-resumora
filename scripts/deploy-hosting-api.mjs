@@ -87,7 +87,14 @@ const rewrites = (firebaseJson.hosting?.rewrites || []).map((r) => {
   if (r.function) out.function = r.function;
   return out;
 });
-const config = { ...(prevConfig || {}), rewrites };
+const headers = (firebaseJson.hosting?.headers || []).map((h) => {
+  const headerMap = {};
+  for (const row of h.headers || []) {
+    if (row?.key) headerMap[row.key] = row.value;
+  }
+  return { glob: h.source, headers: headerMap };
+});
+const config = { ...(prevConfig || {}), rewrites, headers };
 const createBody = { config };
 const version = await api(
   tok,
@@ -152,3 +159,26 @@ const release = await api(
 console.log(`release=${release.name}`);
 console.log("HOSTING_URL=https://client-resumora-live.web.app");
 console.log("DEPLOY_OK");
+
+try {
+  const { spawnSync } = await import("node:child_process");
+  const notify = spawnSync(
+    process.execPath,
+    [path.resolve("scripts/notify-deploy.mjs"), release.name, "https://client-resumora-live.web.app"],
+    {
+      env: {
+        ...process.env,
+        DEPLOY_RELEASE_ID: release.name,
+        DEPLOY_LIVE_URL: "https://client-resumora-live.web.app",
+        DEPLOY_PROJECT: PROJECT,
+        DEPLOY_SITE: SITE,
+      },
+      encoding: "utf8",
+      shell: false,
+    }
+  );
+  if (notify.stdout) process.stdout.write(notify.stdout);
+  if (notify.stderr) process.stderr.write(notify.stderr);
+} catch (err) {
+  console.warn("notify-deploy: skipped", err?.message || err);
+}

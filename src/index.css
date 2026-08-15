@@ -1,1 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Class-based dark mode for V-6 ThemeProvider (html.dark) */
+@custom-variant dark (&:where(.dark, .dark *));
