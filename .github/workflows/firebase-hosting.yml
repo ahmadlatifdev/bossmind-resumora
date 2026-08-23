@@ -1,24 +1,18 @@
-name: Deploy to Firebase Hosting
+# RETIRED — wrong project (key-journal-378204).
+# Use deploy-prod.yml / deploy-preview.yml for resumora-live instead.
+name: Retired Hosting Workflow
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  retired:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JOURNAL_378204 }}
-          channelId: live
-          projectId: key-journal-378204
+      - name: Point operators to the correct workflows
+        run: |
+          echo "This workflow is retired. Use:"
+          echo "  .github/workflows/deploy-prod.yml"
+          echo "  .github/workflows/deploy-preview.yml"
+          echo "projectId must be resumora-live"
+          exit 1
