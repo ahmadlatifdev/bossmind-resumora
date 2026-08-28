@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { t } from "../lib/i18n.js";
+import React, { useState } from 'react';
+import LanguageSwitcher from './LanguageSwitcher';
+import { t } from '../lib/i18n.js';
 
 /**
  * Shared top header — RESUMORA.NET logo top-left → home (/).
@@ -9,26 +9,22 @@ import { t } from "../lib/i18n.js";
 export default function SiteHeader({
   lang,
   onLangChange,
-  currentPath = "",
+  currentPath = '',
   showLang = true,
   extraLinks = null,
 }) {
   const [open, setOpen] = useState(false);
   const links = [
-    { href: "/", key: "nav.home", match: "/" },
-    { href: "/pricing", key: "nav.pricing", match: "/pricing" },
-    { href: "/videos", key: "nav.videos", match: "/videos" },
-    { href: "/studio", key: "nav.studio", match: "/studio" },
+    { href: '/', key: 'nav.home', match: '/' },
+    { href: '/pricing', key: 'nav.pricing', match: '/pricing' },
+    { href: '/videos', key: 'nav.videos', match: '/videos' },
+    { href: '/studio', key: 'nav.studio', match: '/studio' },
+    { href: '/account', key: 'nav.account', match: '/account' },
   ];
 
   return (
     <header className="app-header site-header" role="banner">
-      <a
-        href="/"
-        className="site-logo"
-        aria-label="RESUMORA.NET — Home"
-        title="RESUMORA.NET"
-      >
+      <a href="/" className="site-logo" aria-label="RESUMORA.NET — Home" title="RESUMORA.NET">
         <img
           className="site-logo__mark"
           src="/resumora-logo.png"
@@ -36,7 +32,7 @@ export default function SiteHeader({
           width={56}
           height={56}
           onError={(e) => {
-            e.currentTarget.style.display = "none";
+            e.currentTarget.style.display = 'none';
           }}
         />
         <span className="site-logo__text">RESUMORA.NET</span>
@@ -49,12 +45,12 @@ export default function SiteHeader({
         aria-controls="site-primary-nav"
         onClick={() => setOpen((v) => !v)}
       >
-        {open ? "Close" : "Menu"}
+        {open ? 'Close' : 'Menu'}
       </button>
 
       <nav
         id="site-primary-nav"
-        className={`header-actions main-nav-links${open ? " is-open" : ""}`}
+        className={`header-actions main-nav-links${open ? ' is-open' : ''}`}
         aria-label="Primary"
       >
         {showLang && lang && onLangChange ? (
@@ -64,12 +60,12 @@ export default function SiteHeader({
           <a
             key={link.href}
             href={link.href}
-            aria-current={currentPath === link.match ? "page" : undefined}
+            aria-current={currentPath === link.match ? 'page' : undefined}
           >
-            {t(lang || "en", link.key)}
+            {t(lang || 'en', link.key)}
           </a>
         ))}
-        <a href="/reset-password">{t(lang || "en", "nav.reset")}</a>
+        <a href="/reset-password">{t(lang || 'en', 'nav.reset')}</a>
         {extraLinks}
       </nav>
     </header>

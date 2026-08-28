@@ -14,7 +14,16 @@
     "prepare": "husky",
     "lighthouse": "lhci autorun",
     "deploy:hosting": "npm run build && node scripts/deploy-hosting-api.mjs",
-    "deploy:notify": "node scripts/notify-deploy.mjs"
+    "deploy:notify": "node scripts/notify-deploy.mjs",
+    "stripe:env": "node scripts/ensure-stripe-env.mjs",
+    "stripe:server": "tsx server/stripe/index.ts",
+    "stripe:checkout-optimize": "tsx scripts/apply-checkout-optimizations.ts",
+    "stripe:optimize": "tsx scripts/apply-stripe-optimizations.ts",
+    "stripe:stress-test": "tsx scripts/stress-test.ts",
+    "stripe:report": "node scripts/stripe-final-report.mjs",
+    "test:stripe": "tsx --test tests/stripe-validation.test.ts",
+    "test:e2e": "tsx --test tests/full-e2e.test.ts",
+    "test:billing": "tsx --test tests/stripe-validation.test.ts tests/full-e2e.test.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -31,25 +40,32 @@
     "firebase": "^12.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.18.2"
+    "react-router-dom": "^7.18.2",
+    "resend": "^6.25.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.0",
+    "bullmq": "^6.3.1",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "express": "^5.2.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
+    "p-queue": "^9.3.3",
     "prettier": "^3.7.4",
-    "stripe": "^22.4.0",
+    "stripe": "^22.6.0",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.0",
     "vite": "^5.4.0"

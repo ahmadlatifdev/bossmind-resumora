@@ -38,6 +38,26 @@
         "function": "createCheckoutSession"
       },
       {
+        "source": "/api/webhook",
+        "function": "stripeWebhook"
+      },
+      {
+        "source": "/api/refund-preview",
+        "function": "getRefundPreview"
+      },
+      {
+        "source": "/api/cancel-subscription",
+        "function": "cancelSubscription"
+      },
+      {
+        "source": "/api/service-event",
+        "function": "recordServiceEventHttp"
+      },
+      {
+        "source": "/api/refunds",
+        "function": "listRefundsHttp"
+      },
+      {
         "source": "/api/video/catalog",
         "function": "heygenVideoCatalog"
       },
@@ -52,6 +72,30 @@
       {
         "source": "/api/video/download",
         "function": "heygenVideoDownload"
+      },
+      {
+        "source": "/api/admin/system-health",
+        "function": "getSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/run",
+        "function": "runSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/decide",
+        "function": "decideSystemHeal"
+      },
+      {
+        "source": "/api/admin/system-manual/update",
+        "function": "updateSystemManual"
+      },
+      {
+        "source": "/admin/system-health",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/index.html"
       },
       {
         "source": "/pricing",
@@ -87,6 +131,14 @@
       },
       {
         "source": "/login",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/account",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/account/**",
         "destination": "/index.html"
       },
       {

@@ -138,11 +138,9 @@ exports.createCheckoutSession = onRequest(
 
     const planId = String(body.planId || '').trim();
     if (!CANONICAL_PRICE_IDS[planId] && !PLAN_ENV_KEYS[planId]) {
-      res
-        .status(400)
-        .json({
-          error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
-        });
+      res.status(400).json({
+        error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
+      });
       return;
     }
 
@@ -175,18 +173,47 @@ exports.createCheckoutSession = onRequest(
       }
       const mode = price.type === 'recurring' ? 'subscription' : 'payment';
 
-      const session = await stripe.checkout.sessions.create({
-        mode,
-        line_items: [{ price: priceId, quantity: 1 }],
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: {
-          planId,
-          source: 'resumora.net',
-          expected_cents: String(expectedCents || price.unit_amount || ''),
-          advisory_only_ui: 'true',
+      const {
+        fetchDefaultPaymentMethodConfigurationId,
+        buildOptimizedCheckoutParams,
+        resolveCurrency,
+      } = require('./lib/stripeCheckoutOptimizations');
+
+      let paymentMethodConfigurationId = null;
+      try {
+        paymentMethodConfigurationId = await fetchDefaultPaymentMethodConfigurationId(stripe);
+      } catch (_) {
+        /* PMC optional */
+      }
+
+      const locale = String(body.locale || req.get('accept-language') || '')
+        .split(',')[0]
+        .trim();
+      const country = String(body.country || '').toUpperCase();
+      const currency = resolveCurrency({
+        locale,
+        country,
+        fallback: price.currency || 'usd',
+      });
+
+      const sessionParams = buildOptimizedCheckoutParams(
+        {
+          mode,
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          metadata: {
+            planId,
+            source: 'resumora.net',
+            expected_cents: String(expectedCents || price.unit_amount || ''),
+            advisory_only_ui: 'true',
+          },
         },
-        allow_promotion_codes: true,
+        { paymentMethodConfigurationId, currency }
+      );
+
+      const session = await stripe.checkout.sessions.create(sessionParams, {
+        idempotencyKey: `checkout_${planId}_${priceId}_${Date.now().toString(36)}`,
       });
 
       res.status(200).json({
@@ -326,3 +353,12 @@ exports.heygenVideoDownload = onRequest(
     }
   }
 );
+
+const { registerAdminEndpoints } = require('./adminEndpoints');
+registerAdminEndpoints(exports);
+
+const { registerStripeWebhook } = require('./stripeWebhook');
+registerStripeWebhook(exports);
+
+const { registerBillingEndpoints } = require('./billingEndpoints');
+registerBillingEndpoints(exports);
