@@ -1,6 +1,12 @@
-# Production Hosting ΓÇö live channel ΓåÆ client-resumora-live / resumora.net
+# Production Golden Gate — resumora-live / resumora.net
 #
-# Post-deploy: update-system-manual.yml (production environment) refreshes the BossMind System Manual.
+# Zero Manual Terminal Deploy: production deploys run ONLY in GitHub Actions after
+# Environment `production` approval (reviewers + wait timer in GitHub Settings).
+#
+# Triggers: workflow_dispatch OR squash-merge PR into main (not raw push).
+# Auth: FIREBASE_SERVICE_ACCOUNT GitHub Secret (never local credentials).
+# Post-deploy: regenerates BossMind System Manual when admin secrets are configured.
+
 name: Deploy Firebase Hosting Production
 
 on:
@@ -109,14 +115,14 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Deploy documentation and admin functions
+      - name: Deploy self-heal and documentation functions
         run: |
           npx firebase-tools@latest deploy --only \
-            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron" \
+            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:selfHealMonitor" \
             --project "${GCP_PROJECT_ID}" \
             --non-interactive
 
-      - name: Apply Cloud Run IAM bypass (admin HTTP services)
+      - name: Apply Cloud Run IAM bypass (public HTTP services)
         shell: pwsh
         run: |
           foreach ($svc in @('getsystemhealth', 'runsystemhealth', 'decidesystemheal', 'updatesystemmanual')) {
@@ -126,7 +132,11 @@ jobs:
               --region=$env:GCP_REGION `
               --no-invoker-iam-check `
               --quiet
+            if ($LASTEXITCODE -ne 0) {
+              throw "gcloud run services update failed for $svc (exit $LASTEXITCODE)"
+            }
           }
+          Write-Host "Skipped selfHealMonitor (scheduler — no public HTTP invoker)."
 
       - name: Download dist artifact
         uses: actions/download-artifact@v4
@@ -150,7 +160,7 @@ jobs:
           MANUAL_UPDATE_URL: ${{ secrets.SYSTEM_MANUAL_UPDATE_URL }}
         run: |
           if [ -z "$MANUAL_UPDATE_URL" ] || [ -z "$ADMIN_REFUND_PASSWORD" ]; then
-            echo "SYSTEM_MANUAL_UPDATE_URL or ADMIN_REFUND_PASSWORD not set ΓÇö skip manual regeneration."
+            echo "SYSTEM_MANUAL_UPDATE_URL or ADMIN_REFUND_PASSWORD not set - skip manual regeneration."
             exit 0
           fi
           curl -sf -X POST "$MANUAL_UPDATE_URL" \
