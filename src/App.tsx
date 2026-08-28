@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
+import AccountPage from './pages/AccountPage';
 import {
   CANONICAL_STRIPE_PRICE_IDS,
   getExpectedCentsForPlan,
@@ -50,6 +51,11 @@ function SiteNav() {
         <a href="/resume-studio" className="hover:text-[#D4AF37] transition">
           Resume Studio
         </a>
+        {!loading && user ? (
+          <Link to="/account" className="hover:text-[#D4AF37] transition">
+            My Account
+          </Link>
+        ) : null}
       </div>
       {/* Spacer keeps center column visually middle with logo on the left */}
       <div className="w-[2.5rem] sm:w-[6.5rem]" aria-hidden="true" />
@@ -215,11 +221,29 @@ function VideoLibraryPage() {
   );
 }
 
+function AccountShell() {
+  return (
+    <div className="v6-shell min-h-screen font-sans">
+      <div className="v6-mesh" aria-hidden="true" />
+      <SiteNav />
+      <AccountPage />
+    </div>
+  );
+}
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute requireSubscription={false}>
+            <AccountShell />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/video-library"
         element={

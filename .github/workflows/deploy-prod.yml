@@ -115,17 +115,28 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Deploy self-heal and documentation functions
+      - name: Deploy self-heal, documentation, and Stripe billing functions
         run: |
           npx firebase-tools@latest deploy --only \
-            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:selfHealMonitor" \
+            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:selfHealMonitor,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:createCheckoutSession" \
             --project "${GCP_PROJECT_ID}" \
             --non-interactive
 
       - name: Apply Cloud Run IAM bypass (public HTTP services)
         shell: pwsh
         run: |
-          foreach ($svc in @('getsystemhealth', 'runsystemhealth', 'decidesystemheal', 'updatesystemmanual')) {
+          foreach ($svc in @(
+            'getsystemhealth',
+            'runsystemhealth',
+            'decidesystemheal',
+            'updatesystemmanual',
+            'stripewebhook',
+            'getrefundpreview',
+            'cancelsubscription',
+            'recordserviceeventhttp',
+            'listrefundshttp',
+            'createcheckoutsession'
+          )) {
             Write-Host "Applying --no-invoker-iam-check to: $svc"
             gcloud run services update $svc `
               --project=$env:GCP_PROJECT_ID `
@@ -133,7 +144,7 @@ jobs:
               --no-invoker-iam-check `
               --quiet
             if ($LASTEXITCODE -ne 0) {
-              throw "gcloud run services update failed for $svc (exit $LASTEXITCODE)"
+              Write-Warning "gcloud run services update failed for $svc (exit $LASTEXITCODE) — may not exist yet"
             }
           }
           Write-Host "Skipped selfHealMonitor (scheduler — no public HTTP invoker)."

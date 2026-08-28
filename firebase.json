@@ -38,6 +38,26 @@
         "function": "createCheckoutSession"
       },
       {
+        "source": "/api/webhook",
+        "function": "stripeWebhook"
+      },
+      {
+        "source": "/api/refund-preview",
+        "function": "getRefundPreview"
+      },
+      {
+        "source": "/api/cancel-subscription",
+        "function": "cancelSubscription"
+      },
+      {
+        "source": "/api/service-event",
+        "function": "recordServiceEventHttp"
+      },
+      {
+        "source": "/api/refunds",
+        "function": "listRefundsHttp"
+      },
+      {
         "source": "/api/video/catalog",
         "function": "heygenVideoCatalog"
       },
@@ -111,6 +131,14 @@
       },
       {
         "source": "/login",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/account",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/account/**",
         "destination": "/index.html"
       },
       {
