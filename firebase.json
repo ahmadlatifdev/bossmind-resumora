@@ -54,6 +54,30 @@
         "function": "heygenVideoDownload"
       },
       {
+        "source": "/api/admin/system-health",
+        "function": "getSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/run",
+        "function": "runSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/decide",
+        "function": "decideSystemHeal"
+      },
+      {
+        "source": "/api/admin/system-manual/update",
+        "function": "updateSystemManual"
+      },
+      {
+        "source": "/admin/system-health",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/index.html"
+      },
+      {
         "source": "/pricing",
         "destination": "/pricing.html"
       },

@@ -138,11 +138,9 @@ exports.createCheckoutSession = onRequest(
 
     const planId = String(body.planId || '').trim();
     if (!CANONICAL_PRICE_IDS[planId] && !PLAN_ENV_KEYS[planId]) {
-      res
-        .status(400)
-        .json({
-          error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
-        });
+      res.status(400).json({
+        error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
+      });
       return;
     }
 
@@ -326,3 +324,6 @@ exports.heygenVideoDownload = onRequest(
     }
   }
 );
+
+const { registerAdminEndpoints } = require('./adminEndpoints');
+registerAdminEndpoints(exports);

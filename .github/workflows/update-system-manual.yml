@@ -1,0 +1,51 @@
+# Regenerate BossMind System Manual (production-gated)
+name: Update System Manual
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_run:
+    workflows:
+      - Deploy Firebase Hosting Production
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  update-manual:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://resumora.net
+    steps:
+      - name: Regenerate system manual via Cloud Function
+        env:
+          ADMIN_REFUND_PASSWORD: ${{ secrets.ADMIN_REFUND_PASSWORD }}
+          MANUAL_UPDATE_URL: ${{ secrets.SYSTEM_MANUAL_UPDATE_URL }}
+        run: |
+          if [ -z "$MANUAL_UPDATE_URL" ] || [ -z "$ADMIN_REFUND_PASSWORD" ]; then
+            echo "Configure secrets SYSTEM_MANUAL_UPDATE_URL and ADMIN_REFUND_PASSWORD."
+            exit 1
+          fi
+          TRIGGER="ci"
+          if [ "${{ github.event_name }}" = "schedule" ]; then TRIGGER="weekly_cron"; fi
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then TRIGGER="post_deploy"; fi
+          curl -sf -X POST "$MANUAL_UPDATE_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Admin-Password: $ADMIN_REFUND_PASSWORD" \
+            -d "{\"trigger\":\"${TRIGGER}\",\"changelogSynced\":true}"
+
+      - name: Sync docs/SYSTEM_MANUAL.md from Firestore (optional)
+        if: vars.SYNC_MANUAL_TO_REPO == 'true'
+        env:
+          ADMIN_REFUND_PASSWORD: ${{ secrets.ADMIN_REFUND_PASSWORD }}
+          MANUAL_GET_URL: ${{ secrets.SYSTEM_MANUAL_GET_URL }}
+        run: |
+          echo "Set SYNC_MANUAL_TO_REPO=true and SYSTEM_MANUAL_GET_URL to enable repo file sync."

@@ -1,11 +1,15 @@
-# Production Hosting — live channel → client-resumora-live / resumora.net
+# Production Hosting ΓÇö live channel ΓåÆ client-resumora-live / resumora.net
+#
+# Post-deploy: update-system-manual.yml (production environment) refreshes the BossMind System Manual.
 name: Deploy Firebase Hosting Production
 
 on:
-  push:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
     branches:
       - main
-  workflow_dispatch:
 
 concurrency:
   group: hosting-production
@@ -14,11 +18,16 @@ concurrency:
 permissions:
   contents: read
   checks: write
+  id-token: write
+
+env:
+  GCP_PROJECT_ID: resumora-live
+  GCP_REGION: us-central1
 
 jobs:
-  build_and_deploy:
+  build:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +59,81 @@ jobs:
           VITE_PAYWALL_ALLOW_AUTHED: ${{ secrets.VITE_PAYWALL_ALLOW_AUTHED }}
         run: npm run build
 
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosting-dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://resumora.net
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Firebase service account secret is configured
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT GitHub Secret is missing."
+            exit 1
+          fi
+          echo "FIREBASE_SERVICE_ACCOUNT is configured (value not printed)."
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install root and functions dependencies
+        run: |
+          npm ci
+          npm ci --prefix functions
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Deploy documentation and admin functions
+        run: |
+          npx firebase-tools@latest deploy --only \
+            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron" \
+            --project "${GCP_PROJECT_ID}" \
+            --non-interactive
+
+      - name: Apply Cloud Run IAM bypass (admin HTTP services)
+        shell: pwsh
+        run: |
+          foreach ($svc in @('getsystemhealth', 'runsystemhealth', 'decidesystemheal', 'updatesystemmanual')) {
+            Write-Host "Applying --no-invoker-iam-check to: $svc"
+            gcloud run services update $svc `
+              --project=$env:GCP_PROJECT_ID `
+              --region=$env:GCP_REGION `
+              --no-invoker-iam-check `
+              --quiet
+          }
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hosting-dist
+          path: dist
+
       - name: Deploy Hosting live channel
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -59,3 +143,17 @@ jobs:
           projectId: resumora-live
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+      - name: Regenerate BossMind System Manual
+        env:
+          ADMIN_REFUND_PASSWORD: ${{ secrets.ADMIN_REFUND_PASSWORD }}
+          MANUAL_UPDATE_URL: ${{ secrets.SYSTEM_MANUAL_UPDATE_URL }}
+        run: |
+          if [ -z "$MANUAL_UPDATE_URL" ] || [ -z "$ADMIN_REFUND_PASSWORD" ]; then
+            echo "SYSTEM_MANUAL_UPDATE_URL or ADMIN_REFUND_PASSWORD not set ΓÇö skip manual regeneration."
+            exit 0
+          fi
+          curl -sf -X POST "$MANUAL_UPDATE_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Admin-Password: $ADMIN_REFUND_PASSWORD" \
+            -d "{\"trigger\":\"post_deploy\",\"changelogSynced\":true,\"changelogGitSha\":\"${{ github.sha }}\"}"
