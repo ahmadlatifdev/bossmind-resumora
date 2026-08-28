@@ -23,6 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 
+# Cursor MCP (may reference local env; keep template only)
+.cursor/mcp.json
+
+# Bilibili cookie files (Secret Manager upsert only — never commit)
+bilibili_secrets.env
+bilibili_secrets.txt
+
 .vercel
 .cloudflare
 wrangler.toml
@@ -33,6 +40,25 @@ wrangler.jsonc
 .env
 functions/.env
 
+# Never commit BossMind env audit backups (hub paths if linked)
+../config/local-env-backup/
+../config/render-teardown-backup/
+.env.merged
+.env.render-backup*
+
 cloud-run-apex/dist/
 .firebase/
+
+
+.env.local
+
+# Service account keys — never commit (use GitHub Secret FIREBASE_SERVICE_ACCOUNT)
+*-firebase-adminsdk-*.json
+**/serviceAccount*.json
+**/service-account*.json
+FIREBASE_SERVICE_ACCOUNT.json
+gcp-sa-*.json
+
+# Video Library masters (binaries)
+public/videos/*.mp4
 

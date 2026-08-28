@@ -1,0 +1,2 @@
+# ffmpeg for MoviePy / Whisper audio extract
+ffmpeg

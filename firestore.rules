@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Clients may read/write only their own profile document.
+    // Stripe webhook / Admin SDK bypasses these rules.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId;
+      allow update: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny([
+              'planStatus',
+              'subscriptionStatus',
+              'stripeCustomerId',
+              'plan',
+              'planId',
+              'purchaseDate',
+              'paid'
+            ]);
+      allow delete: if false;
+
+      match /subscriptions/{subId} {
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
+    }
+
+    match /invoice_emails/{id} {
+      allow read, write: if false;
+    }
+
+    match /support_tickets/{id} {
+      // Admin SDK / Cloud Functions only — no client access
+      allow read, write: if false;
+    }
+
+    match /refund_requests/{id} {
+      allow read, write: if false;
+    }
+
+    match /system_health/{id} {
+      allow read, write: if false;
+    }
+
+    match /system_incidents/{id} {
+      allow read, write: if false;
+    }
+
+    match /system_remediations/{id} {
+      allow read, write: if false;
+    }
+
+    match /system_heal_approvals/{id} {
+      allow read, write: if false;
+    }
+
+    match /system_client_errors/{id} {
+      allow read, write: if false;
+    }
+
+    match /notification_history/{id} {
+      allow read, write: if false;
+    }
+
+    match /webhook_events/{id} {
+      allow read, write: if false;
+    }
+
+    // Client Chat — Admin SDK only (widget uses Cloud Function)
+    match /chats/{id} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

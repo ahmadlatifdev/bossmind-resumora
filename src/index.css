@@ -2,3 +2,24 @@
 
 /* Class-based dark mode for V-6 ThemeProvider (html.dark) */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Cross-device layout safety */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+/* BrandLogo locks 56×56 via inline styles — do not override those */
+img.site-logo__mark {
+  max-width: 56px;
+  height: 56px;
+}

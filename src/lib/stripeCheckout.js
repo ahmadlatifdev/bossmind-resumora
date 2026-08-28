@@ -10,6 +10,16 @@ import {
 
 let stripePromise = null;
 
+const STUDIO_SUCCESS_URL =
+  'https://client-resumora-live.web.app/studio?session_id={CHECKOUT_SESSION_ID}';
+const CHECKOUT_CANCEL_URL = 'https://resumora.net/pricing';
+
+/** Firebase Hosting rewrite + direct Cloud Functions URL (no Render, no Cloud Run alias). */
+const CHECKOUT_ENDPOINTS = [
+  '/api/create-checkout-session',
+  'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
+];
+
 export function getStripe() {
   const pk = getStripePublishableKey();
   if (!pk) {
@@ -24,13 +34,13 @@ export function getStripe() {
 }
 
 /**
- * Start checkout for a selected plan (sandbox-safe).
- *
- * Priority:
- * 1) Amount-matched Payment Link (works even when Cloud Functions IAM blocks /api)
- * 2) Checkout Session API with planId + verified priceId + expectedCents
+ * Start checkout for a selected plan.
+ * Prefer Firebase Cloud Function Checkout Session so success/cancel URLs stay on Firebase.
+ * Payment Links are last-resort only (may still have legacy Stripe Dashboard redirects).
+ * @param {string} planId
+ * @param {{ firebaseUID?: string, email?: string }} [opts]
  */
-export async function startStripeCheckoutForPlan(planId) {
+export async function startStripeCheckoutForPlan(planId, opts = {}) {
   const plan = getPlanById(planId);
   if (!plan) {
     throw new Error(`Unknown plan: ${planId}`);
@@ -38,57 +48,44 @@ export async function startStripeCheckoutForPlan(planId) {
 
   const priceId = getStripePriceIdForPlan(planId);
   const expectedCents = getExpectedCentsForPlan(planId);
-  const origin = window.location.origin;
   const paymentLink = getStripePaymentLinkForPlan(planId);
+  const firebaseUID = String(opts.firebaseUID || '').trim();
+  const email = String(opts.email || '').trim();
 
-  // Payment Links are the reliable sandbox path while createCheckoutSession is IAM-blocked (403).
-  if (paymentLink) {
-    window.location.assign(paymentLink);
-    return {
-      redirected: true,
-      planId,
-      priceId,
-      via: 'payment_link',
-      expectedCents,
-      testMode: isStripeTestMode(),
-    };
-  }
-
-  if (!priceId) {
+  if (!priceId && !paymentLink) {
     throw new Error(
       `Checkout unavailable for plan "${planId}" (expected ${plan.priceLabel}). Please contact support.`
     );
   }
 
-  const endpoints = [
-    '/api/create-checkout-session',
-    'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
-    'https://createcheckoutsession-lip26fm72a-uc.a.run.app',
-  ];
-
   let payload = null;
   let lastError = null;
-  for (const endpoint of endpoints) {
-    try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        credentials: 'omit',
-        body: JSON.stringify({
-          planId,
-          priceId,
-          expectedCents,
-          successUrl: `${origin}/pricing?checkout=success&plan=${encodeURIComponent(planId)}`,
-          cancelUrl: `${origin}/pricing?checkout=canceled&plan=${encodeURIComponent(planId)}`,
-        }),
-      });
-      payload = await res.json().catch(() => ({}));
-      if (res.ok) break;
-      lastError = payload.error || `Checkout session failed (${res.status})`;
-      payload = null;
-    } catch (err) {
-      lastError = err?.message || 'Network error creating checkout session';
-      payload = null;
+
+  if (priceId) {
+    for (const endpoint of CHECKOUT_ENDPOINTS) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          credentials: 'omit',
+          body: JSON.stringify({
+            planId,
+            priceId,
+            expectedCents,
+            successUrl: STUDIO_SUCCESS_URL,
+            cancelUrl: CHECKOUT_CANCEL_URL,
+            ...(firebaseUID ? { firebaseUID, uid: firebaseUID } : {}),
+            ...(email ? { customerEmail: email } : {}),
+          }),
+        });
+        payload = await res.json().catch(() => ({}));
+        if (res.ok) break;
+        lastError = payload.error || `Checkout session failed (${res.status})`;
+        payload = null;
+      } catch (err) {
+        lastError = err?.message || 'Network error creating checkout session';
+        payload = null;
+      }
     }
   }
 
@@ -114,6 +111,22 @@ export async function startStripeCheckoutForPlan(planId) {
       priceId,
       sessionId: payload.sessionId,
       via: 'redirectToCheckout',
+    };
+  }
+
+  // Last resort: Payment Link (update Stripe Dashboard after_completion if it still hits Render)
+  if (paymentLink) {
+    console.warn(
+      '[checkout] Falling back to Payment Link. Confirm Stripe Dashboard redirect is not onrender.com.'
+    );
+    window.location.assign(paymentLink);
+    return {
+      redirected: true,
+      planId,
+      priceId,
+      via: 'payment_link',
+      expectedCents,
+      testMode: isStripeTestMode(),
     };
   }
 

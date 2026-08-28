@@ -1,9 +1,10 @@
 /**
  * Firebase client for resumora-live / client-resumora-live.
  * Prefers VITE_FIREBASE_* from .env.local; falls back to known web app config.
+ * Auth domain must stay on *.firebaseapp.com unless a custom auth domain is configured.
  */
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
+import { browserLocalPersistence, getAuth, setPersistence, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAnalytics, initializeAnalytics, isSupported } from 'firebase/analytics';
 
@@ -35,6 +36,7 @@ const firebaseConfig = {
   measurementId:
     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID ||
     import.meta.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ||
+    import.meta.env.VITE_GA_MEASUREMENT_ID ||
     'G-QW15ZT1VDX',
 };
 
@@ -48,6 +50,21 @@ export const app: FirebaseApp = getApps().length
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 
+/** Persist sessions across refreshes (localStorage). */
+void setPersistence(auth, browserLocalPersistence).catch(() => {
+  /* ignore — default persistence still applies */
+});
+
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  console.info(
+    JSON.stringify({
+      scope: 'firebase.init',
+      projectId: firebaseConfig.projectId,
+      authDomain: firebaseConfig.authDomain,
+      apiKeyPresent: Boolean(firebaseConfig.apiKey),
+    })
+  );
+}
 /** Sets Auth email-template language only (en|fr|es). Does not touch Firestore or sessions. */
 export function setAuthEmailLanguage(code: 'en' | 'fr' | 'es' | string): void {
   const normalized = String(code || 'en')

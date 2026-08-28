@@ -1,0 +1,17 @@
+# Resumora Video Localizer (Cloud Run) — EdgeTTS-first, no paid TTS required
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.0
+requests>=2.31.0
+numpy>=1.26.0,<2.0
+moviepy==1.0.3
+pydub==0.25.1
+edge-tts==6.1.9
+gTTS==2.5.4
+openai-whisper>=20231117
+deep-translator>=1.11.4
+nest-asyncio==1.6.0
+google-cloud-storage>=2.18.0
+google-cloud-firestore>=2.19.0
+# Optional premium — leave unset to force EdgeTTS/gTTS
+# elevenlabs>=1.0.0

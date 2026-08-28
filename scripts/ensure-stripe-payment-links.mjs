@@ -94,7 +94,7 @@ for (const plan of PLANS) {
       line_items: [{ price: priceId, quantity: 1 }],
       after_completion: {
         type: "redirect",
-        redirect: { url: "https://resumora.net/pricing?checkout=success" },
+        redirect: { url: "https://client-resumora-live.web.app/studio" },
       },
       metadata: { planId: plan.id, source: "resumora.net" },
     });

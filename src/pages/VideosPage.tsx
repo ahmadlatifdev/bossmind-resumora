@@ -15,19 +15,24 @@ function mapCatalogItem(item) {
     order: item.order || 0,
     durationSec: item.duration || 300,
     title: {
-      en: item.title_EN || item.title?.en || id,
-      fr: item.title_FR || item.title?.fr || item.title_EN || id,
-      es: item.title_ES || item.title?.es || item.title_EN || id,
+      en: item.title_EN || item.title_en || item.title?.en || id,
+      fr: item.title_FR || item.title_fr || item.title?.fr || item.title_EN || item.title_en || id,
+      es: item.title_ES || item.title_es || item.title?.es || item.title_EN || item.title_en || id,
     },
     description: {
-      en: item.description_EN || item.description?.en || '',
-      fr: item.description_FR || item.description?.fr || '',
-      es: item.description_ES || item.description?.es || '',
+      en: item.description_EN || item.description_en || item.description?.en || '',
+      fr: item.description_FR || item.description_fr || item.description?.fr || '',
+      es: item.description_ES || item.description_es || item.description?.es || '',
     },
     voiceover: item.voiceover || {
       en: item.voiceover_en || item.description_EN || item.description?.en || '',
       fr: item.voiceover_fr || item.description_FR || item.description?.fr || '',
       es: item.voiceover_es || item.description_ES || item.description?.es || '',
+    },
+    captions: {
+      en: item.captions_en || item.captions?.en || '',
+      fr: item.captions_fr || item.captions?.fr || '',
+      es: item.captions_es || item.captions?.es || '',
     },
     hasVoice: item.hasVoice !== false,
     sources: {
@@ -35,6 +40,11 @@ function mapCatalogItem(item) {
       fr: item.url_mp4_fr || item.sources?.fr || item.url_mp4_en || '',
       es: item.url_mp4_es || item.sources?.es || item.url_mp4_en || '',
     },
+    localizeStatus: {
+      fr: item.localize_status_fr || item.localizeStatus?.fr || '',
+      es: item.localize_status_es || item.localizeStatus?.es || '',
+    },
+    generationStatus: item.status || item.generation_status || '',
     downloadName: {
       en: `resumora-${id}-en.mp4`,
       fr: `resumora-${id}-fr.mp4`,
@@ -127,7 +137,7 @@ export default function VideosPage() {
           : `${t(lang, 'videos.downloaded')} (${result.remaining}/${MAX_VIDEO_DOWNLOADS})`
       );
     } catch (err) {
-      setError(err?.message || 'Download failed.');
+      setError(err?.message || t(lang, 'videos.downloadFailed'));
     } finally {
       setBusy(false);
     }
@@ -135,7 +145,7 @@ export default function VideosPage() {
 
   return (
     <div className="app-shell">
-      <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/videos" />
+      <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/videos" showLang />
 
       <main className="app-main">
         <h1>{t(lang, 'videos.title')}</h1>
@@ -174,7 +184,10 @@ export default function VideosPage() {
 
         <p className="muted small" style={{ marginTop: 20 }}>
           {catalogMeta.heygenConfigured
-            ? `HeyGen API: configured · catalog=${catalogMeta.source}`
+            ? t(lang, 'videos.heygenConfigured').replace(
+                '{source}',
+                String(catalogMeta.source || 'api')
+              )
             : t(lang, 'videos.heygenNote')}
         </p>
       </main>

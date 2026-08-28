@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "mcp"]
+    },
+    "grok": {
+      "command": "npx",
+      "args": ["-y", "grok-build-mcp"],
+      "env": {
+        "XAI_API_KEY": "${env:XAI_API_KEY}"
+      }
+    }
+  }
+}

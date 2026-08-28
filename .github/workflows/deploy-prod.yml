@@ -1,4 +1,9 @@
 # Production Hosting — live channel → client-resumora-live / resumora.net
+#
+# Approval gate: the `deploy` job targets GitHub Environment `production`.
+# Configure Settings → Environments → production → Required reviewers so no
+# live Hosting deploy starts until you explicitly Approve in the Actions UI.
+# Never put sk_live_ / whsec_ / service-account files in the repo.
 name: Deploy Firebase Hosting Production
 
 on:
@@ -14,11 +19,12 @@ concurrency:
 permissions:
   contents: read
   checks: write
+  id-token: write
 
 jobs:
-  build_and_deploy:
+  # Build first (no environment gate) so broken builds never reach approval.
+  build:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +55,31 @@ jobs:
           VITE_STRIPE_PRICE_ADVANCED: ${{ secrets.VITE_STRIPE_PRICE_ADVANCED }}
           VITE_PAYWALL_ALLOW_AUTHED: ${{ secrets.VITE_PAYWALL_ALLOW_AUTHED }}
         run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosting-dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 3
+
+  # Manual authorization gate — Required reviewers on Environment `production`.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://resumora.net
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hosting-dist
+          path: dist
 
       - name: Deploy Hosting live channel
         uses: FirebaseExtended/action-hosting-deploy@v0

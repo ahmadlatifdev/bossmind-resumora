@@ -10,5 +10,12 @@
         ]
       }
     }
+  },
+  "etags": {
+    "resumora-live": {
+      "extensionInstances": {
+        "firestore-stripe-payments": "de96de90bacc289e8b5571ae0ee8a0f0ecb7f2a3a3151c5c33b0771bcba2bcd5"
+      }
+    }
   }
 }

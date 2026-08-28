@@ -1,0 +1,11 @@
+# Exclude vendor upstream copies and caches from Cloud Build context
+vendor/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+*.md
+!ATTRIBUTION.md

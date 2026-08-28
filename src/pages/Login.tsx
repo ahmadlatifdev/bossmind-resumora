@@ -1,70 +1,31 @@
-import { type FormEvent, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth';
-import { auth, setAuthEmailLanguage } from '../lib/firebase';
+import { auth } from '../lib/firebase';
+import { upsertUserProfile } from '../lib/userProfile.js';
+import { requestPasswordResetEmail, isStrongPassword } from '../lib/passwordReset.js';
+import { mapAuthError, logAuthFailure } from '../lib/authErrors.js';
+import SiteHeader from '../components/SiteHeader';
+import { getLang, normalizeLang, setLang as setUiLang, t } from '../lib/i18n.js';
 import '../v6-luxury.css';
+import '../app-shell.css';
 
-type AuthLang = 'en' | 'fr' | 'es';
-
-const RESET_COPY: Record<
-  AuthLang,
-  {
-    forgot: string;
-    resetTitle: string;
-    send: string;
-    back: string;
-    success: string;
-    needEmail: string;
-    langLabel: string;
-  }
-> = {
-  en: {
-    forgot: 'Forgot password?',
-    resetTitle: 'Reset your password',
-    send: 'Send reset email',
-    back: 'Back to sign in',
-    success: 'Password reset email sent! Check your inbox.',
-    needEmail: 'Enter your email address to reset your password.',
-    langLabel: 'Email language',
-  },
-  fr: {
-    forgot: 'Mot de passe oublié ?',
-    resetTitle: 'Réinitialiser votre mot de passe',
-    send: "Envoyer l'e-mail de réinitialisation",
-    back: 'Retour à la connexion',
-    success: 'E-mail de réinitialisation envoyé ! Vérifiez votre boîte de réception.',
-    needEmail: 'Saisissez votre adresse e-mail pour réinitialiser votre mot de passe.',
-    langLabel: "Langue de l'e-mail",
-  },
-  es: {
-    forgot: '¿Olvidaste tu contraseña?',
-    resetTitle: 'Restablecer tu contraseña',
-    send: 'Enviar correo de restablecimiento',
-    back: 'Volver a iniciar sesión',
-    success: '¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.',
-    needEmail: 'Introduce tu correo electrónico para restablecer tu contraseña.',
-    langLabel: 'Idioma del correo',
-  },
-};
-
-function detectBrowserLang(): AuthLang {
-  const raw =
-    (typeof navigator !== 'undefined' && (navigator.language || navigator.languages?.[0])) || 'en';
-  const lower = String(raw).toLowerCase();
-  if (lower.startsWith('fr')) return 'fr';
-  if (lower.startsWith('es')) return 'es';
-  return 'en';
+function googleProvider() {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  provider.addScope('email');
+  provider.addScope('profile');
+  return provider;
 }
 
 /**
- * Password reset only sets Firebase Auth language for the email template.
- * It does not sign the user out or write subscription fields in Firestore.
+ * Member Access / Client Registration + Forgot Password.
+ * UI language follows SiteHeader EN/FR/ES (resumora_lang).
  */
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -75,39 +36,129 @@ export default function LoginPage() {
     (location.state as { from?: string } | null)?.from ||
     '/video-library';
 
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [showReset, setShowReset] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [lang, setLang] = useState<AuthLang>(() => detectBrowserLang());
+  const modeParam = searchParams.get('mode');
+  const [mode, setMode] = useState<'login' | 'register'>(() =>
+    modeParam === 'register' || modeParam === 'signup' ? 'register' : 'login'
+  );
+  const [showReset, setShowReset] = useState(() => modeParam === 'forgot' || modeParam === 'reset');
+  const [uiLang, setUiLangState] = useState(() => getLang());
+  const [emailLang, setEmailLang] = useState(() => getLang());
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
+  const [info, setInfo] = useState(() =>
+    modeParam === 'forgot' ? t(getLang(), 'auth.resetLandingHint') : ''
+  );
   const [busy, setBusy] = useState(false);
 
-  const copy = useMemo(() => RESET_COPY[lang], [lang]);
+  useEffect(() => {
+    if (modeParam === 'forgot' || modeParam === 'reset') {
+      setShowReset(true);
+      setMode('login');
+      setInfo(t(uiLang, 'auth.resetLandingHint'));
+    } else if (modeParam === 'register' || modeParam === 'signup') {
+      setShowReset(false);
+      setMode('register');
+    } else if (modeParam === 'login' || modeParam === null) {
+      /* keep current unless explicitly login */
+    }
+  }, [modeParam, uiLang]);
+
+  const onUiLangChange = (next: string) => {
+    const code = setUiLang(next);
+    setUiLangState(code);
+    setEmailLang(code);
+  };
+
+  const setAuthMode = (next: 'login' | 'register') => {
+    setMode(next);
+    setShowReset(false);
+    setError('');
+    setInfo('');
+    try {
+      const url = new URL(window.location.href);
+      if (next === 'register') url.searchParams.set('mode', 'register');
+      else url.searchParams.delete('mode');
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const openForgot = () => {
+    setError('');
+    setInfo('');
+    setShowReset(true);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('mode', 'forgot');
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const closeForgot = () => {
+    setShowReset(false);
+    setError('');
+    setInfo('');
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('mode');
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      /* ignore */
+    }
+  };
 
   const finish = () => navigate(from, { replace: true });
+
+  const persistProfileSafe = async (
+    user: import('firebase/auth').User,
+    extra: { fullName?: string; locale?: string } = {}
+  ) => {
+    try {
+      await upsertUserProfile(user, extra);
+    } catch (profileErr) {
+      // Auth already succeeded — do not block Member Access on profile write.
+      logAuthFailure('profile_upsert', profileErr);
+    }
+  };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
     setInfo('');
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError(t(uiLang, 'auth.needEmail'));
+      return;
+    }
+    if (!password) {
+      setError(t(uiLang, 'auth.errMissingPassword'));
+      return;
+    }
+    if (mode === 'register' && !isStrongPassword(password)) {
+      setError(t(uiLang, 'auth.passwordWeak'));
+      return;
+    }
     setBusy(true);
     try {
       if (mode === 'login') {
-        await signInWithEmailAndPassword(auth, email.trim(), password);
+        const cred = await signInWithEmailAndPassword(auth, trimmedEmail, password);
+        await persistProfileSafe(cred.user, { locale: uiLang });
       } else {
-        await createUserWithEmailAndPassword(auth, email.trim(), password);
+        const cred = await createUserWithEmailAndPassword(auth, trimmedEmail, password);
+        await persistProfileSafe(cred.user, {
+          fullName: fullName.trim(),
+          locale: uiLang,
+        });
       }
-      setFailedAttempts(0);
       finish();
     } catch (err) {
-      if (mode === 'login') {
-        setFailedAttempts((n) => n + 1);
-        setShowReset(true);
-      }
-      setError(err instanceof Error ? err.message : 'Authentication failed.');
+      logAuthFailure(mode === 'login' ? 'email_sign_in' : 'email_register', err);
+      setError(mapAuthError(t, uiLang, err, 'auth.failed'));
     } finally {
       setBusy(false);
     }
@@ -118,19 +169,15 @@ export default function LoginPage() {
     setInfo('');
     setBusy(true);
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const cred = await signInWithPopup(auth, googleProvider());
+      await persistProfileSafe(cred.user, { locale: uiLang });
       finish();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed.');
+      logAuthFailure('google_sign_in', err);
+      setError(mapAuthError(t, uiLang, err, 'auth.googleFailed'));
     } finally {
       setBusy(false);
     }
-  };
-
-  const onForgotClick = () => {
-    setError('');
-    setInfo('');
-    setShowReset(true);
   };
 
   const onSendReset = async (e: FormEvent) => {
@@ -139,45 +186,43 @@ export default function LoginPage() {
     setInfo('');
     const trimmed = email.trim();
     if (!trimmed) {
-      setError(copy.needEmail);
+      setError(t(uiLang, 'auth.needEmail'));
       return;
     }
     setBusy(true);
     try {
-      // Language for Firebase Auth email templates only — no session/Firestore mutation.
-      setAuthEmailLanguage(lang);
-      await sendPasswordResetEmail(auth, trimmed);
-      setInfo(copy.success);
+      await requestPasswordResetEmail(trimmed, normalizeLang(emailLang));
+      // Always generic — do not reveal whether the account exists.
+      setInfo(t(uiLang, 'auth.resetSuccess'));
     } catch (err) {
-      const code =
-        err && typeof err === 'object' && 'code' in err
-          ? String((err as { code?: string }).code || '')
-          : '';
-      if (code === 'auth/configuration-not-found') {
-        console.warn(
-          'Fix required: Go to Firebase Console > Authentication > Sign-in methods > Enable Email/Password.'
-        );
-        setError(
-          'Password reset is temporarily unavailable. Please contact support and ask them to enable Email/Password sign-in in the Firebase Console.'
-        );
-      } else {
-        setError(
-          'Something went wrong. Please try again later. Contact support if the issue persists.'
-        );
-      }
+      logAuthFailure('password_reset', err);
+      setError(mapAuthError(t, uiLang, err, 'auth.resetGeneric'));
     } finally {
       setBusy(false);
     }
   };
 
+  const inputClass = 'w-full rounded-xl border border-[#D4AF37]/30 bg-transparent px-4 py-3';
+
   return (
     <div className="v6-shell min-h-screen font-sans">
       <div className="v6-mesh" aria-hidden="true" />
+      <SiteHeader lang={uiLang} onLangChange={onUiLangChange} currentPath="/login" />
       <main className="flex flex-col items-center justify-center px-4 py-20">
         <section className="v6-hero-panel max-w-md w-full flex flex-col gap-5">
-          <h1 className="v6-heading text-3xl text-center">Member Access</h1>
+          <h1 className="v6-heading text-3xl text-center">
+            {showReset
+              ? t(uiLang, 'auth.resetTitle')
+              : mode === 'register'
+                ? t(uiLang, 'auth.registerTitle')
+                : t(uiLang, 'auth.memberTitle')}
+          </h1>
           <p className="v6-subhead text-center opacity-80 text-sm">
-            Sign in to unlock the Video Library. Active subscribers only.
+            {showReset
+              ? t(uiLang, 'auth.resetLead')
+              : mode === 'register'
+                ? t(uiLang, 'auth.registerLead')
+                : t(uiLang, 'auth.memberLead')}
           </p>
 
           {!showReset ? (
@@ -185,39 +230,71 @@ export default function LoginPage() {
               <button
                 type="button"
                 className="v6-cta w-full py-3 rounded-full font-bold"
-                onClick={onGoogle}
+                onClick={() => void onGoogle()}
                 disabled={busy}
               >
-                Continue with Google
+                {t(uiLang, 'auth.continueGoogle')}
               </button>
 
               <div className="text-center text-xs opacity-60 tracking-widest uppercase">
-                or email
+                {t(uiLang, 'auth.orEmail')}
               </div>
 
-              <form className="flex flex-col gap-3" onSubmit={onSubmit}>
+              <form className="flex flex-col gap-3" onSubmit={(e) => void onSubmit(e)} noValidate>
+                {mode === 'register' ? (
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder={t(uiLang, 'auth.fullName')}
+                    aria-label={t(uiLang, 'auth.fullName')}
+                    className={inputClass}
+                    autoComplete="name"
+                  />
+                ) : null}
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email"
-                  className="w-full rounded-xl border border-[#D4AF37]/30 bg-transparent px-4 py-3"
+                  placeholder={t(uiLang, 'auth.email')}
+                  aria-label={t(uiLang, 'auth.email')}
+                  className={inputClass}
                   autoComplete="email"
+                  inputMode="email"
                 />
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  minLength={mode === 'register' ? 8 : 6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full rounded-xl border border-[#D4AF37]/30 bg-transparent px-4 py-3"
+                  placeholder={t(uiLang, 'auth.password')}
+                  aria-label={t(uiLang, 'auth.password')}
+                  className={inputClass}
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 />
+                {mode === 'login' ? (
+                  <div className="flex justify-end -mt-1">
+                    <button
+                      type="button"
+                      className="text-sm min-h-11 px-2 inline-flex items-center hover:text-[#D4AF37] active:text-[#D4AF37] focus-visible:text-[#D4AF37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37] transition underline-offset-4 hover:underline active:underline"
+                      onClick={openForgot}
+                    >
+                      {t(uiLang, 'auth.forgot')}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs opacity-60">{t(uiLang, 'auth.passwordPolicy')}</p>
+                )}
                 {error ? (
                   <p className="text-sm text-red-400" role="alert">
                     {error}
+                  </p>
+                ) : null}
+                {info ? (
+                  <p className="text-sm text-[#D4AF37]" role="status">
+                    {info}
                   </p>
                 ) : null}
                 <button
@@ -225,49 +302,35 @@ export default function LoginPage() {
                   className="v6-cta w-full py-3 rounded-full font-bold"
                   disabled={busy}
                 >
-                  {mode === 'login' ? 'Sign in' : 'Create account'}
+                  {busy
+                    ? t(uiLang, 'auth.working')
+                    : mode === 'login'
+                      ? t(uiLang, 'auth.signIn')
+                      : t(uiLang, 'auth.createAccount')}
                 </button>
               </form>
-
-              {mode === 'login' ? (
-                <button
-                  type="button"
-                  className="text-sm self-center hover:text-[#D4AF37] transition underline-offset-4 hover:underline"
-                  onClick={onForgotClick}
-                >
-                  {copy.forgot}
-                </button>
-              ) : null}
 
               <button
                 type="button"
                 className="v6-theme-btn self-center"
-                onClick={() => {
-                  setMode((m) => (m === 'login' ? 'register' : 'login'));
-                  setShowReset(false);
-                  setError('');
-                  setInfo('');
-                }}
+                onClick={() => setAuthMode(mode === 'login' ? 'register' : 'login')}
               >
-                {mode === 'login' ? 'Need an account? Register' : 'Have an account? Sign in'}
+                {mode === 'login' ? t(uiLang, 'auth.needAccount') : t(uiLang, 'auth.haveAccount')}
               </button>
             </>
           ) : (
-            <form className="flex flex-col gap-3" onSubmit={onSendReset}>
-              <h2 className="text-lg text-center tracking-wide text-[#D4AF37]">
-                {copy.resetTitle}
-              </h2>
+            <form className="flex flex-col gap-3" onSubmit={(e) => void onSendReset(e)} noValidate>
               <label className="text-xs opacity-70 tracking-wide">
-                {copy.langLabel}
+                {t(uiLang, 'auth.emailLangLabel')}
                 <select
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value as AuthLang)}
-                  className="mt-1 w-full rounded-xl border border-[#D4AF37]/30 bg-transparent px-4 py-3"
-                  aria-label={copy.langLabel}
+                  value={emailLang}
+                  onChange={(e) => setEmailLang(normalizeLang(e.target.value))}
+                  className={`mt-1 ${inputClass}`}
+                  aria-label={t(uiLang, 'auth.emailLangLabel')}
                 >
-                  <option value="en">English (EN)</option>
-                  <option value="fr">Français (FR)</option>
-                  <option value="es">Español (ES)</option>
+                  <option value="en">{t(uiLang, 'auth.langOptionEn')}</option>
+                  <option value="fr">{t(uiLang, 'auth.langOptionFr')}</option>
+                  <option value="es">{t(uiLang, 'auth.langOptionEs')}</option>
                 </select>
               </label>
               <input
@@ -275,10 +338,13 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full rounded-xl border border-[#D4AF37]/30 bg-transparent px-4 py-3"
+                placeholder={t(uiLang, 'auth.email')}
+                aria-label={t(uiLang, 'auth.email')}
+                className={inputClass}
                 autoComplete="email"
+                inputMode="email"
               />
+              <p className="text-xs opacity-60">{t(uiLang, 'auth.resetPrivacy')}</p>
               {error ? (
                 <p className="text-sm text-red-400" role="alert">
                   {error}
@@ -294,24 +360,23 @@ export default function LoginPage() {
                 className="v6-cta w-full py-3 rounded-full font-bold"
                 disabled={busy}
               >
-                {copy.send}
+                {busy ? t(uiLang, 'auth.sendingReset') : t(uiLang, 'auth.sendReset')}
               </button>
               <button
                 type="button"
-                className="text-sm self-center hover:text-[#D4AF37] transition"
-                onClick={() => {
-                  setShowReset(false);
-                  setError('');
-                  setInfo('');
-                }}
+                className="text-sm self-center min-h-11 px-2 inline-flex items-center hover:text-[#D4AF37] active:text-[#D4AF37] focus-visible:text-[#D4AF37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37] transition"
+                onClick={closeForgot}
               >
-                {copy.back}
+                {t(uiLang, 'auth.backToSignIn')}
               </button>
             </form>
           )}
 
-          <Link to="/" className="text-center text-sm hover:text-[#D4AF37] transition">
-            Back to Home
+          <Link
+            to="/"
+            className="text-center text-sm min-h-11 inline-flex items-center justify-center hover:text-[#D4AF37] active:text-[#D4AF37] focus-visible:text-[#D4AF37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37] transition"
+          >
+            {t(uiLang, 'auth.backHome')}
           </Link>
         </section>
       </main>

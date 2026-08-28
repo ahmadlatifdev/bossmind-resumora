@@ -1,0 +1,35 @@
+# Web Framework
+gradio>=4.44.1,<5.0  # UI framework (4.44.1 fixes some bugs)
+
+# AI/ML
+huggingface-hub>=0.19.3,<1.0  # HF Inference API client (compatible with Gradio 4.x)
+
+# MCP Protocol
+mcp==1.0.0  # Model Context Protocol SDK
+
+# Video Processing
+moviepy==1.0.3  # Video editing library
+pydub==0.25.1  # Audio manipulation and time-stretching
+
+# Text-to-Speech
+elevenlabs>=1.0.0  # ElevenLabs - premium professional-grade TTS (PRIMARY)
+edge-tts==6.1.9  # High-quality TTS engine (fallback)
+gTTS==2.5.4  # Fallback cloud TTS (last resort)
+# Note: Coqui TTS (TTS>=0.22.0) removed due to pandas dependency conflict with Gradio
+# The app works perfectly without it using EdgeTTS and gTTS as fallbacks
+
+# Async Support
+nest-asyncio==1.6.0  # Allow nested event loops
+
+# Configuration
+python-dotenv==1.0.0  # Environment variable management
+
+# Core
+numpy<2.0,>=1.26.0  # Array operations (NumPy 2.x incompatible with some dependencies)
+requests>=2.31.0  # HTTP requests for direct API calls
+
+# Local Whisper for offline transcription (required)
+openai-whisper>=20231117  # Local speech recognition - primary transcription method
+
+# Translation
+deep-translator>=1.11.4  # Local translation library (primary method, no API key needed)

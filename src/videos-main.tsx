@@ -1,27 +1,27 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './lib/firebase';
 import VideosPage from './pages/VideosPage';
+import { AuthProvider } from './auth/AuthContext';
+import StudioAuthGate from './components/StudioAuthGate';
+import AuthChrome from './components/AuthChrome';
+import { initAnalytics, trackPageView } from './lib/analytics.js';
 import './pricing.css';
 import './app-shell.css';
 
+initAnalytics();
+trackPageView('/videos');
+
 const el = document.getElementById('videos-root');
-
-async function mountWhenAllowed() {
-  if (!el) return;
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.replace('/login?from=/videos');
-      return;
-    }
-    createRoot(el).render(
-      <React.StrictMode>
-        <VideosPage />
-      </React.StrictMode>
-    );
-  });
+if (el) {
+  createRoot(el).render(
+    <React.StrictMode>
+      <AuthProvider>
+        <AuthChrome>
+          <StudioAuthGate loginFrom="/videos">
+            <VideosPage />
+          </StudioAuthGate>
+        </AuthChrome>
+      </AuthProvider>
+    </React.StrictMode>
+  );
 }
-
-void mountWhenAllowed();

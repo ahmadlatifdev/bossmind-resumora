@@ -158,24 +158,77 @@ export function parseUnstructuredResumeText(raw) {
   const text = String(raw || '')
     .replace(/\r/g, '')
     .trim();
+  if (!text) {
+    return {
+      source: 'unstructured_empty',
+      fullName: '',
+      email: '',
+      phone: '',
+      summary: '',
+      skills: '',
+      experience: [],
+      rawText: '',
+    };
+  }
+
   const emailMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  const phoneMatch = text.match(/(\+?\d[\d\s().-]{7,}\d)/);
+  const phoneMatch = text.match(
+    /(?:\+?\d{1,3}[\s().-]*)?(?:\(?\d{3}\)?[\s().-]*)?\d{3}[\s().-]*\d{4}/
+  );
   const lines = text
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean);
-  const nameGuess = lines[0] && !lines[0].includes('@') ? lines[0].slice(0, 80) : '';
-  const skillsLine = lines.find((l) => /skill|compétence|competenc|habilidad/i.test(l)) || '';
+
+  // Prefer a human name line: skip emails, phones, section headers, URLs
+  const nameGuess =
+    lines.find((l) => {
+      if (l.includes('@') || /https?:\/\//i.test(l)) return false;
+      if (/^(\+?\d[\d\s().-]{7,}\d)$/.test(l)) return false;
+      if (
+        /^(summary|experience|education|skills|compétence|competencias|profile|objective)\b/i.test(
+          l
+        )
+      ) {
+        return false;
+      }
+      const words = l.split(/\s+/);
+      return words.length >= 2 && words.length <= 6 && l.length <= 80;
+    }) || (lines[0] && !lines[0].includes('@') ? lines[0].slice(0, 80) : '');
+
+  const skillsIdx = lines.findIndex((l) =>
+    /^(skills|compétences|competencias|habilidades|technical skills)\b/i.test(l)
+  );
+  let skills = '';
+  if (skillsIdx >= 0) {
+    const chunk = [lines[skillsIdx].replace(/^[^:]*:\s*/i, '')];
+    for (let i = skillsIdx + 1; i < Math.min(skillsIdx + 6, lines.length); i += 1) {
+      if (/^(experience|éducation|education|education|summary|work|employment)\b/i.test(lines[i])) {
+        break;
+      }
+      chunk.push(lines[i]);
+    }
+    skills = chunk.filter(Boolean).join(', ').replace(/\s+/g, ' ').trim();
+  } else {
+    const skillsLine = lines.find((l) => /skill|compétence|competenc|habilidad/i.test(l)) || '';
+    skills = skillsLine.replace(/^[^:]*:\s*/i, '').trim();
+  }
+
   const experience = lines
-    .filter((l) => /experience|expérience|experiencia|worked|engineer|manager|analyst/i.test(l))
+    .filter((l) =>
+      /experience|expérience|experiencia|worked|engineer|manager|analyst|developer|director/i.test(
+        l
+      )
+    )
     .slice(0, 8);
+
   return {
-    source: 'unstructured_email',
+    source: 'unstructured_parser',
     fullName: nameGuess,
     email: emailMatch?.[0] || '',
-    phone: phoneMatch?.[0] || '',
-    summary: lines.slice(0, 3).join(' '),
-    skills: skillsLine,
+    phone: (phoneMatch?.[0] || '').trim(),
+    summary: lines.slice(0, 4).join(' ').slice(0, 400),
+    skills,
     experience,
     rawText: text,
   };

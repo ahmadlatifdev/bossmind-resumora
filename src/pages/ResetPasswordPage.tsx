@@ -1,76 +1,123 @@
-import React, { useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import SiteHeader from '../components/SiteHeader';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { getLang, normalizeLang, setLang, t } from '../lib/i18n.js';
 import {
-  getAuth,
-  sendPasswordResetEmail,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-} from 'firebase/auth';
-import { app } from '../lib/firebase';
+  completePasswordReset,
+  isStrongPassword,
+  peekResetEmail,
+  readResetOobFromLocation,
+  requestPasswordResetEmail,
+} from '../lib/passwordReset.js';
 
+function authCode(err: unknown): string {
+  if (err && typeof err === 'object' && 'code' in err) {
+    return String((err as { code?: string }).code || '');
+  }
+  return '';
+}
+
+/**
+ * Dedicated password reset page:
+ * - Request reset email (enumeration-safe)
+ * - If Firebase action URL lands here with oobCode → set a strong new password
+ */
 export default function ResetPasswordPage() {
   const [lang, setLangState] = useState(() => getLang());
+  const [emailLang, setEmailLang] = useState(() => getLang());
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [confirmation, setConfirmation] = useState(null);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [oobEmail, setOobEmail] = useState('');
+  const oobCode = useMemo(
+    () => readResetOobFromLocation(typeof window !== 'undefined' ? window.location.search : ''),
+    []
+  );
+  const isConfirmMode = Boolean(oobCode);
 
-  function switchLang(next) {
-    setLangState(setLang(next));
+  function switchLang(next: string) {
+    const code = setLang(next);
+    setLangState(code);
+    setEmailLang(code);
   }
 
-  async function sendEmailReset(e) {
-    e.preventDefault();
-    setBusy(true);
-    setError('');
-    setStatus('');
-    try {
-      const auth = getAuth(app);
-      await sendPasswordResetEmail(auth, email.trim());
-      setStatus(t(lang, 'reset.sendLink') + ' ✓');
-    } catch (err) {
-      setError(err?.message || 'Email reset failed.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function sendSmsOtp(e) {
-    e.preventDefault();
-    setBusy(true);
-    setError('');
-    setStatus('');
-    try {
-      const auth = getAuth(app);
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-        });
+  useEffect(() => {
+    if (!oobCode) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const accountEmail = await peekResetEmail(oobCode);
+        if (!cancelled) setOobEmail(accountEmail);
+      } catch {
+        if (!cancelled) setError(t(lang, 'auth.resetLinkInvalid'));
       }
-      const result = await signInWithPhoneNumber(auth, phone.trim(), window.recaptchaVerifier);
-      setConfirmation(result);
-      setStatus(t(lang, 'reset.sendSms') + ' ✓');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [oobCode, lang]);
+
+  async function onRequestReset(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setStatus('');
+    try {
+      await requestPasswordResetEmail(email.trim(), normalizeLang(emailLang));
+      setStatus(t(lang, 'auth.resetSuccess'));
     } catch (err) {
-      setError(err?.message || 'SMS OTP failed.');
+      const code = authCode(err);
+      if (code === 'resumora/rate-limited') {
+        const sec =
+          err && typeof err === 'object' && 'retryAfterSec' in err
+            ? Number((err as { retryAfterSec?: number }).retryAfterSec) || 60
+            : 60;
+        setError(t(lang, 'auth.resetRateLimited').replace('{seconds}', String(sec)));
+      } else if (code === 'auth/configuration-not-found' || code === 'auth/operation-not-allowed') {
+        setError(t(lang, 'auth.resetUnavailable'));
+      } else if (code === 'auth/unauthorized-domain') {
+        setError(t(lang, 'auth.unauthorizedDomain'));
+      } else {
+        // Still show success-style generic for other client errors to avoid enumeration.
+        setStatus(t(lang, 'auth.resetSuccess'));
+      }
     } finally {
       setBusy(false);
     }
   }
 
-  async function verifyOtp(e) {
+  async function onConfirmNewPassword(e: FormEvent) {
     e.preventDefault();
-    if (!confirmation) return;
     setBusy(true);
     setError('');
+    setStatus('');
+    if (password !== confirm) {
+      setError(t(lang, 'auth.passwordMismatch'));
+      setBusy(false);
+      return;
+    }
+    if (!isStrongPassword(password)) {
+      setError(t(lang, 'auth.passwordWeak'));
+      setBusy(false);
+      return;
+    }
     try {
-      await confirmation.confirm(otp.trim());
-      setStatus(t(lang, 'reset.verify') + ' ✓');
+      await completePasswordReset(oobCode, password);
+      setStatus(t(lang, 'auth.resetComplete'));
+      window.setTimeout(() => {
+        window.location.assign('https://resumora.net/login?mode=forgot');
+      }, 1200);
     } catch (err) {
-      setError(err?.message || 'Invalid OTP.');
+      const code = authCode(err);
+      if (code === 'resumora/weak-password') {
+        setError(t(lang, 'auth.passwordWeak'));
+      } else if (code === 'auth/expired-action-code' || code === 'auth/invalid-action-code') {
+        setError(t(lang, 'auth.resetLinkInvalid'));
+      } else {
+        setError(t(lang, 'auth.resetGeneric'));
+      }
     } finally {
       setBusy(false);
     }
@@ -82,50 +129,89 @@ export default function ResetPasswordPage() {
 
       <main className="app-main narrow">
         <h1>{t(lang, 'reset.title')}</h1>
-        <p className="lead">{t(lang, 'reset.lead')}</p>
+        <p className="lead">
+          {isConfirmMode ? t(lang, 'auth.setNewPasswordLead') : t(lang, 'auth.resetLead')}
+        </p>
 
-        <form className="panel" onSubmit={sendEmailReset}>
-          <h2>Email</h2>
-          <label>
-            Email
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
-          <button className="primary" type="submit" disabled={busy}>
-            {t(lang, 'reset.sendLink')}
-          </button>
-        </form>
-
-        <form className="panel" onSubmit={sendSmsOtp}>
-          <h2>{t(lang, 'reset.cell')}</h2>
-          <label>
-            {t(lang, 'reset.phoneLabel')}
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1…"
-            />
-          </label>
-          <div id="recaptcha-container" />
-          <button className="secondary" type="submit" disabled={busy || !phone.trim()}>
-            {t(lang, 'reset.sendSms')}
-          </button>
-        </form>
-
-        {confirmation ? (
-          <form className="panel" onSubmit={verifyOtp}>
+        {isConfirmMode ? (
+          <form className="panel" onSubmit={onConfirmNewPassword}>
+            {oobEmail ? (
+              <p className="muted small">
+                {t(lang, 'auth.resetForEmail')}: <strong>{oobEmail}</strong>
+              </p>
+            ) : null}
             <label>
-              OTP
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" />
+              {t(lang, 'auth.newPassword')}
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </label>
+            <label>
+              {t(lang, 'auth.confirmPassword')}
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+              />
+            </label>
+            <p className="muted small">{t(lang, 'auth.passwordPolicy')}</p>
             <button className="primary" type="submit" disabled={busy}>
-              {t(lang, 'reset.verify')}
+              {busy ? t(lang, 'auth.savingPassword') : t(lang, 'auth.saveNewPassword')}
             </button>
           </form>
-        ) : null}
+        ) : (
+          <form className="panel" onSubmit={onRequestReset} noValidate>
+            <label>
+              {t(lang, 'auth.emailLangLabel')}
+              <select
+                value={emailLang}
+                onChange={(e) => setEmailLang(normalizeLang(e.target.value))}
+                aria-label={t(lang, 'auth.emailLangLabel')}
+              >
+                <option value="en">{t(lang, 'auth.langOptionEn')}</option>
+                <option value="fr">{t(lang, 'auth.langOptionFr')}</option>
+                <option value="es">{t(lang, 'auth.langOptionEs')}</option>
+              </select>
+            </label>
+            <label>
+              {t(lang, 'auth.email')}
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            <p className="muted small">{t(lang, 'auth.resetPrivacy')}</p>
+            <div id="recaptcha-container" aria-hidden="true" />
+            <button className="primary" type="submit" disabled={busy}>
+              {busy ? t(lang, 'auth.sendingReset') : t(lang, 'auth.sendReset')}
+            </button>
+            <p className="muted small">
+              <a href="/login">{t(lang, 'auth.backToSignIn')}</a>
+            </p>
+          </form>
+        )}
 
-        {status ? <p className="banner ok">{status}</p> : null}
-        {error ? <p className="banner err">{error}</p> : null}
+        {status ? (
+          <p className="banner ok" role="status">
+            {status}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="banner err" role="alert">
+            {error}
+          </p>
+        ) : null}
       </main>
     </div>
   );

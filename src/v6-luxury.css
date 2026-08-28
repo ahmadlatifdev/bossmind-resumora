@@ -51,6 +51,50 @@ html.light .v6-shell {
   border-bottom: 1px solid var(--v6-glass-border);
 }
 
+.v6-nav .header-trailing {
+  margin-left: auto;
+  justify-self: end;
+}
+
+@media (max-width: 900px) {
+  .v6-nav {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 12px;
+  }
+  .v6-nav .main-nav-links {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 4px;
+    scrollbar-width: thin;
+  }
+  .v6-nav .main-nav-links > a,
+  .v6-nav .main-nav-links > button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    min-width: 44px;
+    white-space: nowrap;
+  }
+  .v6-nav .header-trailing {
+    grid-column: 2;
+    grid-row: 1;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 100%;
+  }
+  .v6-nav .nav-register-btn {
+    padding: 8px 12px !important;
+    font-size: 0.82rem;
+  }
+  .v6-cta {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
 .v6-hero-panel {
   width: 100%;
   max-width: 72rem;
@@ -122,6 +166,28 @@ html.light .v6-shell {
   border-color: var(--v6-gold) !important;
 }
 
+/* Mobile tap: same affordance without relying on hover */
+.v6-pricing-grid .pricing-plan:active,
+.v6-pricing-grid .pricing-plan:focus-visible {
+  border-color: var(--v6-gold) !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    0 0 0 1px var(--v6-gold-soft);
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .v6-pricing-grid .pricing-plan:hover {
+    transform: translateY(-8px);
+  }
+}
+
+@media (hover: none) {
+  .v6-pricing-grid .pricing-plan:hover {
+    transform: none;
+  }
+}
+
 .v6-pricing-grid .pricing-plan.active {
   border-color: var(--v6-gold) !important;
   box-shadow:
@@ -167,31 +233,48 @@ html.light .v6-shell {
     color 0.25s ease;
 }
 
-.v6-theme-btn:hover {
-  border-color: var(--v6-gold);
-  color: var(--v6-gold);
-}
-
 .v6-cta {
   background: linear-gradient(135deg, #d4af37 0%, #b8860b 55%, #d4af37 100%);
   color: #0a1a3a !important;
   box-shadow: 0 12px 28px rgba(212, 175, 55, 0.35);
+  min-height: 48px;
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
     filter 0.25s ease;
 }
 
-.v6-cta:hover {
-  transform: translateY(-2px);
+.v6-cta:hover,
+.v6-cta:active,
+.v6-cta:focus-visible {
   filter: brightness(1.05);
   box-shadow: 0 16px 34px rgba(212, 175, 55, 0.45);
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .v6-cta:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.v6-theme-btn:hover,
+.v6-theme-btn:active,
+.v6-theme-btn:focus-visible {
+  border-color: var(--v6-gold);
+  color: var(--v6-gold);
+  outline: none;
 }
 
 .v6-logo {
-  height: 2.5rem;
-  width: auto;
+  width: 56px;
+  height: 56px;
+  max-width: 56px;
+  max-height: 56px;
   object-fit: contain;
+  object-position: center;
+  display: block;
+  flex-shrink: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

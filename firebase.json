@@ -14,6 +14,15 @@
         ]
       },
       {
+        "source": "/favicon.png",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=86400"
+          }
+        ]
+      },
+      {
         "source": "/resumora-logo.png",
         "headers": [
           {
@@ -38,6 +47,74 @@
         "function": "createCheckoutSession"
       },
       {
+        "source": "/api/stripe-webhook",
+        "function": "stripeWebhook"
+      },
+      {
+        "source": "/api/admin/refund-requests",
+        "function": "listRefundRequests"
+      },
+      {
+        "source": "/api/admin/refund-requests/decide",
+        "function": "decideRefundRequest"
+      },
+      {
+        "source": "/api/request-refund",
+        "function": "requestRefund"
+      },
+      {
+        "source": "/api/my-refunds",
+        "function": "listMyRefunds"
+      },
+      {
+        "source": "/api/my-payments",
+        "function": "listMyPayments"
+      },
+      {
+        "source": "/api/client/dashboard",
+        "function": "getClientDashboard"
+      },
+      {
+        "source": "/api/chat/send",
+        "function": "sendChatMessage"
+      },
+      {
+        "source": "/api/cancel-subscription",
+        "function": "cancelSubscription"
+      },
+      {
+        "source": "/api/support-webhook",
+        "function": "supportWebhook"
+      },
+      {
+        "source": "/support-webhook",
+        "function": "supportWebhook"
+      },
+      {
+        "source": "/api/admin/support/tickets",
+        "function": "listSupportTickets"
+      },
+      {
+        "source": "/api/admin/support/decide",
+        "function": "decideSupportTicket"
+      },
+      {
+        "source": "/api/admin/system-health",
+        "function": "getSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/run",
+        "function": "runSystemHealth"
+      },
+      {
+        "source": "/api/admin/system-health/decide",
+        "function": "decideSystemHeal"
+      },
+      {
+        "source": "/api/client-error",
+        "function": "reportClientError"
+      },
+      {
         "source": "/api/video/catalog",
         "function": "heygenVideoCatalog"
       },
@@ -52,6 +129,42 @@
       {
         "source": "/api/video/download",
         "function": "heygenVideoDownload"
+      },
+      {
+        "source": "/api/video/google-generate",
+        "function": "generateGoogleVideo"
+      },
+      {
+        "source": "/api/video/google-status",
+        "function": "googleVideoStatus"
+      },
+      {
+        "source": "/api/video/agent-generate",
+        "function": "videoGenerationAgent"
+      },
+      {
+        "source": "/api/resume/verify-parse",
+        "function": "verifyResumeParse"
+      },
+      {
+        "source": "/api/video/localize",
+        "function": "localizeVideo"
+      },
+      {
+        "source": "/api/video/localize-status",
+        "function": "localizeVideoStatus"
+      },
+      {
+        "source": "/bilibili",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/bilibili-offer",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/bilibili/**",
+        "destination": "/index.html"
       },
       {
         "source": "/pricing",
@@ -90,6 +203,30 @@
         "destination": "/index.html"
       },
       {
+        "source": "/account",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/account/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/admin/refunds",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/register",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/signup",
+        "destination": "/index.html"
+      },
+      {
         "source": "/video-library",
         "destination": "/index.html"
       },
@@ -111,11 +248,30 @@
       }
     ]
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "functions": [
     {
       "source": "functions",
       "codebase": "resumora-checkout",
       "ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log", "*.local"]
     }
-  ]
+  ],
+  "extensions": {
+    "firestore-stripe-payments": "stripe/firestore-stripe-payments@0.3.4"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
 }
