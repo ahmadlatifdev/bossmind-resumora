@@ -1,0 +1,62 @@
+name: Deploy Staging (Blue-Green Preview)
+
+on:
+  push:
+    branches: [staging, 'feature/**']
+  pull_request:
+    branches: [main, staging]
+  workflow_dispatch:
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+env:
+  GCP_PROJECT_ID: resumora-live
+  HOSTING_SITE: client-resumora-live
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci && npm ci --prefix functions
+      - run: npm run build
+      - run: npm run test:billing
+      - run: node scripts/index-codebase.mjs
+      - run: node scripts/security-audit.mjs
+        continue-on-error: true
+
+  deploy-preview:
+    needs: validate
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy preview channel (blue-green slot)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: resumora-live
+          channelId: staging-${{ github.run_id }}
+        continue-on-error: true
+      - name: Staging note
+        run: |
+          echo "Preview channel staging-${{ github.run_id }} — requires FIREBASE_SERVICE_ACCOUNT"
+          echo "Production remains on live channel until main merge + approval"

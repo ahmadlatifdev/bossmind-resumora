@@ -58,6 +58,27 @@
         "function": "listRefundsHttp"
       },
       {
+        "source": "/api/refund-preview-v2",
+        "function": "getRefundPreviewV2"
+      },
+      {
+        "source": "/api/analytics/revenue",
+        "function": "getRevenueAnalytics"
+      },
+      {
+        "source": "/api/analytics/churn",
+        "function": "getChurnPrediction"
+      },
+      {
+        "source": "/api/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
         "source": "/api/video/catalog",
         "function": "heygenVideoCatalog"
       },

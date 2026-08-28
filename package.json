@@ -23,7 +23,13 @@
     "stripe:report": "node scripts/stripe-final-report.mjs",
     "test:stripe": "tsx --test tests/stripe-validation.test.ts",
     "test:e2e": "tsx --test tests/full-e2e.test.ts",
-    "test:billing": "tsx --test tests/stripe-validation.test.ts tests/full-e2e.test.ts"
+    "test:billing": "tsx --test tests/stripe-validation.test.ts tests/full-e2e.test.ts",
+    "test:analytics": "tsx --test tests/analytics-v2.test.ts",
+    "test:all": "tsx --test tests/stripe-validation.test.ts tests/full-e2e.test.ts tests/analytics-v2.test.ts",
+    "index:codebase": "node scripts/index-codebase.mjs",
+    "security:audit": "node scripts/security-audit.mjs",
+    "self-heal": "node scripts/self-heal-runner.mjs",
+    "health:daily": "node scripts/daily-health-report.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

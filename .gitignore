@@ -36,3 +36,10 @@ functions/.env
 cloud-run-apex/dist/
 .firebase/
 
+# Generated BossMind reports (CI artifacts)
+docs/architecture-index.json
+docs/security-audit-report.json
+docs/self-heal-report.json
+docs/daily-health-report.json
+docs/daily-health-report.md
+

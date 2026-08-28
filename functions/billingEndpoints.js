@@ -6,6 +6,8 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { getAuth } = require('firebase-admin/auth');
 const { recordServiceEvent, listRefunds, ensurePlansSeeded } = require('./lib/serviceDelivery');
 const { buildRefundPreview, cancelSubscriptionWithRefund } = require('./lib/refundEngine');
+const { buildRefundPreviewV2 } = require('./lib/refundEngineV2');
+const { computeRevenueAnalytics, predictChurnRisk } = require('./lib/analyticsEngine');
 
 function loadEnvFiles() {
   try {
@@ -234,6 +236,71 @@ function registerBillingEndpoints(exports) {
         return res.status(200).json({ ok: true, refunds });
       } catch (err) {
         return res.status(500).json({ error: err.message || 'List failed' });
+      }
+    }
+  );
+
+  exports.getRefundPreviewV2 = onRequest(
+    { region: 'us-central1', cors: false, timeoutSeconds: 30, memory: '256MiB' },
+    async (req, res) => {
+      cors(res, req);
+      if (req.method === 'OPTIONS') return res.status(204).send('');
+      if (req.method !== 'GET' && req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      try {
+        const body = req.method === 'GET' ? req.query : parseBody(req);
+        const ctx = await resolveCustomerContext(req, body);
+        if (!ctx.decoded && process.env.ALLOW_UNAUTH_BILLING !== 'true') {
+          return res.status(401).json({ error: 'Authentication required' });
+        }
+        let totalPaid = Number(body.totalPaidCents || body.total_paid_cents || 2900);
+        const preview = await buildRefundPreviewV2({
+          customerId: ctx.customerId,
+          subscriptionId: ctx.subscriptionId,
+          planId: ctx.planId,
+          totalPaidCents: totalPaid,
+        });
+        return res.status(200).json({ ok: true, ...preview });
+      } catch (err) {
+        return res.status(500).json({ error: err.message || 'Preview v2 failed' });
+      }
+    }
+  );
+
+  exports.getRevenueAnalytics = onRequest(
+    { region: 'us-central1', cors: false, timeoutSeconds: 30, memory: '256MiB' },
+    async (req, res) => {
+      cors(res, req);
+      if (req.method === 'OPTIONS') return res.status(204).send('');
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const days = Number(req.query.days || 30);
+        const rollup = await computeRevenueAnalytics({ days });
+        return res.status(200).json({ ok: true, analytics: rollup });
+      } catch (err) {
+        return res.status(500).json({ error: err.message || 'Analytics failed' });
+      }
+    }
+  );
+
+  exports.getChurnPrediction = onRequest(
+    { region: 'us-central1', cors: false, timeoutSeconds: 20, memory: '256MiB' },
+    async (req, res) => {
+      cors(res, req);
+      if (req.method === 'OPTIONS') return res.status(204).send('');
+      if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+      try {
+        const body = req.query;
+        const churn = await predictChurnRisk({
+          customerId: String(body.customerId || ''),
+          subscriptionId: String(body.subscriptionId || ''),
+          planId: String(body.planId || 'basic'),
+          serviceStatus: String(body.serviceStatus || 'NONE'),
+        });
+        return res.status(200).json({ ok: true, churn });
+      } catch (err) {
+        return res.status(500).json({ error: err.message || 'Churn prediction failed' });
       }
     }
   );

@@ -26,9 +26,12 @@ function resolveCurrency({ locale, country, fallback = 'usd' }) {
  * @param {import('stripe').Stripe} stripe
  */
 async function fetchDefaultPaymentMethodConfigurationId(stripe) {
-  const list = await stripe.paymentMethodConfigurations.list({ limit: 20 });
-  const active = list.data.find((c) => c.active) || list.data[0];
-  return active ? active.id : null;
+  const { getCachedPaymentMethodConfigurationId } = require('./stripeCache');
+  return getCachedPaymentMethodConfigurationId(stripe, async (s) => {
+    const list = await s.paymentMethodConfigurations.list({ limit: 20 });
+    const active = list.data.find((c) => c.active) || list.data[0];
+    return active ? active.id : null;
+  });
 }
 
 /**

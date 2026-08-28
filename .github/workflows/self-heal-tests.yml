@@ -1,0 +1,26 @@
+name: Self-Heal Tests
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  pull_request:
+    branches: [main, staging, 'feature/**']
+  workflow_dispatch:
+
+jobs:
+  self-heal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci && npm ci --prefix functions
+      - name: Self-heal runner (3 retries per step)
+        run: node scripts/self-heal-runner.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: self-heal-report
+          path: docs/self-heal-report.json
