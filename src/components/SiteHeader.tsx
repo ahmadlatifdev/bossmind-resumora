@@ -4,7 +4,8 @@ import { t } from '../lib/i18n.js';
 
 /**
  * Shared top header — RESUMORA.NET logo top-left → home (/).
- * Desktop: spaced nav pills. Mobile: hamburger drawer.
+ * Nav links center/left; EN/FR/ES language switcher pinned far right.
+ * Mobile: hamburger for links; language stays visible on the right.
  */
 export default function SiteHeader({
   lang,
@@ -21,6 +22,8 @@ export default function SiteHeader({
     { href: '/studio', key: 'nav.studio', match: '/studio' },
     { href: '/account', key: 'nav.account', match: '/account' },
   ];
+
+  const showSwitcher = Boolean(showLang && lang && onLangChange);
 
   return (
     <header className="app-header site-header" role="banner">
@@ -53,9 +56,6 @@ export default function SiteHeader({
         className={`header-actions main-nav-links${open ? ' is-open' : ''}`}
         aria-label="Primary"
       >
-        {showLang && lang && onLangChange ? (
-          <LanguageSwitcher lang={lang} onChange={onLangChange} />
-        ) : null}
         {links.map((link) => (
           <a
             key={link.href}
@@ -68,6 +68,12 @@ export default function SiteHeader({
         <a href="/reset-password">{t(lang || 'en', 'nav.reset')}</a>
         {extraLinks}
       </nav>
+
+      {showSwitcher ? (
+        <div className="site-header__lang">
+          <LanguageSwitcher lang={lang} onChange={onLangChange} />
+        </div>
+      ) : null}
     </header>
   );
 }

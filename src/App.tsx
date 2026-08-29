@@ -6,11 +6,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
 import AccountPage from './pages/AccountPage';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import {
   CANONICAL_STRIPE_PRICE_IDS,
   getExpectedCentsForPlan,
   getStripePaymentLinkForPlan,
 } from './lib/plans.js';
+import { getLang, setLang, t } from './lib/i18n.js';
 import './v6-luxury.css';
 import './app-shell.css';
 
@@ -24,46 +26,68 @@ const PLAN_ID_MAP: Record<string, string> = {
   price_110: 'advanced',
 };
 
-function SiteNav() {
+function SiteNav({ lang, onLangChange }: { lang: string; onLangChange: (code: string) => void }) {
   const { user, loading } = useAuth();
 
   return (
     <nav className="v6-nav grid grid-cols-[auto_1fr_auto] items-center gap-4 px-8 py-5 sticky top-0 z-40">
-      <Link to="/" className="flex items-center shrink-0 justify-self-start">
-        <img src="/resumora-logo.png" alt="Resumora.net" className="h-10 w-auto object-contain" />
+      <Link
+        to="/"
+        className="flex items-center gap-3 shrink-0 justify-self-start"
+        aria-label="RESUMORA.NET — Home"
+        title="RESUMORA.NET"
+      >
+        <img
+          src="/resumora-logo.png"
+          alt="Resumora.net"
+          className="h-10 w-auto object-contain"
+          width={56}
+          height={56}
+        />
+        <span className="hidden sm:inline font-serif tracking-[0.12em] text-[#D4AF37] font-bold text-lg">
+          RESUMORA.NET
+        </span>
       </Link>
       <div className="main-nav-links flex flex-1 flex-wrap justify-center items-center gap-6">
         <Link to="/" className="hover:text-[#D4AF37] transition">
-          Home
+          {t(lang, 'nav.home')}
         </Link>
         <a href="/pricing" className="hover:text-[#D4AF37] transition">
-          Pricing
+          {t(lang, 'nav.pricing')}
         </a>
         {!loading && user ? (
           <Link to="/video-library" className="hover:text-[#D4AF37] transition">
-            Video Library
+            {t(lang, 'nav.videos')}
           </Link>
         ) : (
           <Link to="/login" className="hover:text-[#D4AF37] transition">
-            Video Library
+            {t(lang, 'nav.videos')}
           </Link>
         )}
         <a href="/resume-studio" className="hover:text-[#D4AF37] transition">
-          Resume Studio
+          {t(lang, 'nav.studio')}
         </a>
         {!loading && user ? (
           <Link to="/account" className="hover:text-[#D4AF37] transition">
-            My Account
+            {t(lang, 'nav.account')}
           </Link>
         ) : null}
       </div>
-      {/* Spacer keeps center column visually middle with logo on the left */}
-      <div className="w-[2.5rem] sm:w-[6.5rem]" aria-hidden="true" />
+      <div className="site-header__lang justify-self-end">
+        <LanguageSwitcher lang={lang} onChange={onLangChange} />
+      </div>
     </nav>
   );
 }
 
+function useAppLang() {
+  const [lang, setLangState] = useState(() => getLang());
+  const onLangChange = (code: string) => setLangState(setLang(code));
+  return { lang, onLangChange };
+}
+
 function HomePage() {
+  const { lang, onLangChange } = useAppLang();
   const [searchParams] = useSearchParams();
   const showPaywall = searchParams.get('paywall') === '1';
   // React State for the selected Stripe Price ID
@@ -153,7 +177,7 @@ function HomePage() {
   return (
     <div className="v6-shell min-h-screen font-sans">
       <div className="v6-mesh" aria-hidden="true" />
-      <SiteNav />
+      <SiteNav lang={lang} onLangChange={onLangChange} />
 
       <main className="flex flex-col items-center w-full px-4 py-16">
         <section className="v6-hero-panel flex flex-col items-center">
@@ -212,20 +236,22 @@ function HomePage() {
 }
 
 function VideoLibraryPage() {
+  const { lang, onLangChange } = useAppLang();
   return (
     <div className="v6-shell min-h-screen font-sans">
       <div className="v6-mesh" aria-hidden="true" />
-      <SiteNav />
+      <SiteNav lang={lang} onLangChange={onLangChange} />
       <VideosPage />
     </div>
   );
 }
 
 function AccountShell() {
+  const { lang, onLangChange } = useAppLang();
   return (
     <div className="v6-shell min-h-screen font-sans">
       <div className="v6-mesh" aria-hidden="true" />
-      <SiteNav />
+      <SiteNav lang={lang} onLangChange={onLangChange} />
       <AccountPage />
     </div>
   );
