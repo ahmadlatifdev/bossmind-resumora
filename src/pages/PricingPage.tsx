@@ -9,8 +9,8 @@ import {
   readSelectedPlan,
   isStripeTestMode,
 } from '../lib/plans.js';
-import { getLang, setLang, t } from '../lib/i18n.js';
-import SiteHeader from '../components/SiteHeader';
+import { t } from '../lib/i18n.js';
+import { useLangOptional } from '../i18n/LangContext';
 
 function initialSelectedPlanId() {
   try {
@@ -89,7 +89,10 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
       data-selected-price={plan.priceLabel}
     >
       <h3>
-        {t(lang, 'pricing.selectedTitle')}: <span>{name}</span> <strong>{plan.priceLabel}</strong>
+        {t(lang, 'pricing.selectedTitle')}: <span>{name}</span>{' '}
+        <strong>
+          {plan.priceLabel} {localize(plan.intervalLabel, lang)}
+        </strong>
       </h3>
       <ul className="plan-breakdown__features" aria-label={`${name} features`}>
         {(Array.isArray(features) ? features : []).map((f) => (
@@ -133,7 +136,7 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
 }
 
 function PricingInner() {
-  const [lang, setLangState] = useState(() => getLang());
+  const { lang } = useLangOptional();
   const [selectedPlanId, setSelectedPlanId] = useState(initialSelectedPlanId);
   const [busyPlanId, setBusyPlanId] = useState(null);
   const [error, setError] = useState('');
@@ -175,13 +178,7 @@ function PricingInner() {
   }
 
   return (
-    <div className="pricing-page">
-      <SiteHeader
-        lang={lang}
-        onLangChange={(next) => setLangState(setLang(next))}
-        currentPath="/pricing"
-      />
-
+    <div className="pricing-page page-content">
       <header className="pricing-hero">
         <p className="pricing-kicker">{t(lang, 'pricing.kicker')}</p>
         <h1>{t(lang, 'pricing.title')}</h1>

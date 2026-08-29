@@ -16,7 +16,22 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-      - run: npm ci && npm ci --prefix functions
+          cache-dependency-path: |
+            package-lock.json
+            functions/package-lock.json
+      - name: Cache root + functions node_modules
+        id: cache-nm
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            functions/node_modules
+          key: nm-selfheal-${{ runner.os }}-node20-${{ hashFiles('package-lock.json', 'functions/package-lock.json') }}
+          restore-keys: |
+            nm-selfheal-${{ runner.os }}-node20-
+      - name: Install dependencies
+        if: steps.cache-nm.outputs.cache-hit != 'true'
+        run: npm ci && npm ci --prefix functions
       - name: Self-heal runner (3 retries per step)
         run: node scripts/self-heal-runner.mjs
       - uses: actions/upload-artifact@v4

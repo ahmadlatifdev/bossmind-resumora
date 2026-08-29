@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import SiteHeader from '../components/SiteHeader';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
+import { useLangOptional } from '../i18n/LangContext';
 import {
   parseUnstructuredResumeText,
   saveResumeDraft,
@@ -11,17 +11,13 @@ import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import { recordClientServiceEvent } from '../lib/billingApi.js';
 
 export default function StudioPage() {
-  const [lang, setLangState] = useState(() => getLang());
+  const { lang } = useLangOptional();
   const [mode, setMode] = useState('upload');
   const [fileName, setFileName] = useState('');
   const [rawText, setRawText] = useState('');
   const [parsed, setParsed] = useState(() => loadResumeDraft());
   const [message, setMessage] = useState('');
   const selectedPlan = useMemo(() => getPlanById(readSelectedPlan()), []);
-
-  function switchLang(next) {
-    setLangState(setLang(next));
-  }
 
   async function onUpload(event) {
     const file = event.target.files?.[0];
@@ -77,78 +73,74 @@ export default function StudioPage() {
   }
 
   return (
-    <div className="app-shell">
-      <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/studio" />
+    <div className="app-main page-content">
+      <h1>{t(lang, 'studio.title')}</h1>
+      <p className="lead">{t(lang, 'studio.lead')}</p>
 
-      <main className="app-main">
-        <h1>{t(lang, 'studio.title')}</h1>
-        <p className="lead">{t(lang, 'studio.lead')}</p>
+      {selectedPlan ? (
+        <p className="plan-chip">
+          {t(lang, 'studio.selectedPlan')}{' '}
+          <strong>
+            {localize(selectedPlan.name, lang)} ({selectedPlan.priceLabel})
+          </strong>
+        </p>
+      ) : (
+        <p className="plan-chip warn">
+          {t(lang, 'studio.noPlan')} <a href="/pricing">{t(lang, 'studio.choosePlan')}</a>
+        </p>
+      )}
 
-        {selectedPlan ? (
-          <p className="plan-chip">
-            {t(lang, 'studio.selectedPlan')}{' '}
-            <strong>
-              {localize(selectedPlan.name, lang)} ({selectedPlan.priceLabel})
-            </strong>
-          </p>
-        ) : (
-          <p className="plan-chip warn">
-            {t(lang, 'studio.noPlan')} <a href="/pricing">{t(lang, 'studio.choosePlan')}</a>
-          </p>
-        )}
+      <div className="mode-tabs" role="tablist">
+        <button type="button" data-active={mode === 'upload'} onClick={() => setMode('upload')}>
+          {t(lang, 'studio.upload')}
+        </button>
+        <button type="button" data-active={mode === 'scratch'} onClick={() => setMode('scratch')}>
+          {t(lang, 'studio.scratch')}
+        </button>
+      </div>
 
-        <div className="mode-tabs" role="tablist">
-          <button type="button" data-active={mode === 'upload'} onClick={() => setMode('upload')}>
-            {t(lang, 'studio.upload')}
+      {mode === 'upload' ? (
+        <section className="panel">
+          <label className="file-label">
+            <input type="file" accept=".pdf,.doc,.docx,.txt,.md" onChange={onUpload} />
+            {t(lang, 'studio.chooseFile')}
+          </label>
+          {fileName ? <p className="muted">{fileName}</p> : null}
+        </section>
+      ) : (
+        <section className="panel">
+          <textarea
+            rows={12}
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            placeholder={t(lang, 'studio.placeholder')}
+          />
+          <button type="button" className="primary" onClick={onParseScratch}>
+            {t(lang, 'studio.structure')}
           </button>
-          <button type="button" data-active={mode === 'scratch'} onClick={() => setMode('scratch')}>
-            {t(lang, 'studio.scratch')}
+        </section>
+      )}
+
+      {message ? <p className="banner ok">{message}</p> : null}
+
+      {parsed ? (
+        <section className="panel parsed">
+          <h2>{t(lang, 'studio.parsed')}</h2>
+          <dl>
+            <dt>{t(lang, 'studio.name')}</dt>
+            <dd>{parsed.fullName || '—'}</dd>
+            <dt>Email</dt>
+            <dd>{parsed.email || '—'}</dd>
+            <dt>{t(lang, 'studio.phone')}</dt>
+            <dd>{parsed.phone || '—'}</dd>
+            <dt>{t(lang, 'studio.summary')}</dt>
+            <dd>{parsed.summary || '—'}</dd>
+          </dl>
+          <button type="button" className="primary" onClick={onDownloadDraft}>
+            {t(lang, 'studio.downloadDraft')}
           </button>
-        </div>
-
-        {mode === 'upload' ? (
-          <section className="panel">
-            <label className="file-label">
-              <input type="file" accept=".pdf,.doc,.docx,.txt,.md" onChange={onUpload} />
-              {t(lang, 'studio.chooseFile')}
-            </label>
-            {fileName ? <p className="muted">{fileName}</p> : null}
-          </section>
-        ) : (
-          <section className="panel">
-            <textarea
-              rows={12}
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              placeholder={t(lang, 'studio.placeholder')}
-            />
-            <button type="button" className="primary" onClick={onParseScratch}>
-              {t(lang, 'studio.structure')}
-            </button>
-          </section>
-        )}
-
-        {message ? <p className="banner ok">{message}</p> : null}
-
-        {parsed ? (
-          <section className="panel parsed">
-            <h2>{t(lang, 'studio.parsed')}</h2>
-            <dl>
-              <dt>{t(lang, 'studio.name')}</dt>
-              <dd>{parsed.fullName || '—'}</dd>
-              <dt>Email</dt>
-              <dd>{parsed.email || '—'}</dd>
-              <dt>{t(lang, 'studio.phone')}</dt>
-              <dd>{parsed.phone || '—'}</dd>
-              <dt>{t(lang, 'studio.summary')}</dt>
-              <dd>{parsed.summary || '—'}</dd>
-            </dl>
-            <button type="button" className="primary" onClick={onDownloadDraft}>
-              {t(lang, 'studio.downloadDraft')}
-            </button>
-          </section>
-        ) : null}
-      </main>
+        </section>
+      ) : null}
     </div>
   );
 }

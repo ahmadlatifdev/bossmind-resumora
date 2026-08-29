@@ -25,13 +25,36 @@ dist-ssr
 
 .vercel
 .cloudflare
+.wrangler
 wrangler.toml
 wrangler.json
 wrangler.jsonc
 *.wrangler
+.netlify
+netlify.toml
+render.yaml
+railway.json
+railway.toml
+.sentryclirc
+sentry.properties
+sentry.client.config.*
+sentry.server.config.*
+sentry.edge.config.*
+hostinger/
 .env*.local
 .env
 functions/.env
+firebase-service-account.json
+*-firebase-adminsdk-*.json
+*service-account*.json
+!package.json
+!package-lock.json
+!tsconfig*.json
+!firebase.json
+!.firebaserc
+
+# Break-glass local-only emergency deploy (do not commit)
+scripts/emergency-frontend-deploy.ps1
 
 cloud-run-apex/dist/
 .firebase/
@@ -43,3 +66,7 @@ docs/self-heal-report.json
 docs/daily-health-report.json
 docs/daily-health-report.md
 
+# UI artifacts — keep committed golden baseline; ignore ephemeral captures
+artifacts/**
+!artifacts/golden-baseline/
+!artifacts/golden-baseline/**

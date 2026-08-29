@@ -23,6 +23,19 @@ const outDir = path.join(root, 'artifacts', 'ui-consistency');
 const ROUTES = ['/', '/pricing', '/account', '/video-library'];
 const MAX_DIFF_PIXELS = Number(process.env.UI_MAX_DIFF_PIXELS || 2000);
 const wantServe = process.argv.includes('--serve') || process.env.UI_SERVE === '1';
+const intentionalDesignChange =
+  process.argv.includes('--allow-design-change') ||
+  process.env.UI_ALLOW_DESIGN_CHANGE === '1' ||
+  /\[Intentional Design Change\]/i.test(process.env.PR_TITLE || '');
+
+function argValue(flag) {
+  const idx = process.argv.indexOf(flag);
+  if (idx === -1) return null;
+  return process.argv[idx + 1] || null;
+}
+
+const compareBaselineDir = argValue('--compare-baseline');
+const writeBaselineDir = argValue('--write-baseline');
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
@@ -234,6 +247,92 @@ async function main() {
       2
     )
   );
+
+  if (writeBaselineDir) {
+    ensureDir(writeBaselineDir);
+    for (const cap of captures) {
+      fs.writeFileSync(path.join(writeBaselineDir, `${cap.slug}-header.png`), cap.headerPng);
+      fs.writeFileSync(path.join(writeBaselineDir, `${cap.slug}-footer.png`), cap.footerPng);
+      fs.writeFileSync(
+        path.join(writeBaselineDir, `${cap.slug}-fingerprint.json`),
+        JSON.stringify(cap.fingerprint, null, 2)
+      );
+    }
+    fs.writeFileSync(
+      path.join(writeBaselineDir, 'manifest.json'),
+      JSON.stringify(
+        {
+          createdAt: new Date().toISOString(),
+          routes: captures.map((c) => c.route),
+          note: 'Golden baseline chrome captures for v1.0.0-design-locked',
+        },
+        null,
+        2
+      )
+    );
+    console.log(`[ui-consistency] wrote golden baseline → ${writeBaselineDir}`);
+  }
+
+  if (compareBaselineDir) {
+    if (!fs.existsSync(compareBaselineDir)) {
+      console.warn(
+        `[ui-consistency] baseline dir missing (${compareBaselineDir}) — skip golden compare (seed via --write-baseline)`
+      );
+    } else {
+      let goldenFailed = false;
+      const goldenReport = [];
+      for (const cap of captures) {
+        const headerPath = path.join(compareBaselineDir, `${cap.slug}-header.png`);
+        const footPath = path.join(compareBaselineDir, `${cap.slug}-footer.png`);
+        const fpPath = path.join(compareBaselineDir, `${cap.slug}-fingerprint.json`);
+        if (!fs.existsSync(headerPath)) {
+          console.warn(`[ui-consistency] missing golden header for ${cap.slug} — skip`);
+          continue;
+        }
+        const goldenHeader = fs.readFileSync(headerPath);
+        const headerDiff = await pixelDiffCount(goldenHeader, cap.headerPng);
+        const headerOk = headerDiff <= MAX_DIFF_PIXELS;
+        let fpOk = true;
+        if (fs.existsSync(fpPath)) {
+          const goldenFp = JSON.parse(fs.readFileSync(fpPath, 'utf8'));
+          fpOk = fingerprintsEqual(goldenFp, cap.fingerprint);
+        }
+        let footerOk = true;
+        let footerDiff = null;
+        if (fs.existsSync(footPath)) {
+          footerDiff = await pixelDiffCount(fs.readFileSync(footPath), cap.footerPng);
+          footerOk = footerDiff <= MAX_DIFF_PIXELS || footerDiff === Number.MAX_SAFE_INTEGER;
+          // size-mismatch footers: warn only
+          if (footerDiff === Number.MAX_SAFE_INTEGER) footerOk = true;
+        }
+        const ok = fpOk && headerOk;
+        goldenReport.push({ route: cap.route, fpOk, headerDiff, footerDiff, headerOk, footerOk });
+        console.log(
+          `[ui-consistency] golden ${cap.route}: fingerprint=${fpOk ? 'OK' : 'FAIL'} headerDiff=${headerDiff} ${
+            ok ? 'OK' : 'FAIL'
+          }`
+        );
+        if (!ok) goldenFailed = true;
+      }
+      fs.writeFileSync(
+        path.join(outDir, 'golden-report.json'),
+        JSON.stringify({ compareBaselineDir, intentionalDesignChange, goldenReport }, null, 2)
+      );
+      if (goldenFailed && !intentionalDesignChange) {
+        console.error(
+          '[ui-consistency] FAILED — visual drift vs golden baseline. Retitle PR with [Intentional Design Change] only if approved.'
+        );
+        process.exit(1);
+      }
+      if (goldenFailed && intentionalDesignChange) {
+        console.warn(
+          '[ui-consistency] golden drift allowed via [Intentional Design Change] / UI_ALLOW_DESIGN_CHANGE'
+        );
+      } else {
+        console.log('[ui-consistency] PASSED — matches golden baseline.');
+      }
+    }
+  }
 
   if (failed) {
     console.error('[ui-consistency] FAILED — shared header/footer chrome is inconsistent.');

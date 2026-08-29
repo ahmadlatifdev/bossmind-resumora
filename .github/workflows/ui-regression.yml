@@ -1,0 +1,112 @@
+name: UI Regression (Golden Baseline)
+
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ui-regression-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui-regression:
+    name: Build + golden visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect intentional design change
+        id: design
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title || '' }}
+        run: |
+          if echo "$PR_TITLE" | grep -qi '\[Intentional Design Change\]'; then
+            echo "allow=1" >> "$GITHUB_OUTPUT"
+            echo "Intentional design change flag detected in PR title"
+          else
+            echo "allow=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Cache node_modules
+        id: cache-nm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: nm-ui-${{ runner.os }}-node20-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            nm-ui-${{ runner.os }}-node20-
+
+      - name: Install dependencies
+        if: steps.cache-nm.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-chromium-${{ runner.os }}-
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Cross-page UI consistency + golden baseline compare
+        env:
+          UI_MAX_DIFF_PIXELS: '2000'
+          PR_TITLE: ${{ github.event.pull_request.title || '' }}
+          UI_ALLOW_DESIGN_CHANGE: ${{ steps.design.outputs.allow }}
+        run: |
+          if [ -d artifacts/golden-baseline ] && [ "$(find artifacts/golden-baseline -name '*-header.png' | wc -l)" -gt 0 ]; then
+            node scripts/ui-consistency-check.js --serve --compare-baseline artifacts/golden-baseline
+          else
+            echo "::warning::artifacts/golden-baseline missing — running cross-page consistency only. Seed from v1.0.0-design-locked."
+            node scripts/ui-consistency-check.js --serve
+          fi
+
+      - name: Verify no critical chrome rewrite without design flag
+        if: steps.design.outputs.allow != '1'
+        run: |
+          BASE_REF="${{ github.event.pull_request.base.sha }}"
+          if git rev-parse v1.0.0-design-locked >/dev/null 2>&1; then
+            BASE_REF="v1.0.0-design-locked"
+          fi
+          echo "Diffing critical files against $BASE_REF"
+          CHANGED="$(git diff --name-only "$BASE_REF"...HEAD -- \
+            src/app-shell.css \
+            src/v6-luxury.css \
+            src/styles/tokens.css \
+            src/components/Layout.tsx \
+            src/components/SiteHeader.tsx \
+            src/components/SiteFooter.tsx \
+            src/components/LanguageSwitcher.tsx || true)"
+          if [ -n "$CHANGED" ]; then
+            echo "::error::Critical design files changed without [Intentional Design Change] in PR title:"
+            echo "$CHANGED"
+            exit 1
+          fi
+          echo "No unapproved critical chrome changes."
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-regression-artifacts
+          path: artifacts/ui-consistency/
+          if-no-files-found: ignore

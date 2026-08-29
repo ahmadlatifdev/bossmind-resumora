@@ -17,8 +17,17 @@ const APPROVALS_COL = 'system_heal_approvals';
 const NOTIFY_COL = 'notification_history';
 const CIRCUIT_COL = 'system_circuit_breakers';
 const FIRST_FIX_COL = 'system_first_time_fixes';
-const CIRCUIT_WINDOW_MS = Number(process.env.SELF_HEAL_CIRCUIT_WINDOW_MS || 5 * 60 * 1000);
+/** Wider window reduces flap when the same env-drift finding repeats every scheduler tick. */
+const CIRCUIT_WINDOW_MS = Number(process.env.SELF_HEAL_CIRCUIT_WINDOW_MS || 15 * 60 * 1000);
 const CIRCUIT_TRIP_COUNT = Number(process.env.SELF_HEAL_CIRCUIT_TRIP_COUNT || 3);
+/** After OPEN, wait this long before half-open probe (prevents stuck open forever / re-notify storms). */
+const CIRCUIT_HALF_OPEN_MS = Number(process.env.SELF_HEAL_CIRCUIT_HALF_OPEN_MS || 30 * 60 * 1000);
+/** Cap safe auto-remediation attempts per error type per rolling day. */
+const MAX_REMEDIATION_ATTEMPTS = Number(process.env.SELF_HEAL_MAX_REMEDIATION_ATTEMPTS || 2);
+const REMEDIATION_ATTEMPT_WINDOW_MS = Number(
+  process.env.SELF_HEAL_REMEDIATION_ATTEMPT_WINDOW_MS || 24 * 60 * 60 * 1000
+);
+const ENV_FINGERPRINT_DOC = 'env_drift_fingerprint';
 const FORBIDDEN_SECRET_KEYS = Object.freeze([
   'STRIPE_API_KEY',
   'STRIPE_SECRET_KEY',
@@ -96,6 +105,69 @@ function priceShape(value) {
   if (!v) return { present: false, ok: false, prefix: '(empty)' };
   const ok = /^price_/.test(v);
   return { present: true, ok, prefix: ok ? 'price_…' : 'non_price' };
+}
+
+/**
+ * Presence/shape fingerprint only — never includes secret values.
+ * Used for preemptive drift detection without re-tripping every cycle.
+ */
+function envDriftFingerprint(env) {
+  const e = env || {};
+  return JSON.stringify({
+    stripe: e.stripeSecret
+      ? { present: e.stripeSecret.present, ok: e.stripeSecret.ok, kind: e.stripeSecret.kind }
+      : null,
+    webhook: e.webhookSecret
+      ? { present: e.webhookSecret.present, ok: e.webhookSecret.ok, kind: e.webhookSecret.kind }
+      : null,
+    publishable: e.publishableKey
+      ? { present: e.publishableKey.present, ok: e.publishableKey.ok, kind: e.publishableKey.kind }
+      : null,
+    prices: Object.fromEntries(
+      Object.entries(e.prices || {}).map(([k, v]) => [k, { present: v.present, ok: v.ok }])
+    ),
+    resend: e.resend ? { present: e.resend.present, ok: e.resend.ok } : null,
+    adminPasswordConfigured: Boolean(e.adminPasswordConfigured),
+  });
+}
+
+async function loadEnvFingerprintState(db) {
+  try {
+    const snap = await db.collection(HEALTH_COL).doc(ENV_FINGERPRINT_DOC).get();
+    if (!snap.exists) return { fingerprint: null, stableCycles: 0 };
+    const data = snap.data() || {};
+    return {
+      fingerprint: data.fingerprint || null,
+      stableCycles: Number(data.stableCycles || 0),
+      lastChangedAt: data.lastChangedAt || null,
+    };
+  } catch (_) {
+    return { fingerprint: null, stableCycles: 0 };
+  }
+}
+
+async function saveEnvFingerprintState(db, fingerprint, previous) {
+  const same = previous && previous.fingerprint === fingerprint;
+  await db
+    .collection(HEALTH_COL)
+    .doc(ENV_FINGERPRINT_DOC)
+    .set(
+      {
+        fingerprint,
+        stableCycles: same ? Number(previous.stableCycles || 0) + 1 : 0,
+        lastChangedAt: same
+          ? previous.lastChangedAt || FieldValue.serverTimestamp()
+          : FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+        note: 'Shape-only env inventory; no secret values stored.',
+      },
+      { merge: true }
+    );
+  return {
+    fingerprint,
+    changed: !same,
+    stableCycles: same ? Number(previous.stableCycles || 0) + 1 : 0,
+  };
 }
 
 function readEnvInventory() {
@@ -414,14 +486,50 @@ async function recordErrorOccurrence(db, errorType, cycleId) {
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const data = snap.exists ? snap.data() || {} : {};
-    const open = data.state === 'open' || data.paused === true;
+    let open = data.state === 'open' || data.paused === true;
+
+    // Half-open: after cool-down, allow one observation window instead of permanent flap/open.
     if (open) {
+      let openedMs = 0;
+      if (data.openedAt && typeof data.openedAt.toDate === 'function') {
+        openedMs = data.openedAt.toDate().getTime();
+      } else if (typeof data.openedAtMs === 'number') {
+        openedMs = data.openedAtMs;
+      }
+      const age = openedMs ? now - openedMs : 0;
+      if (age >= CIRCUIT_HALF_OPEN_MS) {
+        tx.set(
+          ref,
+          {
+            errorType,
+            state: 'half_open',
+            paused: false,
+            hits: [now],
+            countInWindow: 1,
+            windowMs: CIRCUIT_WINDOW_MS,
+            tripCount: CIRCUIT_TRIP_COUNT,
+            halfOpenAt: FieldValue.serverTimestamp(),
+            lastCycleId: cycleId,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        );
+        return {
+          errorType,
+          state: 'half_open',
+          count: 1,
+          tripped: false,
+          alreadyOpen: false,
+          halfOpen: true,
+        };
+      }
       return {
         errorType,
         state: 'open',
         count: Number(data.countInWindow || 0),
         tripped: true,
         alreadyOpen: true,
+        remediationAttempts: Number(data.remediationAttempts || 0),
       };
     }
 
@@ -435,7 +543,10 @@ async function recordErrorOccurrence(db, errorType, cycleId) {
       countInWindow: count,
       windowMs: CIRCUIT_WINDOW_MS,
       tripCount: CIRCUIT_TRIP_COUNT,
-      state: shouldTrip ? 'open' : 'closed',
+      halfOpenMs: CIRCUIT_HALF_OPEN_MS,
+      maxRemediationAttempts: MAX_REMEDIATION_ATTEMPTS,
+      remediationAttempts: Number(data.remediationAttempts || 0),
+      state: shouldTrip ? 'open' : data.state === 'half_open' && !shouldTrip ? 'closed' : 'closed',
       paused: shouldTrip,
       requiresHumanReview: shouldTrip,
       lastCycleId: cycleId,
@@ -444,6 +555,7 @@ async function recordErrorOccurrence(db, errorType, cycleId) {
     };
     if (shouldTrip) {
       next.openedAt = FieldValue.serverTimestamp();
+      next.openedAtMs = now;
       next.openReason = `${count}_hits_in_${CIRCUIT_WINDOW_MS}ms`;
     }
     tx.set(ref, next, { merge: true });
@@ -453,8 +565,78 @@ async function recordErrorOccurrence(db, errorType, cycleId) {
       count,
       tripped: shouldTrip,
       alreadyOpen: false,
+      remediationAttempts: next.remediationAttempts,
     };
   });
+}
+
+async function canAttemptRemediation(db, errorType) {
+  const id = circuitDocId(errorType);
+  try {
+    const snap = await db.collection(CIRCUIT_COL).doc(id).get();
+    if (!snap.exists) return { ok: true, attempts: 0 };
+    const data = snap.data() || {};
+    const attempts = Number(data.remediationAttempts || 0);
+    let lastMs = 0;
+    if (data.lastRemediationAt && typeof data.lastRemediationAt.toDate === 'function') {
+      lastMs = data.lastRemediationAt.toDate().getTime();
+    }
+    if (lastMs && Date.now() - lastMs > REMEDIATION_ATTEMPT_WINDOW_MS) {
+      return { ok: true, attempts: 0, resetWindow: true };
+    }
+    if (attempts >= MAX_REMEDIATION_ATTEMPTS) {
+      return { ok: false, attempts, reason: 'remediation_attempts_exhausted' };
+    }
+    return { ok: true, attempts };
+  } catch (_) {
+    return { ok: true, attempts: 0 };
+  }
+}
+
+async function bumpRemediationAttempts(db, errorType, cycleId) {
+  const id = circuitDocId(errorType);
+  const ref = db.collection(CIRCUIT_COL).doc(id);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.exists ? snap.data() || {} : {};
+    let attempts = Number(data.remediationAttempts || 0);
+    let lastMs = 0;
+    if (data.lastRemediationAt && typeof data.lastRemediationAt.toDate === 'function') {
+      lastMs = data.lastRemediationAt.toDate().getTime();
+    }
+    if (lastMs && Date.now() - lastMs > REMEDIATION_ATTEMPT_WINDOW_MS) {
+      attempts = 0;
+    }
+    tx.set(
+      ref,
+      {
+        errorType,
+        remediationAttempts: attempts + 1,
+        lastRemediationAt: FieldValue.serverTimestamp(),
+        lastRemediationCycleId: cycleId,
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  });
+}
+
+async function findPendingApproval(db, actionId) {
+  try {
+    const q = await db
+      .collection(APPROVALS_COL)
+      .where('actionId', '==', String(actionId || ''))
+      .where('status', '==', 'pending_approval')
+      .limit(1)
+      .get();
+    if (!q.empty) {
+      const d = q.docs[0];
+      return { id: d.id, ...(d.data() || {}) };
+    }
+  } catch (_) {
+    /* composite index may be missing — fall through */
+  }
+  return null;
 }
 
 async function listOpenCircuits(db) {
@@ -537,6 +719,19 @@ async function autoRemediateFirstTime(db, { errorType, cycleId, analysis }) {
   if (alreadyTried) {
     return { skipped: true, reason: 'already_first_timed', errorType };
   }
+
+  const attemptGate = await canAttemptRemediation(db, errorType);
+  if (!attemptGate.ok) {
+    return {
+      skipped: true,
+      reason: attemptGate.reason || 'remediation_attempts_exhausted',
+      requiresHuman: true,
+      errorType,
+      remediationAttempts: attemptGate.attempts,
+    };
+  }
+
+  await bumpRemediationAttempts(db, errorType, cycleId);
 
   const before = await monitorHosting();
   const warmup = await executeWarmup();
@@ -787,6 +982,16 @@ async function maybeSendHealthAlert(db, { cycleId, analysis, guardian, incidentI
 }
 
 async function createApproval(db, action, analysis, cycleId) {
+  const existing = await findPendingApproval(db, action.id);
+  if (existing) {
+    structuredLog('info', 'approval.deduped', {
+      actionId: action.id,
+      existingId: existing.id,
+      cycleId,
+    });
+    return { id: existing.id, ...existing, deduped: true };
+  }
+
   const ref = db.collection(APPROVALS_COL).doc();
   const doc = {
     id: ref.id,
@@ -823,7 +1028,7 @@ async function createApproval(db, action, analysis, cycleId) {
       'ES: Una corrección crítica requiere su aprobación.',
     ].join('\n'),
   });
-  return { id: ref.id, ...doc, createdAt: new Date().toISOString() };
+  return { id: ref.id, ...doc, createdAt: new Date().toISOString(), deduped: false };
 }
 
 async function executeWarmup() {
@@ -923,6 +1128,15 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     },
   };
 
+  // PREEMPTIVE: env shape fingerprint (no values) — suppress circuit re-trips on stable drift.
+  const prevFp = await loadEnvFingerprintState(db);
+  const fp = envDriftFingerprint(observations.env);
+  const fpState = await saveEnvFingerprintState(db, fp, prevFp);
+  observations.envFingerprint = {
+    changed: fpState.changed,
+    stableCycles: fpState.stableCycles,
+  };
+
   // ANALYZE
   const analysis = analyze(observations);
 
@@ -930,6 +1144,25 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
   const pausedTypes = new Set();
   for (const finding of analysis.findings || []) {
     const errorType = mapFindingToErrorType(finding.code);
+    const isEnvDrift =
+      finding.code === 'env_stripe_secret_drift' ||
+      finding.code === 'env_webhook_drift' ||
+      finding.code === 'env_price_drift';
+
+    // Stable env drift: keep finding for score/HITL, but do not increment circuit hits every 5m.
+    if (isEnvDrift && !fpState.changed && fpState.stableCycles > 0) {
+      circuitEvents.push({
+        errorType,
+        state: 'suppressed_stable_env_drift',
+        count: 0,
+        tripped: false,
+        alreadyOpen: true,
+        suppressed: true,
+      });
+      pausedTypes.add(errorType);
+      continue;
+    }
+
     const occ = await recordErrorOccurrence(db, errorType, cycleId);
     circuitEvents.push(occ);
     if (occ.tripped || occ.state === 'open') {
@@ -938,10 +1171,11 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
         await sendAdminNotify({
           subject: `[Resumora] Circuit OPEN — ${errorType} (human review)`,
           text: [
-            'Auto-remediation PAUSED for this error type (3 hits in 5 minutes).',
+            'Auto-remediation PAUSED for this error type (circuit trip).',
             `Error type: ${errorType}`,
             `Cycle: ${cycleId}`,
             `Count in window: ${occ.count}`,
+            `Window: ${CIRCUIT_WINDOW_MS}ms / trip=${CIRCUIT_TRIP_COUNT} / half-open after ${CIRCUIT_HALF_OPEN_MS}ms`,
             `Dashboard: ${DASHBOARD_URL}`,
             '',
             'FR: Correction automatique en pause — revue humaine requise.',
@@ -984,16 +1218,23 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
         analysis,
         cycleId
       );
-      approvals.push({ actionId: action.id, approvalId: approval.id, guard: guard.reason });
-      await writeRemediation(db, {
-        cycleId,
+      approvals.push({
         actionId: action.id,
-        risk: RISK.CRITICAL,
-        status: 'awaiting_approval',
         approvalId: approval.id,
-        titleKey: action.titleKey,
-        guardReason: guard.reason,
+        guard: guard.reason,
+        deduped: Boolean(approval.deduped),
       });
+      if (!approval.deduped) {
+        await writeRemediation(db, {
+          cycleId,
+          actionId: action.id,
+          risk: RISK.CRITICAL,
+          status: 'awaiting_approval',
+          approvalId: approval.id,
+          titleKey: action.titleKey,
+          guardReason: guard.reason,
+        });
+      }
       continue;
     }
 
@@ -1010,16 +1251,38 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
 
     if (action.risk === RISK.CRITICAL) {
       const approval = await createApproval(db, action, analysis, cycleId);
-      approvals.push({ actionId: action.id, approvalId: approval.id });
-      await writeRemediation(db, {
-        cycleId,
+      approvals.push({
         actionId: action.id,
-        risk: RISK.CRITICAL,
-        status: 'awaiting_approval',
         approvalId: approval.id,
-        titleKey: action.titleKey,
+        deduped: Boolean(approval.deduped),
       });
+      if (!approval.deduped) {
+        await writeRemediation(db, {
+          cycleId,
+          actionId: action.id,
+          risk: RISK.CRITICAL,
+          status: 'awaiting_approval',
+          approvalId: approval.id,
+          titleKey: action.titleKey,
+        });
+      }
       continue;
+    }
+
+    if (action.id === 'warmup_endpoints') {
+      const attemptGate = await canAttemptRemediation(db, 'HOSTING_WARMUP');
+      if (!attemptGate.ok) {
+        await writeRemediation(db, {
+          cycleId,
+          actionId: action.id,
+          risk: RISK.SAFE,
+          status: 'skipped_remediation_cap',
+          titleKey: action.titleKey,
+          remediationAttempts: attemptGate.attempts,
+        });
+        continue;
+      }
+      await bumpRemediationAttempts(db, 'HOSTING_WARMUP', cycleId);
     }
 
     let result = { ok: true };
@@ -1341,12 +1604,18 @@ module.exports = {
   assertAdminPassword,
   structuredLog,
   readEnvInventory,
+  envDriftFingerprint,
   runSelfHealCycle,
   getHealthSnapshot,
   decideApproval,
   runGuardian,
   preDamageCheck,
   autoRemediateFirstTime,
+  canAttemptRemediation,
   HEALTH_COL,
   HEALTH_DOC,
+  CIRCUIT_WINDOW_MS,
+  CIRCUIT_TRIP_COUNT,
+  CIRCUIT_HALF_OPEN_MS,
+  MAX_REMEDIATION_ATTEMPTS,
 };

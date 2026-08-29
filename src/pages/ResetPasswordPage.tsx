@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import SiteHeader from '../components/SiteHeader';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
+import { useLangOptional } from '../i18n/LangContext';
 import {
   getAuth,
   sendPasswordResetEmail,
@@ -10,7 +10,7 @@ import {
 import { app } from '../lib/firebase';
 
 export default function ResetPasswordPage() {
-  const [lang, setLangState] = useState(() => getLang());
+  const { lang } = useLangOptional();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -18,10 +18,6 @@ export default function ResetPasswordPage() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-
-  function switchLang(next) {
-    setLangState(setLang(next));
-  }
 
   async function sendEmailReset(e) {
     e.preventDefault();
@@ -77,56 +73,52 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="app-shell">
-      <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/reset-password" />
+    <div className="app-main narrow page-content">
+      <h1>{t(lang, 'reset.title')}</h1>
+      <p className="lead">{t(lang, 'reset.lead')}</p>
 
-      <main className="app-main narrow">
-        <h1>{t(lang, 'reset.title')}</h1>
-        <p className="lead">{t(lang, 'reset.lead')}</p>
+      <form className="panel" onSubmit={sendEmailReset}>
+        <h2>Email</h2>
+        <label>
+          Email
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        </label>
+        <button className="primary" type="submit" disabled={busy}>
+          {t(lang, 'reset.sendLink')}
+        </button>
+      </form>
 
-        <form className="panel" onSubmit={sendEmailReset}>
-          <h2>Email</h2>
+      <form className="panel" onSubmit={sendSmsOtp}>
+        <h2>{t(lang, 'reset.cell')}</h2>
+        <label>
+          {t(lang, 'reset.phoneLabel')}
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+1…"
+          />
+        </label>
+        <div id="recaptcha-container" />
+        <button className="secondary" type="submit" disabled={busy || !phone.trim()}>
+          {t(lang, 'reset.sendSms')}
+        </button>
+      </form>
+
+      {confirmation ? (
+        <form className="panel" onSubmit={verifyOtp}>
           <label>
-            Email
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            OTP
+            <input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" />
           </label>
           <button className="primary" type="submit" disabled={busy}>
-            {t(lang, 'reset.sendLink')}
+            {t(lang, 'reset.verify')}
           </button>
         </form>
+      ) : null}
 
-        <form className="panel" onSubmit={sendSmsOtp}>
-          <h2>{t(lang, 'reset.cell')}</h2>
-          <label>
-            {t(lang, 'reset.phoneLabel')}
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1…"
-            />
-          </label>
-          <div id="recaptcha-container" />
-          <button className="secondary" type="submit" disabled={busy || !phone.trim()}>
-            {t(lang, 'reset.sendSms')}
-          </button>
-        </form>
-
-        {confirmation ? (
-          <form className="panel" onSubmit={verifyOtp}>
-            <label>
-              OTP
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" />
-            </label>
-            <button className="primary" type="submit" disabled={busy}>
-              {t(lang, 'reset.verify')}
-            </button>
-          </form>
-        ) : null}
-
-        {status ? <p className="banner ok">{status}</p> : null}
-        {error ? <p className="banner err">{error}</p> : null}
-      </main>
+      {status ? <p className="banner ok">{status}</p> : null}
+      {error ? <p className="banner err">{error}</p> : null}
     </div>
   );
 }
