@@ -175,9 +175,6 @@ export default function AccountPage() {
     <div className="account-page">
       <header className="account-hero">
         <h1>My Account</h1>
-        <p className="lead">
-          Signed in as <strong>{user.email}</strong>
-        </p>
       </header>
 
       <section className="account-card">
