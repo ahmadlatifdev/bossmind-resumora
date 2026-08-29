@@ -12,10 +12,10 @@ export default function SiteFooter({ lang = 'en' }: SiteFooterProps) {
   return (
     <footer className="site-footer" data-ssot="site-footer" role="contentinfo">
       <div className="site-footer__inner">
-        <a href="/" className="site-footer__brand" aria-label="RESUMORA.NET">
-          RESUMORA.NET
+        <a href="/" className="site-footer__brand" aria-label={t(lang, 'common.brand')}>
+          {t(lang, 'common.brand')}
         </a>
-        <nav className="site-footer__nav" aria-label="Footer">
+        <nav className="site-footer__nav" aria-label={t(lang, 'footer.navAria')}>
           <a href="/pricing">{t(lang, 'nav.pricing')}</a>
           <a href="/video-library">{t(lang, 'nav.videos')}</a>
           <a href="/studio">{t(lang, 'nav.studio')}</a>

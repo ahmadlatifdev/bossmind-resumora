@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useLangOptional } from '../i18n/LangContext';
+import { t, tFormat } from '../lib/i18n.js';
 import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import './account.css';
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, lang }) {
   const s = String(status || 'pending').toLowerCase();
-  return <span className={`refund-badge refund-badge--${s}`}>{s}</span>;
+  const label =
+    t(lang, `refund.status.${s}`) !== `refund.status.${s}` ? t(lang, `refund.status.${s}`) : s;
+  return <span className={`refund-badge refund-badge--${s}`}>{label}</span>;
 }
 
-function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
+function CancelModal({ open, onClose, preview, loading, error, onConfirm, lang }) {
   if (!open) return null;
   return (
     <div className="cancel-modal-backdrop" role="presentation" onClick={onClose}>
@@ -20,31 +24,32 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
         aria-labelledby="cancel-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="cancel-modal-title">Cancel plan &amp; refund preview</h2>
+        <h2 id="cancel-modal-title">{t(lang, 'cancel.modalTitle')}</h2>
         {!preview ? (
-          <p className="muted">Loading preview…</p>
+          <p className="muted">{t(lang, 'cancel.loadingPreview')}</p>
         ) : (
           <>
             <p className="cancel-modal__status">
-              Service delivery: <strong>{preview.service_delivery_status}</strong> (
+              {t(lang, 'cancel.serviceDelivery')}:{' '}
+              <strong>{preview.service_delivery_status}</strong> (
               {preview.progress?.progress_percentage ?? 0}%)
             </p>
             <div className="cancel-modal__cols">
               <div>
-                <h3>Delivered</h3>
+                <h3>{t(lang, 'cancel.delivered')}</h3>
                 <ul>
                   {(preview.delivered || []).length === 0 ? (
-                    <li className="muted">None yet</li>
+                    <li className="muted">{t(lang, 'cancel.noneDelivered')}</li>
                   ) : (
                     preview.delivered.map((d) => <li key={d.event_type}>{d.label}</li>)
                   )}
                 </ul>
               </div>
               <div>
-                <h3>Remaining</h3>
+                <h3>{t(lang, 'cancel.remaining')}</h3>
                 <ul>
                   {(preview.remaining || []).length === 0 ? (
-                    <li className="muted">All delivered</li>
+                    <li className="muted">{t(lang, 'cancel.allDelivered')}</li>
                   ) : (
                     preview.remaining.map((d) => <li key={d.event_type}>{d.label}</li>)
                   )}
@@ -52,9 +57,9 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
               </div>
             </div>
             <p className="cancel-modal__refund">
-              Refund amount:{' '}
+              {t(lang, 'cancel.refundAmount')}:{' '}
               <strong>
-                {preview.refund_cents > 0 ? preview.refund_formatted : 'No refund available'}
+                {preview.refund_cents > 0 ? preview.refund_formatted : t(lang, 'cancel.noRefund')}
               </strong>
             </p>
             <p className="muted small">{preview.reason}</p>
@@ -63,7 +68,7 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
         {error ? <p className="error-text">{error}</p> : null}
         <div className="cancel-modal__actions">
           <button type="button" className="btn-keep" onClick={onClose} disabled={loading}>
-            Keep Plan
+            {t(lang, 'cancel.keepPlan')}
           </button>
           <button
             type="button"
@@ -71,7 +76,7 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
             onClick={onConfirm}
             disabled={loading || !preview}
           >
-            {loading ? 'Processing…' : 'Confirm Cancellation & Refund'}
+            {loading ? t(lang, 'cancel.processing') : t(lang, 'cancel.confirm')}
           </button>
         </div>
       </div>
@@ -80,6 +85,7 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm }) {
 }
 
 export default function AccountPage() {
+  const { lang } = useLangOptional();
   const { user, loading: authLoading, subscriptionActive } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -114,21 +120,23 @@ export default function AccountPage() {
       });
       setPreview(data);
     } catch (err) {
-      // Local/demo fallback when API not deployed yet
       setPreview({
         service_delivery_status: 'NONE',
         progress: { progress_percentage: 0 },
         delivered: [],
         remaining: [
-          { event_type: 'resume_uploaded', label: 'Resume uploaded' },
-          { event_type: 'final_resume_delivered', label: 'Final resume delivered' },
+          { event_type: 'resume_uploaded', label: t(lang, 'cancel.event.resumeUploaded') },
+          {
+            event_type: 'final_resume_delivered',
+            label: t(lang, 'cancel.event.finalResumeDelivered'),
+          },
         ],
         refund_cents: plan?.priceCents || 2900,
         refund_formatted: plan?.priceLabel || '$29',
         reason: 'full_refund_no_service_delivered (preview fallback)',
         total_paid_formatted: plan?.priceLabel || '$29',
       });
-      setPreviewError(err.message || 'Preview API unavailable — showing local estimate');
+      setPreviewError(err.message || t(lang, 'cancel.previewFallback'));
     }
   }
 
@@ -142,11 +150,11 @@ export default function AccountPage() {
         totalPaidCents: plan?.priceCents || 2900,
       });
       setModalOpen(false);
-      setToast({ type: 'success', text: 'Cancellation processed. Check Refund History below.' });
+      setToast({ type: 'success', text: t(lang, 'cancel.successToast') });
       await loadRefunds();
     } catch (err) {
-      setPreviewError(err.message || 'Cancellation failed');
-      setToast({ type: 'error', text: err.message || 'Cancellation failed' });
+      setPreviewError(err.message || t(lang, 'cancel.error'));
+      setToast({ type: 'error', text: err.message || t(lang, 'cancel.error') });
     } finally {
       setBusy(false);
     }
@@ -155,7 +163,7 @@ export default function AccountPage() {
   if (authLoading) {
     return (
       <div className="account-page">
-        <p className="muted">Loading account…</p>
+        <p className="muted">{t(lang, 'account.loading')}</p>
       </div>
     );
   }
@@ -163,9 +171,9 @@ export default function AccountPage() {
   if (!user) {
     return (
       <div className="account-page">
-        <h1>My Account</h1>
+        <h1>{t(lang, 'account.title')}</h1>
         <p>
-          Please <a href="/login">sign in</a> to manage your plan.
+          {t(lang, 'account.signInHint')} <a href="/login">{t(lang, 'auth.signIn')}</a>
         </p>
       </div>
     );
@@ -174,37 +182,40 @@ export default function AccountPage() {
   return (
     <div className="account-page">
       <header className="account-hero">
-        <h1>My Account</h1>
+        <h1>{t(lang, 'account.title')}</h1>
       </header>
 
       <section className="account-card">
-        <h2>Current plan</h2>
+        <h2>{t(lang, 'account.currentPlan')}</h2>
         <p>
           {plan ? (
             <>
-              <strong>{localize(plan.name, 'en')}</strong> — {plan.priceLabel}
+              <strong>{localize(plan.name, lang)}</strong> — {plan.priceLabel}
             </>
           ) : (
-            'No plan selected'
+            t(lang, 'account.noPlan')
           )}
         </p>
-        <p className="muted">Status: {subscriptionActive ? 'Active' : 'Inactive / trial'}</p>
+        <p className="muted">
+          {t(lang, 'account.status')}:{' '}
+          {subscriptionActive
+            ? t(lang, 'account.planStatusActive')
+            : t(lang, 'account.planStatusInactive')}
+        </p>
         <button type="button" className="btn-cancel-plan" onClick={openCancelModal}>
-          Cancel Plan
+          {t(lang, 'cancel.button')}
         </button>
       </section>
 
       <section className="account-card">
-        <h2>Invoices</h2>
-        <p className="muted">
-          Paid invoices appear in your Stripe receipt emails and Billing Portal.
-        </p>
+        <h2>{t(lang, 'account.tabInvoices')}</h2>
+        <p className="muted">{t(lang, 'account.invoicesHint')}</p>
       </section>
 
       <section className="account-card">
-        <h2>Refund History</h2>
+        <h2>{t(lang, 'refund.historyTitle')}</h2>
         {refunds.length === 0 ? (
-          <p className="muted">No refunds yet.</p>
+          <p className="muted">{t(lang, 'refund.noHistory')}</p>
         ) : (
           <ul className="refund-list">
             {refunds.map((r) => (
@@ -216,7 +227,7 @@ export default function AccountPage() {
                   <span className="muted"> — {r.reason || '—'}</span>
                 </div>
                 <div className="refund-row__meta">
-                  <StatusBadge status={r.status} />
+                  <StatusBadge status={r.status} lang={lang} />
                   <time>{r.timestamp ? new Date(r.timestamp).toLocaleString() : '—'}</time>
                 </div>
               </li>
@@ -232,12 +243,17 @@ export default function AccountPage() {
         loading={busy}
         error={previewError}
         onConfirm={confirmCancel}
+        lang={lang}
       />
 
       {toast ? (
         <div className={`account-toast account-toast--${toast.type}`} role="status">
           {toast.text}
-          <button type="button" onClick={() => setToast(null)} aria-label="Dismiss">
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            aria-label={t(lang, 'common.dismiss')}
+          >
             ×
           </button>
         </div>

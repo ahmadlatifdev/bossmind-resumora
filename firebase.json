@@ -80,19 +80,11 @@
       },
       {
         "source": "/api/video/catalog",
-        "function": "heygenVideoCatalog"
-      },
-      {
-        "source": "/api/video/generate",
-        "function": "heygenVideoGenerate"
-      },
-      {
-        "source": "/api/video/status",
-        "function": "heygenVideoStatus"
+        "function": "videoCatalog"
       },
       {
         "source": "/api/video/download",
-        "function": "heygenVideoDownload"
+        "function": "videoDownload"
       },
       {
         "source": "/api/admin/system-health",

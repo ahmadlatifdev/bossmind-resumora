@@ -28,7 +28,12 @@ export default function SiteHeader({
 
   return (
     <header className="app-header site-header" role="banner" data-ssot="site-header">
-      <a href="/" className="site-logo" aria-label="RESUMORA.NET — Home" title="RESUMORA.NET">
+      <a
+        href="/"
+        className="site-logo"
+        aria-label={t(lang || 'en', 'common.brandHome')}
+        title={t(lang || 'en', 'common.brand')}
+      >
         <img
           className="site-logo__mark"
           src="/resumora-logo.png"
@@ -39,7 +44,7 @@ export default function SiteHeader({
             e.currentTarget.style.display = 'none';
           }}
         />
-        <span className="site-logo__text">RESUMORA.NET</span>
+        <span className="site-logo__text">{t(lang || 'en', 'common.brand')}</span>
       </a>
 
       <button
@@ -49,13 +54,13 @@ export default function SiteHeader({
         aria-controls="site-primary-nav"
         onClick={() => setOpen((v) => !v)}
       >
-        {open ? 'Close' : 'Menu'}
+        {open ? t(lang || 'en', 'nav.close') : t(lang || 'en', 'nav.menu')}
       </button>
 
       <nav
         id="site-primary-nav"
         className={`header-actions main-nav-links${open ? ' is-open' : ''}`}
-        aria-label="Primary"
+        aria-label={t(lang || 'en', 'nav.primaryAria')}
       >
         {links.map((link) => (
           <a

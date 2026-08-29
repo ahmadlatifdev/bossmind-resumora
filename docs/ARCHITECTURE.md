@@ -36,7 +36,7 @@ Local dev: server/stripe/index.ts (Express webhook + billing on PORT)
 
 | Module                        | Purpose                                              |
 | ----------------------------- | ---------------------------------------------------- |
-| `index.js`                    | Checkout session + HeyGen proxies                    |
+| `index.js`                    | Checkout session + video catalog + Bilibili publish  |
 | `stripeWebhook.js`            | Signature verify → p-queue processor                 |
 | `lib/stripeWebhookQueue.js`   | 90 evt/s throttle, event.id dedupe                   |
 | `lib/stripeEventProcessor.js` | PI succeeded, checkout, subscription, invoice failed |

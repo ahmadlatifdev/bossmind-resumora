@@ -1,39 +1,40 @@
 /**
  * Videos Library — 4 professional training videos × ~5:00, EN/FR/ES voice.
- * Sources prefer Firebase Storage / HeyGen masters when catalog API is live.
- * Voiceover scripts drive SpeechSynthesis narration (EN/FR/ES) until HeyGen MP4s land.
+ * Sources prefer Firebase Storage / Bilibili masters when catalog API is live.
+ * Voiceover scripts drive SpeechSynthesis narration (EN/FR/ES) until production MP4s land.
  */
 
 export const MAX_VIDEO_DOWNLOADS = 5;
 export const VIDEO_DURATION_SEC = 300;
 
 /** Public sample MP4s that include an audio track (not silent). */
-const AUDIO_MP4_A = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4";
-const AUDIO_MP4_B = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
-const AUDIO_MP4_C = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
-const AUDIO_MP4_D = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4";
+const AUDIO_MP4_A = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
+const AUDIO_MP4_B = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
+const AUDIO_MP4_C = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+const AUDIO_MP4_D =
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4';
 
 export const VIDEO_LIBRARY = Object.freeze([
   {
-    id: "vid-resume-writing",
+    id: 'vid-resume-writing',
     order: 1,
-    topic: "resume",
+    topic: 'resume',
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: "Resume writing that gets interviews",
-      fr: "Rédiger un CV qui obtient des entretiens",
-      es: "Redacción de CV que consigue entrevistas",
+      en: 'Resume writing that gets interviews',
+      fr: 'Rédiger un CV qui obtient des entretiens',
+      es: 'Redacción de CV que consigue entrevistas',
     },
     description: {
-      en: "Structure, impact bullets, and role targeting in 5 minutes.",
-      fr: "Structure, puces d’impact et ciblage du poste en 5 minutes.",
-      es: "Estructura, logros medibles y enfoque al puesto en 5 minutos.",
+      en: 'Structure, impact bullets, and role targeting in 5 minutes.',
+      fr: 'Structure, puces d’impact et ciblage du poste en 5 minutes.',
+      es: 'Estructura, logros medibles y enfoque al puesto en 5 minutos.',
     },
     voiceover: {
-      en: "Welcome to Resumora. In this lesson, structure your resume for impact: lead with a clear headline, write achievement bullets with metrics, and target every line to the role you want. Strong resumes get interviews.",
-      fr: "Bienvenue sur Resumora. Dans cette leçon, structurez votre CV pour l’impact: un titre clair, des puces de réalisations avec des chiffres, et chaque ligne alignée sur le poste visé. Un CV fort obtient des entretiens.",
-      es: "Bienvenido a Resumora. En esta lección, estructure su CV con impacto: un titular claro, logros medibles y cada línea alineada al puesto deseado. Un CV sólido consigue entrevistas.",
+      en: 'Welcome to Resumora. In this lesson, structure your resume for impact: lead with a clear headline, write achievement bullets with metrics, and target every line to the role you want. Strong resumes get interviews.',
+      fr: 'Bienvenue sur Resumora. Dans cette leçon, structurez votre CV pour l’impact: un titre clair, des puces de réalisations avec des chiffres, et chaque ligne alignée sur le poste visé. Un CV fort obtient des entretiens.',
+      es: 'Bienvenido a Resumora. En esta lección, estructure su CV con impacto: un titular claro, logros medibles y cada línea alineada al puesto deseado. Un CV sólido consigue entrevistas.',
     },
     thumbnail: AUDIO_MP4_A,
     sources: {
@@ -42,31 +43,31 @@ export const VIDEO_LIBRARY = Object.freeze([
       es: AUDIO_MP4_A,
     },
     downloadName: {
-      en: "resumora-resume-writing-en.mp4",
-      fr: "resumora-redaction-cv-fr.mp4",
-      es: "resumora-redaccion-cv-es.mp4",
+      en: 'resumora-resume-writing-en.mp4',
+      fr: 'resumora-redaction-cv-fr.mp4',
+      es: 'resumora-redaccion-cv-es.mp4',
     },
   },
   {
-    id: "vid-ats-optimization",
+    id: 'vid-ats-optimization',
     order: 2,
-    topic: "ats",
+    topic: 'ats',
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: "ATS optimization essentials",
-      fr: "Essentiels de l’optimisation ATS",
-      es: "Fundamentos de optimización ATS",
+      en: 'ATS optimization essentials',
+      fr: 'Essentiels de l’optimisation ATS',
+      es: 'Fundamentos de optimización ATS',
     },
     description: {
-      en: "Keywords, formatting, and parser-safe layouts recruiters rely on.",
-      fr: "Mots-clés, mise en forme et structures compatibles parseurs.",
-      es: "Palabras clave, formato y diseños seguros para parsers.",
+      en: 'Keywords, formatting, and parser-safe layouts recruiters rely on.',
+      fr: 'Mots-clés, mise en forme et structures compatibles parseurs.',
+      es: 'Palabras clave, formato y diseños seguros para parsers.',
     },
     voiceover: {
-      en: "Applicant tracking systems scan for keywords and clean structure. Mirror the job description language, avoid text boxes that break parsers, and keep headings standard so recruiters see you first.",
-      fr: "Les ATS analysent les mots-clés et une structure propre. Reprenez le langage de l’offre, évitez les zones de texte fragiles, et utilisez des titres standards pour être visible.",
-      es: "Los ATS buscan palabras clave y una estructura limpia. Refleje el lenguaje de la oferta, evite cajas de texto frágiles y use títulos estándar para que lo vean primero.",
+      en: 'Applicant tracking systems scan for keywords and clean structure. Mirror the job description language, avoid text boxes that break parsers, and keep headings standard so recruiters see you first.',
+      fr: 'Les ATS analysent les mots-clés et une structure propre. Reprenez le langage de l’offre, évitez les zones de texte fragiles, et utilisez des titres standards pour être visible.',
+      es: 'Los ATS buscan palabras clave y una estructura limpia. Refleje el lenguaje de la oferta, evite cajas de texto frágiles y use títulos estándar para que lo vean primero.',
     },
     thumbnail: AUDIO_MP4_B,
     sources: {
@@ -75,31 +76,31 @@ export const VIDEO_LIBRARY = Object.freeze([
       es: AUDIO_MP4_B,
     },
     downloadName: {
-      en: "resumora-ats-optimization-en.mp4",
-      fr: "resumora-optimisation-ats-fr.mp4",
-      es: "resumora-optimizacion-ats-es.mp4",
+      en: 'resumora-ats-optimization-en.mp4',
+      fr: 'resumora-optimisation-ats-fr.mp4',
+      es: 'resumora-optimizacion-ats-es.mp4',
     },
   },
   {
-    id: "vid-linkedin-tips",
+    id: 'vid-linkedin-tips',
     order: 3,
-    topic: "linkedin",
+    topic: 'linkedin',
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: "LinkedIn tips that sync with your resume",
-      fr: "Astuces LinkedIn alignées sur votre CV",
-      es: "Consejos LinkedIn alineados con su CV",
+      en: 'LinkedIn tips that sync with your resume',
+      fr: 'Astuces LinkedIn alignées sur votre CV',
+      es: 'Consejos LinkedIn alineados con su CV',
     },
     description: {
-      en: "Headline, About, and experience alignment for recruiter search.",
-      fr: "Titre, À propos et expériences pour la recherche recruteurs.",
-      es: "Titular, Acerca de y experiencia para búsquedas de reclutadores.",
+      en: 'Headline, About, and experience alignment for recruiter search.',
+      fr: 'Titre, À propos et expériences pour la recherche recruteurs.',
+      es: 'Titular, Acerca de y experiencia para búsquedas de reclutadores.',
     },
     voiceover: {
-      en: "Align LinkedIn with your resume. Craft a searchable headline, write an About section that proves value, and keep experience dates and titles consistent so recruiters trust your story.",
-      fr: "Alignez LinkedIn sur votre CV. Créez un titre searchable, un À propos qui prouve votre valeur, et des expériences cohérentes pour gagner la confiance des recruteurs.",
-      es: "Alinee LinkedIn con su CV. Cree un titular buscable, un Acerca de que demuestre valor, y mantenga títulos y fechas coherentes para generar confianza.",
+      en: 'Align LinkedIn with your resume. Craft a searchable headline, write an About section that proves value, and keep experience dates and titles consistent so recruiters trust your story.',
+      fr: 'Alignez LinkedIn sur votre CV. Créez un titre searchable, un À propos qui prouve votre valeur, et des expériences cohérentes pour gagner la confiance des recruteurs.',
+      es: 'Alinee LinkedIn con su CV. Cree un titular buscable, un Acerca de que demuestre valor, y mantenga títulos y fechas coherentes para generar confianza.',
     },
     thumbnail: AUDIO_MP4_C,
     sources: {
@@ -108,31 +109,31 @@ export const VIDEO_LIBRARY = Object.freeze([
       es: AUDIO_MP4_C,
     },
     downloadName: {
-      en: "resumora-linkedin-tips-en.mp4",
-      fr: "resumora-linkedin-conseils-fr.mp4",
-      es: "resumora-linkedin-consejos-es.mp4",
+      en: 'resumora-linkedin-tips-en.mp4',
+      fr: 'resumora-linkedin-conseils-fr.mp4',
+      es: 'resumora-linkedin-consejos-es.mp4',
     },
   },
   {
-    id: "vid-interview-prep",
+    id: 'vid-interview-prep',
     order: 4,
-    topic: "interview",
+    topic: 'interview',
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: "Interview preparation that closes offers",
-      fr: "Préparation d’entretien qui conclut des offres",
-      es: "Preparación de entrevistas que cierra ofertas",
+      en: 'Interview preparation that closes offers',
+      fr: 'Préparation d’entretien qui conclut des offres',
+      es: 'Preparación de entrevistas que cierra ofertas',
     },
     description: {
-      en: "STAR answers, closing questions, and calm delivery under pressure.",
-      fr: "Réponses STAR, questions de clôture et aisance sous pression.",
-      es: "Respuestas STAR, cierre y dominio bajo presión.",
+      en: 'STAR answers, closing questions, and calm delivery under pressure.',
+      fr: 'Réponses STAR, questions de clôture et aisance sous pression.',
+      es: 'Respuestas STAR, cierre y dominio bajo presión.',
     },
     voiceover: {
-      en: "Prepare STAR stories, ask strong closing questions, and practice calm delivery under pressure. Clear answers and confident presence help you close the offer.",
-      fr: "Préparez des récits STAR, posez de bonnes questions de clôture, et travaillez une aisance calme sous pression. Des réponses claires aident à conclure l’offre.",
-      es: "Prepare historias STAR, haga buenas preguntas de cierre y practique una entrega calmada bajo presión. Respuestas claras ayudan a cerrar la oferta.",
+      en: 'Prepare STAR stories, ask strong closing questions, and practice calm delivery under pressure. Clear answers and confident presence help you close the offer.',
+      fr: 'Préparez des récits STAR, posez de bonnes questions de clôture, et travaillez une aisance calme sous pression. Des réponses claires aident à conclure l’offre.',
+      es: 'Prepare historias STAR, haga buenas preguntas de cierre y practique una entrega calmada bajo presión. Respuestas claras ayudan a cerrar la oferta.',
     },
     thumbnail: AUDIO_MP4_D,
     sources: {
@@ -141,9 +142,9 @@ export const VIDEO_LIBRARY = Object.freeze([
       es: AUDIO_MP4_D,
     },
     downloadName: {
-      en: "resumora-interview-prep-en.mp4",
-      fr: "resumora-preparation-entretien-fr.mp4",
-      es: "resumora-preparacion-entrevista-es.mp4",
+      en: 'resumora-interview-prep-en.mp4',
+      fr: 'resumora-preparation-entretien-fr.mp4',
+      es: 'resumora-preparacion-entrevista-es.mp4',
     },
   },
 ]);
@@ -151,10 +152,10 @@ export const VIDEO_LIBRARY = Object.freeze([
 export function formatDuration(sec = VIDEO_DURATION_SEC) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-export function getVoiceoverScript(video, lang = "en") {
-  if (!video?.voiceover) return "";
-  return video.voiceover[lang] || video.voiceover.en || "";
+export function getVoiceoverScript(video, lang = 'en') {
+  if (!video?.voiceover) return '';
+  return video.voiceover[lang] || video.voiceover.en || '';
 }

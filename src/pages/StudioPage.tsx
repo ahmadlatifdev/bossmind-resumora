@@ -129,7 +129,7 @@ export default function StudioPage() {
           <dl>
             <dt>{t(lang, 'studio.name')}</dt>
             <dd>{parsed.fullName || '—'}</dd>
-            <dt>Email</dt>
+            <dt>{t(lang, 'studio.email')}</dt>
             <dd>{parsed.email || '—'}</dd>
             <dt>{t(lang, 'studio.phone')}</dt>
             <dd>{parsed.phone || '—'}</dd>

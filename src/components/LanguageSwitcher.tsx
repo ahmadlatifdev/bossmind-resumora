@@ -1,9 +1,13 @@
-import React from "react";
-import { LANGS, t } from "../lib/i18n.js";
+import React from 'react';
+import { LANGS, t } from '../lib/i18n.js';
 
-export default function LanguageSwitcher({ lang, onChange, className = "" }) {
+export default function LanguageSwitcher({ lang, onChange, className = '' }) {
   return (
-    <div className={`lang-toggle ${className}`.trim()} role="group" aria-label="Language">
+    <div
+      className={`lang-toggle ${className}`.trim()}
+      role="group"
+      aria-label={t(lang, 'lang.switcherAria')}
+    >
       {LANGS.map((code) => (
         <button
           key={code}

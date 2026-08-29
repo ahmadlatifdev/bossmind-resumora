@@ -5,9 +5,12 @@
  */
 const path = require('path');
 const { onRequest } = require('firebase-functions/v2/https');
+const { onObjectFinalized } = require('firebase-functions/v2/storage');
 const { initializeApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 
 initializeApp();
+const db = getFirestore();
 
 function loadEnvFiles() {
   try {
@@ -96,7 +99,8 @@ function cors(res, req) {
   res.set('Vary', 'Origin');
 }
 
-const heygen = require('./heygen');
+const videoCatalog = require('./videoCatalog');
+const bilibiliPublish = require('./bilibiliPublish');
 const { stripeApiSecrets, getStripeClient } = require('./lib/stripeSecrets');
 
 function parseBody(req) {
@@ -237,7 +241,7 @@ exports.createCheckoutSession = onRequest(
 // Keep a tiny health marker for local verification
 exports._plansMapped = () => Object.keys(PLAN_ENV_KEYS);
 
-exports.heygenVideoCatalog = onRequest(
+exports.videoCatalog = onRequest(
   {
     region: 'us-central1',
     cors: false,
@@ -246,7 +250,7 @@ exports.heygenVideoCatalog = onRequest(
     invoker: 'public',
   },
   async (req, res) => {
-    cors(res);
+    cors(res, req);
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
       return;
@@ -256,7 +260,7 @@ exports.heygenVideoCatalog = onRequest(
       return;
     }
     try {
-      const catalog = await heygen.getCatalog();
+      const catalog = await videoCatalog.getCatalog();
       res.status(200).json(catalog);
     } catch (err) {
       res.status(500).json({ error: err.message || 'Catalog failed' });
@@ -264,16 +268,16 @@ exports.heygenVideoCatalog = onRequest(
   }
 );
 
-exports.heygenVideoGenerate = onRequest(
+exports.videoDownload = onRequest(
   {
     region: 'us-central1',
     cors: false,
-    timeoutSeconds: 120,
-    memory: '512MiB',
+    timeoutSeconds: 30,
+    memory: '256MiB',
     invoker: 'public',
   },
   async (req, res) => {
-    cors(res);
+    cors(res, req);
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
       return;
@@ -283,75 +287,67 @@ exports.heygenVideoGenerate = onRequest(
       return;
     }
     try {
-      const result = await heygen.generateVideo(parseBody(req));
-      res.status(200).json(result);
-    } catch (err) {
-      const code =
-        err.code === 'MISSING_KEY' || err.code === 'CONFIG'
-          ? 503
-          : err.code === 'BAD_REQUEST'
-            ? 400
-            : 500;
-      res.status(code).json({ error: err.message || 'Generate failed', code: err.code || null });
-    }
-  }
-);
-
-exports.heygenVideoStatus = onRequest(
-  {
-    region: 'us-central1',
-    cors: false,
-    timeoutSeconds: 30,
-    memory: '256MiB',
-    invoker: 'public',
-  },
-  async (req, res) => {
-    cors(res);
-    if (req.method === 'OPTIONS') {
-      res.status(204).send('');
-      return;
-    }
-    if (req.method !== 'GET') {
-      res.status(405).json({ error: 'Method not allowed' });
-      return;
-    }
-    try {
-      const videoId = String(req.query.videoId || '').trim();
-      const result = await heygen.getVideoStatus(videoId);
-      res.status(200).json(result);
-    } catch (err) {
-      const code = err.code === 'MISSING_KEY' ? 503 : err.code === 'BAD_REQUEST' ? 400 : 500;
-      res.status(code).json({ error: err.message || 'Status failed', code: err.code || null });
-    }
-  }
-);
-
-exports.heygenVideoDownload = onRequest(
-  {
-    region: 'us-central1',
-    cors: false,
-    timeoutSeconds: 30,
-    memory: '256MiB',
-    invoker: 'public',
-  },
-  async (req, res) => {
-    cors(res);
-    if (req.method === 'OPTIONS') {
-      res.status(204).send('');
-      return;
-    }
-    if (req.method !== 'POST') {
-      res.status(405).json({ error: 'Method not allowed' });
-      return;
-    }
-    try {
-      const result = await heygen.recordDownload(parseBody(req));
+      const result = await videoCatalog.recordDownload(parseBody(req));
       res.status(result.ok ? 200 : 403).json(result);
     } catch (err) {
       const code = err.code === 'BAD_REQUEST' ? 400 : 500;
       res
         .status(code)
         .json({ error: err.message || 'Download track failed', code: err.code || null });
+    }
+  }
+);
+
+/**
+ * GCS finalize → Bilibili publish (bucket: resumora-videos).
+ * Only objects under BILIBILI_UPLOAD_PREFIX (default: bilibili-outbox/) are published.
+ * Cookies: BILIBILI_SESSDATA, BILIBILI_BILI_JCT, BILIBILI_DEDE_USER_ID (Secret Manager).
+ */
+exports.publishVideoToBilibili = onObjectFinalized(
+  {
+    bucket: 'resumora-videos',
+    region: 'us-central1',
+    timeoutSeconds: 540,
+    memory: '1GiB',
+  },
+  async (event) => {
+    const data = event.data;
+    const filePath = String(data.name || '');
+    try {
+      console.log(
+        JSON.stringify({
+          scope: 'publishVideoToBilibili',
+          step: 'trigger',
+          filePath,
+          contentType: data.contentType || null,
+        })
+      );
+      const result = await bilibiliPublish.publishGcsObjectToBilibili(db, {
+        bucket: data.bucket || 'resumora-videos',
+        name: filePath,
+        contentType: data.contentType || '',
+        generation: String(data.generation || ''),
+        size: Number(data.size || 0),
+        metadata: data.metadata || {},
+      });
+      console.log(
+        JSON.stringify({
+          scope: 'publishVideoToBilibili',
+          step: 'done',
+          skipped: Boolean(result && result.skipped),
+          bvid: result && result.bvid ? result.bvid : null,
+        })
+      );
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          scope: 'publishVideoToBilibili',
+          step: 'error',
+          filePath,
+          error: String(err && err.message ? err.message : err).slice(0, 200),
+        })
+      );
+      throw err;
     }
   }
 );

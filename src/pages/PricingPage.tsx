@@ -9,7 +9,7 @@ import {
   readSelectedPlan,
   isStripeTestMode,
 } from '../lib/plans.js';
-import { t } from '../lib/i18n.js';
+import { t, tFormat } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
 
 function initialSelectedPlanId() {
@@ -94,14 +94,20 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
           {plan.priceLabel} {localize(plan.intervalLabel, lang)}
         </strong>
       </h3>
-      <ul className="plan-breakdown__features" aria-label={`${name} features`}>
+      <ul
+        className="plan-breakdown__features"
+        aria-label={tFormat(lang, 'pricing.featuresAria', { name })}
+      >
         {(Array.isArray(features) ? features : []).map((f) => (
           <li key={`${plan.id}-feat-${f}`}>
             <strong>{f}</strong>
           </li>
         ))}
       </ul>
-      <ul className="plan-breakdown__services" aria-label={`${name} services`}>
+      <ul
+        className="plan-breakdown__services"
+        aria-label={tFormat(lang, 'pricing.servicesAria', { name })}
+      >
         {rows.map((row) => (
           <li key={`${plan.id}-svc-${row.title}`}>
             <strong>{row.title}</strong>
@@ -163,7 +169,7 @@ function PricingInner() {
   async function handleChoose(planId) {
     const plan = getPlanById(planId);
     if (!plan || !plan.stripePriceId) {
-      setError('Please select a plan first.');
+      setError(t(lang, 'home.selectPlanFirst'));
       return;
     }
     setError('');
@@ -172,7 +178,7 @@ function PricingInner() {
     try {
       await startStripeCheckoutForPlan(plan.id);
     } catch (err) {
-      setError(err?.message || 'Unable to start checkout.');
+      setError(err?.message || t(lang, 'pricing.checkoutStartFailed'));
       setBusyPlanId(null);
     }
   }

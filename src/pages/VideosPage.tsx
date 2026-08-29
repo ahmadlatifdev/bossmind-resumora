@@ -1,12 +1,12 @@
 // @ts-nocheck — legacy video library page; gated by ProtectedRoute / auth
 import React, { useEffect, useMemo, useState } from 'react';
 import VideoCard from '../components/VideoCard';
-import { t } from '../lib/i18n.js';
+import { t, tFormat } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
 import { VIDEO_LIBRARY, MAX_VIDEO_DOWNLOADS } from '../lib/videoLibrary.js';
 import { remainingVideoDownloads, recordVideoDownload, downloadMp4 } from '../lib/userAccess.js';
 import { localize } from '../lib/plans.js';
-import { fetchVideoCatalog } from '../lib/heygen.js';
+import { fetchVideoCatalog } from '../lib/videoApi.js';
 
 function mapCatalogItem(item) {
   const id = item.video_id || item.id;
@@ -48,7 +48,7 @@ export default function VideosPage() {
   const { lang } = useLangOptional();
   const [remaining, setRemaining] = useState(() => remainingVideoDownloads());
   const [library, setLibrary] = useState(VIDEO_LIBRARY);
-  const [catalogMeta, setCatalogMeta] = useState({ heygenConfigured: false, source: 'local' });
+  const [catalogMeta, setCatalogMeta] = useState({ bilibiliConfigured: false, source: 'local' });
   const [activeId, setActiveId] = useState(VIDEO_LIBRARY[0].id);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
@@ -65,7 +65,7 @@ export default function VideosPage() {
           setActiveId(videos[0].id);
         }
         setCatalogMeta({
-          heygenConfigured: Boolean(data.heygenConfigured),
+          bilibiliConfigured: Boolean(data.bilibiliConfigured),
           source: data.source || 'api',
           note: data.note || '',
         });
@@ -123,7 +123,7 @@ export default function VideosPage() {
           : `${t(lang, 'videos.downloaded')} (${result.remaining}/${MAX_VIDEO_DOWNLOADS})`
       );
     } catch (err) {
-      setError(err?.message || 'Download failed.');
+      setError(err?.message || t(lang, 'videos.downloadFailed'));
     } finally {
       setBusy(false);
     }
@@ -166,9 +166,9 @@ export default function VideosPage() {
       </section>
 
       <p className="muted small" style={{ marginTop: 20 }}>
-        {catalogMeta.heygenConfigured
-          ? `HeyGen API: configured · catalog=${catalogMeta.source}`
-          : t(lang, 'videos.heygenNote')}
+        {catalogMeta.bilibiliConfigured
+          ? tFormat(lang, 'videos.bilibiliConfigured', { source: catalogMeta.source })
+          : t(lang, 'videos.bilibiliNote')}
       </p>
     </div>
   );

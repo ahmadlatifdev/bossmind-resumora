@@ -1,25 +1,22 @@
-# AI video creation recommendation (P3)
+# AI video pipeline (Resumora)
 
-## Recommendation: **HeyGen** (primary) + Synthesia (alternate)
+## Recommendation: **Bilibili** (channel publish) + **Google Veo 3** (generation)
 
-| Criterion | HeyGen | Synthesia |
-|-----------|--------|-----------|
-| Realism / avatar quality | Excellent for career-coach presenters | Excellent, slightly more corporate |
-| API maturity | Strong REST API + webhooks | Strong enterprise API |
-| EN/FR voices | Yes | Yes |
-| Clip length control | Easy to keep ≤5 min | Easy |
-| Storage handoff | Export MP4 → Firebase Storage | Export MP4 → Firebase Storage |
-| Fit for Resumora | Best for interview-coach tone | Best for compliance-heavy scripts |
+HeyGen and Synthesia are **dropped** from Resumora.
 
-**Resumora choice:** use **HeyGen** to generate the 5 library masters (EN + FR variants), upload final MP4s to Firebase Storage, then replace `previewUrl` in `src/lib/videoLibrary.js`.
+| Criterion        | Bilibili                                                          | Google Veo 3               |
+| ---------------- | ----------------------------------------------------------------- | -------------------------- |
+| Approved stack   | Yes — GCP/Firebase only                                           | Yes — GCP                  |
+| EN/FR/ES library | Upload masters → GCS → optional Bilibili outbox                   | Generate clips in Studio   |
+| Secrets          | `BILIBILI_SESSDATA`, `BILIBILI_BILI_JCT`, `BILIBILI_DEDE_USER_ID` | `GEMINI_API_KEY` / Veo env |
+| Client library   | Firestore `videos` + `/api/video/catalog`                         | N/A                        |
 
-## Integration sketch (not live until API key is approved)
+**Resumora choice:** store final MP4 masters in `gs://resumora-videos/masters/`, write metadata to Firestore `videos`, publish to Bilibili via `bilibili-outbox/` when cookies are configured.
 
-1. Create HeyGen API key in vault (never commit).
-2. Cloud Function `generateInterviewClip({ script, language, jobTags })`.
-3. On completion webhook → save to `gs://resumora-live.../videos/{id}/{lang}.mp4`.
-4. Write metadata to Firestore `videos` + enforce `userVideoAccess` max 5.
+## Integration (live)
 
-## Blocker
+1. Video catalog API: `videoCatalog` + `videoDownload` Cloud Functions.
+2. Bilibili auto-publish: `publishVideoToBilibili` on GCS finalize.
+3. Client library page reads catalog; download cap enforced server-side (max 5).
 
-No HeyGen/Synthesia secret is configured in this environment. UI ships with preview media + tip downloads; production assets swap is a follow-up after key approval.
+See [BILIBILI_PUBLISH.md](./BILIBILI_PUBLISH.md) for cookie setup and deploy notes.

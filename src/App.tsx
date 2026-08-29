@@ -8,7 +8,7 @@ import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
 import AccountPage from './pages/AccountPage';
 import { useLang } from './i18n/LangContext';
-import { t } from './lib/i18n.js';
+import { t, tFormat } from './lib/i18n.js';
 import {
   CANONICAL_STRIPE_PRICE_IDS,
   getExpectedCentsForPlan,
@@ -39,22 +39,24 @@ function HomePage() {
     document.querySelectorAll('.pricing-plan').forEach((el) => el.classList.remove('active'));
     const activeElement = document.getElementById(`plan-${priceId}`);
     if (activeElement) activeElement.classList.add('active');
-
-    const displayPriceMap: Record<string, string> = {
-      price_29: '$29',
-      price_49: '$49',
-      price_79: '$79',
-      price_110: '$110',
-    };
-    const checkoutBtn = document.getElementById('checkout-button-text');
-    if (checkoutBtn) {
-      checkoutBtn.innerText = `Proceed to Payment (${displayPriceMap[priceId]})`;
-    }
   };
+
+  const displayPriceMap: Record<string, string> = {
+    price_29: '$29',
+    price_49: '$49',
+    price_79: '$79',
+    price_110: '$110',
+  };
+
+  const checkoutButtonText = selectedStripePriceId
+    ? tFormat(lang, 'home.proceedPaymentWithPrice', {
+        price: displayPriceMap[selectedStripePriceId],
+      })
+    : t(lang, 'home.selectPlan');
 
   const redirectToStripe = async () => {
     if (!selectedStripePriceId) {
-      alert('Please select a plan first.');
+      alert(t(lang, 'home.selectPlanFirst'));
       return;
     }
     console.log(
@@ -90,7 +92,7 @@ function HomePage() {
         return;
       }
 
-      alert(session.error || 'Failed to get checkout URL.');
+      alert(session.error || t(lang, 'home.checkoutFailed'));
     } catch (error) {
       console.error('Checkout Error:', error);
       try {
@@ -103,40 +105,40 @@ function HomePage() {
       } catch {
         /* fall through */
       }
-      alert(
-        'Something went wrong. Please refresh the page and try again. If the issue persists, contact support.'
-      );
+      alert(t(lang, 'home.checkoutError'));
     }
   };
+
+  const homePlans = [
+    { id: 'price_29', price: '$29', nameKey: 'plans.basic.name' },
+    { id: 'price_49', price: '$49', nameKey: 'plans.pro.name' },
+    { id: 'price_79', price: '$79', nameKey: 'plans.business.name' },
+    { id: 'price_110', price: '$110', nameKey: 'plans.enterprise.name' },
+  ] as const;
 
   return (
     <section className="v6-hero-panel flex flex-col items-center w-full px-4 py-16 mx-auto">
       {showPaywall ? (
         <p className="mb-6 text-sm text-center border border-[color:var(--color-gold)]/40 bg-[color:var(--color-gold)]/10 px-4 py-3 rounded-lg max-w-xl">
-          Video Library requires an active subscription. Choose a plan below, then sign in.
+          {t(lang, 'home.paywall')}
         </p>
       ) : null}
       <h1 className="v6-heading text-4xl md:text-5xl mb-4 text-center">
-        Build Your Perfect Resume
+        {t(lang, 'home.heroTitle')}
       </h1>
       <p className="v6-subhead text-lg text-center opacity-80 mb-10 max-w-2xl">
-        Select a plan to see exactly what is included, then proceed to checkout.
+        {t(lang, 'home.heroSub')}
       </p>
 
       <div className="v6-pricing-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-12">
-        {[
-          { id: 'price_29', price: '$29', name: 'Basic' },
-          { id: 'price_49', price: '$49', name: 'Pro' },
-          { id: 'price_79', price: '$79', name: 'Business' },
-          { id: 'price_110', price: '$110', name: 'Enterprise' },
-        ].map((plan) => (
+        {homePlans.map((plan) => (
           <div
             key={plan.id}
             id={`plan-${plan.id}`}
             className="pricing-plan cursor-pointer border-2 border-gray-200/40 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 rounded-2xl p-6 text-center"
             onClick={() => handlePlanClick(plan.id)}
           >
-            <h3 className="text-xl font-semibold mb-2 tracking-wide">{plan.name}</h3>
+            <h3 className="text-xl font-semibold mb-2 tracking-wide">{t(lang, plan.nameKey)}</h3>
             <p className="text-3xl font-bold text-[color:var(--color-gold)]">
               {plan.price}{' '}
               <span className="text-sm font-normal opacity-70">
@@ -144,9 +146,9 @@ function HomePage() {
               </span>
             </p>
             <div className="mt-4 text-sm opacity-75 space-y-1">
-              <p>{'Standard Features'}</p>
-              <p>{'Priority Support'}</p>
-              <p>{'Advanced Tools'}</p>
+              <p>{t(lang, 'home.featureStandard')}</p>
+              <p>{t(lang, 'home.featurePriority')}</p>
+              <p>{t(lang, 'home.featureAdvanced')}</p>
             </div>
           </div>
         ))}
@@ -158,7 +160,7 @@ function HomePage() {
           onClick={redirectToStripe}
           className="v6-cta w-full px-10 py-4 rounded-full font-bold text-lg"
         >
-          <span id="checkout-button-text">{'Select a plan to continue'}</span>
+          <span id="checkout-button-text">{checkoutButtonText}</span>
         </button>
       </div>
     </section>
