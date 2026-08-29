@@ -8,6 +8,7 @@ const { recordServiceEvent, listRefunds, ensurePlansSeeded } = require('./lib/se
 const { buildRefundPreview, cancelSubscriptionWithRefund } = require('./lib/refundEngine');
 const { buildRefundPreviewV2 } = require('./lib/refundEngineV2');
 const { computeRevenueAnalytics, predictChurnRisk } = require('./lib/analyticsEngine');
+const { stripeApiSecrets, getStripeClient } = require('./lib/stripeSecrets');
 
 function loadEnvFiles() {
   try {
@@ -53,12 +54,7 @@ function parseBody(req) {
 
 let stripeClient = null;
 function getStripe() {
-  const secret = process.env.STRIPE_SECRET_KEY;
-  if (!secret) return null;
-  if (!stripeClient) {
-    const Stripe = require('stripe');
-    stripeClient = new Stripe(secret, { apiVersion: '2024-11-20.acacia' });
-  }
+  if (!stripeClient) stripeClient = getStripeClient();
   return stripeClient;
 }
 
@@ -108,7 +104,13 @@ function registerBillingEndpoints(exports) {
   ensurePlansSeeded().catch(() => {});
 
   exports.getRefundPreview = onRequest(
-    { region: 'us-central1', cors: false, timeoutSeconds: 30, memory: '256MiB' },
+    {
+      region: 'us-central1',
+      cors: false,
+      timeoutSeconds: 30,
+      memory: '256MiB',
+      secrets: stripeApiSecrets,
+    },
     async (req, res) => {
       cors(res, req);
       if (req.method === 'OPTIONS') return res.status(204).send('');
@@ -157,7 +159,13 @@ function registerBillingEndpoints(exports) {
   );
 
   exports.cancelSubscription = onRequest(
-    { region: 'us-central1', cors: false, timeoutSeconds: 60, memory: '512MiB' },
+    {
+      region: 'us-central1',
+      cors: false,
+      timeoutSeconds: 60,
+      memory: '512MiB',
+      secrets: stripeApiSecrets,
+    },
     async (req, res) => {
       cors(res, req);
       if (req.method === 'OPTIONS') return res.status(204).send('');

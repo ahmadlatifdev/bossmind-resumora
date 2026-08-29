@@ -5,6 +5,7 @@ const path = require('path');
 const { onRequest } = require('firebase-functions/v2/https');
 const { enqueueStripeEvent, getQueueStats } = require('./lib/stripeWebhookQueue');
 const { processStripeEvent } = require('./lib/stripeEventProcessor');
+const { stripeWebhookSecrets, getStripeClient } = require('./lib/stripeSecrets');
 
 function loadEnvFiles() {
   try {
@@ -18,17 +19,6 @@ function loadEnvFiles() {
 
 loadEnvFiles();
 
-let stripeClient = null;
-function getStripe() {
-  const secret = process.env.STRIPE_SECRET_KEY;
-  if (!secret) return null;
-  if (!stripeClient) {
-    const Stripe = require('stripe');
-    stripeClient = new Stripe(secret, { apiVersion: '2024-11-20.acacia' });
-  }
-  return stripeClient;
-}
-
 function registerStripeWebhook(exports) {
   exports.stripeWebhook = onRequest(
     {
@@ -36,6 +26,7 @@ function registerStripeWebhook(exports) {
       cors: false,
       timeoutSeconds: 60,
       memory: '512MiB',
+      secrets: stripeWebhookSecrets,
     },
     async (req, res) => {
       if (req.method !== 'POST') {
@@ -44,7 +35,7 @@ function registerStripeWebhook(exports) {
       }
 
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-      const stripe = getStripe();
+      const stripe = getStripeClient();
       if (!webhookSecret || !stripe) {
         res.status(500).send('Stripe webhook not configured');
         return;

@@ -97,6 +97,7 @@ function cors(res, req) {
 }
 
 const heygen = require('./heygen');
+const { stripeApiSecrets, getStripeClient } = require('./lib/stripeSecrets');
 
 function parseBody(req) {
   let body = req.body;
@@ -116,6 +117,7 @@ exports.createCheckoutSession = onRequest(
     cors: false,
     timeoutSeconds: 30,
     memory: '256MiB',
+    secrets: stripeApiSecrets,
   },
   async (req, res) => {
     cors(res, req);
