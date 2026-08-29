@@ -167,7 +167,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          skip_auth: true
+          project_id: ${{ env.GCP_PROJECT_ID }}
 
       - name: Verify GCP credentials (OIDC smoke)
         run: |
@@ -301,7 +301,7 @@ jobs:
       - name: Set up Cloud SDK (rollback)
         uses: google-github-actions/setup-gcloud@v2
         with:
-          skip_auth: true
+          project_id: ${{ env.GCP_PROJECT_ID }}
 
       - name: Setup Node.js (rollback scripts)
         uses: actions/setup-node@v4
