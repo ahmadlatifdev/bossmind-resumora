@@ -146,7 +146,8 @@ try {
       'roles/run.admin',
       'roles/iam.serviceAccountUser',
       'roles/firebasehosting.admin',
-      'roles/cloudfunctions.admin'
+      'roles/cloudfunctions.admin',
+      'roles/storage.objectAdmin'
     )) {
     Invoke-GcloudAllowExists -GcloudArgs @(
       'projects', 'add-iam-policy-binding', $ProjectId,
@@ -187,6 +188,13 @@ try {
       Write-Host '  OK workloadIdentityUser binding applied' -ForegroundColor Green
     }
   }
+
+  Invoke-GcloudAllowExists -GcloudArgs @(
+    'iam', 'service-accounts', 'add-iam-policy-binding', $SaEmail,
+    '--project', $ProjectId,
+    '--role', 'roles/iam.serviceAccountTokenCreator',
+    '--member', $bindingMember
+  ) -Label 'Grant serviceAccountTokenCreator for OIDC token refresh (gh-oidc-sa)'
 
   Write-Host ''
   Write-Host '=== SUCCESS: Workload Identity Federation ready ===' -ForegroundColor Green

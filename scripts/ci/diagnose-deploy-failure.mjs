@@ -31,17 +31,18 @@ if (classification) {
   lines.push(`- Next steps: ${classification.nextSteps}`);
 } else {
   lines.push('## Classification');
-  lines.push('- No local classification file — check failing step logs in Actions UI.');
-  lines.push('- Common causes: OIDC secrets missing, invalid dist/, smoke test failure, IAM.');
+  lines.push('- No local classification file — inferred from GitHub job API below.');
 }
 
-async function fetchFailedLogs() {
+async function fetchFailedSteps() {
   if (!token || !repo || !runId) return [];
   const headers = {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
   };
-  const jobsRes = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${runId}/jobs`, { headers });
+  const jobsRes = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${runId}/jobs`, {
+    headers,
+  });
   if (!jobsRes.ok) return [];
   const jobs = await jobsRes.json();
   const snippets = [];
@@ -49,22 +50,87 @@ async function fetchFailedLogs() {
     if (job.conclusion !== 'failure') continue;
     for (const step of job.steps || []) {
       if (step.conclusion !== 'failure') continue;
-      snippets.push({ job: job.name, step: step.name, number: step.number });
+      snippets.push({
+        job: job.name,
+        step: step.name,
+        number: step.number,
+        exitCode: 1,
+      });
     }
   }
   return snippets;
 }
 
-const failedSteps = await fetchFailedLogs();
+async function fetchJobLogSnippet() {
+  if (!token || !repo || !runId) return '';
+  try {
+    const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' };
+    const jobsRes = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${runId}/jobs`, {
+      headers,
+    });
+    if (!jobsRes.ok) return '';
+    const { jobs } = await jobsRes.json();
+    const failedJob = (jobs || []).find((j) => j.conclusion === 'failure');
+    if (!failedJob?.id) return '';
+    const logRes = await fetch(
+      `https://api.github.com/repos/${repo}/actions/jobs/${failedJob.id}/logs`,
+      { headers, redirect: 'follow' }
+    );
+    if (!logRes.ok) return '';
+    const text = await logRes.text();
+    const errLines = text
+      .split('\n')
+      .filter(
+        (l) =>
+          /##\[error\]|ERROR:|Permission denied|PERMISSION_DENIED|exit code|failed with/i.test(l)
+      )
+      .slice(-15);
+    return errLines.join('\n');
+  } catch {
+    return '';
+  }
+}
+
+const failedSteps = await fetchFailedSteps();
 if (failedSteps.length) {
   lines.push('');
   lines.push('## Failed steps');
   for (const s of failedSteps) {
-    lines.push(`- Job \`${s.job}\` → step \`${s.step}\` (#${s.number})`);
+    lines.push(`- Job \`${s.job}\` → step \`${s.step}\` (#${s.number}, exit ${s.exitCode})`);
   }
+}
+
+const logSnippet = await fetchJobLogSnippet();
+if (logSnippet) {
   lines.push('');
+  lines.push('## Error log excerpt');
+  lines.push('```');
+  lines.push(logSnippet.slice(0, 4000));
+  lines.push('```');
+}
+
+if (!classification && failedSteps.some((s) => /cloud sdk|authenticate|google cloud/i.test(s.step))) {
+  lines.push('');
+  lines.push('## Likely root cause (OIDC)');
   lines.push(
-    `Open logs: https://github.com/${repo}/actions/runs/${runId}`
+    '- **IAM / OIDC:** `iam.serviceAccounts.getAccessToken` denied during `setup-gcloud`.'
+  );
+  lines.push(
+    '- **Fix:** Re-run `scripts/setup-workload-identity.ps1 -SetGitHubSecrets` and ensure deploy uses `setup-gcloud` with `skip_auth: true`.'
+  );
+}
+
+lines.push('');
+lines.push(`Open logs: https://github.com/${repo}/actions/runs/${runId}`);
+
+if (fs.existsSync('deploy-rollback-result.json')) {
+  const rollback = JSON.parse(fs.readFileSync('deploy-rollback-result.json', 'utf8'));
+  lines.push('');
+  lines.push('## Rollback');
+  lines.push(
+    rollback.rolledBack
+      ? `- **Success:** live restored from \`${rollback.fromChannel}\``
+      : `- **Skipped/failed:** ${rollback.reason || rollback.error || 'see rollback log'}`
   );
 }
 
@@ -88,7 +154,7 @@ if (webhook) {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `*Deploy failed* for \`${repo}\`\nRun: <https://github.com/${repo}/actions/runs/${runId}|#${runId}>\n${classification?.message || 'See Actions logs'}`,
+              text: `*Deploy failed* for \`${repo}\`\nRun: <https://github.com/${repo}/actions/runs/${runId}|#${runId}>\n${classification?.message || failedSteps[0]?.step || 'See Actions logs'}`,
             },
           },
         ],

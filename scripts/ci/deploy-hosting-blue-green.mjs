@@ -165,6 +165,14 @@ async function main() {
   }
 
   withRetry('promote to live', () => {
+    try {
+      runInherit(
+        `npx firebase-tools@latest hosting:clone ${site}:live ${site}:live-backup --project ${project} --non-interactive`
+      );
+      log('Live snapshot copied to live-backup channel');
+    } catch (backupErr) {
+      log(`Live-backup snapshot warning (non-fatal): ${backupErr.message || backupErr}`);
+    }
     runInherit(
       `npx firebase-tools@latest hosting:clone ${site}:${channelId} ${site}:live --project ${project} --non-interactive`
     );
