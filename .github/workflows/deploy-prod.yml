@@ -118,7 +118,7 @@ jobs:
       - name: Deploy self-heal, documentation, and Stripe billing functions
         run: |
           npx firebase-tools@latest deploy --only \
-            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:selfHealMonitor,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:createCheckoutSession" \
+            "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:selfHealMonitor,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession" \
             --project "${GCP_PROJECT_ID}" \
             --non-interactive
 
@@ -135,6 +135,9 @@ jobs:
             'cancelsubscription',
             'recordserviceeventhttp',
             'listrefundshttp',
+            'getrefundpreviewv2',
+            'getrevenueanalytics',
+            'getchurnprediction',
             'createcheckoutsession'
           )) {
             Write-Host "Applying --no-invoker-iam-check to: $svc"

@@ -1,0 +1,28 @@
+name: Daily Health Report
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Generate daily health report
+        run: node scripts/daily-health-report.mjs
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: daily-health-${{ github.run_id }}
+          path: |
+            docs/daily-health-report.json
+            docs/daily-health-report.md
