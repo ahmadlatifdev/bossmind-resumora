@@ -1,9 +1,11 @@
+@import './styles/tokens.css';
+
 :root {
-  --gold: #d4af37;
-  --gold-soft: #f4e8c1;
-  --navy: #0a1a3a;
-  --navy-2: #1a2b4a;
-  --cream: #f9f5eb;
+  --gold: var(--color-gold);
+  --gold-soft: var(--color-gold-bright);
+  --navy: var(--color-navy);
+  --navy-2: var(--color-navy-mid);
+  --cream: var(--color-cream);
   --err: #ff6b6b;
   --ok: #3dd68c;
   --card-pad: 24px;
@@ -11,13 +13,21 @@
   --card-radius: 16px;
 }
 
-* { box-sizing: border-box; }
-html, body {
+* {
+  box-sizing: border-box;
+}
+html,
+body {
   margin: 0;
   min-height: 100%;
-  font-family: Montserrat, system-ui, sans-serif;
-  background: linear-gradient(160deg, var(--navy), var(--navy-2) 55%, #0b1529);
-  color: var(--cream);
+  font-family: var(--font-sans);
+  background: linear-gradient(
+    160deg,
+    var(--color-navy),
+    var(--color-navy-mid) 55%,
+    var(--color-navy-deep)
+  );
+  color: var(--color-cream);
 }
 
 .pricing-page {
@@ -26,7 +36,10 @@ html, body {
   padding: 24px 24px 72px;
 }
 
-.pricing-hero { text-align: center; margin-bottom: 36px; }
+.pricing-hero {
+  text-align: center;
+  margin-bottom: 36px;
+}
 .pricing-hero-top {
   display: flex;
   justify-content: space-between;
@@ -43,7 +56,7 @@ html, body {
   margin: 0;
 }
 .pricing-hero h1 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(2rem, 4vw, 3rem);
   margin: 10px 0 12px;
   color: #fff;
@@ -82,8 +95,16 @@ html, body {
   color: #b8f5d4;
   box-shadow: 0 8px 24px rgba(61, 214, 140, 0.12);
 }
-.pricing-banner--warn { background: rgba(212, 175, 55, 0.15); border: 1px solid var(--gold); color: var(--gold-soft); }
-.pricing-banner--err { background: rgba(255, 107, 107, 0.12); border: 1px solid var(--err); color: #ffd0d0; }
+.pricing-banner--warn {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold-soft);
+}
+.pricing-banner--err {
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid var(--err);
+  color: #ffd0d0;
+}
 
 /* Responsive grid: 1 → 2 → 4 columns */
 .plans-grid,
@@ -122,13 +143,19 @@ html, body {
   backdrop-filter: blur(8px);
   cursor: pointer;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, transform 0.22s ease;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    transform 0.22s ease;
 }
 
 .plan-card:hover {
   transform: translateY(-6px);
   border-color: rgba(212, 175, 55, 0.55);
-  box-shadow: 0 16px 36px rgba(212, 175, 55, 0.18), inset 0 0 0 1px rgba(212, 175, 55, 0.2);
+  box-shadow:
+    0 16px 36px rgba(212, 175, 55, 0.18),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.2);
 }
 
 .plan-card--featured {
@@ -139,7 +166,9 @@ html, body {
 .plan-card--selected,
 .pricing-plan.active {
   border-color: var(--gold);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.55), 0 16px 36px rgba(212, 175, 55, 0.16);
+  box-shadow:
+    0 0 0 2px rgba(212, 175, 55, 0.55),
+    0 16px 36px rgba(212, 175, 55, 0.16);
   background: rgba(212, 175, 55, 0.1);
 }
 
@@ -172,7 +201,7 @@ html, body {
 
 .plan-card h2 {
   margin: 0;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   color: var(--gold);
   font-size: 1.55rem;
   font-weight: 700;
@@ -231,7 +260,7 @@ html, body {
 }
 
 .plan-features li::before {
-  content: "✓";
+  content: '✓';
   position: absolute;
   left: 0;
   color: var(--gold);
@@ -254,11 +283,18 @@ html, body {
   cursor: pointer;
   background: linear-gradient(135deg, #d4af37, #f4e8c1 55%, #b8860b);
   color: var(--navy);
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.plan-cta:hover:not(:disabled) { transform: translateY(-1px); }
-.plan-cta:disabled { opacity: 0.65; cursor: not-allowed; }
+.plan-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.plan-cta:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
 
 .plan-breakdown {
   margin: 28px auto 0;
@@ -375,30 +411,6 @@ html, body {
   align-items: center;
 }
 
-.lang-toggle {
-  display: inline-flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.lang-toggle button,
-.lang-btn {
-  border: 1px solid rgba(212, 175, 55, 0.45);
-  background: transparent;
-  color: #f4e8c1;
-  border-radius: 999px;
-  padding: 8px 14px;
-  min-height: 44px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.lang-toggle button[data-active="true"],
-.lang-btn[data-active="true"] {
-  background: linear-gradient(135deg, #d4af37, #f4e8c1);
-  color: #0a1a3a;
-}
-
 .plan-breakdown-actions .primary {
   border: 0;
   border-radius: 999px;
@@ -406,14 +418,30 @@ html, body {
   min-height: 44px;
   font-weight: 800;
   cursor: pointer;
-  background: linear-gradient(135deg, #d4af37, #f4e8c1 55%, #b8860b);
-  color: var(--navy);
+  background: linear-gradient(
+    135deg,
+    var(--color-gold),
+    var(--color-gold-bright) 55%,
+    var(--color-gold-deep)
+  );
+  color: var(--color-navy);
 }
 
 @media (max-width: 699px) {
-  .pricing-page { padding: 24px 24px 56px; }
-  .pricing-hero-top { flex-wrap: wrap; justify-content: center; }
-  .plan-blurb { min-height: 0; }
-  .plan-card h2 { min-height: 0; }
-  .plan-price { min-height: 0; }
+  .pricing-page {
+    padding: 24px 24px 56px;
+  }
+  .pricing-hero-top {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .plan-blurb {
+    min-height: 0;
+  }
+  .plan-card h2 {
+    min-height: 0;
+  }
+  .plan-price {
+    min-height: 0;
+  }
 }

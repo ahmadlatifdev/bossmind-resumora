@@ -1,9 +1,9 @@
 /* V-6 luxury layer — additive; does not replace Tailwind utilities */
 
 :root {
-  --v6-gold: #d4af37;
+  --v6-gold: var(--color-gold);
   --v6-gold-soft: rgba(212, 175, 55, 0.35);
-  --v6-navy: #0a1a3a;
+  --v6-navy: var(--color-navy);
   --v6-mesh-1: rgba(212, 175, 55, 0.14);
   --v6-mesh-2: rgba(26, 43, 74, 0.55);
   --v6-glass: rgba(255, 255, 255, 0.06);
@@ -35,13 +35,23 @@ html.light {
 }
 
 html.dark .v6-shell {
-  background: linear-gradient(165deg, #05080f 0%, #0a1a3a 48%, #05080f 100%);
-  color: #f9f5eb;
+  background: linear-gradient(
+    165deg,
+    var(--color-ink) 0%,
+    var(--color-navy) 48%,
+    var(--color-ink) 100%
+  );
+  color: var(--color-cream);
 }
 
 html.light .v6-shell {
-  background: linear-gradient(165deg, #f9f5eb 0%, #ffffff 45%, #f4e8c1 100%);
-  color: #0a1a3a;
+  background: linear-gradient(
+    165deg,
+    var(--color-cream) 0%,
+    #ffffff 45%,
+    var(--color-gold-bright) 100%
+  );
+  color: var(--color-navy);
 }
 
 .v6-nav {
@@ -173,8 +183,13 @@ html.light .v6-shell {
 }
 
 .v6-cta {
-  background: linear-gradient(135deg, #d4af37 0%, #b8860b 55%, #d4af37 100%);
-  color: #0a1a3a !important;
+  background: linear-gradient(
+    135deg,
+    var(--color-gold) 0%,
+    var(--color-gold-deep) 55%,
+    var(--color-gold) 100%
+  );
+  color: var(--color-navy) !important;
   box-shadow: 0 12px 28px rgba(212, 175, 55, 0.35);
   transition:
     transform 0.25s ease,

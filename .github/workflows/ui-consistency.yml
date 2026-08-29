@@ -1,0 +1,50 @@
+name: UI Consistency (SSoT Chrome)
+
+on:
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ui-consistency-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ui-consistency:
+    name: Header/Footer visual consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Install pixelmatch helpers
+        run: npm install --no-save pixelmatch pngjs
+
+      - name: Build
+        run: npm run build
+
+      - name: Run UI consistency check
+        env:
+          UI_MAX_DIFF_PIXELS: '2000'
+        run: node scripts/ui-consistency-check.js --serve
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-consistency-artifacts
+          path: artifacts/ui-consistency/
+          if-no-files-found: ignore
