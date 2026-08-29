@@ -8,6 +8,9 @@ name: Deploy Firebase Hosting Production
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
   pull_request:
     types:
       - closed
@@ -31,7 +34,7 @@ env:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -90,7 +93,7 @@ jobs:
           retention-days: 3
 
   deploy:
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.pull_request.merged == true)
     needs: build
     runs-on: ubuntu-latest
     environment:
