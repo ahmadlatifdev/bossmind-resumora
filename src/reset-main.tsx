@@ -1,14 +1,18 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import "./pricing.css";
-import "./app-shell.css";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import Layout from './components/Layout';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import './styles/tokens.css';
+import './pricing.css';
+import './app-shell.css';
 
-const el = document.getElementById("reset-root");
+const el = document.getElementById('reset-root');
 if (el) {
   createRoot(el).render(
     <React.StrictMode>
-      <ResetPasswordPage />
+      <Layout currentPath="/reset-password" shell="v6">
+        <ResetPasswordPage />
+      </Layout>
     </React.StrictMode>
   );
 }

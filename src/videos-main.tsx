@@ -2,7 +2,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './lib/firebase';
+import Layout from './components/Layout';
 import VideosPage from './pages/VideosPage';
+import './styles/tokens.css';
 import './pricing.css';
 import './app-shell.css';
 
@@ -18,7 +20,9 @@ async function mountWhenAllowed() {
     }
     createRoot(el).render(
       <React.StrictMode>
-        <VideosPage />
+        <Layout currentPath="/videos" shell="v6">
+          <VideosPage />
+        </Layout>
       </React.StrictMode>
     );
   });

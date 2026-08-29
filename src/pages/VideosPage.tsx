@@ -1,8 +1,8 @@
 // @ts-nocheck — legacy video library page; gated by ProtectedRoute / auth
 import React, { useEffect, useMemo, useState } from 'react';
-import SiteHeader from '../components/SiteHeader';
 import VideoCard from '../components/VideoCard';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
+import { useLangOptional } from '../i18n/LangContext';
 import { VIDEO_LIBRARY, MAX_VIDEO_DOWNLOADS } from '../lib/videoLibrary.js';
 import { remainingVideoDownloads, recordVideoDownload, downloadMp4 } from '../lib/userAccess.js';
 import { localize } from '../lib/plans.js';
@@ -45,7 +45,7 @@ function mapCatalogItem(item) {
 }
 
 export default function VideosPage() {
-  const [lang, setLangState] = useState(() => getLang());
+  const { lang } = useLangOptional();
   const [remaining, setRemaining] = useState(() => remainingVideoDownloads());
   const [library, setLibrary] = useState(VIDEO_LIBRARY);
   const [catalogMeta, setCatalogMeta] = useState({ heygenConfigured: false, source: 'local' });
@@ -92,10 +92,6 @@ export default function VideosPage() {
     };
   }, [firstSrc]);
 
-  function switchLang(next) {
-    setLangState(setLang(next));
-  }
-
   async function onPlay(video) {
     setActiveId(video.id);
     setNotice('');
@@ -134,50 +130,46 @@ export default function VideosPage() {
   }
 
   return (
-    <div className="app-shell">
-      <SiteHeader lang={lang} onLangChange={switchLang} currentPath="/videos" />
+    <div className="app-main page-content">
+      <h1>{t(lang, 'videos.title')}</h1>
+      <p className="lead">{t(lang, 'videos.lead')}</p>
+      <p className="plan-chip">
+        {t(lang, 'videos.remaining')}:{' '}
+        <strong>
+          {remaining}/{MAX_VIDEO_DOWNLOADS}
+        </strong>
+      </p>
 
-      <main className="app-main">
-        <h1>{t(lang, 'videos.title')}</h1>
-        <p className="lead">{t(lang, 'videos.lead')}</p>
-        <p className="plan-chip">
-          {t(lang, 'videos.remaining')}:{' '}
-          <strong>
-            {remaining}/{MAX_VIDEO_DOWNLOADS}
-          </strong>
+      {notice ? (
+        <p className="banner ok" role="status">
+          {notice}
         </p>
-
-        {notice ? (
-          <p className="banner ok" role="status">
-            {notice}
-          </p>
-        ) : null}
-        {error ? (
-          <p className="banner err" role="alert">
-            {error}
-          </p>
-        ) : null}
-
-        <section className="video-grid" aria-label={t(lang, 'videos.title')}>
-          {library.map((video) => (
-            <VideoCard
-              key={video.id}
-              video={video}
-              uiLang={lang}
-              selected={activeId === video.id}
-              busy={busy}
-              onPlay={onPlay}
-              onDownload={onDownload}
-            />
-          ))}
-        </section>
-
-        <p className="muted small" style={{ marginTop: 20 }}>
-          {catalogMeta.heygenConfigured
-            ? `HeyGen API: configured · catalog=${catalogMeta.source}`
-            : t(lang, 'videos.heygenNote')}
+      ) : null}
+      {error ? (
+        <p className="banner err" role="alert">
+          {error}
         </p>
-      </main>
+      ) : null}
+
+      <section className="video-grid" aria-label={t(lang, 'videos.title')}>
+        {library.map((video) => (
+          <VideoCard
+            key={video.id}
+            video={video}
+            uiLang={lang}
+            selected={activeId === video.id}
+            busy={busy}
+            onPlay={onPlay}
+            onDownload={onDownload}
+          />
+        ))}
+      </section>
+
+      <p className="muted small" style={{ marginTop: 20 }}>
+        {catalogMeta.heygenConfigured
+          ? `HeyGen API: configured · catalog=${catalogMeta.source}`
+          : t(lang, 'videos.heygenNote')}
+      </p>
     </div>
   );
 }
