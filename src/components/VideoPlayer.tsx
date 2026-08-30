@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
+import { t, tFormat } from '../lib/i18n.js';
 
 function pickVoice(lang) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return null;
@@ -126,12 +127,16 @@ export default function VideoPlayer({
         onPause={onPause}
         onEnded={onEnded}
       />
-      <div className="video-player__toolbar" role="group" aria-label="Audio controls">
+      <div
+        className="video-player__toolbar"
+        role="group"
+        aria-label={t(lang, 'player.audioControls')}
+      >
         <button type="button" className="secondary" onClick={toggleMute} aria-pressed={muted}>
-          {muted ? 'Unmute' : 'Mute'}
+          {muted ? t(lang, 'player.unmute') : t(lang, 'player.mute')}
         </button>
         <label className="video-player__volume">
-          <span>Volume</span>
+          <span>{t(lang, 'player.volume')}</span>
           <input
             type="range"
             min="0"
@@ -143,15 +148,15 @@ export default function VideoPlayer({
               setVolume(next);
               if (next > 0) setMuted(false);
             }}
-            aria-label="Volume"
+            aria-label={t(lang, 'player.volume')}
           />
         </label>
         <label className="video-player__speed">
-          <span>Speed</span>
+          <span>{t(lang, 'player.speed')}</span>
           <select
             value={speed}
             onChange={(e) => setSpeed(Number(e.target.value))}
-            aria-label="Playback speed"
+            aria-label={t(lang, 'player.speed')}
           >
             <option value={0.75}>0.75×</option>
             <option value={1}>1×</option>
@@ -160,12 +165,12 @@ export default function VideoPlayer({
           </select>
         </label>
         <button type="button" className="secondary" onClick={enterFullscreen}>
-          Fullscreen
+          {t(lang, 'player.fullscreen')}
         </button>
       </div>
       {voiceoverText ? (
         <p className="video-player__voice-note muted small">
-          Voiceover active ({String(lang).toUpperCase()}) — use volume/mute controls above.
+          {tFormat(lang, 'player.voiceoverActive', { lang: String(lang).toUpperCase() })}
         </p>
       ) : null}
     </div>

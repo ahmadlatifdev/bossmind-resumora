@@ -132,7 +132,7 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
           {t(lang, 'pricing.continueStudio')}
         </a>
         {plan.id === 'advanced' ? (
-          <a className="plan-secondary-link" href="/videos">
+          <a className="plan-secondary-link" href="/video-library">
             {t(lang, 'pricing.openVideos')}
           </a>
         ) : null}

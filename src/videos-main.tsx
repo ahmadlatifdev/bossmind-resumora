@@ -15,12 +15,12 @@ async function mountWhenAllowed() {
 
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      window.location.replace('/login?from=/videos');
+      window.location.replace('/login?from=/video-library');
       return;
     }
     createRoot(el).render(
       <React.StrictMode>
-        <Layout currentPath="/videos" shell="v6">
+        <Layout currentPath="/video-library" shell="v6">
           <VideosPage />
         </Layout>
       </React.StrictMode>

@@ -6,6 +6,7 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAnalytics, initializeAnalytics, isSupported } from 'firebase/analytics';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey:
@@ -44,6 +45,23 @@ export const MARKETING_ORIGIN = `https://${MARKETING_DOMAIN}`;
 export const app: FirebaseApp = getApps().length
   ? (getApps()[0] as FirebaseApp)
   : initializeApp(firebaseConfig);
+
+/** App Check (reCAPTCHA Enterprise) — site key from env only; never hard-code secrets. */
+const appCheckSiteKey =
+  import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY ||
+  import.meta.env.NEXT_PUBLIC_FIREBASE_APP_CHECK_SITE_KEY ||
+  '';
+
+if (typeof window !== 'undefined' && appCheckSiteKey) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch {
+    /* duplicate init on HMR */
+  }
+}
 
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);

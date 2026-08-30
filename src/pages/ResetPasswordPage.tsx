@@ -29,7 +29,7 @@ export default function ResetPasswordPage() {
       await sendPasswordResetEmail(auth, email.trim());
       setStatus(t(lang, 'reset.sendLink') + ' ✓');
     } catch (err) {
-      setError(err?.message || 'Email reset failed.');
+      setError(err?.message || t(lang, 'reset.emailFailed'));
     } finally {
       setBusy(false);
     }
@@ -51,7 +51,7 @@ export default function ResetPasswordPage() {
       setConfirmation(result);
       setStatus(t(lang, 'reset.sendSms') + ' ✓');
     } catch (err) {
-      setError(err?.message || 'SMS OTP failed.');
+      setError(err?.message || t(lang, 'reset.smsFailed'));
     } finally {
       setBusy(false);
     }
@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
       await confirmation.confirm(otp.trim());
       setStatus(t(lang, 'reset.verify') + ' ✓');
     } catch (err) {
-      setError(err?.message || 'Invalid OTP.');
+      setError(err?.message || t(lang, 'reset.invalidOtp'));
     } finally {
       setBusy(false);
     }
@@ -78,9 +78,9 @@ export default function ResetPasswordPage() {
       <p className="lead">{t(lang, 'reset.lead')}</p>
 
       <form className="panel" onSubmit={sendEmailReset}>
-        <h2>Email</h2>
+        <h2>{t(lang, 'reset.emailHeading')}</h2>
         <label>
-          Email
+          {t(lang, 'auth.email')}
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <button className="primary" type="submit" disabled={busy}>
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
       {confirmation ? (
         <form className="panel" onSubmit={verifyOtp}>
           <label>
-            OTP
+            {t(lang, 'reset.otpLabel')}
             <input value={otp} onChange={(e) => setOtp(e.target.value)} inputMode="numeric" />
           </label>
           <button className="primary" type="submit" disabled={busy}>

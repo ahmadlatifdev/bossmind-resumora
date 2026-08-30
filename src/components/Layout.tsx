@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { LangProvider, useLang } from '../i18n/LangContext';
 import SiteHeader from './SiteHeader';
 import SiteFooter from './SiteFooter';
+import ClientChat from './ClientChat';
+import { AuthProvider } from '../auth/AuthContext';
 import '../index.css';
 import '../styles/tokens.css';
 import '../app-shell.css';
@@ -32,6 +34,7 @@ function LayoutChrome({ currentPath, shell = 'v6', children }: ChromeProps) {
       <main id="main-content" className="layout-main" data-ssot="layout-main">
         {children}
       </main>
+      <ClientChat />
       <SiteFooter lang={lang} />
     </div>
   );
@@ -50,9 +53,11 @@ type LayoutProps = {
 export default function Layout({ currentPath = '/', shell = 'app', children }: LayoutProps) {
   return (
     <LangProvider>
-      <LayoutChrome currentPath={currentPath} shell={shell}>
-        {children}
-      </LayoutChrome>
+      <AuthProvider>
+        <LayoutChrome currentPath={currentPath} shell={shell}>
+          {children}
+        </LayoutChrome>
+      </AuthProvider>
     </LangProvider>
   );
 }

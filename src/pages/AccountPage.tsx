@@ -9,7 +9,11 @@ import './account.css';
 function StatusBadge({ status, lang }) {
   const s = String(status || 'pending').toLowerCase();
   const label =
-    t(lang, `refund.status.${s}`) !== `refund.status.${s}` ? t(lang, `refund.status.${s}`) : s;
+    t(lang, `refund.status.${s}`) !== `refund.status.${s}`
+      ? t(lang, `refund.status.${s}`)
+      : t(lang, `refund.${s}`) !== `refund.${s}`
+        ? t(lang, `refund.${s}`)
+        : s;
   return <span className={`refund-badge refund-badge--${s}`}>{label}</span>;
 }
 
