@@ -1,0 +1,35 @@
+# Declarative Cloud Run manifest for Skaffold + Cloud Deploy.
+# Managed service: resumora-deploy-canary (validates pipeline IAM; does not replace Firebase Functions).
+# Extend or add additional Service resources as you migrate workloads to declarative deploy.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: resumora-deploy-canary
+  labels:
+    cloud.googleapis.com/location: us-central1
+    app: resumora
+    deploy: cloud-deploy
+  annotations:
+    run.googleapis.com/launch-stage: GA
+    run.googleapis.com/description: Declarative deploy canary for resumora-live Cloud Deploy pipeline
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '2'
+        autoscaling.knative.dev/minScale: '0'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+        - image: us-docker.pkg.dev/cloudrun/container/hello
+          ports:
+            - name: http1
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: '1'
+              memory: 512Mi
+          env:
+            - name: RESUMORA_DEPLOY_CANARY
+              value: 'true'

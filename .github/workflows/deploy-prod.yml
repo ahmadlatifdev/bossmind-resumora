@@ -84,6 +84,9 @@ jobs:
       - name: Verify build output (dist/)
         run: node scripts/ci/verify-deploy-config.mjs
 
+      - name: Verify security headers (firebase.json)
+        run: node scripts/ci/verify-security-headers.mjs
+
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
@@ -92,9 +95,71 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  deploy:
+  declarative-deploy:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.pull_request.merged == true)
     needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: production
+      url: https://resumora.net
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Workload Identity secrets are configured
+        env:
+          WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -z "$WORKLOAD_IDENTITY_PROVIDER" ] || [ -z "$SERVICE_ACCOUNT_EMAIL" ]; then
+            echo "WORKLOAD_IDENTITY_PROVIDER or SERVICE_ACCOUNT_EMAIL GitHub Secret is missing."
+            echo "Run scripts/setup-workload-identity.ps1 -SetGitHubSecrets locally once."
+            exit 1
+          fi
+          echo "OIDC auth configured (values not printed)."
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Verify GCP credentials (OIDC smoke)
+        run: |
+          test -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" || { echo "Missing GOOGLE_APPLICATION_CREDENTIALS"; exit 1; }
+          test -f "${GOOGLE_APPLICATION_CREDENTIALS}" || { echo "Credentials file not found"; exit 1; }
+          echo "OIDC credentials file present (project=${GCP_PROJECT_ID})"
+          gcloud --project="${GCP_PROJECT_ID}" projects describe "${GCP_PROJECT_ID}" --format='value(projectId)'
+
+      - name: Apply Cloud Deploy pipeline and target
+        run: |
+          gcloud deploy apply \
+            --file=clouddeploy.yaml \
+            --region="${GCP_REGION}" \
+            --project="${GCP_PROJECT_ID}" \
+            --quiet
+
+      - name: Create Cloud Deploy release (Skaffold → Cloud Run)
+        run: |
+          gcloud deploy releases create "rel-${{ github.run_number }}" \
+            --delivery-pipeline=resumora-production-pipeline \
+            --region="${GCP_REGION}" \
+            --project="${GCP_PROJECT_ID}" \
+            --skaffold-file=skaffold.yaml \
+            --quiet
+          echo "Cloud Deploy release rel-${{ github.run_number }} created."
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.pull_request.merged == true)
+    needs: [build, declarative-deploy]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -207,6 +272,12 @@ jobs:
           echo "Functions deploy failed after $max attempts (transient)."
           exit 1
 
+      - name: Deploy Firestore security rules
+        run: |
+          npx firebase-tools@latest deploy --only firestore:rules \
+            --project "${GCP_PROJECT_ID}" \
+            --non-interactive
+
       - name: Apply Cloud Run IAM bypass (public HTTP services)
         shell: pwsh
         run: |
@@ -272,8 +343,8 @@ jobs:
             -d "{\"trigger\":\"post_deploy\",\"changelogSynced\":true,\"changelogGitSha\":\"${{ github.sha }}\"}"
 
   diagnose-failure:
-    needs: [build, deploy]
-    if: failure()
+    needs: [build, declarative-deploy, deploy]
+    if: failure() && (needs.declarative-deploy.result == 'failure' || needs.deploy.result == 'failure')
     runs-on: ubuntu-latest
     permissions:
       contents: read

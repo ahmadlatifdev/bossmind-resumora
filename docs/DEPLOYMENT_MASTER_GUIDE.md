@@ -206,6 +206,96 @@ After the run appears in Actions, **approve the production environment gate**. N
 
 ---
 
+## Declarative Deployment (Skaffold + Cloud Deploy)
+
+Reproducible **first-try** Cloud Run releases via Google Cloud Deploy, integrated into `.github/workflows/deploy-prod.yml`. Resolves recurring IAM drift and Secret Manager permission gaps by applying roles idempotently before CI runs.
+
+### Architecture
+
+| Component          | Path                                      | Purpose                                              |
+| ------------------ | ----------------------------------------- | ---------------------------------------------------- |
+| IAM bootstrap      | `scripts/setup-deploy-iam.ps1`            | Project + secret-level roles for deploy SA           |
+| Skaffold config    | `skaffold.yaml`                           | Declarative Cloud Run manifest deploy                |
+| Cloud Run manifest | `deploy/cloud-run-service.yaml`           | Knative Service (canary + template)                  |
+| Cloud Deploy       | `clouddeploy.yaml`                        | `resumora-production-pipeline` → `production` target |
+| CI job             | `declarative-deploy` in `deploy-prod.yml` | OIDC → `gcloud deploy apply` → release create        |
+
+### One-time IAM setup (local, keyless)
+
+```powershell
+cd D:\BossMind\bossmind-resumora
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-deploy-iam.ps1
+```
+
+Default deploy SA: `gh-oidc-sa@resumora-live.iam.gserviceaccount.com` (same as GitHub OIDC). Optional dedicated SA:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-deploy-iam.ps1 -CreateDedicatedDeploySa
+```
+
+**Verify bindings are active:**
+
+```powershell
+gcloud projects get-iam-policy resumora-live `
+  --flatten="bindings[].members" `
+  --filter="bindings.members:serviceAccount:gh-oidc-sa@resumora-live.iam.gserviceaccount.com" `
+  --format="table(bindings.role)"
+```
+
+Required roles (applied by script):
+
+- `roles/secretmanager.secretAccessor` — Secret Manager version access
+- `roles/run.developer` — Cloud Run revision deploy
+- `roles/run.admin` — Cloud Run service admin
+- `roles/secretmanager.viewer` — `secrets.get` during Firebase Functions deploy
+- `roles/clouddeploy.admin` — pipeline apply + release create
+
+### Validate Cloud Deploy pipeline
+
+```powershell
+gcloud deploy pipelines list --region=us-central1 --project=resumora-live
+gcloud deploy targets list --region=us-central1 --project=resumora-live
+gcloud deploy releases list --delivery-pipeline=resumora-production-pipeline --region=us-central1 --project=resumora-live
+```
+
+Manual apply (optional; CI runs this automatically):
+
+```powershell
+gcloud deploy apply --file=clouddeploy.yaml --region=us-central1 --project=resumora-live
+gcloud deploy releases create "rel-manual-$(Get-Date -Format yyyyMMddHHmm)" `
+  --delivery-pipeline=resumora-production-pipeline `
+  --region=us-central1 `
+  --project=resumora-live `
+  --skaffold-file=skaffold.yaml
+```
+
+The `production` target has **`requireApproval: true`** — approve the release in [Cloud Deploy Console](https://console.cloud.google.com/deploy/delivery-pipelines?project=resumora-live) after CI creates it.
+
+### CI flow (zero manual terminal deploy)
+
+```
+push main → build → declarative-deploy (Cloud Deploy release)
+                 → deploy (Firebase Functions + Firestore rules + Hosting blue-green)
+```
+
+Both jobs use the **production** GitHub environment gate (~10 min approval). No local `firebase deploy` or `gcloud run deploy`.
+
+### Push and monitor
+
+```powershell
+git push origin main
+gh run list --repo ahmadlatifdev/bossmind-resumora --workflow "Deploy Firebase Hosting Production" --limit 5
+gh run watch --repo ahmadlatifdev/bossmind-resumora
+```
+
+### Security
+
+- Never commit service-account JSON or Stripe secret values.
+- Do not print `sk_live_`, `whsec_`, `pk_live_`, or `price_` IDs.
+- OIDC only — no long-lived keys in GitHub Secrets for GCP auth.
+
+---
+
 ## See also
 
 - `docs/DEPLOYMENT_WORKFLOW.md` — zero manual deploy, branch protection, environment reviewers
@@ -214,3 +304,5 @@ After the run appears in Actions, **approve the production environment gate**. N
 - `.github/workflows/ui-regression.yml` — golden baseline visual gate
 - `.github/workflows/ui-consistency.yml` — cross-page header/footer SSoT check
 - `.github/workflows/secret-health.yml` — daily FIREBASE_SERVICE_ACCOUNT length/restore guard
+- `docs/SECURITY_DEFENSE_IN_DEPTH.md` — edge, zero-trust, and monitoring layers
+- `clouddeploy.yaml` / `skaffold.yaml` — declarative Cloud Run pipeline

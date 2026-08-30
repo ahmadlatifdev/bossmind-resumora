@@ -1,0 +1,38 @@
+# Security baseline — PR gate (headers + rules syntax). No secrets.
+name: Security Baseline
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Verify firebase.json security headers
+        run: node scripts/ci/verify-security-headers.mjs
+
+      - name: Validate Firestore rules file present
+        run: test -f firestore.rules
+
+      - name: Install firebase-tools (rules compile check)
+        run: npm install -g firebase-tools@latest
+
+      - name: Compile Firestore rules
+        run: firebase deploy --only firestore:rules --project resumora-live --dry-run --non-interactive
+        continue-on-error: true
+
+      - name: Security audit (no secret patterns in src)
+        run: node scripts/security-audit.mjs
+        continue-on-error: true
