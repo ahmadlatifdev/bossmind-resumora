@@ -85,7 +85,35 @@ jobs:
         run: node scripts/ci/verify-deploy-config.mjs
 
       - name: Verify security headers (firebase.json)
-        run: node scripts/ci/verify-security-headers.mjs
+        run: |
+          set -euo pipefail
+          SCRIPT="scripts/ci/verify-security-headers.mjs"
+          if [ -f "$SCRIPT" ]; then
+            node "$SCRIPT"
+          else
+            echo "::warning::$SCRIPT missing from checkout; running inline header check"
+            node --input-type=module <<'EOF'
+          import fs from 'node:fs';
+          const cfg = JSON.parse(fs.readFileSync('firebase.json', 'utf8'));
+          const flat = (cfg.hosting?.headers || []).flatMap((b) => b.headers || []);
+          const need = [
+            ['Strict-Transport-Security', /max-age=/i],
+            ['X-Content-Type-Options', /^nosniff$/i],
+            ['X-Frame-Options', /SAMEORIGIN|DENY/i],
+          ];
+          const miss = [];
+          for (const [key, re] of need) {
+            const h = flat.find((x) => x.key === key);
+            if (!h || !re.test(String(h.value || ''))) miss.push(key);
+          }
+          if (miss.length) {
+            console.error('verify-security-headers: FAILED missing/invalid:', miss.join(', '));
+            process.exit(1);
+          }
+          console.log('verify-security-headers: Success (inline)');
+          EOF
+          fi
+
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4

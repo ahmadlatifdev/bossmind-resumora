@@ -21,7 +21,14 @@ jobs:
           cache: npm
 
       - name: Verify firebase.json security headers
-        run: node scripts/ci/verify-security-headers.mjs
+        run: |
+          set -euo pipefail
+          if [ -f scripts/ci/verify-security-headers.mjs ]; then
+            node scripts/ci/verify-security-headers.mjs
+          else
+            echo "::error::scripts/ci/verify-security-headers.mjs is required in this repository"
+            exit 1
+          fi
 
       - name: Validate Firestore rules file present
         run: test -f firestore.rules
