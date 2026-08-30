@@ -5,6 +5,9 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import './styles/tokens.css';
 import './pricing.css';
 import './app-shell.css';
+import { trackPageView } from './lib/analytics.js';
+
+trackPageView();
 
 const el = document.getElementById('reset-root');
 if (el) {

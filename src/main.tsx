@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 import { app } from './lib/firebase';
+import { trackPageView } from './lib/analytics.js';
 
 // Ensure Firebase app is initialized for the client bundle
 void app;
@@ -11,6 +12,8 @@ void app;
 document.documentElement.classList.add('dark');
 document.documentElement.dataset.theme = 'dark';
 document.documentElement.style.colorScheme = 'dark';
+
+trackPageView();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

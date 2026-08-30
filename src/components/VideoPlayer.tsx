@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from 'react';
 import { t, tFormat } from '../lib/i18n.js';
+import { trackVideoStart } from '../lib/analytics.js';
 
 function pickVoice(lang) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return null;
@@ -87,6 +88,7 @@ export default function VideoPlayer({
 
   function onPlay() {
     setPlaying(true);
+    trackVideoStart({ title, src, lang });
     if (autoNarrate && voiceoverText) speak(voiceoverText, lang);
   }
 

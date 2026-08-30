@@ -7,6 +7,9 @@ import VideosPage from './pages/VideosPage';
 import './styles/tokens.css';
 import './pricing.css';
 import './app-shell.css';
+import { trackPageView } from './lib/analytics.js';
+
+trackPageView();
 
 const el = document.getElementById('videos-root');
 

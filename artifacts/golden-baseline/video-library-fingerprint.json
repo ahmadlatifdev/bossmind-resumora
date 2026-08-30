@@ -3,6 +3,18 @@
   "logoSrc": "/resumora-logo.png",
   "logoText": "RESUMORA.NET",
   "langs": ["EN", "FR", "ES"],
-  "footerHrefs": ["/", "/pricing", "/video-library", "/studio", "/account"],
+  "footerHrefs": [
+    "/",
+    "/pricing",
+    "/video-library",
+    "/studio",
+    "/account",
+    "https://www.facebook.com/share/1DdrGE5TGB/",
+    "https://www.instagram.com/resumora_global/",
+    "https://www.tiktok.com/@latif1674",
+    "https://www.linkedin.com/in/ahmed-abd-el-latif-4b4b4b3b3",
+    "https://x.com/privategate777",
+    "https://youtube.com/@ahmedabdellatif8435"
+  ],
   "footerBrand": "RESUMORA.NET"
 }

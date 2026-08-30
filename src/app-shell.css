@@ -104,6 +104,43 @@
   color: var(--color-gold);
 }
 
+.site-footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.site-footer__social-empty {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+.social-icon {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold-bright);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--color-gold-border);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.social-icon:hover,
+.social-icon:focus-visible {
+  color: var(--color-gold);
+  outline: none;
+}
+
 .site-footer__copy {
   margin: 0;
   opacity: 0.7;

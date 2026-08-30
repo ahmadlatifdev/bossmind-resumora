@@ -1,5 +1,13 @@
-import { useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
+import { trackPageView } from './lib/analytics.js';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -167,31 +175,47 @@ function HomePage() {
   );
 }
 
+function AnalyticsRouteTracker() {
+  const location = useLocation();
+  const skipInitial = useRef(true);
+  useEffect(() => {
+    if (skipInitial.current) {
+      skipInitial.current = false;
+      return;
+    }
+    trackPageView(`${location.pathname}${location.search}`);
+  }, [location.pathname, location.search]);
+  return null;
+}
+
 function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<AppLayout shell="v6" />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/account"
-          element={
-            <ProtectedRoute requireSubscription={false}>
-              <AccountPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/video-library"
-          element={
-            <ProtectedRoute requireSubscription>
-              <VideosPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+    <>
+      <AnalyticsRouteTracker />
+      <Routes>
+        <Route element={<AppLayout shell="v6" />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute requireSubscription={false}>
+                <AccountPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/video-library"
+            element={
+              <ProtectedRoute requireSubscription>
+                <VideosPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 
