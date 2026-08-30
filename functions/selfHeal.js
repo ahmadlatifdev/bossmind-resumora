@@ -247,10 +247,7 @@ async function monitorHosting() {
 }
 
 async function monitorIamProbes() {
-  const urls = [
-    `${SITE_ORIGIN}/api/create-checkout-session`,
-    `${SITE_ORIGIN}/api/video/google-generate`,
-  ];
+  const urls = [`${SITE_ORIGIN}/api/create-checkout-session`, `${SITE_ORIGIN}/api/video/catalog`];
   const results = [];
   for (const url of urls) {
     results.push(await probeUrl(url, { method: 'OPTIONS' }));
@@ -261,6 +258,25 @@ async function monitorIamProbes() {
     blocked: blocked.length > 0,
     blockedCount: blocked.length,
   };
+}
+
+/** Unacknowledged CRITICAL items from security_alerts (SCC / log sink → Firestore). */
+async function monitorSecurityAlerts(db) {
+  try {
+    const snap = await db
+      .collection('security_alerts')
+      .where('severity', '==', 'CRITICAL')
+      .where('acknowledged', '==', false)
+      .limit(10)
+      .get();
+    return {
+      ok: snap.empty,
+      criticalCount: snap.size,
+      ids: snap.docs.map((d) => d.id),
+    };
+  } catch (_) {
+    return { ok: true, criticalCount: 0, skipped: true };
+  }
 }
 
 async function monitorFirestore(db) {
@@ -403,6 +419,20 @@ function analyze(observations) {
     score -= 15;
   }
 
+  if (observations.security && observations.security.criticalCount > 0) {
+    findings.push({
+      code: 'scc_critical_finding',
+      severity: 'critical',
+      detail: {
+        criticalCount: observations.security.criticalCount,
+        alertIds: observations.security.ids || [],
+      },
+      rcaKey: 'heal.rca.sccCritical',
+      risk: RISK.CRITICAL,
+    });
+    score -= 25;
+  }
+
   score = Math.max(0, Math.min(100, score));
   const status =
     score >= 90 ? 'healthy' : score >= 70 ? 'degraded' : score >= 40 ? 'impaired' : 'critical';
@@ -420,6 +450,7 @@ function mapFindingToErrorType(code) {
     firestore_unreachable: 'FIRESTORE',
     stripe_api_unhealthy: 'STRIPE_API',
     iam_policy_block: 'IAM_POLICY_BLOCK',
+    scc_critical_finding: 'SCC_CRITICAL',
   };
   return table[code] || String(code || 'UNKNOWN').toUpperCase();
 }
@@ -1123,6 +1154,7 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     env: readEnvInventory(),
     stripe: await monitorStripe(stripe),
     iam: await monitorIamProbes(),
+    security: await monitorSecurityAlerts(db),
     deployment: {
       note: 'gcloud/firebase deploy are HITL-only; Functions never rewrite secrets or .env files',
     },
