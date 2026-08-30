@@ -53,7 +53,8 @@ const adminHttpOpts = {
   cors: false,
   timeoutSeconds: 120,
   memory: '512MiB',
-  invoker: 'public',
+  // Do not set invoker: 'public' — org policy blocks Cloud Run setIamPolicy(allUsers).
+  // CI applies --no-invoker-iam-check (run.googleapis.com/invoker-iam-disabled: 'true').
   secrets: [geminiApiKey, adminRefundPassword],
 };
 

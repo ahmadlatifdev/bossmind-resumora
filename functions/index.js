@@ -247,7 +247,6 @@ exports.videoCatalog = onRequest(
     cors: false,
     timeoutSeconds: 30,
     memory: '256MiB',
-    invoker: 'public',
   },
   async (req, res) => {
     cors(res, req);
@@ -274,7 +273,6 @@ exports.videoDownload = onRequest(
     cors: false,
     timeoutSeconds: 30,
     memory: '256MiB',
-    invoker: 'public',
   },
   async (req, res) => {
     cors(res, req);
