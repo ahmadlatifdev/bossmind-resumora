@@ -87,14 +87,6 @@ jobs:
           VITE_SOCIAL_YOUTUBE: ${{ secrets.VITE_SOCIAL_YOUTUBE }}
           VITE_SOCIAL_BILIBILI: ${{ secrets.VITE_SOCIAL_BILIBILI }}
         run: npm run build
-         env:
-          VITE_SOCIAL_FACEBOOK: ${{ secrets.VITE_SOCIAL_FACEBOOK }}
-          VITE_SOCIAL_INSTAGRAM: ${{ secrets.VITE_SOCIAL_INSTAGRAM }}
-          VITE_SOCIAL_TIKTOK: ${{ secrets.VITE_SOCIAL_TIKTOK }}
-          VITE_SOCIAL_LINKEDIN: ${{ secrets.VITE_SOCIAL_LINKEDIN }}
-          VITE_SOCIAL_X: ${{ secrets.VITE_SOCIAL_X }}
-          VITE_SOCIAL_YOUTUBE: ${{ secrets.VITE_SOCIAL_YOUTUBE }}
-          VITE_SOCIAL_BILIBILI: ${{ secrets.VITE_SOCIAL_BILIBILI }}
 
       - name: Verify build output (dist/)
         run: node scripts/ci/verify-deploy-config.mjs
