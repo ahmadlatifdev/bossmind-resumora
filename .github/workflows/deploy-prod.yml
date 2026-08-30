@@ -79,7 +79,22 @@ jobs:
           VITE_STRIPE_PRICE_PROFESSIONAL_TIER: ${{ secrets.VITE_STRIPE_PRICE_PROFESSIONAL_TIER }}
           VITE_STRIPE_PRICE_ADVANCED: ${{ secrets.VITE_STRIPE_PRICE_ADVANCED }}
           VITE_PAYWALL_ALLOW_AUTHED: ${{ secrets.VITE_PAYWALL_ALLOW_AUTHED }}
+          VITE_SOCIAL_FACEBOOK: ${{ secrets.VITE_SOCIAL_FACEBOOK }}
+          VITE_SOCIAL_INSTAGRAM: ${{ secrets.VITE_SOCIAL_INSTAGRAM }}
+          VITE_SOCIAL_TIKTOK: ${{ secrets.VITE_SOCIAL_TIKTOK }}
+          VITE_SOCIAL_LINKEDIN: ${{ secrets.VITE_SOCIAL_LINKEDIN }}
+          VITE_SOCIAL_X: ${{ secrets.VITE_SOCIAL_X }}
+          VITE_SOCIAL_YOUTUBE: ${{ secrets.VITE_SOCIAL_YOUTUBE }}
+          VITE_SOCIAL_BILIBILI: ${{ secrets.VITE_SOCIAL_BILIBILI }}
         run: npm run build
+         env:
+          VITE_SOCIAL_FACEBOOK: ${{ secrets.VITE_SOCIAL_FACEBOOK }}
+          VITE_SOCIAL_INSTAGRAM: ${{ secrets.VITE_SOCIAL_INSTAGRAM }}
+          VITE_SOCIAL_TIKTOK: ${{ secrets.VITE_SOCIAL_TIKTOK }}
+          VITE_SOCIAL_LINKEDIN: ${{ secrets.VITE_SOCIAL_LINKEDIN }}
+          VITE_SOCIAL_X: ${{ secrets.VITE_SOCIAL_X }}
+          VITE_SOCIAL_YOUTUBE: ${{ secrets.VITE_SOCIAL_YOUTUBE }}
+          VITE_SOCIAL_BILIBILI: ${{ secrets.VITE_SOCIAL_BILIBILI }}
 
       - name: Verify build output (dist/)
         run: node scripts/ci/verify-deploy-config.mjs
@@ -279,7 +294,7 @@ jobs:
           set -euo pipefail
           deploy_fn() {
             npx firebase-tools@latest deploy --only \
-              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili" \
+              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
               --project "${GCP_PROJECT_ID}" \
               --non-interactive
           }
@@ -314,9 +329,10 @@ jobs:
         run: |
           foreach ($svc in @(
             'getsystemhealth','runsystemhealth','decidesystemheal','updatesystemmanual',
+            'getmasterdashboard',
             'stripewebhook','getrefundpreview','cancelsubscription','recordserviceeventhttp',
             'listrefundshttp','getrefundpreviewv2','getrevenueanalytics','getchurnprediction',
-            'createcheckoutsession','videocatalog','videodownload'
+            'createcheckoutsession','videocatalog','videodownload','sendchatmessage'
           )) {
             Write-Host "Applying --no-invoker-iam-check to: $svc"
             gcloud run services update $svc `
