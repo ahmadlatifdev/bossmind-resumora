@@ -177,13 +177,16 @@ jobs:
 
       - name: Create Cloud Deploy release (Skaffold → Cloud Run)
         run: |
-          gcloud deploy releases create "rel-${{ github.run_number }}" \
+          RELEASE_ID="rel-${{ github.run_number }}-${{ github.run_attempt }}-${{ github.run_id }}"
+          # Truncate to Cloud Deploy release name limits if needed (63 chars).
+          RELEASE_ID="${RELEASE_ID:0:63}"
+          gcloud deploy releases create "${RELEASE_ID}" \
             --delivery-pipeline=resumora-production-pipeline \
             --region="${GCP_REGION}" \
             --project="${GCP_PROJECT_ID}" \
             --skaffold-file=skaffold.yaml \
             --quiet
-          echo "Cloud Deploy release rel-${{ github.run_number }} created."
+          echo "Cloud Deploy release ${RELEASE_ID} created."
 
   deploy:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event.pull_request.merged == true)
