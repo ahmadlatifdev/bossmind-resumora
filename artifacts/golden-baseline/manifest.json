@@ -1,0 +1,5 @@
+{
+  "createdAt": "2026-08-30T13:01:54.193Z",
+  "routes": ["/", "/pricing", "/account", "/video-library"],
+  "note": "Golden baseline chrome captures for v1.0.0-design-locked"
+}

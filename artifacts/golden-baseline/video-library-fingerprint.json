@@ -1,0 +1,8 @@
+{
+  "headerHrefs": ["/", "/pricing", "/video-library", "/studio", "/account", "/reset-password"],
+  "logoSrc": "/resumora-logo.png",
+  "logoText": "RESUMORA.NET",
+  "langs": ["EN", "FR", "ES"],
+  "footerHrefs": ["/", "/pricing", "/video-library", "/studio", "/account"],
+  "footerBrand": "RESUMORA.NET"
+}
