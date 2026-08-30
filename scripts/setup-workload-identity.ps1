@@ -147,7 +147,8 @@ try {
       'roles/iam.serviceAccountUser',
       'roles/firebasehosting.admin',
       'roles/cloudfunctions.admin',
-      'roles/storage.objectAdmin'
+      'roles/storage.objectAdmin',
+      'roles/secretmanager.secretAccessor'
     )) {
     Invoke-GcloudAllowExists -GcloudArgs @(
       'projects', 'add-iam-policy-binding', $ProjectId,
