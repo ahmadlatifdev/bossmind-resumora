@@ -116,11 +116,17 @@
       },
       {
         "source": "/api/chat/message",
-        "function": "sendChatMessage"
+        "run": {
+          "serviceId": "sendchatmessage",
+          "region": "us-central1"
+        }
       },
       {
         "source": "/api/chat/send",
-        "function": "sendChatMessage"
+        "run": {
+          "serviceId": "sendchatmessage",
+          "region": "us-central1"
+        }
       },
       {
         "source": "/api/admin/system-health",
