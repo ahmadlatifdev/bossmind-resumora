@@ -358,3 +358,90 @@ registerStripeWebhook(exports);
 
 const { registerBillingEndpoints } = require('./billingEndpoints');
 registerBillingEndpoints(exports);
+
+const { getAuth } = require('firebase-admin/auth');
+const { resolveChatReply } = require('./lib/chatAgent');
+
+function chatCors(res, req) {
+  const origin = String((req && req.get && req.get('origin')) || '');
+  const allowed = new Set([
+    'https://resumora.net',
+    'https://www.resumora.net',
+    'https://client-resumora-live.web.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://localhost:3005',
+  ]);
+  const allow = allowed.has(origin) ? origin : 'https://resumora.net';
+  res.set('Access-Control-Allow-Origin', allow);
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.set('Vary', 'Origin');
+}
+
+function parseChatBody(req) {
+  let body = req.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      body = {};
+    }
+  }
+  return body || {};
+}
+
+async function verifyChatUser(req) {
+  const header = String(req.get('authorization') || req.get('Authorization') || '');
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) return null;
+  try {
+    return await getAuth().verifyIdToken(match[1]);
+  } catch {
+    return null;
+  }
+}
+
+exports.sendChatMessage = onRequest(
+  {
+    region: 'us-central1',
+    cors: false,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    chatCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      const decoded = await verifyChatUser(req);
+      if (!decoded) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+      const body = parseChatBody(req);
+      const message = String(body.message || body.text || '')
+        .trim()
+        .slice(0, 2000);
+      if (!message) {
+        res.status(400).json({ error: 'message required' });
+        return;
+      }
+      const out = resolveChatReply({
+        message,
+        lang: body.lang,
+        intentHint: body.intent || body.intentHint,
+      });
+      res.status(200).json({ ok: true, ...out });
+    } catch (err) {
+      res.status(500).json({ error: err && err.message ? err.message : 'Chat failed' });
+    }
+  }
+);
