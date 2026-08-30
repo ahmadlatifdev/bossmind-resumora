@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import BrandLogo from '../components/BrandLogo';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { getLang, setLang, t } from '../lib/i18n.js';
 import '../app-shell.css';
@@ -212,7 +211,7 @@ export default function AdminSystemHealthPage() {
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
         <a href="/" className="site-logo" aria-label="RESUMORA.NET">
-          <BrandLogo decorative />
+          <img src="/resumora-logo.png" alt="" width="160" height="40" />
         </a>
         <LanguageSwitcher lang={lang} onChange={onLang} />
       </header>
