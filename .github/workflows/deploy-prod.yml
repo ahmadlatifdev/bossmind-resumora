@@ -166,13 +166,16 @@ jobs:
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+        # Do not set project_id here — auth@v2 already exports CLOUDSDK_* / GOOGLE_CLOUD_PROJECT.
+        # project_id triggers `gcloud config set project`, which refreshes OIDC impersonation
+        # tokens and fails with iam.serviceAccounts.getAccessToken denied when WIF IAM is stale.
 
       - name: Verify GCP credentials (OIDC smoke)
         run: |
-          gcloud auth list --filter=status:ACTIVE --format='value(account)' | head -1
-          gcloud projects describe "${GCP_PROJECT_ID}" --format='value(projectId)'
+          test -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" || { echo "Missing GOOGLE_APPLICATION_CREDENTIALS"; exit 1; }
+          test -f "${GOOGLE_APPLICATION_CREDENTIALS}" || { echo "Credentials file not found"; exit 1; }
+          echo "OIDC credentials file present (project=${GCP_PROJECT_ID})"
+          gcloud --project="${GCP_PROJECT_ID}" projects describe "${GCP_PROJECT_ID}" --format='value(projectId)'
 
       - name: Deploy Cloud Functions (with transient retry)
         id: deploy_functions
@@ -297,11 +300,6 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
           create_credentials_file: true
           export_environment_variables: true
-
-      - name: Set up Cloud SDK (rollback)
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
 
       - name: Setup Node.js (rollback scripts)
         uses: actions/setup-node@v4
