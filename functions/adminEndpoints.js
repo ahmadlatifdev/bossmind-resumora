@@ -7,6 +7,8 @@ const { defineSecret } = require('firebase-functions/params');
 const { getFirestore } = require('firebase-admin/firestore');
 const selfHeal = require('./selfHeal');
 const systemManual = require('./systemManual');
+const { stripeApiSecrets } = require('./lib/stripeSecrets');
+const { buildMasterDashboard } = require('./lib/masterDashboard');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -28,6 +30,8 @@ function adminCors(res, req) {
     'https://resumora.net',
     'https://www.resumora.net',
     'https://client-resumora-live.web.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
   ]);
   const allow = allowed.has(origin) ? origin : 'https://resumora.net';
   res.set('Access-Control-Allow-Origin', allow);
@@ -55,7 +59,7 @@ const adminHttpOpts = {
   memory: '512MiB',
   // Do not set invoker: 'public' — org policy blocks Cloud Run setIamPolicy(allUsers).
   // CI applies --no-invoker-iam-check (run.googleapis.com/invoker-iam-disabled: 'true').
-  secrets: [geminiApiKey, adminRefundPassword],
+  secrets: [geminiApiKey, adminRefundPassword, ...stripeApiSecrets],
 };
 
 function registerAdminEndpoints(exportsObj) {
@@ -133,6 +137,27 @@ function registerAdminEndpoints(exportsObj) {
       }
     }
   );
+
+  exportsObj.getMasterDashboard = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      selfHeal.assertAdminPassword(req, readAdminPassword());
+      const snapshot = await selfHeal.getHealthSnapshot(db);
+      const dashboard = await buildMasterDashboard(db, snapshot);
+      res.status(200).json({ ok: true, dashboard });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Master dashboard failed' });
+    }
+  });
 
   exportsObj.updateSystemManual = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);

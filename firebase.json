@@ -115,6 +115,14 @@
         "function": "videoDownload"
       },
       {
+        "source": "/api/chat/message",
+        "function": "sendChatMessage"
+      },
+      {
+        "source": "/api/chat/send",
+        "function": "sendChatMessage"
+      },
+      {
         "source": "/api/admin/system-health",
         "function": "getSystemHealth"
       },
@@ -131,12 +139,28 @@
         "function": "updateSystemManual"
       },
       {
+        "source": "/api/admin/master-dashboard",
+        "function": "getMasterDashboard"
+      },
+      {
         "source": "/admin/system-health",
-        "destination": "/index.html"
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
       },
       {
         "source": "/admin/**",
-        "destination": "/index.html"
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/bossmind",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/bossmind/**",
+        "destination": "/admin.html"
       },
       {
         "source": "/pricing",
