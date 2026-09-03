@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BossMind · NOIR LUXE Cockpit</title>
+    <meta name="description" content="BossMind Resumora executive cockpit. Mock visual only — not live portfolio data.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            background: #0B0B0C;
+            font-family: Segoe UI, Inter, system-ui, sans-serif;
+            color: #E8E6E3;
+            overflow: hidden;
+        }
+        .gold-text {
+            background: linear-gradient(135deg, #D4AF37 0%, #F9D976 50%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gold-border { border: 1px solid rgba(212, 175, 55, 0.3); }
+        .glass-card {
+            background: rgba(22, 22, 24, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .glass-card:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(212, 175, 55, 0.05);
+        }
+        .stagger-item { opacity: 0; animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .d1 { animation-delay: 0.05s; }
+        .d2 { animation-delay: 0.1s; }
+        .d3 { animation-delay: 0.15s; }
+        .d4 { animation-delay: 0.2s; }
+        .d5 { animation-delay: 0.25s; }
+        @keyframes fadeSlideUp {
+            0% { opacity: 0; transform: translateY(16px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0B0B0C; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+        .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; padding: 16px; gap: 16px; background: #0B0B0C; }
+        .sidebar {
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 32px 12px; width: 80px; flex-shrink: 0; border-radius: 32px;
+        }
+        .logo { font-size: 24px; font-weight: 700; font-family: Georgia, 'Playfair Display', serif; }
+        .icon-col { display: flex; flex-direction: column; gap: 16px; }
+        .sidebar-icon {
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; transition: 0.3s; cursor: pointer; color: #5a5a5e; font-size: 18px;
+        }
+        .sidebar-icon:hover, .sidebar-icon.active {
+            background: rgba(212, 175, 55, 0.12); color: #F9D976;
+        }
+        .main { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 4px; }
+        .topbar { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .muted { color: #a0a0a4; }
+        .tiny { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 300; }
+        .live-pill { font-size: 10px; padding: 4px 12px; border-radius: 999px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .kpi { border-radius: 20px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+        .kpi-label { font-size: 12px; font-weight: 300; color: #a0a0a4; text-transform: uppercase; letter-spacing: 0.08em; }
+        .kpi-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+        .kpi-val { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+        .chip { font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 999px; }
+        .pos { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+        .neg { color: #8B0000; background: rgba(139, 0, 0, 0.2); }
+        .bar { width: 100%; height: 2px; background: rgba(255,255,255,0.05); margin-top: 12px; border-radius: 999px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 999px; }
+        .gold-fill { background: linear-gradient(90deg, #D4AF37, #F9D976); }
+        .red-fill { background: #8B0000; }
+        .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; flex: 1; min-height: 240px; }
+        .panel { border-radius: 24px; padding: 24px; display: flex; flex-direction: column; }
+        .ledger-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 16px; }
+        .ledger-item:last-child { border: 0; }
+        .asset { font-size: 14px; font-weight: 500; }
+        .cp { font-size: 10px; color: #5a5a5e; }
+        .val-gold { color: #D4AF37; font-weight: 700; font-size: 14px; }
+        .val-red { color: #8B0000; font-weight: 700; font-size: 14px; }
+        .status { font-size: 9px; padding: 2px 8px; border-radius: 999px; display: inline-block; margin-top: 4px; }
+        .s-ok { background: rgba(46,204,113,0.1); color: #2ecc71; }
+        .s-pend { background: rgba(249,217,118,0.1); color: #F9D976; }
+        .s-bad { background: rgba(139,0,0,0.2); color: #8B0000; }
+        .footer { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .status-dot { width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 12px #2ecc71; display: inline-block; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #1a1a1c; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+        .counter-number { font-feature-settings: "tnum"; }
+        .audit { width: 100%; margin-top: 12px; text-align: center; font-size: 10px; color: #a0a0a4; background: none; border: 0; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
+        .audit:hover { color: #D4AF37; }
+        .chart-wrap { width: 100%; height: 180px; }
+        .heat { display: flex; align-items: center; gap: 6px; font-size: 10px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #D4AF37; display: inline-block; }
+        @media (max-width: 1100px) {
+            .kpi-grid, .row3 { grid-template-columns: 1fr 1fr; }
+            body { overflow: auto; }
+            .app { height: auto; min-height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="glass-card sidebar">
+            <div class="icon-col">
+                <div class="logo gold-text">N</div>
+                <div class="sidebar-icon active" title="Overview">📊</div>
+                <div class="sidebar-icon" title="Vault">🏦</div>
+                <div class="sidebar-icon" title="Estates">🏠</div>
+                <div class="sidebar-icon" title="Legal">⚖️</div>
+                <div class="sidebar-icon" title="Markets">📈</div>
+            </div>
+            <div class="icon-col">
+                <div class="sidebar-icon">🔔</div>
+                <div class="sidebar-icon" style="position:relative;">
+                    <span style="position:absolute;top:4px;right:4px;width:8px;height:8px;background:#D4AF37;border-radius:50%;"></span>
+                    👤
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="glass-card topbar stagger-item d1">
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <span class="tiny muted">BossMind · Resumora</span>
+                    <span class="live-pill gold-border gold-text">LIVE</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:32px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <span class="muted" style="font-size:12px;">Net Worth</span>
+                        <span id="netWorth" class="gold-text counter-number" style="font-size:20px;font-weight:700;">$0</span>
+                    </div>
+                    <div style="height:32px;width:1px;background:rgba(255,255,255,0.05);"></div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="status-dot"></span>
+                        <span class="muted" style="font-size:12px;">Concierge</span>
+                    </div>
+                    <div class="avatar gold-border">JC</div>
+                </div>
+            </div>
+            <div class="kpi-grid">
+                <div class="glass-card kpi stagger-item d1">
+                    <span class="kpi-label">Total Liquidity</span>
+                    <div class="kpi-row"><span class="kpi-val">$12.4M</span><span class="chip pos">+2.4%</span></div>
+                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                </div>
+                <div class="glass-card kpi stagger-item d2">
+                    <span class="kpi-label">YTD Return</span>
+                    <div class="kpi-row"><span class="kpi-val">18.6%</span><span class="chip pos">+0.8%</span></div>
+                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                </div>
+                <div class="glass-card kpi stagger-item d3">
+                    <span class="kpi-label">Risk Index</span>
+                    <div class="kpi-row"><span class="kpi-val">3.2</span><span class="chip neg">-0.4%</span></div>
+                    <div class="bar"><div class="bar-fill red-fill" style="width:32%"></div></div>
+                </div>
+                <div class="glass-card kpi stagger-item d4">
+                    <span class="kpi-label">Daily P&amp;L</span>
+                    <div class="kpi-row"><span id="dailyPnl" class="kpi-val">+$0</span><span class="chip pos">+1.2%</span></div>
+                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                </div>
+            </div>
+            <div class="row3">
+                <div class="glass-card panel stagger-item d2">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <span class="tiny muted">Liquidity Curve · 2026</span>
+                        <span class="live-pill" style="color:#D4AF37;border:1px solid rgba(212,175,55,0.2);">+12.4%</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <svg viewBox="0 0 640 180" width="100%" height="180" preserveAspectRatio="none" aria-label="Liquidity curve">
+                            <defs>
+                                <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stop-color="#D4AF37" stop-opacity="0.4"/>
+                                    <stop offset="95%" stop-color="#D4AF37" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <line x1="40" y1="20" x2="40" y2="150" stroke="#ffffff14"/>
+                            <line x1="40" y1="150" x2="620" y2="150" stroke="#ffffff14"/>
+                            <polyline fill="url(#goldGrad)" stroke="none"
+                                points="40,150 40,108 136,90 232,101 328,66 424,46 520,26 616,0 616,150"/>
+                            <polyline fill="none" stroke="#D4AF37" stroke-width="2"
+                                points="40,108 136,90 232,101 328,66 424,46 520,26 616,0"/>
+                            <g fill="#5a5a5e" font-size="10" font-family="Segoe UI, sans-serif">
+                                <text x="36" y="168">Jan</text>
+                                <text x="126" y="168">Feb</text>
+                                <text x="222" y="168">Mar</text>
+                                <text x="318" y="168">Apr</text>
+                                <text x="414" y="168">May</text>
+                                <text x="510" y="168">Jun</text>
+                                <text x="600" y="168">Jul</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <div class="glass-card panel stagger-item d3">
+                    <span class="tiny muted" style="margin-bottom:16px;display:block;">Live Ledger</span>
+                    <div id="ledger"></div>
+                    <button class="audit" type="button">View Full Audit Trail →</button>
+                </div>
+            </div>
+            <div class="glass-card footer stagger-item d4">
+                <div style="display:flex;align-items:center;gap:24px;">
+                    <span class="tiny muted">Global Asset Heatmap</span>
+                    <span class="heat"><span class="dot"></span> Zurich</span>
+                    <span class="heat"><span class="dot" style="opacity:0.6;"></span> NYC</span>
+                    <span class="heat"><span class="dot" style="opacity:0.2;"></span> Singapore</span>
+                </div>
+                <div class="muted" style="font-size:10px;display:flex;align-items:center;gap:8px;">
+                    <span>Last updated 2s ago</span>
+                    <span class="status-dot" style="width:6px;height:6px;"></span>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        (function () {
+            function animateCount(el, target, prefix, duration) {
+                var startTime = null;
+                function tick(time) {
+                    if (!startTime) startTime = time;
+                    var progress = Math.min((time - startTime) / duration, 1);
+                    var ease = 1 - Math.pow(1 - progress, 3);
+                    var n = Math.floor(ease * target);
+                    el.textContent = prefix + n.toLocaleString();
+                    if (progress < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            }
+            animateCount(document.getElementById('netWorth'), 28470000, '$', 2000);
+            animateCount(document.getElementById('dailyPnl'), 184200, '+$', 2000);
+
+            var transactions = [
+                { asset: 'Gold Bullion', counterparty: 'Zurich Vaults', value: '+$4.2M', status: 'Settled' },
+                { asset: 'Tech Equities', counterparty: 'NYSE Arc', value: '-$1.8M', status: 'Under Review' },
+                { asset: 'Private Equity', counterparty: 'Blackstone LP', value: '+$9.7M', status: 'Pending' },
+                { asset: 'Real Estate', counterparty: 'Mayfair Trust', value: '+$2.3M', status: 'Settled' },
+                { asset: 'Crypto Treasury', counterparty: 'Binance Institutional', value: '-$0.9M', status: 'Settled' }
+            ];
+            var host = document.getElementById('ledger');
+            transactions.forEach(function (tx) {
+                var pos = tx.value.indexOf('+') === 0;
+                var st = tx.status === 'Settled' ? 's-ok' : (tx.status === 'Pending' ? 's-pend' : 's-bad');
+                var row = document.createElement('div');
+                row.className = 'ledger-item';
+                row.innerHTML =
+                    '<div><div class="asset"></div><div class="cp"></div></div>' +
+                    '<div style="text-align:right;"><div class="' + (pos ? 'val-gold' : 'val-red') + '"></div>' +
+                    '<div class="status ' + st + '"></div></div>';
+                row.querySelector('.asset').textContent = tx.asset;
+                row.querySelector('.cp').textContent = tx.counterparty;
+                row.querySelector('.val-gold, .val-red').textContent = tx.value;
+                row.querySelector('.status').textContent = tx.status;
+                host.appendChild(row);
+            });
+        })();
+    </script>
+</body>
+</html>

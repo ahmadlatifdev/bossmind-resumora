@@ -33,6 +33,14 @@ export default function AdminShell() {
               {t(lang, link.key)}
             </NavLink>
           ))}
+          <a
+            className="admin-master__nav-link"
+            href="/admin-dashboard.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t(lang, 'master.nav.cockpit')}
+          </a>
         </nav>
       </aside>
       <div className="admin-master__main-wrap">
