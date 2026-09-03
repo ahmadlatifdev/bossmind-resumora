@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BossMind · NOIR LUXE Cockpit</title>
-    <meta name="description" content="BossMind Resumora executive cockpit. Mock visual only — not live portfolio data.">
+    <meta name="description" content="BossMind Resumora executive cockpit. Demo portfolio visuals plus live links into Master Admin.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
@@ -27,21 +27,17 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.04);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.25s ease;
         }
         .glass-card:hover {
             border-color: rgba(212, 175, 55, 0.25);
-            transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(212, 175, 55, 0.05);
         }
-        .stagger-item { opacity: 0; animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .d1 { animation-delay: 0.05s; }
-        .d2 { animation-delay: 0.1s; }
-        .d3 { animation-delay: 0.15s; }
-        .d4 { animation-delay: 0.2s; }
-        .d5 { animation-delay: 0.25s; }
+        .stagger-item { opacity: 0; animation: fadeSlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; }
+        .d3 { animation-delay: 0.15s; } .d4 { animation-delay: 0.2s; }
         @keyframes fadeSlideUp {
-            0% { opacity: 0; transform: translateY(16px); }
+            0% { opacity: 0; transform: translateY(14px); }
             100% { opacity: 1; transform: translateY(0); }
         }
         ::-webkit-scrollbar { width: 4px; }
@@ -52,212 +48,584 @@
             display: flex; flex-direction: column; align-items: center; justify-content: space-between;
             padding: 32px 12px; width: 80px; flex-shrink: 0; border-radius: 32px;
         }
-        .logo { font-size: 24px; font-weight: 700; font-family: Georgia, 'Playfair Display', serif; }
-        .icon-col { display: flex; flex-direction: column; gap: 16px; }
+        .logo { font-size: 24px; font-weight: 700; font-family: Georgia, serif; cursor: pointer; }
+        .icon-col { display: flex; flex-direction: column; gap: 14px; align-items: center; }
         .sidebar-icon {
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            border-radius: 12px; transition: 0.3s; cursor: pointer; color: #5a5a5e; font-size: 18px;
+            border-radius: 12px; transition: 0.2s; cursor: pointer; color: #5a5a5e; font-size: 18px;
+            border: 0; background: transparent; position: relative;
         }
         .sidebar-icon:hover, .sidebar-icon.active {
             background: rgba(212, 175, 55, 0.12); color: #F9D976;
         }
-        .main { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 4px; }
-        .topbar { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-icon:focus-visible { outline: 1px solid #D4AF37; outline-offset: 2px; }
+        .badge-dot {
+            position: absolute; top: 4px; right: 4px; width: 8px; height: 8px;
+            background: #D4AF37; border-radius: 50%; box-shadow: 0 0 8px #D4AF37;
+        }
+        .main { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-right: 4px; min-width: 0; }
+        .topbar { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
         .muted { color: #a0a0a4; }
-        .tiny { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 300; }
+        .tiny { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 300; }
         .live-pill { font-size: 10px; padding: 4px 12px; border-radius: 999px; }
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .kpi { border-radius: 20px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; }
+        .kpi { border-radius: 20px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
+        .kpi:focus-visible { outline: 1px solid #D4AF37; }
         .kpi-label { font-size: 12px; font-weight: 300; color: #a0a0a4; text-transform: uppercase; letter-spacing: 0.08em; }
-        .kpi-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+        .kpi-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; gap: 8px; }
         .kpi-val { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
         .chip { font-size: 12px; font-weight: 500; padding: 4px 8px; border-radius: 999px; }
         .pos { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
-        .neg { color: #8B0000; background: rgba(139, 0, 0, 0.2); }
+        .neg { color: #c45c5c; background: rgba(139, 0, 0, 0.25); }
         .bar { width: 100%; height: 2px; background: rgba(255,255,255,0.05); margin-top: 12px; border-radius: 999px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 999px; }
+        .bar-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
         .gold-fill { background: linear-gradient(90deg, #D4AF37, #F9D976); }
         .red-fill { background: #8B0000; }
         .row3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; flex: 1; min-height: 240px; }
         .panel { border-radius: 24px; padding: 24px; display: flex; flex-direction: column; }
-        .ledger-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 16px; }
+        .ledger-item {
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 14px;
+            cursor: pointer; border-radius: 8px; padding: 8px; margin-left: -8px; margin-right: -8px;
+        }
+        .ledger-item:hover { background: rgba(212,175,55,0.06); }
         .ledger-item:last-child { border: 0; }
         .asset { font-size: 14px; font-weight: 500; }
         .cp { font-size: 10px; color: #5a5a5e; }
         .val-gold { color: #D4AF37; font-weight: 700; font-size: 14px; }
-        .val-red { color: #8B0000; font-weight: 700; font-size: 14px; }
+        .val-red { color: #c45c5c; font-weight: 700; font-size: 14px; }
         .status { font-size: 9px; padding: 2px 8px; border-radius: 999px; display: inline-block; margin-top: 4px; }
         .s-ok { background: rgba(46,204,113,0.1); color: #2ecc71; }
         .s-pend { background: rgba(249,217,118,0.1); color: #F9D976; }
-        .s-bad { background: rgba(139,0,0,0.2); color: #8B0000; }
-        .footer { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .s-bad { background: rgba(139,0,0,0.25); color: #c45c5c; }
+        .footer { border-radius: 24px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
         .status-dot { width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 12px #2ecc71; display: inline-block; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #1a1a1c; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+        .avatar, .pill-btn {
+            width: 40px; height: 40px; border-radius: 50%; background: #1a1a1c; display: flex;
+            align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
+            cursor: pointer; border: 1px solid rgba(212,175,55,0.3); color: inherit;
+        }
+        .pill-btn { width: auto; border-radius: 999px; padding: 0 14px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
         .counter-number { font-feature-settings: "tnum"; }
-        .audit { width: 100%; margin-top: 12px; text-align: center; font-size: 10px; color: #a0a0a4; background: none; border: 0; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
-        .audit:hover { color: #D4AF37; }
+        .audit, .link-btn {
+            width: 100%; margin-top: 12px; text-align: center; font-size: 10px; color: #a0a0a4;
+            background: none; border: 0; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
+            text-decoration: none; display: inline-block;
+        }
+        .audit:hover, .link-btn:hover { color: #D4AF37; }
         .chart-wrap { width: 100%; height: 180px; }
-        .heat { display: flex; align-items: center; gap: 6px; font-size: 10px; }
+        .heat { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; cursor: pointer; padding: 4px 8px; border-radius: 999px; border: 1px solid transparent; }
+        .heat.active, .heat:hover { border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.08); }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #D4AF37; display: inline-block; }
+        .view { display: none; flex-direction: column; gap: 16px; flex: 1; }
+        .view.active { display: flex; }
+        .demo-banner {
+            font-size: 11px; color: #a0a0a4; border: 1px dashed rgba(212,175,55,0.35);
+            border-radius: 12px; padding: 10px 14px; background: rgba(212,175,55,0.04);
+        }
+        .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .btn {
+            border: 1px solid rgba(212,175,55,0.35); background: rgba(212,175,55,0.08);
+            color: #F9D976; border-radius: 999px; padding: 8px 14px; font-size: 12px; cursor: pointer;
+        }
+        .btn:hover { background: rgba(212,175,55,0.18); }
+        .btn.ghost { background: transparent; color: #a0a0a4; border-color: rgba(255,255,255,0.12); }
+        .list-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; }
+        .toast {
+            position: fixed; right: 24px; bottom: 24px; z-index: 50; min-width: 240px; max-width: 360px;
+            background: #161618; border: 1px solid rgba(212,175,55,0.35); border-radius: 14px;
+            padding: 14px 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.45); display: none;
+        }
+        .toast.show { display: block; animation: fadeSlideUp 0.35s ease; }
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 40;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal {
+            width: min(480px, 100%); border-radius: 20px; padding: 22px; background: #161618;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .modal h3 { margin-bottom: 8px; font-size: 18px; }
+        .modal p { color: #a0a0a4; font-size: 13px; line-height: 1.5; margin-bottom: 16px; }
+        .notif-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+        .notif-item:last-child { border: 0; }
         @media (max-width: 1100px) {
             .kpi-grid, .row3 { grid-template-columns: 1fr 1fr; }
             body { overflow: auto; }
             .app { height: auto; min-height: 100vh; }
         }
+        @media (max-width: 720px) {
+            .kpi-grid, .row3 { grid-template-columns: 1fr; }
+            .sidebar { width: 64px; padding: 20px 8px; }
+        }
     </style>
 </head>
 <body>
     <div class="app">
-        <aside class="glass-card sidebar">
+        <aside class="glass-card sidebar" aria-label="Cockpit navigation">
             <div class="icon-col">
-                <div class="logo gold-text">N</div>
-                <div class="sidebar-icon active" title="Overview">📊</div>
-                <div class="sidebar-icon" title="Vault">🏦</div>
-                <div class="sidebar-icon" title="Estates">🏠</div>
-                <div class="sidebar-icon" title="Legal">⚖️</div>
-                <div class="sidebar-icon" title="Markets">📈</div>
+                <button type="button" class="logo gold-text" id="navLogo" title="Overview" aria-label="BossMind overview">N</button>
+                <button type="button" class="sidebar-icon active" data-view="overview" title="Overview" aria-label="Overview">📊</button>
+                <button type="button" class="sidebar-icon" data-view="vault" title="Vault / Billing" aria-label="Vault">🏦</button>
+                <button type="button" class="sidebar-icon" data-view="estates" title="Estates / Projects" aria-label="Estates">🏠</button>
+                <button type="button" class="sidebar-icon" data-view="legal" title="Legal / Refunds" aria-label="Legal">⚖️</button>
+                <button type="button" class="sidebar-icon" data-view="markets" title="Markets / AI Agents" aria-label="Markets">📈</button>
             </div>
             <div class="icon-col">
-                <div class="sidebar-icon">🔔</div>
-                <div class="sidebar-icon" style="position:relative;">
-                    <span style="position:absolute;top:4px;right:4px;width:8px;height:8px;background:#D4AF37;border-radius:50%;"></span>
-                    👤
-                </div>
+                <button type="button" class="sidebar-icon" data-view="alerts" title="Alerts" aria-label="Alerts" id="navAlerts">
+                    <span class="badge-dot" id="alertBadge"></span>🔔
+                </button>
+                <button type="button" class="sidebar-icon" data-view="profile" title="Profile / Admin" aria-label="Profile" id="navProfile">👤</button>
             </div>
         </aside>
+
         <main class="main">
             <div class="glass-card topbar stagger-item d1">
-                <div style="display:flex;align-items:center;gap:16px;">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
                     <span class="tiny muted">BossMind · Resumora</span>
-                    <span class="live-pill gold-border gold-text">LIVE</span>
+                    <span class="live-pill gold-border gold-text" id="livePill">LIVE</span>
+                    <span class="tiny muted" id="viewLabel">Overview</span>
                 </div>
-                <div style="display:flex;align-items:center;gap:32px;">
+                <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:12px;">
                         <span class="muted" style="font-size:12px;">Net Worth</span>
                         <span id="netWorth" class="gold-text counter-number" style="font-size:20px;font-weight:700;">$0</span>
                     </div>
                     <div style="height:32px;width:1px;background:rgba(255,255,255,0.05);"></div>
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="status-dot"></span>
-                        <span class="muted" style="font-size:12px;">Concierge</span>
-                    </div>
-                    <div class="avatar gold-border">JC</div>
+                    <button type="button" class="pill-btn" id="conciergeBtn" title="Open Master Admin">
+                        <span class="status-dot" style="margin-right:8px;"></span>Concierge
+                    </button>
+                    <button type="button" class="avatar gold-border" id="avatarBtn" title="Admin console">JC</button>
                 </div>
             </div>
-            <div class="kpi-grid">
-                <div class="glass-card kpi stagger-item d1">
-                    <span class="kpi-label">Total Liquidity</span>
-                    <div class="kpi-row"><span class="kpi-val">$12.4M</span><span class="chip pos">+2.4%</span></div>
-                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
-                </div>
-                <div class="glass-card kpi stagger-item d2">
-                    <span class="kpi-label">YTD Return</span>
-                    <div class="kpi-row"><span class="kpi-val">18.6%</span><span class="chip pos">+0.8%</span></div>
-                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
-                </div>
-                <div class="glass-card kpi stagger-item d3">
-                    <span class="kpi-label">Risk Index</span>
-                    <div class="kpi-row"><span class="kpi-val">3.2</span><span class="chip neg">-0.4%</span></div>
-                    <div class="bar"><div class="bar-fill red-fill" style="width:32%"></div></div>
-                </div>
-                <div class="glass-card kpi stagger-item d4">
-                    <span class="kpi-label">Daily P&amp;L</span>
-                    <div class="kpi-row"><span id="dailyPnl" class="kpi-val">+$0</span><span class="chip pos">+1.2%</span></div>
-                    <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
-                </div>
+
+            <div class="demo-banner stagger-item d1">
+                Demo portfolio figures for executive UI. Operational controls open live Master Admin / Hermes surfaces on resumora.net.
             </div>
-            <div class="row3">
-                <div class="glass-card panel stagger-item d2">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                        <span class="tiny muted">Liquidity Curve · 2026</span>
-                        <span class="live-pill" style="color:#D4AF37;border:1px solid rgba(212,175,55,0.2);">+12.4%</span>
+
+            <!-- OVERVIEW -->
+            <section class="view active" id="view-overview">
+                <div class="kpi-grid">
+                    <button type="button" class="glass-card kpi stagger-item d1" data-kpi="liquidity">
+                        <span class="kpi-label">Total Liquidity</span>
+                        <div class="kpi-row"><span class="kpi-val">$12.4M</span><span class="chip pos">+2.4%</span></div>
+                        <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                    </button>
+                    <button type="button" class="glass-card kpi stagger-item d2" data-kpi="ytd">
+                        <span class="kpi-label">YTD Return</span>
+                        <div class="kpi-row"><span class="kpi-val">18.6%</span><span class="chip pos">+0.8%</span></div>
+                        <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                    </button>
+                    <button type="button" class="glass-card kpi stagger-item d3" data-kpi="risk">
+                        <span class="kpi-label">Risk Index</span>
+                        <div class="kpi-row"><span class="kpi-val">3.2</span><span class="chip neg">-0.4%</span></div>
+                        <div class="bar"><div class="bar-fill red-fill" style="width:32%"></div></div>
+                    </button>
+                    <button type="button" class="glass-card kpi stagger-item d4" data-kpi="pnl">
+                        <span class="kpi-label">Daily P&amp;L</span>
+                        <div class="kpi-row"><span id="dailyPnl" class="kpi-val">+$0</span><span class="chip pos">+1.2%</span></div>
+                        <div class="bar"><div class="bar-fill gold-fill" style="width:78%"></div></div>
+                    </button>
+                </div>
+                <div class="row3">
+                    <div class="glass-card panel stagger-item d2">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <span class="tiny muted">Liquidity Curve · 2026</span>
+                            <span class="live-pill" style="color:#D4AF37;border:1px solid rgba(212,175,55,0.2);">+12.4%</span>
+                        </div>
+                        <div class="chart-wrap">
+                            <svg viewBox="0 0 640 180" width="100%" height="180" preserveAspectRatio="none" aria-label="Liquidity curve">
+                                <defs>
+                                    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stop-color="#D4AF37" stop-opacity="0.4"/>
+                                        <stop offset="95%" stop-color="#D4AF37" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                <line x1="40" y1="20" x2="40" y2="150" stroke="#ffffff14"/>
+                                <line x1="40" y1="150" x2="620" y2="150" stroke="#ffffff14"/>
+                                <polyline fill="url(#goldGrad)" stroke="none"
+                                    points="40,150 40,108 136,90 232,101 328,66 424,46 520,26 616,0 616,150"/>
+                                <polyline fill="none" stroke="#D4AF37" stroke-width="2"
+                                    points="40,108 136,90 232,101 328,66 424,46 520,26 616,0"/>
+                                <g fill="#5a5a5e" font-size="10" font-family="Segoe UI, sans-serif">
+                                    <text x="36" y="168">Jan</text><text x="126" y="168">Feb</text>
+                                    <text x="222" y="168">Mar</text><text x="318" y="168">Apr</text>
+                                    <text x="414" y="168">May</text><text x="510" y="168">Jun</text>
+                                    <text x="600" y="168">Jul</text>
+                                </g>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="chart-wrap">
-                        <svg viewBox="0 0 640 180" width="100%" height="180" preserveAspectRatio="none" aria-label="Liquidity curve">
-                            <defs>
-                                <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stop-color="#D4AF37" stop-opacity="0.4"/>
-                                    <stop offset="95%" stop-color="#D4AF37" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-                            <line x1="40" y1="20" x2="40" y2="150" stroke="#ffffff14"/>
-                            <line x1="40" y1="150" x2="620" y2="150" stroke="#ffffff14"/>
-                            <polyline fill="url(#goldGrad)" stroke="none"
-                                points="40,150 40,108 136,90 232,101 328,66 424,46 520,26 616,0 616,150"/>
-                            <polyline fill="none" stroke="#D4AF37" stroke-width="2"
-                                points="40,108 136,90 232,101 328,66 424,46 520,26 616,0"/>
-                            <g fill="#5a5a5e" font-size="10" font-family="Segoe UI, sans-serif">
-                                <text x="36" y="168">Jan</text>
-                                <text x="126" y="168">Feb</text>
-                                <text x="222" y="168">Mar</text>
-                                <text x="318" y="168">Apr</text>
-                                <text x="414" y="168">May</text>
-                                <text x="510" y="168">Jun</text>
-                                <text x="600" y="168">Jul</text>
-                            </g>
-                        </svg>
+                    <div class="glass-card panel stagger-item d3">
+                        <span class="tiny muted" style="margin-bottom:16px;display:block;">Live Ledger</span>
+                        <div id="ledger"></div>
+                        <button class="audit" type="button" id="auditBtn">View Full Audit Trail →</button>
                     </div>
                 </div>
-                <div class="glass-card panel stagger-item d3">
-                    <span class="tiny muted" style="margin-bottom:16px;display:block;">Live Ledger</span>
-                    <div id="ledger"></div>
-                    <button class="audit" type="button">View Full Audit Trail →</button>
+            </section>
+
+            <!-- VAULT -->
+            <section class="view" id="view-vault">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Vault · Billing &amp; Checkout</span>
+                    <h2 style="margin:10px 0 8px;font-size:22px;" class="gold-text">Stripe / plan vault</h2>
+                    <p class="muted" style="font-size:13px;line-height:1.5;">Open live billing, refunds preview, and revenue tools in Master Admin.</p>
+                    <div class="action-row">
+                        <a class="btn" href="/admin/refunds">Refunds console</a>
+                        <a class="btn ghost" href="/admin/master">Master Admin</a>
+                        <a class="btn ghost" href="/pricing.html">Public pricing</a>
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- ESTATES / PROJECTS -->
+            <section class="view" id="view-estates">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Estates · Project Orchestration</span>
+                    <h2 style="margin:10px 0 12px;font-size:22px;" class="gold-text">BossMind projects</h2>
+                    <div id="projects"></div>
+                    <div class="action-row">
+                        <a class="btn" href="/admin/master#orchestration">Open orchestration</a>
+                        <a class="btn ghost" href="/admin/system-health">System health</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEGAL -->
+            <section class="view" id="view-legal">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Legal · Compliance</span>
+                    <h2 style="margin:10px 0 8px;font-size:22px;" class="gold-text">Refunds &amp; policy controls</h2>
+                    <p class="muted" style="font-size:13px;">Settle Under Review / Pending ledger items locally, or jump to live refund tooling.</p>
+                    <div class="action-row">
+                        <button type="button" class="btn" id="settleAllBtn">Settle pending ledger items</button>
+                        <a class="btn ghost" href="/admin/refunds">Live refunds</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MARKETS / AGENTS -->
+            <section class="view" id="view-markets">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Markets · AI Agents</span>
+                    <h2 style="margin:10px 0 8px;font-size:22px;" class="gold-text">Hermes control plane</h2>
+                    <p class="muted" style="font-size:13px;margin-bottom:12px;">Activate Hermes status, insights, and project commands from Master Admin.</p>
+                    <div class="action-row">
+                        <a class="btn" href="/admin/master#agents">AI Agents panel</a>
+                        <a class="btn ghost" href="/admin/master#orchestration">Project commands</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ALERTS -->
+            <section class="view" id="view-alerts">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Alerts</span>
+                    <h2 style="margin:10px 0 12px;font-size:22px;" class="gold-text">Notification center</h2>
+                    <div id="alertsList"></div>
+                    <div class="action-row">
+                        <button type="button" class="btn" id="clearAlertsBtn">Mark all read</button>
+                        <a class="btn ghost" href="/admin/system-health">System health</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROFILE -->
+            <section class="view" id="view-profile">
+                <div class="glass-card panel">
+                    <span class="tiny muted">Profile</span>
+                    <h2 style="margin:10px 0 8px;font-size:22px;" class="gold-text">Operator · JC</h2>
+                    <p class="muted" style="font-size:13px;">Admin gate uses your existing Master Admin password — never stored in this page.</p>
+                    <div class="action-row">
+                        <a class="btn" href="/admin/master">Unlock Master Admin</a>
+                        <a class="btn ghost" href="/admin/master#settings">Settings</a>
+                    </div>
+                </div>
+            </section>
+
             <div class="glass-card footer stagger-item d4">
-                <div style="display:flex;align-items:center;gap:24px;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                     <span class="tiny muted">Global Asset Heatmap</span>
-                    <span class="heat"><span class="dot"></span> Zurich</span>
-                    <span class="heat"><span class="dot" style="opacity:0.6;"></span> NYC</span>
-                    <span class="heat"><span class="dot" style="opacity:0.2;"></span> Singapore</span>
+                    <button type="button" class="heat active" data-city="Zurich"><span class="dot"></span> Zurich</button>
+                    <button type="button" class="heat" data-city="NYC"><span class="dot" style="opacity:0.6;"></span> NYC</button>
+                    <button type="button" class="heat" data-city="Singapore"><span class="dot" style="opacity:0.2;"></span> Singapore</button>
                 </div>
                 <div class="muted" style="font-size:10px;display:flex;align-items:center;gap:8px;">
-                    <span>Last updated 2s ago</span>
+                    <span id="lastUpdated">Last updated just now</span>
                     <span class="status-dot" style="width:6px;height:6px;"></span>
                 </div>
             </div>
         </main>
     </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-backdrop" id="modal" aria-hidden="true">
+        <div class="modal glass-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <h3 id="modalTitle">Details</h3>
+            <p id="modalBody"></p>
+            <div class="action-row" id="modalActions"></div>
+        </div>
+    </div>
+
     <script>
         (function () {
+            var viewNames = {
+                overview: 'Overview',
+                vault: 'Vault',
+                estates: 'Estates',
+                legal: 'Legal',
+                markets: 'Markets',
+                alerts: 'Alerts',
+                profile: 'Profile'
+            };
+
+            var transactions = [
+                { id: 'gold', asset: 'Gold Bullion', counterparty: 'Zurich Vaults', value: '+$4.2M', status: 'Settled' },
+                { id: 'tech', asset: 'Tech Equities', counterparty: 'NYSE Arc', value: '-$1.8M', status: 'Under Review' },
+                { id: 'pe', asset: 'Private Equity', counterparty: 'Blackstone LP', value: '+$9.7M', status: 'Pending' },
+                { id: 're', asset: 'Real Estate', counterparty: 'Mayfair Trust', value: '+$2.3M', status: 'Settled' },
+                { id: 'crypto', asset: 'Crypto Treasury', counterparty: 'Binance Institutional', value: '-$0.9M', status: 'Settled' }
+            ];
+
+            var projects = [
+                { id: 'resumora', name: 'Resumora', status: 'active', href: 'https://resumora.net' },
+                { id: 'elegancyart', name: 'ElegancyArt', status: 'building', href: '/admin/master#orchestration' },
+                { id: 'ai-video', name: 'AI Video Generator', status: 'paused', href: '/admin/master#orchestration' },
+                { id: 'tiktok-ai', name: 'TikTok AI', status: 'paused', href: '/admin/master#orchestration' },
+                { id: 'global-stock', name: 'Global Stock', status: 'building', href: '/admin/master#orchestration' }
+            ];
+
+            var alerts = [
+                { id: 1, text: 'Tech Equities ledger item is Under Review.', unread: true },
+                { id: 2, text: 'Private Equity allocation Pending settlement.', unread: true },
+                { id: 3, text: 'Hermes harness APIs deployed on resumora-live.', unread: true }
+            ];
+
+            function $(id) { return document.getElementById(id); }
+
+            function toast(msg) {
+                var el = $('toast');
+                el.textContent = msg;
+                el.classList.add('show');
+                clearTimeout(toast._t);
+                toast._t = setTimeout(function () { el.classList.remove('show'); }, 2800);
+            }
+
+            function touchUpdated() {
+                $('lastUpdated').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+            }
+
             function animateCount(el, target, prefix, duration) {
                 var startTime = null;
                 function tick(time) {
                     if (!startTime) startTime = time;
                     var progress = Math.min((time - startTime) / duration, 1);
                     var ease = 1 - Math.pow(1 - progress, 3);
-                    var n = Math.floor(ease * target);
-                    el.textContent = prefix + n.toLocaleString();
+                    el.textContent = prefix + Math.floor(ease * target).toLocaleString();
                     if (progress < 1) requestAnimationFrame(tick);
                 }
                 requestAnimationFrame(tick);
             }
-            animateCount(document.getElementById('netWorth'), 28470000, '$', 2000);
-            animateCount(document.getElementById('dailyPnl'), 184200, '+$', 2000);
 
-            var transactions = [
-                { asset: 'Gold Bullion', counterparty: 'Zurich Vaults', value: '+$4.2M', status: 'Settled' },
-                { asset: 'Tech Equities', counterparty: 'NYSE Arc', value: '-$1.8M', status: 'Under Review' },
-                { asset: 'Private Equity', counterparty: 'Blackstone LP', value: '+$9.7M', status: 'Pending' },
-                { asset: 'Real Estate', counterparty: 'Mayfair Trust', value: '+$2.3M', status: 'Settled' },
-                { asset: 'Crypto Treasury', counterparty: 'Binance Institutional', value: '-$0.9M', status: 'Settled' }
-            ];
-            var host = document.getElementById('ledger');
-            transactions.forEach(function (tx) {
-                var pos = tx.value.indexOf('+') === 0;
-                var st = tx.status === 'Settled' ? 's-ok' : (tx.status === 'Pending' ? 's-pend' : 's-bad');
-                var row = document.createElement('div');
-                row.className = 'ledger-item';
-                row.innerHTML =
-                    '<div><div class="asset"></div><div class="cp"></div></div>' +
-                    '<div style="text-align:right;"><div class="' + (pos ? 'val-gold' : 'val-red') + '"></div>' +
-                    '<div class="status ' + st + '"></div></div>';
-                row.querySelector('.asset').textContent = tx.asset;
-                row.querySelector('.cp').textContent = tx.counterparty;
-                row.querySelector('.val-gold, .val-red').textContent = tx.value;
-                row.querySelector('.status').textContent = tx.status;
-                host.appendChild(row);
+            function setView(name) {
+                Object.keys(viewNames).forEach(function (key) {
+                    var section = $('view-' + key);
+                    if (section) section.classList.toggle('active', key === name);
+                });
+                document.querySelectorAll('.sidebar-icon[data-view]').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.getAttribute('data-view') === name);
+                });
+                $('viewLabel').textContent = viewNames[name] || name;
+                history.replaceState(null, '', '#' + name);
+                toast('Switched to ' + (viewNames[name] || name));
+                touchUpdated();
+            }
+
+            function statusClass(status) {
+                if (status === 'Settled') return 's-ok';
+                if (status === 'Pending') return 's-pend';
+                return 's-bad';
+            }
+
+            function renderLedger() {
+                var host = $('ledger');
+                host.innerHTML = '';
+                transactions.forEach(function (tx) {
+                    var pos = tx.value.indexOf('+') === 0;
+                    var row = document.createElement('div');
+                    row.className = 'ledger-item';
+                    row.setAttribute('role', 'button');
+                    row.tabIndex = 0;
+                    row.innerHTML =
+                        '<div><div class="asset"></div><div class="cp"></div></div>' +
+                        '<div style="text-align:right;"><div class="' + (pos ? 'val-gold' : 'val-red') + '"></div>' +
+                        '<div class="status ' + statusClass(tx.status) + '"></div></div>';
+                    row.querySelector('.asset').textContent = tx.asset;
+                    row.querySelector('.cp').textContent = tx.counterparty;
+                    row.querySelector('.val-gold, .val-red').textContent = tx.value;
+                    row.querySelector('.status').textContent = tx.status;
+                    row.addEventListener('click', function () { openLedger(tx.id); });
+                    row.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLedger(tx.id); }
+                    });
+                    host.appendChild(row);
+                });
+                updateAlertBadge();
+            }
+
+            function renderProjects() {
+                var host = $('projects');
+                host.innerHTML = '';
+                projects.forEach(function (p) {
+                    var card = document.createElement('div');
+                    card.className = 'glass-card list-card';
+                    card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
+                        '<div><div class="asset"></div><div class="cp"></div></div>' +
+                        '<a class="btn ghost" href=""></a></div>';
+                    card.querySelector('.asset').textContent = p.name;
+                    card.querySelector('.cp').textContent = 'status: ' + p.status;
+                    var a = card.querySelector('a');
+                    a.href = p.href;
+                    a.textContent = p.id === 'resumora' ? 'Open live' : 'Orchestrate';
+                    host.appendChild(card);
+                });
+            }
+
+            function renderAlerts() {
+                var host = $('alertsList');
+                host.innerHTML = '';
+                if (!alerts.length) {
+                    host.innerHTML = '<p class="muted" style="font-size:13px;">No alerts.</p>';
+                    return;
+                }
+                alerts.forEach(function (a) {
+                    var row = document.createElement('div');
+                    row.className = 'notif-item';
+                    row.textContent = (a.unread ? '● ' : '○ ') + a.text;
+                    host.appendChild(row);
+                });
+            }
+
+            function updateAlertBadge() {
+                var unread = alerts.filter(function (a) { return a.unread; }).length +
+                    transactions.filter(function (t) { return t.status !== 'Settled'; }).length;
+                var badge = $('alertBadge');
+                badge.style.display = unread > 0 ? 'block' : 'none';
+            }
+
+            function openModal(title, body, actions) {
+                $('modalTitle').textContent = title;
+                $('modalBody').textContent = body;
+                var actionsHost = $('modalActions');
+                actionsHost.innerHTML = '';
+                (actions || []).forEach(function (act) {
+                    var b = document.createElement(act.href ? 'a' : 'button');
+                    b.className = 'btn' + (act.ghost ? ' ghost' : '');
+                    if (act.href) { b.href = act.href; } else { b.type = 'button'; }
+                    b.textContent = act.label;
+                    if (act.onClick) b.addEventListener('click', act.onClick);
+                    actionsHost.appendChild(b);
+                });
+                var close = document.createElement('button');
+                close.type = 'button';
+                close.className = 'btn ghost';
+                close.textContent = 'Close';
+                close.addEventListener('click', closeModal);
+                actionsHost.appendChild(close);
+                $('modal').classList.add('show');
+                $('modal').setAttribute('aria-hidden', 'false');
+            }
+
+            function closeModal() {
+                $('modal').classList.remove('show');
+                $('modal').setAttribute('aria-hidden', 'true');
+            }
+
+            function openLedger(id) {
+                var tx = transactions.find(function (t) { return t.id === id; });
+                if (!tx) return;
+                var actions = [];
+                if (tx.status !== 'Settled') {
+                    actions.push({
+                        label: 'Mark Settled',
+                        onClick: function () {
+                            tx.status = 'Settled';
+                            renderLedger();
+                            closeModal();
+                            toast(tx.asset + ' marked Settled');
+                            touchUpdated();
+                        }
+                    });
+                }
+                actions.push({ label: 'Open refunds', href: '/admin/refunds', ghost: true });
+                openModal(
+                    tx.asset,
+                    tx.counterparty + ' · ' + tx.value + ' · ' + tx.status + '\n\nDemo ledger row. Settling updates this page only.',
+                    actions
+                );
+            }
+
+            // Nav
+            document.querySelectorAll('.sidebar-icon[data-view]').forEach(function (btn) {
+                btn.addEventListener('click', function () { setView(btn.getAttribute('data-view')); });
             });
+            $('navLogo').addEventListener('click', function () { setView('overview'); });
+            $('conciergeBtn').addEventListener('click', function () { window.location.href = '/admin/master'; });
+            $('avatarBtn').addEventListener('click', function () { setView('profile'); });
+            $('auditBtn').addEventListener('click', function () {
+                openModal('Audit trail', 'Full audit opens Master Admin system health & refunds logs.', [
+                    { label: 'System health', href: '/admin/system-health' },
+                    { label: 'Refunds', href: '/admin/refunds', ghost: true }
+                ]);
+            });
+            $('settleAllBtn').addEventListener('click', function () {
+                transactions.forEach(function (t) { t.status = 'Settled'; });
+                renderLedger();
+                toast('All ledger items settled (demo)');
+                touchUpdated();
+            });
+            $('clearAlertsBtn').addEventListener('click', function () {
+                alerts.forEach(function (a) { a.unread = false; });
+                renderAlerts();
+                updateAlertBadge();
+                toast('Alerts marked read');
+            });
+            document.querySelectorAll('.kpi').forEach(function (kpi) {
+                kpi.addEventListener('click', function () {
+                    toast('KPI focus: ' + kpi.getAttribute('data-kpi'));
+                });
+            });
+            document.querySelectorAll('.heat').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.heat').forEach(function (h) { h.classList.remove('active'); });
+                    btn.classList.add('active');
+                    toast('Heatmap focus: ' + btn.getAttribute('data-city'));
+                    touchUpdated();
+                });
+            });
+            $('modal').addEventListener('click', function (e) {
+                if (e.target === $('modal')) closeModal();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            // Boot
+            animateCount($('netWorth'), 28470000, '$', 1800);
+            animateCount($('dailyPnl'), 184200, '+$', 1800);
+            renderLedger();
+            renderProjects();
+            renderAlerts();
+            updateAlertBadge();
+            touchUpdated();
+            setInterval(touchUpdated, 15000);
+
+            var hash = (location.hash || '#overview').replace('#', '');
+            if (viewNames[hash]) setView(hash);
+            else setView('overview');
+
+            $('livePill').title = 'Interactive cockpit active';
         })();
     </script>
 </body>
