@@ -6,11 +6,13 @@
 const path = require('path');
 const { onRequest } = require('firebase-functions/v2/https');
 const { onObjectFinalized } = require('firebase-functions/v2/storage');
+const { defineSecret } = require('firebase-functions/params');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
 initializeApp();
 const db = getFirestore();
+const geminiApiKey = defineSecret('GEMINI_API_KEY');
 
 function loadEnvFiles() {
   try {
@@ -407,8 +409,9 @@ exports.sendChatMessage = onRequest(
   {
     region: 'us-central1',
     cors: false,
-    timeoutSeconds: 30,
+    timeoutSeconds: 60,
     memory: '256MiB',
+    secrets: [geminiApiKey],
   },
   async (req, res) => {
     chatCors(res, req);
@@ -434,10 +437,11 @@ exports.sendChatMessage = onRequest(
         res.status(400).json({ error: 'message required' });
         return;
       }
-      const out = resolveChatReply({
+      const out = await resolveChatReply({
         message,
         lang: body.lang,
         intentHint: body.intent || body.intentHint,
+        db,
       });
       res.status(200).json({ ok: true, ...out });
     } catch (err) {

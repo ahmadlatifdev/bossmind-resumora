@@ -296,6 +296,37 @@ gh run watch --repo ahmadlatifdev/bossmind-resumora
 
 ---
 
+## Unified Harness (Master Admin + Hermes)
+
+The Master Admin Dashboard (`/admin/master`) is the BossMind control plane for five catalog projects: **resumora**, **elegancyart**, **ai-video**, **tiktok-ai**, **global-stock**.
+
+### Architecture
+
+| Layer                             | Role                                                                                                             |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Firestore `projects`              | Registry docs: `projectId`, `name`, `status`, `lastDeployTime`, non-secret `envRegistry`, `healthScore`, `tools` |
+| `GET /api/admin/master-projects`  | Admin-password protected registry + health aggregate                                                             |
+| `GET /api/admin/master-dashboard` | Existing ops dashboard **plus** `harness` block                                                                  |
+| `POST /api/admin/hermes-command`  | Project-scoped harness command (skills → Hermes → Gemini fallback)                                               |
+| UI `#orchestration`               | Status cards + per-project command chat (behind `AdminAuthGate`)                                                 |
+
+Client SDK cannot read/write `projects` (Firestore default deny). Only Admin SDK / Cloud Functions.
+
+### Seed / secrets
+
+```powershell
+# Create Secret Manager containers (names only — you add versions)
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-secrets.ps1 -WhatIf
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-secrets.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\setup-deploy-iam.ps1
+```
+
+Key names used by the harness (never commit values): `HERMES_API_KEY`, `HERMES_API_SERVER_KEY`, `GEMINI_API_KEY`, `ALPHA_VANTAGE_KEY`.
+
+See also: `docs/HERMES_INTEGRATION.md`.
+
+---
+
 ## See also
 
 - `docs/DEPLOYMENT_WORKFLOW.md` — zero manual deploy, branch protection, environment reviewers
@@ -306,3 +337,4 @@ gh run watch --repo ahmadlatifdev/bossmind-resumora
 - `.github/workflows/secret-health.yml` — daily FIREBASE_SERVICE_ACCOUNT length/restore guard
 - `docs/SECURITY_DEFENSE_IN_DEPTH.md` — edge, zero-trust, and monitoring layers
 - `clouddeploy.yaml` / `skaffold.yaml` — declarative Cloud Run pipeline
+- `docs/MASTER_BACKUP_GUIDE.md` — encrypted System Master Backup (new Windows PC restore)

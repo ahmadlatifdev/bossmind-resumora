@@ -201,8 +201,10 @@
 .admin-status--degraded {
   color: #d4af37;
 }
-.admin-status--offline,
-.admin-status--catalog {
+.admin-status--building {
+  color: #d4af37;
+}
+.admin-status--paused {
   color: #9ca3af;
 }
 
@@ -258,6 +260,161 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   color: #d4af37;
+}
+
+.admin-hermes-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.admin-hermes-metrics dt {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.admin-hermes-metrics dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.admin-hermes-perf-title {
+  margin: 16px 0 0;
+  font-size: 1rem;
+  color: #f0d78c;
+}
+
+.admin-harness-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 16px 0;
+}
+
+.admin-harness-card {
+  text-align: left;
+  min-height: 120px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(0, 0, 0, 0.28);
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-harness-card.is-selected {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.45);
+}
+
+.admin-harness-card--ok {
+  border-left: 4px solid #3dd68c;
+}
+.admin-harness-card--warn {
+  border-left: 4px solid #d4af37;
+}
+.admin-harness-card--bad {
+  border-left: 4px solid #ff6b6b;
+}
+
+.admin-harness-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-harness-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.admin-harness-tools {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 10px 0 0;
+}
+
+.admin-harness-tools li {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.admin-harness-tools li.is-on {
+  color: #3dd68c;
+}
+.admin-harness-tools li.is-off {
+  opacity: 0.45;
+}
+
+.admin-harness-chat {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-harness-chat__log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 280px;
+  overflow: auto;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-harness-chat__msg pre {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+  font: inherit;
+}
+
+.admin-harness-chat__role {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #d4af37;
+}
+
+.admin-harness-chat__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.admin-hermes-toggle input {
+  width: 20px;
+  min-height: 20px;
+}
+
+.admin-hermes-insights {
+  white-space: pre-wrap;
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  font: inherit;
 }
 
 @media (min-width: 900px) {

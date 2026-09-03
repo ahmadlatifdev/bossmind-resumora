@@ -9,6 +9,8 @@ const LINKS = [
   { to: '/admin/system-health', key: 'master.nav.health' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },
   { to: '/admin/master#users', key: 'master.nav.users' },
+  { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
+  { to: '/admin/master#agents', key: 'master.nav.agents' },
   { to: '/admin/master#settings', key: 'master.nav.settings' },
 ] as const;
 

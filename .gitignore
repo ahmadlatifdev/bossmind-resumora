@@ -44,7 +44,14 @@ hostinger/
 .env*.local
 .env
 functions/.env
+bilibili_secrets.env
 firebase-service-account.json
+# Hermes local home / secrets (never commit)
+.hermes/
+**/.hermes/
+.cursor/mcp.json
+# Encrypted System Master Backup — never commit ciphertext
+BossMind_Master_Backup.enc
 *-firebase-adminsdk-*.json
 *service-account*.json
 !package.json

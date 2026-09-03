@@ -12,6 +12,8 @@ metadata:
   annotations:
     run.googleapis.com/launch-stage: GA
     run.googleapis.com/description: Declarative deploy canary for resumora-live Cloud Deploy pipeline
+    # Equivalent to `gcloud run services update --no-invoker-iam-check` (org policy blocks allUsers invoker).
+    run.googleapis.com/invoker-iam-disabled: 'true'
 spec:
   template:
     metadata:

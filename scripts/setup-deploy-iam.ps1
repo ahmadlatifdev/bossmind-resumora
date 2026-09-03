@@ -132,7 +132,12 @@ try {
     'roles/secretmanager.viewer',
     'roles/clouddeploy.admin',
     'roles/iam.serviceAccountUser',
-    'roles/storage.objectAdmin'
+    'roles/storage.objectAdmin',
+    'roles/storage.admin',
+    'roles/resourcemanager.projectIamAdmin',
+    'roles/cloudscheduler.admin',
+    'roles/eventarc.admin',
+    'roles/pubsub.admin'
   )
 
   $allRoles = $requiredRoles
@@ -148,7 +153,7 @@ try {
   }
 
   # Per-secret accessor (Firebase defineSecret resources)
-  $secretIds = @('STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'GEMINI_API_KEY', 'ADMIN_REFUND_PASSWORD')
+  $secretIds = @('STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'GEMINI_API_KEY', 'ADMIN_REFUND_PASSWORD', 'HERMES_API_KEY', 'HERMES_API_SERVER_KEY', 'API_SERVER_KEY', 'ALPHA_VANTAGE_KEY')
   foreach ($secretId in $secretIds) {
     Write-Step "Grant secretAccessor on secret $secretId"
     if ($WhatIf) {

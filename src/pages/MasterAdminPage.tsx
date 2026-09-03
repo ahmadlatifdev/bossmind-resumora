@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../components/AdminAuthGate';
-import { fetchMasterDashboard, adminHeaders } from '../lib/adminApi';
+import {
+  fetchMasterDashboard,
+  adminHeaders,
+  fetchHermesStatus,
+  setHermesChatEnabled,
+  fetchHermesInsights,
+  fetchMasterProjects,
+  type MasterProject,
+} from '../lib/adminApi';
+import AdminHermesCommandChat from '../components/AdminHermesCommandChat';
 import { t, tFormat } from '../lib/i18n.js';
 
 type ProjectCard = {
@@ -41,6 +50,11 @@ type Dashboard = {
   feed?: FeedItem[];
   criticalAlertCount?: number;
   pendingHealApprovals?: number;
+  harness?: {
+    averageHealth?: number | null;
+    projects?: MasterProject[];
+    generatedAt?: string;
+  };
 };
 
 function money(cents: number | null | undefined, lang: string) {
@@ -106,12 +120,47 @@ export default function MasterAdminPage() {
   const [error, setError] = useState('');
   const [healBusy, setHealBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [hermes, setHermes] = useState<{
+    configured?: boolean;
+    active?: boolean;
+    chatEnabled?: boolean;
+    latencyMs?: number | null;
+    ttftMs?: number | null;
+    errorRate?: number;
+    cacheHitRate?: number | null;
+    toolEventCount?: number;
+    lastToolEvents?: number;
+    inflight?: number;
+    maxInflight?: number;
+    timeoutMs?: number;
+    lastErrorCode?: string | null;
+  } | null>(null);
+  const [hermesBusy, setHermesBusy] = useState(false);
+  const [insights, setInsights] = useState('');
+  const [harnessProjects, setHarnessProjects] = useState<MasterProject[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState('resumora');
 
   const load = useCallback(async () => {
     setError('');
     try {
       const dashboard = await fetchMasterDashboard(password);
       setData(dashboard);
+      try {
+        const registry = await fetchMasterProjects(password);
+        const list = registry.projects || dashboard.harness?.projects || [];
+        setHarnessProjects(list);
+        setSelectedProjectId((cur) =>
+          list.find((p) => p.projectId === cur) ? cur : list[0]?.projectId || 'resumora'
+        );
+      } catch {
+        setHarnessProjects(dashboard.harness?.projects || []);
+      }
+      try {
+        const status = await fetchHermesStatus(password);
+        setHermes(status);
+      } catch {
+        setHermes({ configured: false, active: false, chatEnabled: false });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.loadFailed'));
     }
@@ -139,6 +188,35 @@ export default function MasterAdminPage() {
       setError(err instanceof Error ? err.message : t(lang, 'heal.errorRun'));
     } finally {
       setHealBusy(false);
+    }
+  }
+
+  async function toggleHermes(enabled: boolean) {
+    setHermesBusy(true);
+    setError('');
+    try {
+      const status = await setHermesChatEnabled(password, enabled);
+      setHermes(status);
+      setNotice(enabled ? t(lang, 'master.hermesEnabled') : t(lang, 'master.hermesDisabled'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.hermesToggleFailed'));
+    } finally {
+      setHermesBusy(false);
+    }
+  }
+
+  async function loadInsights() {
+    setHermesBusy(true);
+    setError('');
+    setInsights('');
+    try {
+      const out = await fetchHermesInsights(password, lang);
+      setInsights(String(out.summary || ''));
+      if (out.status) setHermes(out.status);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.hermesInsightsFailed'));
+    } finally {
+      setHermesBusy(false);
     }
   }
 
@@ -257,6 +335,150 @@ export default function MasterAdminPage() {
         ) : (
           <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
         )}
+      </section>
+
+      <section id="orchestration" className="admin-master__card">
+        <h2>{t(lang, 'master.harnessTitle')}</h2>
+        <p className="admin-master__lead">
+          {tFormat(lang, 'master.harnessLead', {
+            avg:
+              data?.harness?.averageHealth != null
+                ? String(data.harness.averageHealth)
+                : t(lang, 'master.metricNa'),
+          })}
+        </p>
+        <div className="admin-harness-grid" aria-label={t(lang, 'master.harnessProjectsAria')}>
+          {(harnessProjects.length ? harnessProjects : data?.harness?.projects || []).map((p) => {
+            const score = p.healthScore;
+            const tone = p.status === 'active' ? 'ok' : p.status === 'building' ? 'warn' : 'bad';
+            return (
+              <button
+                type="button"
+                key={p.projectId}
+                className={`admin-harness-card admin-harness-card--${tone}${
+                  selectedProjectId === p.projectId ? ' is-selected' : ''
+                }`}
+                onClick={() => setSelectedProjectId(p.projectId)}
+              >
+                <header>
+                  <h3>{p.name}</h3>
+                  <span className={`admin-status admin-status--${p.status}`}>
+                    {t(lang, `master.harnessStatus.${p.status}`) || p.status}
+                  </span>
+                </header>
+                <p>
+                  {t(lang, 'master.metricUptime')}:{' '}
+                  {score != null ? Math.round(score) : t(lang, 'master.metricNa')}
+                </p>
+                <ul className="admin-harness-tools">
+                  {Object.entries(p.tools || {}).map(([tool, on]) => (
+                    <li key={tool} className={on ? 'is-on' : 'is-off'}>
+                      {tool}
+                    </li>
+                  ))}
+                </ul>
+              </button>
+            );
+          })}
+        </div>
+        <AdminHermesCommandChat
+          lang={lang}
+          password={password}
+          projectId={selectedProjectId}
+          projectName={
+            (harnessProjects.find((p) => p.projectId === selectedProjectId) || {}).name ||
+            selectedProjectId
+          }
+        />
+      </section>
+
+      <section id="agents" className="admin-master__card">
+        <h2>{t(lang, 'master.hermesTitle')}</h2>
+        <p className="admin-master__lead">{t(lang, 'master.hermesLead')}</p>
+        <dl className="admin-hermes-metrics">
+          <div>
+            <dt>{t(lang, 'master.hermesStatus')}</dt>
+            <dd>
+              {hermes?.active
+                ? t(lang, 'master.hermesActive')
+                : hermes?.configured
+                  ? t(lang, 'master.hermesOffline')
+                  : t(lang, 'master.hermesUnconfigured')}
+            </dd>
+          </div>
+          <div>
+            <dt>{t(lang, 'master.hermesLatency')}</dt>
+            <dd>
+              {hermes?.latencyMs != null
+                ? tFormat(lang, 'master.hermesLatencyMs', { ms: String(hermes.latencyMs) })
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+          <div>
+            <dt>{t(lang, 'master.hermesErrorRate')}</dt>
+            <dd>
+              {hermes?.errorRate != null
+                ? tFormat(lang, 'master.hermesErrorPct', { pct: String(hermes.errorRate) })
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+        </dl>
+        <h3 className="admin-hermes-perf-title">{t(lang, 'master.hermesPerfTitle')}</h3>
+        <dl className="admin-hermes-metrics">
+          <div>
+            <dt>{t(lang, 'master.hermesTtft')}</dt>
+            <dd>
+              {hermes?.ttftMs != null
+                ? tFormat(lang, 'master.hermesLatencyMs', { ms: String(hermes.ttftMs) })
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+          <div>
+            <dt>{t(lang, 'master.hermesCacheHit')}</dt>
+            <dd>
+              {hermes?.cacheHitRate != null
+                ? tFormat(lang, 'master.hermesErrorPct', { pct: String(hermes.cacheHitRate) })
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+          <div>
+            <dt>{t(lang, 'master.hermesToolUsage')}</dt>
+            <dd>
+              {hermes?.toolEventCount != null
+                ? String(hermes.toolEventCount)
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+          <div>
+            <dt>{t(lang, 'master.hermesInflight')}</dt>
+            <dd>
+              {hermes?.inflight != null && hermes?.maxInflight != null
+                ? tFormat(lang, 'master.hermesInflightVal', {
+                    n: String(hermes.inflight),
+                    max: String(hermes.maxInflight),
+                  })
+                : t(lang, 'master.metricNa')}
+            </dd>
+          </div>
+        </dl>
+        <label className="admin-hermes-toggle">
+          <input
+            type="checkbox"
+            checked={Boolean(hermes?.chatEnabled)}
+            disabled={hermesBusy}
+            onChange={(e) => void toggleHermes(e.target.checked)}
+          />
+          {t(lang, 'master.hermesChatToggle')}
+        </label>
+        <button
+          type="button"
+          className="admin-master__btn admin-master__btn--ghost"
+          disabled={hermesBusy}
+          onClick={() => void loadInsights()}
+        >
+          {hermesBusy ? t(lang, 'master.hermesWorking') : t(lang, 'master.hermesInsights')}
+        </button>
+        {insights ? <pre className="admin-hermes-insights">{insights}</pre> : null}
       </section>
 
       <section id="users" className="admin-master__card">

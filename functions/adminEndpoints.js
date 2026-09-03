@@ -8,7 +8,11 @@ const { getFirestore } = require('firebase-admin/firestore');
 const selfHeal = require('./selfHeal');
 const systemManual = require('./systemManual');
 const { stripeApiSecrets } = require('./lib/stripeSecrets');
-const { buildMasterDashboard } = require('./lib/masterDashboard');
+const hermes = require('./lib/hermesClient');
+const { getMasterDashboardData } = require('./getMasterDashboardData');
+const { listMasterProjects, getProjectContext } = require('./lib/projectRegistry');
+const { routeTool, runSkill } = require('./lib/toolRouter');
+const { callGeminiChat } = require('./lib/geminiChat');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -151,13 +155,135 @@ function registerAdminEndpoints(exportsObj) {
     try {
       selfHeal.assertAdminPassword(req, readAdminPassword());
       const snapshot = await selfHeal.getHealthSnapshot(db);
-      const dashboard = await buildMasterDashboard(db, snapshot);
+      const dashboard = await getMasterDashboardData(db, snapshot);
       res.status(200).json({ ok: true, dashboard });
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Master dashboard failed' });
     }
   });
+
+  exportsObj.getMasterProjects = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      selfHeal.assertAdminPassword(req, readAdminPassword());
+      const snapshot = await selfHeal.getHealthSnapshot(db);
+      const registry = await listMasterProjects(db, snapshot);
+      res.status(200).json({ ok: true, ...registry });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Master projects failed' });
+    }
+  });
+
+  exportsObj.postAdminHermesCommand = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 90 },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        selfHeal.assertAdminPassword(req, readAdminPassword());
+        const body = parseBody(req);
+        const message = String(body.message || body.text || '')
+          .trim()
+          .slice(0, 4000);
+        if (!message) {
+          res.status(400).json({ error: 'message required' });
+          return;
+        }
+        const project = getProjectContext(body.projectId || body.project);
+        const lang = String(body.lang || 'en');
+        const route = routeTool({
+          message,
+          projectId: project.projectId,
+          taskType: body.taskType,
+        });
+
+        if (route.startsWith('skill:')) {
+          const skillOut = runSkill(route, { message, lang, projectId: project.projectId });
+          res.status(200).json({
+            ok: true,
+            engine: route,
+            projectId: project.projectId,
+            reply: skillOut.reply,
+          });
+          return;
+        }
+
+        const context = JSON.stringify({
+          project,
+          note: 'Admin harness command. Non-sensitive envRegistry only.',
+        }).slice(0, 3500);
+
+        if (route === 'gemini') {
+          const gem = await callGeminiChat({ prompt: message, lang, context, timeoutMs: 25000 });
+          res.status(200).json({
+            ok: true,
+            engine: 'gemini',
+            projectId: project.projectId,
+            reply: gem.text,
+          });
+          return;
+        }
+
+        try {
+          const out = await hermes.callHermes({
+            prompt: message,
+            context,
+            lang,
+            projectId: project.projectId,
+            timeoutMs: 70000,
+            db,
+          });
+          res.status(200).json({
+            ok: true,
+            engine: 'hermes',
+            projectId: project.projectId,
+            reply: out.text,
+          });
+        } catch (err) {
+          try {
+            const gem = await callGeminiChat({
+              prompt: message,
+              lang,
+              context,
+              timeoutMs: 25000,
+            });
+            res.status(200).json({
+              ok: true,
+              engine: 'gemini',
+              projectId: project.projectId,
+              reply: gem.text,
+              fallbackFrom: err.code || 'hermes_error',
+            });
+          } catch {
+            res.status(503).json({
+              error: err.message || 'Harness command failed',
+              projectId: project.projectId,
+            });
+          }
+        }
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Harness command failed' });
+      }
+    }
+  );
 
   exportsObj.updateSystemManual = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
@@ -183,6 +309,97 @@ function registerAdminEndpoints(exportsObj) {
       res.status(code).json({ error: err.message || 'Manual update failed' });
     }
   });
+
+  exportsObj.getHermesStatus = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      selfHeal.assertAdminPassword(req, readAdminPassword());
+      const status = await hermes.getHermesAdminStatus(db);
+      res.status(200).json({ ok: true, status });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Hermes status failed' });
+    }
+  });
+
+  exportsObj.setHermesChat = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      selfHeal.assertAdminPassword(req, readAdminPassword());
+      const body = parseBody(req);
+      const enabled = body.enabled === true || body.enabled === 'true' || body.enabled === 1;
+      await hermes.setChatEnabled(db, enabled);
+      const status = await hermes.getHermesAdminStatus(db);
+      res.status(200).json({ ok: true, status });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Hermes toggle failed' });
+    }
+  });
+
+  exportsObj.getHermesInsights = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 90 },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'GET') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        selfHeal.assertAdminPassword(req, readAdminPassword());
+        const snapshot = await selfHeal.getHealthSnapshot(db);
+        const hermesStatus = await hermes.getHermesAdminStatus(db);
+        const prompt =
+          'Summarize Resumora/BossMind operational health for the owner. Cover status, notable risks, and 3 next actions. Do not invent revenue. Do not request or repeat secrets.';
+        const context = JSON.stringify({
+          health: {
+            status: snapshot.status || snapshot.globalHealth || null,
+            score: snapshot.score || snapshot.healthScore || null,
+          },
+          hermes: {
+            active: hermesStatus.active,
+            chatEnabled: hermesStatus.chatEnabled,
+            latencyMs: hermesStatus.latencyMs,
+            errorRate: hermesStatus.errorRate,
+          },
+        }).slice(0, 3000);
+        const out = await hermes.callHermes({
+          prompt,
+          context,
+          lang: String(req.query.lang || 'en'),
+          timeoutMs: 70000,
+          db,
+        });
+        res.status(200).json({ ok: true, summary: out.text, status: hermesStatus });
+      } catch (err) {
+        const code = err.statusCode || (err.code === 'not_configured' ? 503 : 500);
+        res.status(code).json({
+          error: err.message || 'Hermes insights failed',
+          offline: err.code === 'not_configured' || err.code === 'unreachable',
+        });
+      }
+    }
+  );
 
   exportsObj.systemManualCron = onSchedule(
     {

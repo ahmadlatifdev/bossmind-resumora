@@ -54,6 +54,7 @@ service cloud.firestore {
     }
 
     // Deny all other client access (Admin SDK / Cloud Functions bypass rules)
+    // Includes: system_*, videos, projects (BossMind harness registry), admin_settings, etc.
     match /{document=**} {
       allow read, write: if false;
     }

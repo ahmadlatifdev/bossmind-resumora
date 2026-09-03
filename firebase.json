@@ -149,6 +149,26 @@
         "function": "getMasterDashboard"
       },
       {
+        "source": "/api/admin/master-projects",
+        "function": "getMasterProjects"
+      },
+      {
+        "source": "/api/admin/hermes-command",
+        "function": "postAdminHermesCommand"
+      },
+      {
+        "source": "/api/admin/hermes-status",
+        "function": "getHermesStatus"
+      },
+      {
+        "source": "/api/admin/hermes-chat",
+        "function": "setHermesChat"
+      },
+      {
+        "source": "/api/admin/hermes-insights",
+        "function": "getHermesInsights"
+      },
+      {
         "source": "/admin/system-health",
         "destination": "/admin.html"
       },
