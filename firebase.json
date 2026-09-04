@@ -157,6 +157,14 @@
         "function": "postAdminHermesCommand"
       },
       {
+        "source": "/api/admin/password-reset/request",
+        "function": "requestAdminPasswordReset"
+      },
+      {
+        "source": "/api/admin/password-reset/confirm",
+        "function": "confirmAdminPasswordReset"
+      },
+      {
         "source": "/api/admin/hermes-status",
         "function": "getHermesStatus"
       },

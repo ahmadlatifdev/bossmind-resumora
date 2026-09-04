@@ -291,6 +291,7 @@ jobs:
             for svc in \
               getsystemhealth runsystemhealth decidesystemheal updatesystemmanual \
               getmasterdashboard getmasterprojects postadminhermescommand \
+              requestadminpasswordreset confirmadminpasswordreset \
               gethermesstatus sethermeschat gethermesinsights \
               stripewebhook getrefundpreview cancelsubscription recordserviceeventhttp \
               listrefundshttp getrefundpreviewv2 getrevenueanalytics getchurnprediction \
@@ -306,7 +307,7 @@ jobs:
           }
           deploy_fn() {
             npx firebase-tools@latest deploy --only \
-              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
+              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:requestAdminPasswordReset,functions:resumora-checkout:confirmAdminPasswordReset,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
               --project "${GCP_PROJECT_ID}" \
               --non-interactive
           }
@@ -352,6 +353,7 @@ jobs:
           foreach ($svc in @(
             'getsystemhealth','runsystemhealth','decidesystemheal','updatesystemmanual',
             'getmasterdashboard','getmasterprojects','postadminhermescommand',
+            'requestadminpasswordreset','confirmadminpasswordreset',
             'gethermesstatus','sethermeschat','gethermesinsights',
             'stripewebhook','getrefundpreview','cancelsubscription','recordserviceeventhttp',
             'listrefundshttp','getrefundpreviewv2','getrevenueanalytics','getchurnprediction',

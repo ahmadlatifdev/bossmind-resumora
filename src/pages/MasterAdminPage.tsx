@@ -170,6 +170,51 @@ export default function MasterAdminPage() {
     void load();
   }, [load]);
 
+  // Orchestration hash: #orchestration?project=resumora
+  useEffect(() => {
+    function applyHashProject() {
+      const raw = String(window.location.hash || '');
+      if (!raw.startsWith('#orchestration')) return;
+      const qIndex = raw.indexOf('?');
+      if (qIndex < 0) return;
+      const params = new URLSearchParams(raw.slice(qIndex + 1));
+      const project = String(params.get('project') || '').trim();
+      if (!project) return;
+      setSelectedProjectId(project);
+    }
+    applyHashProject();
+    window.addEventListener('hashchange', applyHashProject);
+    return () => window.removeEventListener('hashchange', applyHashProject);
+  }, []);
+
+  useEffect(() => {
+    if (!harnessProjects.length) return;
+    if (harnessProjects.some((p) => p.projectId === selectedProjectId)) return;
+    setSelectedProjectId(harnessProjects[0]?.projectId || 'resumora');
+  }, [harnessProjects, selectedProjectId]);
+
+  function selectHarnessProject(projectId: string) {
+    setSelectedProjectId(projectId);
+    const next = `#orchestration?project=${encodeURIComponent(projectId)}`;
+    if (window.location.hash !== next) {
+      window.history.replaceState(
+        null,
+        '',
+        `${window.location.pathname}${window.location.search}${next}`
+      );
+    }
+  }
+
+  function harnessConnectivity(p: MasterProject): 'online' | 'degraded' | 'offline' {
+    if (p.live === true) return 'online';
+    if (p.live === false || p.status === 'paused') return 'offline';
+    const hs = Number(p.healthScore);
+    if (p.status === 'building' || (Number.isFinite(hs) && hs < 70 && hs >= 40)) return 'degraded';
+    if (p.status === 'active' && (!Number.isFinite(hs) || hs >= 70)) return 'online';
+    if (Number.isFinite(hs) && hs < 40) return 'offline';
+    return p.status === 'active' ? 'online' : 'offline';
+  }
+
   async function runHeal() {
     setHealBusy(true);
     setNotice('');
@@ -350,15 +395,18 @@ export default function MasterAdminPage() {
         <div className="admin-harness-grid" aria-label={t(lang, 'master.harnessProjectsAria')}>
           {(harnessProjects.length ? harnessProjects : data?.harness?.projects || []).map((p) => {
             const score = p.healthScore;
-            const tone = p.status === 'active' ? 'ok' : p.status === 'building' ? 'warn' : 'bad';
+            const conn = harnessConnectivity(p);
+            const tone = conn === 'online' ? 'ok' : conn === 'degraded' ? 'warn' : 'bad';
+            const selected = selectedProjectId === p.projectId;
             return (
               <button
                 type="button"
                 key={p.projectId}
                 className={`admin-harness-card admin-harness-card--${tone}${
-                  selectedProjectId === p.projectId ? ' is-selected' : ''
+                  selected ? ' is-selected' : ''
                 }`}
-                onClick={() => setSelectedProjectId(p.projectId)}
+                onClick={() => selectHarnessProject(p.projectId)}
+                aria-pressed={selected}
               >
                 <header>
                   <h3>{p.name}</h3>
@@ -366,9 +414,17 @@ export default function MasterAdminPage() {
                     {t(lang, `master.harnessStatus.${p.status}`) || p.status}
                   </span>
                 </header>
+                <p className={`admin-harness-live admin-harness-live--${conn}`}>
+                  <span className="admin-harness-live__dot" aria-hidden="true" />
+                  {conn === 'online'
+                    ? t(lang, 'master.harnessOnline')
+                    : conn === 'degraded'
+                      ? t(lang, 'master.harnessDegraded')
+                      : t(lang, 'master.harnessOffline')}
+                </p>
                 <p>
-                  {t(lang, 'master.metricUptime')}:{' '}
-                  {score != null ? Math.round(score) : t(lang, 'master.metricNa')}
+                  {t(lang, 'master.metricHealth')}:{' '}
+                  {score != null ? `${Math.round(score)}%` : t(lang, 'master.metricNa')}
                 </p>
                 <ul className="admin-harness-tools">
                   {Object.entries(p.tools || {}).map(([tool, on]) => (
@@ -377,6 +433,15 @@ export default function MasterAdminPage() {
                     </li>
                   ))}
                 </ul>
+                {selected ? (
+                  <span className="admin-harness-chat-hint">
+                    {t(lang, 'master.harnessChatReady')}
+                  </span>
+                ) : (
+                  <span className="admin-harness-chat-hint">
+                    {t(lang, 'master.harnessOpenChat')}
+                  </span>
+                )}
               </button>
             );
           })}

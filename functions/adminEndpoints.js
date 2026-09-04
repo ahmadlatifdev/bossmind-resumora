@@ -13,6 +13,11 @@ const { getMasterDashboardData } = require('./getMasterDashboardData');
 const { listMasterProjects, getProjectContext } = require('./lib/projectRegistry');
 const { routeTool, runSkill } = require('./lib/toolRouter');
 const { callGeminiChat } = require('./lib/geminiChat');
+const {
+  assertAdminAccess,
+  requestAdminPasswordReset,
+  confirmAdminPasswordReset,
+} = require('./lib/adminGateAuth');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -78,7 +83,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const snapshot = await selfHeal.getHealthSnapshot(db);
       const documentation = await systemManual.getDocumentationStatus(db);
       res.status(200).json({ ...snapshot, documentation });
@@ -99,7 +104,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const summary = await selfHeal.runSelfHealCycle(db, null, { trigger: 'manual' });
       res.status(200).json(summary);
     } catch (err) {
@@ -121,7 +126,7 @@ function registerAdminEndpoints(exportsObj) {
         return;
       }
       try {
-        selfHeal.assertAdminPassword(req, readAdminPassword());
+        await assertAdminAccess(req, db, readAdminPassword());
         const body = parseBody(req);
         const approvalId = String(body.approvalId || body.id || '').trim();
         const decision = String(body.decision || '').toLowerCase();
@@ -153,7 +158,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const snapshot = await selfHeal.getHealthSnapshot(db);
       const dashboard = await getMasterDashboardData(db, snapshot);
       res.status(200).json({ ok: true, dashboard });
@@ -174,7 +179,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const snapshot = await selfHeal.getHealthSnapshot(db);
       const registry = await listMasterProjects(db, snapshot);
       res.status(200).json({ ok: true, ...registry });
@@ -197,7 +202,7 @@ function registerAdminEndpoints(exportsObj) {
         return;
       }
       try {
-        selfHeal.assertAdminPassword(req, readAdminPassword());
+        await assertAdminAccess(req, db, readAdminPassword());
         const body = parseBody(req);
         const message = String(body.message || body.text || '')
           .trim()
@@ -296,7 +301,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const body = parseBody(req);
       const out = await systemManual.updateSystemManual(db, {
         trigger: body.trigger || 'admin',
@@ -321,7 +326,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const status = await hermes.getHermesAdminStatus(db);
       res.status(200).json({ ok: true, status });
     } catch (err) {
@@ -341,7 +346,7 @@ function registerAdminEndpoints(exportsObj) {
       return;
     }
     try {
-      selfHeal.assertAdminPassword(req, readAdminPassword());
+      await assertAdminAccess(req, db, readAdminPassword());
       const body = parseBody(req);
       const enabled = body.enabled === true || body.enabled === 'true' || body.enabled === 1;
       await hermes.setChatEnabled(db, enabled);
@@ -366,7 +371,7 @@ function registerAdminEndpoints(exportsObj) {
         return;
       }
       try {
-        selfHeal.assertAdminPassword(req, readAdminPassword());
+        await assertAdminAccess(req, db, readAdminPassword());
         const snapshot = await selfHeal.getHealthSnapshot(db);
         const hermesStatus = await hermes.getHermesAdminStatus(db);
         const prompt =
@@ -397,6 +402,51 @@ function registerAdminEndpoints(exportsObj) {
           error: err.message || 'Hermes insights failed',
           offline: err.code === 'not_configured' || err.code === 'unreachable',
         });
+      }
+    }
+  );
+
+  // Public (rate-limited) admin password reset — emails OTP to configured admin inbox.
+  exportsObj.requestAdminPasswordReset = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 60, memory: '256MiB', secrets: [adminRefundPassword] },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        const out = await requestAdminPasswordReset(db, req);
+        res.status(200).json(out);
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Reset request failed' });
+      }
+    }
+  );
+
+  exportsObj.confirmAdminPasswordReset = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 60, memory: '256MiB', secrets: [adminRefundPassword] },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        const out = await confirmAdminPasswordReset(db, parseBody(req));
+        res.status(200).json(out);
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Reset confirm failed' });
       }
     }
   );

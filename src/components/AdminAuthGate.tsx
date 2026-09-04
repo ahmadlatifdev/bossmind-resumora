@@ -2,7 +2,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type FormEvent
 import { Outlet } from 'react-router-dom';
 import LanguageSwitcher from './LanguageSwitcher';
 import { getLang, setLang, t } from '../lib/i18n.js';
-import { fetchMasterDashboard, readAdminPassword, writeAdminPassword } from '../lib/adminApi';
+import {
+  fetchMasterDashboard,
+  readAdminPassword,
+  writeAdminPassword,
+  requestAdminPasswordReset,
+  confirmAdminPasswordReset,
+} from '../lib/adminApi';
 import '../admin-master.css';
 
 type AdminAuthValue = {
@@ -25,7 +31,12 @@ export default function AdminAuthGate() {
   const [password, setPassword] = useState(() => readAdminPassword());
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<'login' | 'reset'>('login');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const setLangCode = (code: string) => setLangState(setLang(code));
 
@@ -57,6 +68,7 @@ export default function AdminAuthGate() {
     e.preventDefault();
     setBusy(true);
     setError('');
+    setNotice('');
     const pw = password.trim();
     try {
       await fetchMasterDashboard(pw);
@@ -79,6 +91,47 @@ export default function AdminAuthGate() {
     }
   }
 
+  async function onRequestReset(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const out = await requestAdminPasswordReset();
+      setNotice(String(out.hint || t(lang, 'master.resetCodeSent')));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.resetRequestFailed'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onConfirmReset(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setNotice('');
+    if (newPassword !== confirmPassword) {
+      setError(t(lang, 'master.resetMismatch'));
+      setBusy(false);
+      return;
+    }
+    try {
+      await confirmAdminPasswordReset(resetCode.trim(), newPassword);
+      writeAdminPassword(newPassword);
+      setPassword(newPassword);
+      setNotice(t(lang, 'master.resetSuccess'));
+      setMode('login');
+      setResetCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.resetConfirmFailed'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const value = useMemo(
     () => ({ lang, setLangCode, password, unlocked }),
     [lang, password, unlocked]
@@ -92,28 +145,115 @@ export default function AdminAuthGate() {
           <LanguageSwitcher lang={lang} onChange={setLangCode} />
         </header>
         <main className="admin-master__gate-main">
-          <form className="admin-master__card" onSubmit={onUnlock}>
-            <h1>{t(lang, 'master.lockTitle')}</h1>
-            <p className="admin-master__lead">{t(lang, 'master.lockLead')}</p>
-            <label>
-              {t(lang, 'heal.adminPassword')}
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
-            </label>
-            {error ? (
-              <p className="admin-master__alert" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <button type="submit" className="admin-master__btn" disabled={busy}>
-              {busy ? t(lang, 'master.unlocking') : t(lang, 'heal.unlock')}
-            </button>
-          </form>
+          {mode === 'login' ? (
+            <form className="admin-master__card" onSubmit={onUnlock}>
+              <h1>{t(lang, 'master.lockTitle')}</h1>
+              <p className="admin-master__lead">{t(lang, 'master.lockLead')}</p>
+              <label>
+                {t(lang, 'heal.adminPassword')}
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              </label>
+              {error ? (
+                <p className="admin-master__alert" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              {notice ? (
+                <p className="admin-master__ok" role="status">
+                  {notice}
+                </p>
+              ) : null}
+              <button type="submit" className="admin-master__btn" disabled={busy}>
+                {busy ? t(lang, 'master.unlocking') : t(lang, 'heal.unlock')}
+              </button>
+              <button
+                type="button"
+                className="admin-master__link-btn"
+                onClick={() => {
+                  setMode('reset');
+                  setError('');
+                  setNotice('');
+                }}
+              >
+                {t(lang, 'master.forgotPassword')}
+              </button>
+            </form>
+          ) : (
+            <div className="admin-master__card">
+              <h1>{t(lang, 'master.resetTitle')}</h1>
+              <p className="admin-master__lead">{t(lang, 'master.resetLead')}</p>
+              <form onSubmit={onRequestReset}>
+                <button type="submit" className="admin-master__btn" disabled={busy}>
+                  {busy ? t(lang, 'master.unlocking') : t(lang, 'master.resetSendCode')}
+                </button>
+              </form>
+              <form onSubmit={onConfirmReset} style={{ marginTop: 16 }}>
+                <label>
+                  {t(lang, 'master.resetCode')}
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  {t(lang, 'master.resetNewPassword')}
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    minLength={12}
+                    required
+                  />
+                </label>
+                <label>
+                  {t(lang, 'master.resetConfirmPassword')}
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    minLength={12}
+                    required
+                  />
+                </label>
+                {error ? (
+                  <p className="admin-master__alert" role="alert">
+                    {error}
+                  </p>
+                ) : null}
+                {notice ? (
+                  <p className="admin-master__ok" role="status">
+                    {notice}
+                  </p>
+                ) : null}
+                <button type="submit" className="admin-master__btn" disabled={busy}>
+                  {t(lang, 'master.resetConfirm')}
+                </button>
+              </form>
+              <button
+                type="button"
+                className="admin-master__link-btn"
+                onClick={() => {
+                  setMode('login');
+                  setError('');
+                  setNotice('');
+                }}
+              >
+                {t(lang, 'master.backToLogin')}
+              </button>
+            </div>
+          )}
         </main>
       </div>
     );

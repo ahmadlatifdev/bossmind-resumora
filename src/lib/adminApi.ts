@@ -103,3 +103,25 @@ export async function postAdminHermesCommand(
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data as { ok?: boolean; reply?: string; engine?: string; projectId?: string };
 }
+
+export async function requestAdminPasswordReset() {
+  const res = await fetch('/api/admin/password-reset/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; emailed?: boolean; hint?: string; expiresInMinutes?: number };
+}
+
+export async function confirmAdminPasswordReset(code: string, newPassword: string) {
+  const res = await fetch('/api/admin/password-reset/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, newPassword }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean };
+}

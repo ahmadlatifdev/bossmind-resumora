@@ -1634,6 +1634,7 @@ async function decideApproval(db, { approvalId, decision, note }) {
 
 module.exports = {
   assertAdminPassword,
+  sendAdminNotify,
   structuredLog,
   readEnvInventory,
   envDriftFingerprint,

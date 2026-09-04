@@ -136,6 +136,23 @@
   color: #3dd68c;
 }
 
+.admin-master__link-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: transparent;
+  border: 0;
+  color: #d4af37;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-master__link-btn:hover {
+  color: #f0d78c;
+}
+
 .admin-dashboard {
   display: grid;
   gap: 20px;
@@ -316,6 +333,57 @@
 }
 .admin-harness-card--bad {
   border-left: 4px solid #ff6b6b;
+}
+
+.admin-harness-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-harness-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b7280;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.admin-harness-live--online {
+  color: #3dd68c;
+}
+.admin-harness-live--online .admin-harness-live__dot {
+  background: #3dd68c;
+}
+
+.admin-harness-live--degraded {
+  color: #d4af37;
+}
+.admin-harness-live--degraded .admin-harness-live__dot {
+  background: #d4af37;
+}
+
+.admin-harness-live--offline {
+  color: #ff6b6b;
+}
+.admin-harness-live--offline .admin-harness-live__dot {
+  background: #ff6b6b;
+}
+
+.admin-harness-chat-hint {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(232, 230, 227, 0.55);
+}
+
+.admin-harness-card.is-selected .admin-harness-chat-hint {
+  color: #d4af37;
 }
 
 .admin-harness-card header {
