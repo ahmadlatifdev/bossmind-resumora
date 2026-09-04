@@ -5,9 +5,10 @@
 
 .DESCRIPTION
   Prompts for a new admin password securely and adds a new secret version.
-  Cloud Functions read ADMIN_REFUND_PASSWORD via defineSecret — this is the
-  password accepted by https://resumora.net/admin/master (unless a Firestore
-  override hash was set via the in-app reset flow).
+
+  IMPORTANT: Cloud Functions pin secret *versions* at deploy time. After rotating,
+  you must redeploy Functions (GitHub Actions workflow_dispatch) so getMasterDashboard
+  mounts ADMIN_REFUND_PASSWORD:latest. Updating only Secret Manager is not enough.
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\rotate-admin-refund-password.ps1
@@ -15,7 +16,8 @@
 [CmdletBinding()]
 param(
   [string] $ProjectId = 'resumora-live',
-  [string] $SecretId = 'ADMIN_REFUND_PASSWORD'
+  [string] $SecretId = 'ADMIN_REFUND_PASSWORD',
+  [switch] $SkipRedeployPrompt
 )
 
 Set-StrictMode -Version Latest
@@ -45,7 +47,23 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Failed to add secret version.' }
 
   Write-Host "OK: new version added for $SecretId."
-  Write-Host "Wait ~1 minute for Functions to pick up the latest secret version, then unlock https://resumora.net/admin/master"
+  Write-Host "Pinned mounts on getmasterdashboard must be refreshed via Functions redeploy."
+
+  if (-not $SkipRedeployPrompt) {
+    $ans = Read-Host "Trigger GitHub Actions deploy-prod now? (y/N)"
+    if ($ans -match '^(y|yes)$') {
+      & gh workflow run deploy-prod.yml --repo ahmadlatifdev/bossmind-resumora
+      if ($LASTEXITCODE -ne 0) {
+        Write-Warning "gh workflow run failed — run manually: gh workflow run deploy-prod.yml --repo ahmadlatifdev/bossmind-resumora"
+      } else {
+        Write-Host "Deploy triggered. When it finishes, unlock https://resumora.net/admin/master"
+      }
+    } else {
+      Write-Host "Manual next step:"
+      Write-Host "  gh workflow run deploy-prod.yml --repo ahmadlatifdev/bossmind-resumora"
+    }
+  }
+
   Write-Host "Do NOT put this password in VITE_* or commit it."
 }
 finally {
