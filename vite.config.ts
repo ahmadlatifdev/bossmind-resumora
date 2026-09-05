@@ -18,9 +18,29 @@ export default defineConfig(({ mode }) => {
 
   return {
     root,
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'admin-spa-fallback',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const url = req.url || '';
+            if (url.startsWith('/admin') && !url.includes('.')) {
+              req.url = '/admin.html';
+            }
+            next();
+          });
+        },
+      },
+    ],
     envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     define: defineEnv,
+    server: {
+      host: '127.0.0.1',
+      port: 5173,
+      strictPort: true,
+    },
     build: {
       rollupOptions: {
         input: {

@@ -27,6 +27,7 @@
     "test:analytics": "tsx --test tests/analytics-v2.test.ts",
     "test:all": "tsx --test tests/stripe-validation.test.ts tests/full-e2e.test.ts tests/analytics-v2.test.ts",
     "test:ui-consistency": "node scripts/ui-consistency-check.js --serve",
+    "test:hermes-chat": "playwright test --config=playwright.config.cjs",
     "index:codebase": "node scripts/index-codebase.mjs",
     "security:audit": "node scripts/security-audit.mjs",
     "self-heal": "node scripts/self-heal-runner.mjs",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/express": "^5.0.6",
     "@types/node": "^26.4.0",

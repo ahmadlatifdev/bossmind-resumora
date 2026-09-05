@@ -1,0 +1,66 @@
+name: CI — Hermes Chat Playwright
+
+# Runs the existing Hermes Chat Playwright suite on every PR to main.
+# Uses Node 20 + Playwright Chromium. No new tools/libraries beyond repo deps.
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-hermes-chat-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hermes-chat:
+    name: npm run test:hermes-chat
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Vite (admin SPA)
+        run: |
+          npx vite --host 127.0.0.1 --port 5173 > /tmp/vite.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5173/admin.html >/dev/null; then
+              echo "Vite ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Vite failed to start" >&2
+          cat /tmp/vite.log >&2
+          exit 1
+
+      - name: Run Hermes Chat suite
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:5173
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          # Optional — suite mocks master-dashboard unlock when unset; CI=true supplies a local unlock password.
+          ADMIN_REFUND_PASSWORD: ${{ secrets.ADMIN_REFUND_PASSWORD }}
+          CI: 'true'
+        run: npm run test:hermes-chat
+
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-chat-playwright
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
