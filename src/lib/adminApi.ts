@@ -90,6 +90,42 @@ export async function fetchMasterProjects(password: string) {
   };
 }
 
+export async function updateMasterProjectStatus(
+  password: string,
+  projectId: string,
+  status: 'active' | 'paused' | 'building' | 'running' | 'offline',
+  source = 'operator'
+) {
+  const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/status`, {
+    method: 'PATCH',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify({ projectId, status, source }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; status?: string; project?: MasterProject };
+}
+
+/** Probe local Hermes HITL/MCP (HERMES_API_URL or defaults). */
+export async function probeHermesLocalHealth(): Promise<boolean> {
+  const base = String(import.meta.env.VITE_HERMES_API_URL || '').replace(/\/$/, '');
+  const urls = [
+    base ? `${base}/api/health` : '',
+    base ? `${base}/health` : '',
+    'http://127.0.0.1:8790/api/health',
+    'http://127.0.0.1:8791/health',
+  ].filter(Boolean);
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(3500) });
+      if (res.ok) return true;
+    } catch {
+      /* try next */
+    }
+  }
+  return false;
+}
+
 export async function postAdminHermesCommand(
   password: string,
   body: {
