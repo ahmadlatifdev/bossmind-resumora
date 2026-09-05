@@ -75,6 +75,26 @@ async function assertAdminAccess(req, db, envPassword) {
   throw err;
 }
 
+/**
+ * Owner / Super Admin — ADMIN_REFUND_PASSWORD only (no fallbacks, no VITE_ADMIN_PASSWORD).
+ * Used for global master console CRUD and unrestricted status flips.
+ */
+function assertOwnerAccess(req, ownerPassword) {
+  const provided = providedPassword(req);
+  const expected = String(ownerPassword || '').trim();
+  if (!expected) {
+    const err = new Error('Owner console unavailable (ADMIN_REFUND_PASSWORD not configured)');
+    err.statusCode = 503;
+    throw err;
+  }
+  if (!provided || !timingSafeEqualString(provided, expected)) {
+    const err = new Error('Owner authorization required');
+    err.statusCode = 403;
+    throw err;
+  }
+  return { via: 'owner_secret' };
+}
+
 function clientIp(req) {
   const xf = String((req && req.get && req.get('x-forwarded-for')) || '');
   return (xf.split(',')[0] || (req && req.ip) || 'unknown').trim().slice(0, 80);
@@ -160,8 +180,10 @@ async function confirmAdminPasswordReset(db, body) {
 
 module.exports = {
   assertAdminAccess,
+  assertOwnerAccess,
   requestAdminPasswordReset,
   confirmAdminPasswordReset,
   GATE_DOC,
   MIN_PASSWORD_LEN,
+  providedPassword,
 };

@@ -233,6 +233,164 @@ function getProjectContext(projectId) {
   };
 }
 
+const ALLOWED_OWNER_STATUS = new Set(['active', 'paused', 'building', 'offline']);
+
+/**
+ * Owner force-set status — ignores catalog-only / pause UI locks; writes explicit status.
+ */
+async function setOwnerProjectStatus(db, projectId, status, opts = {}) {
+  return setMasterProjectStatus(db, projectId, status, {
+    source: String(opts.source || 'owner').slice(0, 40),
+  });
+}
+
+/**
+ * Owner batch status for all canonical (or provided) projects.
+ */
+async function setOwnerProjectsStatusBatch(db, status, projectIds, opts = {}) {
+  const ids =
+    Array.isArray(projectIds) && projectIds.length
+      ? projectIds.map((id) => String(id).toLowerCase().trim()).filter(Boolean)
+      : CANONICAL_PROJECTS.map((p) => p.projectId);
+  const results = [];
+  for (const id of ids) {
+    const out = await setOwnerProjectStatus(db, id, status, opts);
+    results.push(out.project || { projectId: id, status: out.status });
+  }
+  return { ok: true, projects: results, status };
+}
+
+/**
+ * Owner upsert (create/update) project configuration. Non-canonical IDs allowed.
+ */
+async function upsertOwnerProject(db, input = {}) {
+  await ensureProjectRegistry(db);
+  const id = String(input.projectId || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9_-]/g, '')
+    .slice(0, 64);
+  if (!id) {
+    const err = new Error('projectId required');
+    err.statusCode = 400;
+    throw err;
+  }
+  const canon = CANONICAL_PROJECTS.find((p) => p.projectId === id);
+  const ref = db.collection(COLLECTION).doc(id);
+  const snap = await ref.get();
+  const existing = snap.exists ? snap.data() || {} : {};
+
+  let nextStatus =
+    input.status != null
+      ? String(input.status).toLowerCase().trim()
+      : existing.status || (canon && canon.status) || 'paused';
+  if (nextStatus === 'running') nextStatus = 'active';
+  if (!ALLOWED_OWNER_STATUS.has(nextStatus)) {
+    const err = new Error('status must be active, paused, building, or offline');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const name = String(
+    input.name != null ? input.name : existing.name || (canon && canon.name) || id
+  )
+    .trim()
+    .slice(0, 120);
+  const envRegistry = sanitizeEnvRegistry(
+    input.envRegistry != null
+      ? input.envRegistry
+      : existing.envRegistry || (canon && canon.envRegistry) || {}
+  );
+  const tools =
+    input.tools && typeof input.tools === 'object'
+      ? Object.fromEntries(
+          Object.entries(input.tools).map(([k, v]) => [String(k).slice(0, 40), Boolean(v)])
+        )
+      : existing.tools || (canon && canon.tools) || {};
+
+  const payload = {
+    projectId: id,
+    name,
+    status: nextStatus,
+    statusSource: 'owner',
+    live: nextStatus === 'active',
+    envRegistry,
+    tools,
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+  if (input.healthScore != null && Number.isFinite(Number(input.healthScore))) {
+    payload.healthScore = Math.max(0, Math.min(100, Number(input.healthScore)));
+  }
+  if (!snap.exists) {
+    payload.createdAt = FieldValue.serverTimestamp();
+    payload.lastDeployTime = null;
+  }
+
+  await ref.set(payload, { merge: true });
+  const after = await ref.get();
+  const row = after.data() || {};
+  return {
+    ok: true,
+    created: !snap.exists,
+    project: {
+      projectId: id,
+      name: row.name || name,
+      status: row.status || nextStatus,
+      lastDeployTime: row.lastDeployTime || null,
+      envRegistry: sanitizeEnvRegistry(row.envRegistry || envRegistry),
+      healthScore: row.healthScore != null ? Number(row.healthScore) : null,
+      tools: row.tools || tools,
+      live: (row.status || nextStatus) === 'active',
+    },
+  };
+}
+
+/**
+ * Owner delete — removes Firestore config. Canonical projects re-seed on next ensure.
+ */
+async function deleteOwnerProject(db, projectId) {
+  const id = String(projectId || '')
+    .toLowerCase()
+    .trim();
+  if (!id) {
+    const err = new Error('projectId required');
+    err.statusCode = 400;
+    throw err;
+  }
+  const ref = db.collection(COLLECTION).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) {
+    const err = new Error('Project not found');
+    err.statusCode = 404;
+    throw err;
+  }
+  await ref.delete();
+  return {
+    ok: true,
+    deleted: id,
+    canonical: CANONICAL_PROJECTS.some((p) => p.projectId === id),
+  };
+}
+
+/**
+ * Owner global health check — refresh self-heal snapshot + return all projects (raw statuses).
+ */
+async function ownerGlobalHealthCheck(db, snapshot) {
+  const registry = await listMasterProjects(db, snapshot);
+  return {
+    ok: true,
+    generatedAt: new Date().toISOString(),
+    globalHealth: {
+      score: snapshot?.health?.score ?? registry.averageHealth,
+      status: snapshot?.health?.status || null,
+      updatedAt: snapshot?.updatedAt || null,
+    },
+    averageHealth: registry.averageHealth,
+    projects: registry.projects,
+    logs: (snapshot?.recentEvents || snapshot?.events || []).slice(0, 40),
+  };
+}
+
 module.exports = {
   COLLECTION,
   CANONICAL_PROJECTS,
@@ -240,5 +398,10 @@ module.exports = {
   ensureProjectRegistry,
   listMasterProjects,
   setMasterProjectStatus,
+  setOwnerProjectStatus,
+  setOwnerProjectsStatusBatch,
+  upsertOwnerProject,
+  deleteOwnerProject,
+  ownerGlobalHealthCheck,
   getProjectContext,
 };

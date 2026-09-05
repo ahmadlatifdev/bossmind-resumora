@@ -19,6 +19,9 @@ import {
   runFinanceAllocation,
   updateMasterProjectStatus,
   probeHermesLocalHealth,
+  ownerGlobalHealthCheck,
+  ownerReviewUpdateAll,
+  ownerSetProjectStatus,
   type MasterProject,
   type HarnessTask,
 } from '../lib/adminApi';
@@ -145,7 +148,7 @@ function TrendChart({ series, lang }: { series: SeriesPoint[]; lang: string }) {
 }
 
 export default function MasterAdminPage() {
-  const { lang, password } = useAdminAuth();
+  const { lang, password, ownerMode, ownerPassword } = useAdminAuth();
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState('');
   const [healBusy, setHealBusy] = useState(false);
@@ -177,6 +180,8 @@ export default function MasterAdminPage() {
   const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
   const [financeBusy, setFinanceBusy] = useState(false);
   const [projectStatusBusy, setProjectStatusBusy] = useState<string | null>(null);
+  const [ownerBusy, setOwnerBusy] = useState(false);
+  const [ownerLogs, setOwnerLogs] = useState<string>('');
 
   const loadTasks = useCallback(
     async (opts?: { quiet?: boolean }) => {
@@ -438,10 +443,16 @@ export default function MasterAdminPage() {
 
   async function onToggleProjectStatus(p: MasterProject) {
     const nextStatus = p.status === 'paused' ? 'active' : 'paused';
+    await onSetProjectStatus(p, nextStatus);
+  }
+
+  async function onSetProjectStatus(
+    p: MasterProject,
+    nextStatus: 'active' | 'paused' | 'building' | 'offline'
+  ) {
     const previous = { ...p };
     setError('');
     setProjectStatusBusy(p.projectId);
-    // Optimistic: Resume → Active + Online (green), even if health is low.
     patchHarnessProject(p.projectId, {
       status: nextStatus,
       live: nextStatus === 'active',
@@ -449,10 +460,18 @@ export default function MasterAdminPage() {
     setNotice(
       nextStatus === 'active'
         ? tFormat(lang, 'master.harnessActivated', { name: p.name || p.projectId })
-        : tFormat(lang, 'master.harnessPausedOk', { name: p.name || p.projectId })
+        : nextStatus === 'paused'
+          ? tFormat(lang, 'master.harnessPausedOk', { name: p.name || p.projectId })
+          : tFormat(lang, 'master.ownerStatusSet', {
+              name: p.name || p.projectId,
+              status: nextStatus,
+            })
     );
     try {
-      const out = await updateMasterProjectStatus(password, p.projectId, nextStatus);
+      const out =
+        ownerMode && ownerPassword
+          ? await ownerSetProjectStatus(ownerPassword, p.projectId, nextStatus)
+          : await updateMasterProjectStatus(password, p.projectId, nextStatus);
       if (out.project) {
         patchHarnessProject(p.projectId, {
           status: out.project.status,
@@ -469,6 +488,49 @@ export default function MasterAdminPage() {
       setNotice('');
     } finally {
       setProjectStatusBusy(null);
+    }
+  }
+
+  async function onOwnerGlobalHealth() {
+    if (!ownerPassword) return;
+    setOwnerBusy(true);
+    setError('');
+    try {
+      const out = await ownerGlobalHealthCheck(ownerPassword);
+      if (out.projects?.length) setHarnessProjects(out.projects);
+      const logs = Array.isArray(out.logs) ? out.logs : [];
+      setOwnerLogs(
+        logs.length ? JSON.stringify(logs.slice(0, 20), null, 2) : t(lang, 'master.ownerLogsEmpty')
+      );
+      setNotice(t(lang, 'master.ownerGlobalHealthOk'));
+      await load({ quiet: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.ownerGlobalHealthFailed'));
+    } finally {
+      setOwnerBusy(false);
+    }
+  }
+
+  async function onOwnerReviewUpdateAll() {
+    if (!ownerPassword) return;
+    if (!window.confirm(t(lang, 'master.ownerReviewConfirm'))) return;
+    setOwnerBusy(true);
+    setError('');
+    try {
+      const out = await ownerReviewUpdateAll(ownerPassword, 'active');
+      const list = out.batch?.projects || out.projects || [];
+      if (list.length) {
+        setHarnessProjects((prev) => {
+          const byId = new Map(list.map((p) => [p.projectId, p]));
+          return prev.map((row) => byId.get(row.projectId) || row);
+        });
+      }
+      setNotice(t(lang, 'master.ownerReviewOk'));
+      await load({ quiet: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.ownerReviewFailed'));
+    } finally {
+      setOwnerBusy(false);
     }
   }
 
@@ -780,6 +842,34 @@ export default function MasterAdminPage() {
                 : t(lang, 'master.metricNa'),
           })}
         </p>
+        {ownerMode ? (
+          <div className="admin-owner-actions">
+            <button
+              type="button"
+              className="admin-master__btn"
+              disabled={ownerBusy}
+              onClick={() => void onOwnerGlobalHealth()}
+            >
+              {ownerBusy ? t(lang, 'master.ownerWorking') : t(lang, 'master.ownerGlobalHealth')}
+            </button>
+            <button
+              type="button"
+              className="admin-master__btn"
+              disabled={ownerBusy}
+              onClick={() => void onOwnerReviewUpdateAll()}
+            >
+              {ownerBusy ? t(lang, 'master.ownerWorking') : t(lang, 'master.ownerReviewAll')}
+            </button>
+            <p className="admin-master__lead admin-owner-actions__hint">
+              {t(lang, 'master.ownerOrchestrationHint')}
+            </p>
+          </div>
+        ) : null}
+        {ownerLogs ? (
+          <pre className="admin-owner-logs" aria-label={t(lang, 'master.ownerLogsAria')}>
+            {ownerLogs}
+          </pre>
+        ) : null}
         <div className="admin-harness-grid" aria-label={t(lang, 'master.harnessProjectsAria')}>
           {(harnessProjects.length ? harnessProjects : data?.harness?.projects || []).map((p) => {
             const score = p.healthScore;
@@ -788,12 +878,13 @@ export default function MasterAdminPage() {
             const selected = selectedProjectId === p.projectId;
             const visitUrl = publicUrlFor(p);
             const hTone = healthTone(score);
+            const canControl = ownerMode || p.projectId === 'resumora';
             return (
               <div
                 key={p.projectId}
                 className={`admin-harness-card admin-harness-card--${tone}${
                   selected ? ' is-selected' : ''
-                }`}
+                }${ownerMode ? ' is-owner-unlocked' : ''}`}
               >
                 <button
                   type="button"
@@ -848,19 +939,50 @@ export default function MasterAdminPage() {
                   ) : (
                     <span className="admin-harness-no-url">{t(lang, 'master.harnessNoUrl')}</span>
                   )}
-                  {p.projectId === 'resumora' ? (
-                    <button
-                      type="button"
-                      className="admin-master__btn admin-master__btn--ghost"
-                      disabled={projectStatusBusy === p.projectId}
-                      onClick={() => void onToggleProjectStatus(p)}
-                    >
-                      {projectStatusBusy === p.projectId
-                        ? t(lang, 'master.harnessStatusBusy')
-                        : p.status === 'paused'
-                          ? t(lang, 'master.harnessResume')
-                          : t(lang, 'master.harnessPause')}
-                    </button>
+                  {canControl ? (
+                    <>
+                      {ownerMode ? (
+                        <label className="admin-owner-status">
+                          <span className="admin-sr-only">{t(lang, 'master.ownerSetStatus')}</span>
+                          <select
+                            value={
+                              ['active', 'paused', 'building', 'offline'].includes(p.status)
+                                ? p.status
+                                : 'offline'
+                            }
+                            disabled={projectStatusBusy === p.projectId}
+                            onChange={(e) =>
+                              void onSetProjectStatus(
+                                p,
+                                e.target.value as 'active' | 'paused' | 'building' | 'offline'
+                              )
+                            }
+                            aria-label={`${p.name} status`}
+                          >
+                            <option value="active">{t(lang, 'master.harnessStatus.active')}</option>
+                            <option value="offline">
+                              {t(lang, 'master.harnessStatus.offline')}
+                            </option>
+                            <option value="paused">{t(lang, 'master.harnessStatus.paused')}</option>
+                            <option value="building">
+                              {t(lang, 'master.harnessStatus.building')}
+                            </option>
+                          </select>
+                        </label>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="admin-master__btn admin-master__btn--ghost"
+                        disabled={projectStatusBusy === p.projectId}
+                        onClick={() => void onToggleProjectStatus(p)}
+                      >
+                        {projectStatusBusy === p.projectId
+                          ? t(lang, 'master.harnessStatusBusy')
+                          : p.status === 'paused'
+                            ? t(lang, 'master.harnessResume')
+                            : t(lang, 'master.harnessPause')}
+                      </button>
+                    </>
                   ) : (
                     <p className="admin-master__lead admin-harness-pause-note">
                       {t(lang, 'master.harnessPauseNa')}
