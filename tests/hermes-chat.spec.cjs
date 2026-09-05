@@ -30,6 +30,10 @@ function adminPassword() {
 
 /** Unlock + catalog APIs mocked so Hermes Chat UI tests stay self-contained (local + CI). */
 async function mockAdminUnlockApis(page) {
+  const projects = [
+    { projectId: 'resumora', name: 'Resumora', status: 'active', live: true },
+    { projectId: 'elegancyart', name: 'ElegancyArt', status: 'active', live: true },
+  ];
   await page.route('**/api/admin/master-dashboard', async (route) => {
     await route.fulfill({
       status: 200,
@@ -37,7 +41,8 @@ async function mockAdminUnlockApis(page) {
       body: JSON.stringify({
         dashboard: {
           ok: true,
-          projects: [{ projectId: 'resumora', name: 'Resumora', status: 'active' }],
+          harness: { projects },
+          projects,
         },
       }),
     });
@@ -46,16 +51,28 @@ async function mockAdminUnlockApis(page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        projects: [{ projectId: 'resumora', name: 'Resumora', status: 'active' }],
-      }),
+      body: JSON.stringify({ projects }),
     });
   });
   await page.route('**/api/admin/hermes-status', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ status: { online: true, chatEnabled: true } }),
+      body: JSON.stringify({ status: { online: true, chatEnabled: true, configured: true, active: true } }),
+    });
+  });
+  await page.route('**/api/admin/tasks**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ tasks: [] }),
+    });
+  });
+  await page.route('**/api/admin/financials**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ financials: null }),
     });
   });
 }
