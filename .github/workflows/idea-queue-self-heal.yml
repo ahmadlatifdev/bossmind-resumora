@@ -1,0 +1,74 @@
+name: Idea Queue Self-Heal QA
+
+# On feat/auto-issue-* branches: run checks; if fail, feed logs back to the queue (max 3).
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      idea_id:
+        description: Idea id (e.g. IQ-001)
+        required: true
+      failure_log:
+        description: Optional failure log override
+        required: false
+        default: ''
+
+jobs:
+  qa:
+    if: startsWith(github.head_ref || github.ref_name, 'feat/auto-issue-') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install root
+        run: npm ci
+
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: npm run build
+
+      - name: Capture failure + self-heal
+        if: steps.lint.outcome == 'failure' || steps.build.outcome == 'failure'
+        working-directory: hermes-idea-queue
+        env:
+          REDIS_URL: ${{ secrets.IDEA_QUEUE_REDIS_URL }}
+          IDEA_ID: ${{ github.event.inputs.idea_id || '' }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          GITHUB_REF_NAME: ${{ github.head_ref || github.ref_name }}
+          FAILURE_LOG: ${{ github.event.inputs.failure_log }}
+          MAX_QA_RETRIES: '3'
+          CURSOR_DRY_RUN: 'true'
+        run: |
+          npm install --omit=optional
+          npm run build
+          if [ -z "$FAILURE_LOG" ]; then
+            export FAILURE_LOG="lint=${{ steps.lint.outcome }} build=${{ steps.build.outcome }} — see Actions logs for ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
+          if [ -z "$IDEA_ID" ]; then
+            IDEA_ID=$(echo "$BRANCH" | sed -E 's/^feat\/auto-issue-//I' | tr '[:lower:]' '[:upper:]')
+            export IDEA_ID
+          fi
+          if [ -z "$REDIS_URL" ]; then
+            echo "IDEA_QUEUE_REDIS_URL secret not set — flagging for manual review"
+            echo "::error::Self-heal skipped (no Redis). Manual review required for $IDEA_ID"
+            exit 2
+          fi
+          node dist/index.js self-heal
+
+      - name: Pass gate
+        if: steps.lint.outcome == 'success' && steps.build.outcome == 'success'
+        run: echo "QA passed for auto-issue branch"

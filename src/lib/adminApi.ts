@@ -211,6 +211,41 @@ export async function setHarnessAutomation(
   return data as { ok?: boolean; settings?: Record<string, unknown> };
 }
 
+export type AdminFeedDetail = {
+  id: string;
+  kind: string;
+  title?: string;
+  status?: string;
+  at?: string | null;
+  score?: number | null;
+  description?: string;
+  cycleId?: string | null;
+  requiresHumanReview?: boolean;
+  resolved?: boolean;
+  logs?: Array<{ id?: string; level?: string; message?: string; detail?: unknown }>;
+};
+
+export async function fetchAdminIncident(password: string, id: string, kind = 'incident') {
+  const q = new URLSearchParams({ id, kind });
+  const res = await fetch(`/api/admin/incidents?${q}`, {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; item?: AdminFeedDetail };
+}
+
+export async function resolveAdminIncident(password: string, id: string, note?: string) {
+  const res = await fetch(`/api/incidents/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify({ id, status: 'resolved', note }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; id?: string; status?: string };
+}
+
 export async function fetchAdminFinancials(password: string) {
   const res = await fetch('/api/admin/financials', {
     headers: adminHeaders(password),

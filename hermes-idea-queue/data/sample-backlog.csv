@@ -1,0 +1,3 @@
+id,title,description,tags,requestedFiles,dependsOn,priorityHint
+IQ-020,Feed resolve button aria-label,Add accessible aria-label to Resolve buttons in admin feed,"admin,a11y","src/pages/MasterAdminPage.tsx",,25
+IQ-021,Incident logs empty hint,Improve empty logs copy on incident detail page,"admin,copy","src/pages/AdminIncidentPage.tsx",IQ-020,20

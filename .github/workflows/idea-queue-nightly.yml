@@ -1,0 +1,64 @@
+name: Idea Queue Nightly Sweeper
+
+# Activates Hermes Idea Request Queue at 02:00 America/New_York.
+# Enqueues up to MAX_NIGHTLY_PRS atomic tasks. Does NOT merge to main.
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # 02:00 America/New_York (EST=UTC-5); adjust for DST if needed
+  workflow_dispatch:
+    inputs:
+      max_prs:
+        description: Max PRs to enqueue this run
+        required: false
+        default: '25'
+
+concurrency:
+  group: idea-queue-nightly
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: hermes-idea-queue/package-lock.json
+
+      - name: Start Redis
+        run: docker run -d --name idea-redis -p 6379:6379 redis:7-alpine
+
+      - name: Install idea-queue
+        working-directory: hermes-idea-queue
+        run: npm install --omit=optional
+
+      - name: Build
+        working-directory: hermes-idea-queue
+        run: npm run build && mkdir -p dist/hitl && cp -r src/hitl/public dist/hitl/public
+
+      - name: Ingest + sweep
+        working-directory: hermes-idea-queue
+        env:
+          REDIS_URL: redis://127.0.0.1:6379
+          REPO_ROOT: ${{ github.workspace }}
+          BACKLOG_PATH: ${{ github.workspace }}/hermes-idea-queue/data/sample-backlog.json
+          MAX_NIGHTLY_PRS: ${{ github.event.inputs.max_prs || '25' }}
+          CURSOR_DRY_RUN: 'true'
+          HERMES_LLM_API_KEY: ${{ secrets.HERMES_LLM_API_KEY }}
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_HOST: ${{ secrets.PINECONE_HOST }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          HITL_TOKEN: ${{ secrets.HITL_TOKEN }}
+        run: |
+          node dist/index.js ingest
+          node dist/index.js sweep
+
+      - name: Summary
+        run: echo "Nightly sweep complete. Review HITL dashboard for paused auth/payment/schema tasks. PRs are never auto-merged."

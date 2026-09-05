@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../components/AdminAuthGate';
 import { mapAdminStatus, toAdminEnglish } from '../lib/adminEnglishLabels';
 import FinancialDashboardPanel, { type FinancialDashboard } from '../components/FinancialDashboard';
@@ -17,9 +17,11 @@ import {
   setHarnessAutomation,
   fetchAdminFinancials,
   runFinanceAllocation,
+  resolveAdminIncident,
   type MasterProject,
   type HarnessTask,
 } from '../lib/adminApi';
+import { cacheFeedItem } from '../lib/adminFeedCache';
 import AdminHermesCommandChat from '../components/AdminHermesCommandChat';
 import { t, tFormat } from '../lib/i18n.js';
 
@@ -62,6 +64,9 @@ type FeedItem = {
   status?: string;
   at?: string | null;
   score?: number;
+  description?: string;
+  requiresHumanReview?: boolean;
+  cycleId?: string | null;
 };
 
 type Dashboard = {
@@ -144,8 +149,10 @@ function TrendChart({ series, lang }: { series: SeriesPoint[]; lang: string }) {
 
 export default function MasterAdminPage() {
   const { lang, password } = useAdminAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [healBusy, setHealBusy] = useState(false);
   const [refreshBusy, setRefreshBusy] = useState(false);
   const [showRefreshSpinner, setShowRefreshSpinner] = useState(false);
@@ -174,6 +181,7 @@ export default function MasterAdminPage() {
   const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
   const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
   const [financeBusy, setFinanceBusy] = useState(false);
+  const [showIncidents, setShowIncidents] = useState(false);
 
   const loadTasks = useCallback(
     async (opts?: { quiet?: boolean }) => {
@@ -506,11 +514,88 @@ export default function MasterAdminPage() {
     }
   }
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 4200);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  async function onResolveFeedItem(item: FeedItem) {
+    if (item.kind !== 'incident') {
+      setToast({ type: 'error', text: t(lang, 'master.feedResolveIncidentsOnly') });
+      return;
+    }
+    if (!window.confirm(tFormat(lang, 'master.feedResolveConfirm', { id: item.id }))) return;
+
+    const previousFeed = data?.feed || [];
+    const previousStatus = item.status;
+    setError('');
+    setData((cur) => {
+      if (!cur?.feed) return cur;
+      return {
+        ...cur,
+        feed: cur.feed.map((row) =>
+          row.id === item.id && row.kind === item.kind ? { ...row, status: 'resolved' } : row
+        ),
+      };
+    });
+    setToast({ type: 'success', text: t(lang, 'master.feedResolveOk') });
+
+    try {
+      await resolveAdminIncident(password, item.id, 'Resolved from Master Admin feed');
+      await load({ quiet: true });
+    } catch (err) {
+      setData((cur) => {
+        if (!cur?.feed) return cur;
+        return {
+          ...cur,
+          feed: previousFeed.length
+            ? previousFeed
+            : cur.feed.map((row) =>
+                row.id === item.id && row.kind === item.kind
+                  ? { ...row, status: previousStatus }
+                  : row
+              ),
+        };
+      });
+      setToast({
+        type: 'error',
+        text: err instanceof Error ? err.message : t(lang, 'master.feedResolveFail'),
+      });
+    }
+  }
+
+  function openFeedDetails(item: FeedItem) {
+    cacheFeedItem({
+      id: item.id,
+      kind: item.kind,
+      title: item.title,
+      status: item.status,
+      at: item.at,
+      score: item.score,
+      description: item.description || item.title,
+      cycleId: item.cycleId,
+      requiresHumanReview: item.requiresHumanReview,
+      logs: [],
+    });
+    navigate(
+      `/admin/incidents/${encodeURIComponent(item.id)}?kind=${encodeURIComponent(item.kind)}`
+    );
+  }
+
   const score = data?.globalHealth?.score ?? null;
   const series = data?.analytics?.series || [];
 
   return (
     <div className="admin-dashboard" aria-busy={refreshBusy || healBusy}>
+      {toast ? (
+        <div className={`admin-toast admin-toast--${toast.type}`} role="status" aria-live="polite">
+          <span>{toast.text}</span>
+          <button type="button" aria-label="Dismiss" onClick={() => setToast(null)}>
+            ×
+          </button>
+        </div>
+      ) : null}
       <div className="admin-actions">
         <Link className="admin-master__btn" to="/admin/system-health">
           {t(lang, 'master.quickHealth')}
@@ -617,23 +702,66 @@ export default function MasterAdminPage() {
         )}
       </section>
 
-      <section className="admin-master__card" aria-label={t(lang, 'master.feedTitle')}>
-        <h2>{t(lang, 'master.feedTitle')}</h2>
-        {(data?.feed || []).length ? (
-          <ul className="admin-feed">
-            {(data?.feed || []).map((item) => (
-              <li key={`${item.kind}-${item.id}`}>
-                <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
-                <span>{toAdminEnglish(item.title)}</span>
-                {item.status ? (
-                  <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
-                ) : null}
-                <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
-              </li>
-            ))}
-          </ul>
+      <section
+        className="admin-master__card"
+        aria-label={t(lang, 'master.feedTitle')}
+        id="incidents"
+      >
+        <div className="admin-feed-toggle-row">
+          <h2>{t(lang, 'master.feedTitle')}</h2>
+          <button
+            type="button"
+            className="admin-master__btn admin-feed-view-btn"
+            aria-expanded={showIncidents}
+            aria-controls="admin-incidents-list"
+            onClick={() => setShowIncidents((v) => !v)}
+          >
+            {showIncidents
+              ? t(lang, 'master.feedHideIncidents')
+              : t(lang, 'master.feedViewIncidents')}
+          </button>
+        </div>
+        {showIncidents ? (
+          <div id="admin-incidents-list">
+            {(data?.feed || []).length ? (
+              <ul className="admin-feed">
+                {(data?.feed || []).map((item) => (
+                  <li key={`${item.kind}-${item.id}`}>
+                    <div className="admin-feed__main">
+                      <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
+                      <span className="admin-feed__title">{toAdminEnglish(item.title)}</span>
+                      {item.status ? (
+                        <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
+                      ) : null}
+                      <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
+                    </div>
+                    <div className="admin-feed__actions">
+                      <button
+                        type="button"
+                        className="admin-master__btn admin-master__btn--ghost admin-feed__btn"
+                        onClick={() => openFeedDetails(item)}
+                      >
+                        {t(lang, 'master.feedViewDetails')}
+                      </button>
+                      {item.kind === 'incident' && item.status !== 'resolved' ? (
+                        <button
+                          type="button"
+                          className="admin-master__btn admin-feed__btn"
+                          onClick={() => void onResolveFeedItem(item)}
+                        >
+                          {t(lang, 'master.feedResolve')}
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+            )}
+          </div>
         ) : (
-          <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+          <p className="admin-master__lead">{t(lang, 'master.feedHiddenHint')}</p>
         )}
       </section>
 
