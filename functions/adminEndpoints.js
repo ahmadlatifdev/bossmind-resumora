@@ -10,7 +10,11 @@ const systemManual = require('./systemManual');
 const { stripeApiSecrets } = require('./lib/stripeSecrets');
 const hermes = require('./lib/hermesClient');
 const { getMasterDashboardData } = require('./getMasterDashboardData');
-const { listMasterProjects, getProjectContext } = require('./lib/projectRegistry');
+const {
+  listMasterProjects,
+  getProjectContext,
+  setMasterProjectStatus,
+} = require('./lib/projectRegistry');
 const { routeTool, runSkill } = require('./lib/toolRouter');
 const { callGeminiChat } = require('./lib/geminiChat');
 const {
@@ -54,7 +58,7 @@ function adminCors(res, req) {
   ]);
   const allow = allowed.has(origin) ? origin : 'https://resumora.net';
   res.set('Access-Control-Allow-Origin', allow);
-  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Password');
   res.set('Vary', 'Origin');
 }
@@ -196,6 +200,51 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Master projects failed' });
+    }
+  });
+
+  exportsObj.updateMasterProjectStatus = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'PATCH' && req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const pathParts = String(req.path || req.url || '')
+        .split('?')[0]
+        .split('/')
+        .filter(Boolean);
+      // /api/projects/resumora/status → ["api","projects","resumora","status"]
+      let pathProjectId = '';
+      const projectsIdx = pathParts.indexOf('projects');
+      if (projectsIdx >= 0 && pathParts[projectsIdx + 1]) {
+        pathProjectId = pathParts[projectsIdx + 1];
+      }
+      const projectId = String(body.projectId || req.query.projectId || pathProjectId || '')
+        .trim()
+        .toLowerCase();
+      const status = String(body.status || req.query.status || '')
+        .trim()
+        .toLowerCase();
+      if (!projectId) {
+        res.status(400).json({ error: 'projectId required' });
+        return;
+      }
+      if (!status) {
+        res.status(400).json({ error: 'status required' });
+        return;
+      }
+      const out = await setMasterProjectStatus(db, projectId, status);
+      res.status(200).json(out);
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Project status update failed' });
     }
   });
 

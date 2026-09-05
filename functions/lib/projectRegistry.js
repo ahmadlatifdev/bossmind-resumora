@@ -115,13 +115,58 @@ function healthFromSnapshot(projectId, snapshot) {
 }
 
 function statusFromHealth(storedStatus, score) {
-  const allowed = new Set(['active', 'building', 'paused']);
-  if (allowed.has(storedStatus) && storedStatus !== 'active') return storedStatus;
+  const normalized = storedStatus === 'running' ? 'active' : storedStatus;
+  // Explicit operator status wins — low health must not force PAUSED after Resume.
+  if (normalized === 'active') return 'active';
+  if (normalized === 'paused') return 'paused';
+  if (normalized === 'building') return 'building';
   const n = Number(score);
-  if (!Number.isFinite(n)) return storedStatus || 'paused';
+  if (!Number.isFinite(n)) return 'paused';
   if (n >= 80) return 'active';
   if (n >= 50) return 'building';
   return 'paused';
+}
+
+/**
+ * Operator pause/resume — does not stop Firebase hosting; updates catalog status only.
+ * @param {FirebaseFirestore.Firestore} db
+ * @param {string} projectId
+ * @param {string} status
+ */
+async function setMasterProjectStatus(db, projectId, status) {
+  await ensureProjectRegistry(db);
+  const id = String(projectId || '')
+    .toLowerCase()
+    .trim();
+  if (!CANONICAL_PROJECTS.some((p) => p.projectId === id)) {
+    const err = new Error('Unknown project');
+    err.statusCode = 404;
+    throw err;
+  }
+  let next = String(status || '')
+    .toLowerCase()
+    .trim();
+  if (next === 'running') next = 'active';
+  if (!['active', 'paused', 'building'].includes(next)) {
+    const err = new Error('status must be active, paused, or building');
+    err.statusCode = 400;
+    throw err;
+  }
+  const ref = db.collection(COLLECTION).doc(id);
+  await ref.set(
+    {
+      projectId: id,
+      status: next,
+      statusSource: 'operator',
+      live: next === 'active',
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+  const snapshot = null;
+  const registry = await listMasterProjects(db, snapshot);
+  const project = registry.projects.find((p) => p.projectId === id);
+  return { ok: true, project, status: next };
 }
 
 /**
@@ -154,7 +199,10 @@ async function listMasterProjects(db, snapshot) {
       envRegistry: sanitizeEnvRegistry(row.envRegistry || canon.envRegistry),
       healthScore: Number.isFinite(Number(healthScore)) ? Number(healthScore) : null,
       tools: { ...(canon.tools || {}), ...(row.tools || {}) },
-      live: canon.projectId === 'resumora',
+      live:
+        row.live === true ||
+        status === 'active' ||
+        (canon.projectId === 'resumora' && status !== 'paused'),
     };
   });
 
@@ -190,5 +238,6 @@ module.exports = {
   sanitizeEnvRegistry,
   ensureProjectRegistry,
   listMasterProjects,
+  setMasterProjectStatus,
   getProjectContext,
 };

@@ -17,6 +17,7 @@ import {
   setHarnessAutomation,
   fetchAdminFinancials,
   runFinanceAllocation,
+  updateMasterProjectStatus,
   type MasterProject,
   type HarnessTask,
 } from '../lib/adminApi';
@@ -174,6 +175,7 @@ export default function MasterAdminPage() {
   const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
   const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
   const [financeBusy, setFinanceBusy] = useState(false);
+  const [projectStatusBusy, setProjectStatusBusy] = useState<string | null>(null);
 
   const loadTasks = useCallback(
     async (opts?: { quiet?: boolean }) => {
@@ -330,13 +332,67 @@ export default function MasterAdminPage() {
   }
 
   function harnessConnectivity(p: MasterProject): 'online' | 'degraded' | 'offline' {
-    if (p.live === true) return 'online';
-    if (p.live === false || p.status === 'paused') return 'offline';
+    if (p.status === 'paused') return 'offline';
+    if (p.status === 'active' || p.status === 'running' || p.live === true) return 'online';
+    if (p.live === false) return 'offline';
     const hs = Number(p.healthScore);
     if (p.status === 'building' || (Number.isFinite(hs) && hs < 70 && hs >= 40)) return 'degraded';
-    if (p.status === 'active' && (!Number.isFinite(hs) || hs >= 70)) return 'online';
     if (Number.isFinite(hs) && hs < 40) return 'offline';
-    return p.status === 'active' ? 'online' : 'offline';
+    return 'offline';
+  }
+
+  function patchHarnessProject(projectId: string, patch: Partial<MasterProject>) {
+    setHarnessProjects((prev) =>
+      prev.map((row) => (row.projectId === projectId ? { ...row, ...patch } : row))
+    );
+    setData((cur) => {
+      if (!cur?.harness?.projects) return cur;
+      return {
+        ...cur,
+        harness: {
+          ...cur.harness,
+          projects: cur.harness.projects.map((row) =>
+            row.projectId === projectId ? { ...row, ...patch } : row
+          ),
+        },
+      };
+    });
+  }
+
+  async function onToggleProjectStatus(p: MasterProject) {
+    const nextStatus = p.status === 'paused' ? 'active' : 'paused';
+    const previous = { ...p };
+    setError('');
+    setProjectStatusBusy(p.projectId);
+    // Optimistic: Resume → Active + Online (green), even if health is low.
+    patchHarnessProject(p.projectId, {
+      status: nextStatus,
+      live: nextStatus === 'active',
+    });
+    setNotice(
+      nextStatus === 'active'
+        ? tFormat(lang, 'master.harnessActivated', { name: p.name || p.projectId })
+        : tFormat(lang, 'master.harnessPausedOk', { name: p.name || p.projectId })
+    );
+    try {
+      const out = await updateMasterProjectStatus(password, p.projectId, nextStatus);
+      if (out.project) {
+        patchHarnessProject(p.projectId, {
+          status: out.project.status,
+          live: out.project.live,
+          healthScore: out.project.healthScore,
+        });
+      }
+    } catch (err) {
+      patchHarnessProject(p.projectId, {
+        status: previous.status,
+        live: previous.live,
+      });
+      setError(err instanceof Error ? err.message : t(lang, 'master.harnessStatusFailed'));
+      setNotice('');
+    } finally {
+      setProjectStatusBusy(null);
+    }
   }
 
   function healthTone(score: number | null | undefined): 'ok' | 'warn' | 'bad' | 'na' {
@@ -715,10 +771,25 @@ export default function MasterAdminPage() {
                   ) : (
                     <span className="admin-harness-no-url">{t(lang, 'master.harnessNoUrl')}</span>
                   )}
+                  {p.projectId === 'resumora' ? (
+                    <button
+                      type="button"
+                      className="admin-master__btn admin-master__btn--ghost"
+                      disabled={projectStatusBusy === p.projectId}
+                      onClick={() => void onToggleProjectStatus(p)}
+                    >
+                      {projectStatusBusy === p.projectId
+                        ? t(lang, 'master.harnessStatusBusy')
+                        : p.status === 'paused'
+                          ? t(lang, 'master.harnessResume')
+                          : t(lang, 'master.harnessPause')}
+                    </button>
+                  ) : (
+                    <p className="admin-master__lead admin-harness-pause-note">
+                      {t(lang, 'master.harnessPauseNa')}
+                    </p>
+                  )}
                 </div>
-                <p className="admin-master__lead admin-harness-pause-note">
-                  {t(lang, 'master.harnessPauseNa')}
-                </p>
               </div>
             );
           })}

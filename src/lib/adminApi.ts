@@ -90,6 +90,21 @@ export async function fetchMasterProjects(password: string) {
   };
 }
 
+export async function updateMasterProjectStatus(
+  password: string,
+  projectId: string,
+  status: 'active' | 'paused' | 'building' | 'running'
+) {
+  const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/status`, {
+    method: 'PATCH',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify({ projectId, status }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; status?: string; project?: MasterProject };
+}
+
 export async function postAdminHermesCommand(
   password: string,
   body: {

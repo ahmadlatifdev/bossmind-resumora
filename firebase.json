@@ -153,6 +153,14 @@
         "function": "getMasterProjects"
       },
       {
+        "source": "/api/admin/projects/status",
+        "function": "updateMasterProjectStatus"
+      },
+      {
+        "source": "/api/projects/**",
+        "function": "updateMasterProjectStatus"
+      },
+      {
         "source": "/api/admin/hermes-command",
         "function": "postAdminHermesCommand"
       },
