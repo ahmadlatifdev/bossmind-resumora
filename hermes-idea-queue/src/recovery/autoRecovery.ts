@@ -8,6 +8,7 @@ import { loadConfig } from '../config.js';
 
 const PROJECT_ID = 'resumora';
 const MAX_RETRIES = 3;
+const UNREACHABLE_ALERT_MS = 60_000;
 
 type RecoveryStatus = 'active' | 'offline';
 
@@ -95,8 +96,51 @@ async function pushWithRetries(status: RecoveryStatus): Promise<boolean> {
   return false;
 }
 
+/** High-priority alert when queue stays unreachable > 60s (console + optional webhook). */
+async function fireUnreachableAlert(unreachableMs: number): Promise<void> {
+  const seconds = Math.round(unreachableMs / 1000);
+  console.error(
+    `[auto-recovery][HIGH PRIORITY] Hermes queue unreachable for ${seconds}s ` +
+      `(threshold 60s). Auto-recovery cannot keep Resumora ACTIVE until HITL/MCP returns.`
+  );
+
+  const webhook =
+    process.env.ALERT_WEBHOOK_URL ||
+    process.env.HERMES_ALERT_WEBHOOK ||
+    process.env.BOSSMIND_ALERT_WEBHOOK ||
+    '';
+  if (!webhook) {
+    console.warn(
+      '[auto-recovery][HIGH PRIORITY] No ALERT_WEBHOOK_URL configured — console alert only'
+    );
+    return;
+  }
+  try {
+    const res = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        severity: 'high',
+        source: 'hermes-idea-queue-auto-recovery',
+        projectId: PROJECT_ID,
+        message: `Hermes queue unreachable for ${seconds}s`,
+        at: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(5_000),
+    });
+    console.log(`[auto-recovery] alert webhook status=${res.status}`);
+  } catch (err) {
+    console.error(
+      '[auto-recovery] alert webhook failed:',
+      err instanceof Error ? err.message : err
+    );
+  }
+}
+
 let lastApplied: RecoveryStatus | null = null;
 let tickBusy = false;
+let unreachableSince: number | null = null;
+let unreachableAlertSent = false;
 
 export async function runRecoveryTick(): Promise<void> {
   if (tickBusy) {
@@ -107,6 +151,24 @@ export async function runRecoveryTick(): Promise<void> {
   try {
     const probe = await probeLocalQueue();
     const next: RecoveryStatus = probe.ok ? 'active' : 'offline';
+
+    if (!probe.ok) {
+      if (unreachableSince == null) unreachableSince = Date.now();
+      const elapsed = Date.now() - unreachableSince;
+      if (elapsed >= UNREACHABLE_ALERT_MS && !unreachableAlertSent) {
+        await fireUnreachableAlert(elapsed);
+        unreachableAlertSent = true;
+      }
+    } else {
+      if (unreachableSince != null) {
+        console.log(
+          `[auto-recovery] queue reachable again after ${Math.round((Date.now() - unreachableSince) / 1000)}s`
+        );
+      }
+      unreachableSince = null;
+      unreachableAlertSent = false;
+    }
+
     if (next === lastApplied) {
       console.log(`[auto-recovery] no change (still ${next})`);
       return;
@@ -129,7 +191,8 @@ export function startAutoRecoveryMonitor(): NodeJS.Timeout {
   const cfg = loadConfig();
   console.log(
     `[auto-recovery] monitor started interval=${cfg.AUTO_RECOVERY_INTERVAL_MS}ms ` +
-      `hitl=:${cfg.HITL_PORT} mcp=:${cfg.MCP_PORT} api=${cfg.RESUMORA_API_BASE}`
+      `hitl=:${cfg.HITL_PORT} mcp=:${cfg.MCP_PORT} api=${cfg.RESUMORA_API_BASE} ` +
+      `unreachableAlert=${UNREACHABLE_ALERT_MS}ms`
   );
   void runRecoveryTick();
   return setInterval(() => {
