@@ -104,6 +104,100 @@ export async function postAdminHermesCommand(
   return data as { ok?: boolean; reply?: string; engine?: string; projectId?: string };
 }
 
+export type HarnessTask = {
+  id: string;
+  description?: string;
+  status?: string;
+  codeDiff?: string;
+  commands?: string[];
+  projectId?: string;
+  actor?: string;
+  risk?: string;
+  logs?: string[];
+  autoDeployEligible?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deployRunUrl?: string | null;
+};
+
+export async function fetchHarnessTasks(password: string, status?: string) {
+  const q = status ? `?status=${encodeURIComponent(status)}` : '';
+  const res = await fetch(`/api/admin/tasks${q}`, {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    tasks?: HarnessTask[];
+    settings?: {
+      autoDeployAfterAck?: boolean;
+      createTasksOnLowHealth?: boolean;
+      healthThreshold?: number;
+    };
+  };
+}
+
+export async function createHarnessTask(
+  password: string,
+  body: {
+    description: string;
+    codeDiff?: string;
+    commands?: string[];
+    projectId?: string;
+    actor?: string;
+    risk?: string;
+  }
+) {
+  const res = await fetch('/api/admin/tasks/create', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; task?: HarnessTask };
+}
+
+export async function ackHarnessTask(
+  password: string,
+  body: { taskId: string; ack?: boolean; reject?: boolean; note?: string }
+) {
+  const res = await fetch('/api/admin/tasks/ack', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; task?: HarnessTask };
+}
+
+export async function markHarnessTaskApplied(password: string, taskId: string, log?: string) {
+  const res = await fetch('/api/admin/tasks/mark-applied', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify({ taskId, log }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; task?: HarnessTask };
+}
+
+export async function setHarnessAutomation(
+  password: string,
+  body: { autoDeployAfterAck?: boolean; createTasksOnLowHealth?: boolean; healthThreshold?: number }
+) {
+  const res = await fetch('/api/admin/tasks/automation', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; settings?: Record<string, unknown> };
+}
+
 export async function requestAdminPasswordReset() {
   const res = await fetch('/api/admin/password-reset/request', {
     method: 'POST',

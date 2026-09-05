@@ -18,6 +18,8 @@ const {
   requestAdminPasswordReset,
   confirmAdminPasswordReset,
 } = require('./lib/adminGateAuth');
+const harnessTasks = require('./lib/harnessTasks');
+const { handleGitHubWebhook } = require('./lib/githubWebhook');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -218,6 +220,19 @@ function registerAdminEndpoints(exportsObj) {
           projectId: project.projectId,
           taskType: body.taskType,
         });
+
+        if (route === 'skill:project-health') {
+          const { runProjectHealth } = require('./lib/skills/project-health');
+          const snapshot = await selfHeal.getHealthSnapshot(db).catch(() => null);
+          const skillOut = await runProjectHealth({ db, snapshot, lang });
+          res.status(200).json({
+            ok: true,
+            engine: route,
+            projectId: project.projectId,
+            reply: skillOut.reply,
+          });
+          return;
+        }
 
         if (route.startsWith('skill:')) {
           const skillOut = runSkill(route, { message, lang, projectId: project.projectId });
@@ -447,6 +462,156 @@ function registerAdminEndpoints(exportsObj) {
       } catch (err) {
         const code = err.statusCode || 500;
         res.status(code).json({ error: err.message || 'Reset confirm failed' });
+      }
+    }
+  );
+
+  exportsObj.listHarnessTasks = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const status = String(req.query.status || '').trim();
+      const tasks = await harnessTasks.listTasks(db, { status: status || undefined });
+      const settings = await harnessTasks.readAutomationSettings(db);
+      res.status(200).json({ ok: true, tasks, settings });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'List tasks failed' });
+    }
+  });
+
+  exportsObj.createHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const task = await harnessTasks.createTask(db, {
+        description: body.description,
+        codeDiff: body.codeDiff,
+        commands: body.commands,
+        projectId: body.projectId || body.project,
+        actor: body.actor === 'hermes' ? 'hermes' : 'admin',
+        risk: body.risk,
+      });
+      res.status(200).json({ ok: true, task });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Create task failed' });
+    }
+  });
+
+  exportsObj.ackHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const taskId = body.taskId || body.id;
+      const task = await harnessTasks.ackTask(db, taskId, {
+        ack: body.ack !== false && body.reject !== true,
+        note: body.note || body.ACK || 'ACK',
+      });
+      res.status(200).json({ ok: true, task });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'ACK failed' });
+    }
+  });
+
+  exportsObj.markHarnessTaskApplied = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const task = await harnessTasks.markApplied(db, body.taskId || body.id, {
+        log: body.log || 'cursor',
+      });
+      res.status(200).json({
+        ok: true,
+        task,
+        note: 'Server did not run commands. Use local Cursor/scripts after ACK.',
+      });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Mark applied failed' });
+    }
+  });
+
+  exportsObj.setHarnessAutomation = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const settings = await harnessTasks.setAutomationSettings(db, body);
+      res.status(200).json({ ok: true, settings });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Settings update failed' });
+    }
+  });
+
+  // GitHub webhook — signature required; no admin password.
+  exportsObj.githubDeployWebhook = onRequest(
+    {
+      region: 'us-central1',
+      cors: false,
+      timeoutSeconds: 60,
+      memory: '256MiB',
+    },
+    async (req, res) => {
+      if (req.method === 'GET') {
+        res.status(200).json({ ok: true, service: 'githubDeployWebhook' });
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        const out = await handleGitHubWebhook(db, req);
+        res.status(200).json(out);
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Webhook failed' });
       }
     }
   );

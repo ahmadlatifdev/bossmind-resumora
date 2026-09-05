@@ -1423,6 +1423,22 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     alertSent: Boolean(alert && alert.sent),
   });
 
+  let harnessTask = null;
+  try {
+    const { maybeCreateHealthTask } = require('./lib/harnessTasks');
+    harnessTask = await maybeCreateHealthTask(db, {
+      score: analysis.score,
+      status: analysis.status,
+      findings: analysis.findings,
+      cycleId,
+    });
+  } catch (err) {
+    structuredLog('warn', 'harness_task.create_failed', {
+      cycleId,
+      message: err && err.message ? String(err.message).slice(0, 200) : 'unknown',
+    });
+  }
+
   return {
     cycleId,
     score: analysis.score,
@@ -1435,6 +1451,7 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     alert,
     circuit: { pausedTypes: [...pausedTypes], events: circuitEvents },
     firstTimeFixes,
+    harnessTask,
   };
 }
 

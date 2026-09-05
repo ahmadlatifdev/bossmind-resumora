@@ -8,6 +8,11 @@ name: Deploy Firebase Hosting Production
 
 on:
   workflow_dispatch:
+    inputs:
+      task_id:
+        description: Optional harness_tasks document id to mark deployed after success
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -293,6 +298,8 @@ jobs:
               getmasterdashboard getmasterprojects postadminhermescommand \
               requestadminpasswordreset confirmadminpasswordreset \
               gethermesstatus sethermeschat gethermesinsights \
+              listharnesstasks createharnesstask ackharnesstask markharnesstaskapplied setharnessautomation \
+              githubdeploywebhook \
               stripewebhook getrefundpreview cancelsubscription recordserviceeventhttp \
               listrefundshttp getrefundpreviewv2 getrevenueanalytics getchurnprediction \
               createcheckoutsession videocatalog videodownload sendchatmessage
@@ -307,7 +314,7 @@ jobs:
           }
           deploy_fn() {
             npx firebase-tools@latest deploy --only \
-              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:requestAdminPasswordReset,functions:resumora-checkout:confirmAdminPasswordReset,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
+              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:requestAdminPasswordReset,functions:resumora-checkout:confirmAdminPasswordReset,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:listHarnessTasks,functions:resumora-checkout:createHarnessTask,functions:resumora-checkout:ackHarnessTask,functions:resumora-checkout:markHarnessTaskApplied,functions:resumora-checkout:setHarnessAutomation,functions:resumora-checkout:githubDeployWebhook,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
               --project "${GCP_PROJECT_ID}" \
               --non-interactive
           }
@@ -355,6 +362,8 @@ jobs:
             'getmasterdashboard','getmasterprojects','postadminhermescommand',
             'requestadminpasswordreset','confirmadminpasswordreset',
             'gethermesstatus','sethermeschat','gethermesinsights',
+            'listharnesstasks','createharnesstask','ackharnesstask','markharnesstaskapplied','setharnessautomation',
+            'githubdeploywebhook',
             'stripewebhook','getrefundpreview','cancelsubscription','recordserviceeventhttp',
             'listrefundshttp','getrefundpreviewv2','getrevenueanalytics','getchurnprediction',
             'createcheckoutsession','videocatalog','videodownload','sendchatmessage'
@@ -375,6 +384,28 @@ jobs:
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
         run: node scripts/ci/deploy-hosting-blue-green.mjs
+
+      - name: Notify harness task (optional task_id)
+        if: github.event_name == 'workflow_dispatch' && inputs.task_id != ''
+        env:
+          TASK_ID: ${{ inputs.task_id }}
+          WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${WEBHOOK_SECRET:-}" ]; then
+            echo "GITHUB_WEBHOOK_SECRET missing — skip task notify"
+            exit 0
+          fi
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          BODY=$(jq -nc --arg id "$TASK_ID" --arg url "$RUN_URL" \
+            '{action:"completed",workflow_run:{conclusion:"success",status:"completed",html_url:$url,inputs:{task_id:$id}}}')
+          SIG="sha256=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $2}')"
+          curl -fsS -X POST "https://resumora.net/api/webhooks/github" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: workflow_run" \
+            -H "X-Hub-Signature-256: $SIG" \
+            -d "$BODY"
+          echo "Notified harness task $TASK_ID"
 
       - name: Capture deploy failure context
         if: failure()

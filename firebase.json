@@ -177,6 +177,30 @@
         "function": "getHermesInsights"
       },
       {
+        "source": "/api/admin/tasks",
+        "function": "listHarnessTasks"
+      },
+      {
+        "source": "/api/admin/tasks/create",
+        "function": "createHarnessTask"
+      },
+      {
+        "source": "/api/admin/tasks/ack",
+        "function": "ackHarnessTask"
+      },
+      {
+        "source": "/api/admin/tasks/mark-applied",
+        "function": "markHarnessTaskApplied"
+      },
+      {
+        "source": "/api/admin/tasks/automation",
+        "function": "setHarnessAutomation"
+      },
+      {
+        "source": "/api/webhooks/github",
+        "function": "githubDeployWebhook"
+      },
+      {
         "source": "/admin/system-health",
         "destination": "/admin.html"
       },
