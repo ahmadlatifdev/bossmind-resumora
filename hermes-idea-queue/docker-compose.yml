@@ -1,0 +1,116 @@
+# Hermes Idea Request Queue — local full stack
+# Usage (from repo root):
+#   docker compose -f hermes-idea-queue/docker-compose.yml up --build
+#
+# Safety: never merges to main. HITL required for auth/payments/schema.
+# Nightly sweeper runs at 02:00 in the orchestrator container timezone.
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    volumes:
+      - idea_queue_redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mcp-rag:
+    build:
+      context: ..
+      dockerfile: hermes-idea-queue/Dockerfile
+    command: ['node', 'dist/index.js', 'mcp']
+    environment:
+      REDIS_URL: redis://redis:6379
+      REPO_ROOT: /workspace
+      BACKLOG_PATH: /workspace/hermes-idea-queue/data/sample-backlog.json
+      PINECONE_API_KEY: ${PINECONE_API_KEY:-}
+      PINECONE_HOST: ${PINECONE_HOST:-}
+      PINECONE_INDEX: ${PINECONE_INDEX:-resumora-idea-queue}
+      HERMES_LLM_API_KEY: ${HERMES_LLM_API_KEY:-}
+      HERMES_LLM_BASE_URL: ${HERMES_LLM_BASE_URL:-https://api.deepseek.com/v1}
+      CURSOR_DRY_RUN: ${CURSOR_DRY_RUN:-true}
+    volumes:
+      - ..:/workspace:ro
+    ports:
+      - '8791:8791'
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  hitl:
+    build:
+      context: ..
+      dockerfile: hermes-idea-queue/Dockerfile
+    command: ['node', 'dist/index.js', 'hitl']
+    environment:
+      REDIS_URL: redis://redis:6379
+      HITL_PORT: 8790
+      HITL_TOKEN: ${HITL_TOKEN:-change-me-local-only}
+      REPO_ROOT: /workspace
+    ports:
+      - '8790:8790'
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  orchestrator:
+    build:
+      context: ..
+      dockerfile: hermes-idea-queue/Dockerfile
+    command: ['node', 'dist/index.js', 'all']
+    environment:
+      REDIS_URL: redis://redis:6379
+      REPO_ROOT: /workspace
+      BACKLOG_PATH: /workspace/hermes-idea-queue/data/sample-backlog.json
+      HITL_PORT: 8790
+      HITL_TOKEN: ${HITL_TOKEN:-change-me-local-only}
+      MAX_NIGHTLY_PRS: ${MAX_NIGHTLY_PRS:-25}
+      MAX_CONCURRENT_TASKS: ${MAX_CONCURRENT_TASKS:-2}
+      MAX_QA_RETRIES: ${MAX_QA_RETRIES:-3}
+      CURSOR_API_KEY: ${CURSOR_API_KEY:-}
+      CURSOR_MODEL: ${CURSOR_MODEL:-composer-2.5}
+      CURSOR_DRY_RUN: ${CURSOR_DRY_RUN:-true}
+      HERMES_LLM_API_KEY: ${HERMES_LLM_API_KEY:-}
+      HERMES_LLM_BASE_URL: ${HERMES_LLM_BASE_URL:-https://api.deepseek.com/v1}
+      PINECONE_API_KEY: ${PINECONE_API_KEY:-}
+      PINECONE_HOST: ${PINECONE_HOST:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPO: ${GITHUB_REPO:-ahmadlatifdev/bossmind-resumora}
+      TZ: ${TZ:-America/New_York}
+    volumes:
+      # rw so agent can edit + commit when dry-run is false
+      - ..:/workspace
+    depends_on:
+      redis:
+        condition: service_healthy
+      hitl:
+        condition: service_started
+      mcp-rag:
+        condition: service_started
+
+  # One-shot nightly trigger (also scheduled inside orchestrator via node-cron)
+  nightly:
+    build:
+      context: ..
+      dockerfile: hermes-idea-queue/Dockerfile
+    profiles: ['manual-sweep']
+    command: ['node', 'dist/index.js', 'sweep']
+    environment:
+      REDIS_URL: redis://redis:6379
+      REPO_ROOT: /workspace
+      BACKLOG_PATH: /workspace/hermes-idea-queue/data/sample-backlog.json
+      MAX_NIGHTLY_PRS: ${MAX_NIGHTLY_PRS:-25}
+      CURSOR_DRY_RUN: ${CURSOR_DRY_RUN:-true}
+      HERMES_LLM_API_KEY: ${HERMES_LLM_API_KEY:-}
+    volumes:
+      - ..:/workspace:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  idea_queue_redis:

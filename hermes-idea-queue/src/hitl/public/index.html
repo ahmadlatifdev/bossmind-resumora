@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hermes Idea Queue — HITL</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0b0b;
+        --card: #141414;
+        --gold: #d4af37;
+        --text: #f5e6b8;
+        --muted: #9a8f6a;
+        --bad: #ff6b6b;
+        --ok: #3dd68c;
+      }
+      body {
+        margin: 0;
+        font-family: Georgia, 'Times New Roman', serif;
+        background: radial-gradient(1200px 600px at 20% -10%, #2a2108, var(--bg));
+        color: var(--text);
+        min-height: 100vh;
+      }
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+      h1 {
+        font-weight: 500;
+        letter-spacing: 0.02em;
+      }
+      .lead {
+        color: var(--muted);
+        margin-bottom: 24px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      input,
+      button {
+        font: inherit;
+        border-radius: 8px;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: #111;
+        color: var(--text);
+        padding: 10px 12px;
+      }
+      button {
+        background: linear-gradient(180deg, #3a2f0d, #1b1608);
+        cursor: pointer;
+        color: var(--gold);
+      }
+      button.danger {
+        color: var(--bad);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .flags {
+        color: var(--bad);
+        font-size: 0.9rem;
+      }
+      .ok {
+        color: var(--ok);
+      }
+      code {
+        color: var(--gold);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Idea Queue — Human Review</h1>
+      <p class="lead">
+        Auth, payments, and schema-adjacent tasks pause here. Approve to enqueue; reject to stop.
+        Never auto-merges to <code>main</code>.
+      </p>
+      <div class="row">
+        <input id="token" type="password" placeholder="HITL token" style="flex: 1" />
+        <button id="refresh" type="button">Refresh pending</button>
+      </div>
+      <div id="list"></div>
+    </main>
+    <script>
+      const listEl = document.getElementById('list');
+      const tokenEl = document.getElementById('token');
+      tokenEl.value = localStorage.getItem('hitl_token') || '';
+
+      async function api(path, opts = {}) {
+        localStorage.setItem('hitl_token', tokenEl.value);
+        const res = await fetch(path, {
+          ...opts,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + tokenEl.value,
+            ...(opts.headers || {}),
+          },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+        return data;
+      }
+
+      async function refresh() {
+        listEl.innerHTML = '<p>Loading…</p>';
+        try {
+          const data = await api('/api/pending');
+          if (!data.pending.length) {
+            listEl.innerHTML = '<p class="ok">No pending HITL items.</p>';
+            return;
+          }
+          listEl.innerHTML = data.pending
+            .map(
+              (idea) => `
+            <article class="card" data-id="${idea.id}">
+              <h3>${idea.id} — ${idea.title}</h3>
+              <p>${idea.description || ''}</p>
+              <p class="flags">Risk: ${(idea.riskFlags || []).join(', ') || 'none'} · Priority ${idea.priorityScore}</p>
+              <div class="row">
+                <button type="button" data-act="approve">Approve</button>
+                <button type="button" class="danger" data-act="reject">Reject</button>
+              </div>
+            </article>`
+            )
+            .join('');
+        } catch (err) {
+          listEl.innerHTML = '<p class="flags">' + err.message + '</p>';
+        }
+      }
+
+      document.getElementById('refresh').onclick = () => void refresh();
+      listEl.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-act]');
+        if (!btn) return;
+        const card = btn.closest('[data-id]');
+        const ideaId = card.getAttribute('data-id');
+        const decision = btn.getAttribute('data-act');
+        try {
+          await api('/api/decide', {
+            method: 'POST',
+            body: JSON.stringify({ ideaId, decision, reviewer: 'dashboard' }),
+          });
+          await refresh();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+    </script>
+  </body>
+</html>
