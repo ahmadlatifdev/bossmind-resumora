@@ -205,6 +205,22 @@
         "function": "getAdminFinancials"
       },
       {
+        "source": "/api/admin/financials/overview",
+        "function": "getAdminFinancials"
+      },
+      {
+        "source": "/api/admin/financials/trends",
+        "function": "getAdminFinancials"
+      },
+      {
+        "source": "/api/admin/financials/export",
+        "function": "getAdminFinancials"
+      },
+      {
+        "source": "/api/admin/financials/settings",
+        "function": "updateAdminFinanceSettings"
+      },
+      {
         "source": "/api/admin/financials/allocate",
         "function": "runFinanceAllocation"
       },

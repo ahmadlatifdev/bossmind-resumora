@@ -814,7 +814,7 @@ export default function MasterAdminPage() {
         {insights ? <pre className="admin-hermes-insights">{insights}</pre> : null}
       </section>
 
-      <section id="hermes-chat" className="admin-master__card">
+      <section id="hermes-chat" className="admin-master__card admin-hermes-chat-panel">
         <h2>{t(lang, 'master.hermesChatTitle')}</h2>
         <p className="admin-master__lead">{t(lang, 'master.hermesChatPanelLead')}</p>
         <label className="admin-hermes-project">
