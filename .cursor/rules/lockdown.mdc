@@ -1,0 +1,40 @@
+---
+description: Block reintroduction of dropped hosts and unused AI tooling for Resumora
+alwaysApply: true
+---
+
+# Dropped Tools Lockdown (Resumora)
+
+Live stack only: **Firebase Hosting**, **Google Cloud Run**, **GitHub Actions**, **Cursor**.  
+Public domain: **resumora.net** only.
+
+## NEVER re-add or configure
+
+- Vercel (CLI, `vercel.json`, `.vercel/`, `VERCEL_*`, `*.vercel.app`, Vercel GitHub App)
+- Cloudflare (Workers/Pages, `wrangler.toml`, `.cloudflare/`, Cloudflare GitHub App as host)
+- Hostinger
+- Netlify (`netlify.toml`, `.netlify/`)
+- Northflank
+- Railway (`railway.json`)
+- Render (`render.yaml`)
+- Sentry (`@sentry/*`, `sentry.*.config.*`, `SENTRY_DSN`) unless the user explicitly re-approves observability
+
+## NEVER
+
+- Install those GitHub Apps on `ahmadlatifdev/bossmind-resumora`
+- Add npm deps: `@vercel/*`, `vercel`, `netlify-cli`, `@cloudflare/*`, `wrangler`, `@sentry/*`
+- Commit dropped-platform config files listed above
+- Point DNS for `resumora.net` away from Google Cloud DNS / Firebase
+
+## KEEP
+
+- Cursor
+- Google Cloud Build / Firebase workflows
+- `firebase.json`, `.firebaserc`, `functions/`, `src/`, `public/`
+- Policy docs such as `docs/VERCEL_DEPRECATION.md` and cleanup helpers like `scripts/remove-vercel-env-keys.cjs`
+
+## If a dropped tool appears
+
+1. Stop. Do not wire it into deploy.
+2. Remove the file/dep/app.
+3. Confirm GitHub Apps page only lists Cursor + Google Cloud Build (plus GitHub Actions).

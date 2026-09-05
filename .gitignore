@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 
 .vercel
+vercel.json
+.vercelignore
 .cloudflare
 .wrangler
 wrangler.toml

@@ -1,0 +1,43 @@
+---
+description: Golden baseline incremental-update guardrails for Resumora (design-locked tag, no scratch deploys)
+alwaysApply: true
+---
+
+# Golden Baseline Guardrails (Resumora)
+
+**Golden design tag:** `v1.0.0-design-locked`  
+**Live:** `https://resumora.net` (`client-resumora-live` / Firebase only)
+
+## Absolute rules
+
+- NEVER overwrite `v1.0.0-design-locked` without explicit user approval.
+- NEVER run `firebase deploy` or `gcloud run` manually. Only use `git push` to trigger GitHub Actions.
+- NEVER modify `.env.local`, `bilibili_secrets.env`, or `firebase-service-account.json`.
+- NEVER start a redesign from scratch or replace the approved chrome (Layout / SiteHeader / SiteFooter / tokens) without an intentional, user-approved design change.
+- NEVER print or display `sk_live_`, `whsec_`, `pk_live_`, or `price_` IDs. Use environment variables / Secret Manager only (key names in logs, never values).
+
+## Incremental update only
+
+- Every change is a **tiny incremental patch** on top of the current approved design.
+- Follow `.cursor/skills/apply-incremental-update/SKILL.md`: **Preflight → Patch → Validate → Commit**.
+- Critical files require explicit user naming + approval before edit:
+  - `src/app-shell.css`, `src/v6-luxury.css`, `src/styles/tokens.css`
+  - `src/components/Layout.tsx`, `SiteHeader.tsx`, `SiteFooter.tsx`, `LanguageSwitcher.tsx`
+- Preflight with: `git diff v1.0.0-design-locked -- .`
+
+## Before writing new code
+
+- When fixing a bug, ALWAYS check `docs/DEPLOYMENT_MASTER_GUIDE.md` first and search for existing `scripts/` before writing new code.
+- Prefer `scripts/master-pipeline.ps1`, `scripts/safe-deploy.ps1`, and `scripts/ui-consistency-check.js` over ad-hoc deploy or one-off visual scripts.
+
+## Validate before claiming done
+
+- Run `npm run build` and `node scripts/ui-consistency-check.js --serve` (plus `--compare-baseline artifacts/golden-baseline` when baseline exists).
+- If either fails, abort the update path; do not instruct a production push as successful.
+- Visual drift on PRs is blocked by `.github/workflows/ui-regression.yml` unless the PR title contains `[Intentional Design Change]`.
+
+## Deploy path
+
+- Local: build + UI checks only.
+- Production: PR → merge → GitHub Actions → production environment approval (~10 minutes).
+- Do not reintroduce Vercel/Render as hosting for Resumora.

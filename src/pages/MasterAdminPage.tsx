@@ -170,11 +170,16 @@ export default function MasterAdminPage() {
     void load();
   }, [load]);
 
-  // Orchestration hash: #orchestration?project=resumora
+  // Hash: #orchestration?project=resumora | #hermes-chat?project=resumora
   useEffect(() => {
     function applyHashProject() {
       const raw = String(window.location.hash || '');
-      if (!raw.startsWith('#orchestration')) return;
+      const section = raw.startsWith('#orchestration')
+        ? 'orchestration'
+        : raw.startsWith('#hermes-chat')
+          ? 'hermes-chat'
+          : '';
+      if (!section) return;
       const qIndex = raw.indexOf('?');
       if (qIndex < 0) return;
       const params = new URLSearchParams(raw.slice(qIndex + 1));
@@ -193,9 +198,12 @@ export default function MasterAdminPage() {
     setSelectedProjectId(harnessProjects[0]?.projectId || 'resumora');
   }, [harnessProjects, selectedProjectId]);
 
-  function selectHarnessProject(projectId: string) {
+  function selectHarnessProject(
+    projectId: string,
+    hashBase: 'orchestration' | 'hermes-chat' = 'orchestration'
+  ) {
     setSelectedProjectId(projectId);
-    const next = `#orchestration?project=${encodeURIComponent(projectId)}`;
+    const next = `#${hashBase}?project=${encodeURIComponent(projectId)}`;
     if (window.location.hash !== next) {
       window.history.replaceState(
         null,
@@ -544,6 +552,39 @@ export default function MasterAdminPage() {
           {hermesBusy ? t(lang, 'master.hermesWorking') : t(lang, 'master.hermesInsights')}
         </button>
         {insights ? <pre className="admin-hermes-insights">{insights}</pre> : null}
+      </section>
+
+      <section id="hermes-chat" className="admin-master__card">
+        <h2>{t(lang, 'master.hermesChatTitle')}</h2>
+        <p className="admin-master__lead">{t(lang, 'master.hermesChatPanelLead')}</p>
+        <label className="admin-hermes-project">
+          <span>{t(lang, 'master.hermesChatProject')}</span>
+          <select
+            value={selectedProjectId}
+            onChange={(e) => selectHarnessProject(e.target.value, 'hermes-chat')}
+            aria-label={t(lang, 'master.hermesChatProject')}
+          >
+            {(harnessProjects.length
+              ? harnessProjects
+              : data?.harness?.projects?.length
+                ? data.harness.projects
+                : [{ projectId: 'resumora', name: 'Resumora', status: 'active' } as MasterProject]
+            ).map((p) => (
+              <option key={p.projectId} value={p.projectId}>
+                {p.name || p.projectId}
+              </option>
+            ))}
+          </select>
+        </label>
+        <AdminHermesCommandChat
+          lang={lang}
+          password={password}
+          projectId={selectedProjectId}
+          projectName={
+            (harnessProjects.find((p) => p.projectId === selectedProjectId) || {}).name ||
+            selectedProjectId
+          }
+        />
       </section>
 
       <section id="users" className="admin-master__card">
