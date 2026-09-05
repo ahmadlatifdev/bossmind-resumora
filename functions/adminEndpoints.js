@@ -4,7 +4,7 @@
 const { onRequest } = require('firebase-functions/v2/https');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { defineSecret } = require('firebase-functions/params');
-const { getFirestore } = require('firebase-admin/firestore');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const selfHeal = require('./selfHeal');
 const systemManual = require('./systemManual');
 const { stripeApiSecrets } = require('./lib/stripeSecrets');
@@ -20,7 +20,13 @@ const {
 } = require('./lib/adminGateAuth');
 const harnessTasks = require('./lib/harnessTasks');
 const { handleGitHubWebhook } = require('./lib/githubWebhook');
-const { buildFinancialDashboard } = require('./lib/financeLedger');
+const {
+  buildFinancialDashboard,
+  buildFinanceOverview,
+  overviewToCsv,
+  writeFinanceSettings,
+  getFxRates,
+} = require('./lib/financeLedger');
 const { runDailyStockAllocation } = require('./lib/financeAllocation');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
@@ -210,15 +216,44 @@ function registerAdminEndpoints(exportsObj) {
         const body = parseBody(req);
         const message = String(body.message || body.text || '')
           .trim()
-          .slice(0, 4000);
-        if (!message) {
+          .slice(0, 8000);
+        const codePatch = String(body.codeDiff || body.codePatch || '')
+          .trim()
+          .slice(0, 40000);
+        if (!message && !codePatch) {
           res.status(400).json({ error: 'message required' });
           return;
         }
         const project = getProjectContext(body.projectId || body.project);
         const lang = String(body.lang || 'en');
+        const effectiveMessage =
+          message || 'Please review the attached code patch for this project.';
+
+        let patchStored = false;
+        if (codePatch) {
+          await db.collection('hermes_chat_patches').add({
+            projectId: project.projectId,
+            codeDiff: codePatch,
+            message: effectiveMessage.slice(0, 2000),
+            source: 'admin_hermes_chat',
+            createdAt: FieldValue.serverTimestamp(),
+          });
+          await db
+            .collection('projects')
+            .doc(project.projectId)
+            .set(
+              {
+                lastCodePatchAt: FieldValue.serverTimestamp(),
+                lastCodePatchPreview: codePatch.slice(0, 500),
+                updatedAt: FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            );
+          patchStored = true;
+        }
+
         const route = routeTool({
-          message,
+          message: effectiveMessage,
           projectId: project.projectId,
           taskType: body.taskType,
         });
@@ -232,17 +267,23 @@ function registerAdminEndpoints(exportsObj) {
             engine: route,
             projectId: project.projectId,
             reply: skillOut.reply,
+            patchStored,
           });
           return;
         }
 
         if (route.startsWith('skill:')) {
-          const skillOut = runSkill(route, { message, lang, projectId: project.projectId });
+          const skillOut = runSkill(route, {
+            message: effectiveMessage,
+            lang,
+            projectId: project.projectId,
+          });
           res.status(200).json({
             ok: true,
             engine: route,
             projectId: project.projectId,
             reply: skillOut.reply,
+            patchStored,
           });
           return;
         }
@@ -250,22 +291,34 @@ function registerAdminEndpoints(exportsObj) {
         const context = JSON.stringify({
           project,
           note: 'Admin harness command. Non-sensitive envRegistry only.',
-        }).slice(0, 3500);
+          codePatchAttached: Boolean(codePatch),
+          codePatchPreview: codePatch ? codePatch.slice(0, 2500) : undefined,
+        }).slice(0, 6000);
+
+        const promptWithPatch = codePatch
+          ? `${effectiveMessage}\n\n--- Attached code patch (project ${project.projectId}) ---\n${codePatch.slice(0, 12000)}`
+          : effectiveMessage;
 
         if (route === 'gemini') {
-          const gem = await callGeminiChat({ prompt: message, lang, context, timeoutMs: 25000 });
+          const gem = await callGeminiChat({
+            prompt: promptWithPatch,
+            lang,
+            context,
+            timeoutMs: 25000,
+          });
           res.status(200).json({
             ok: true,
             engine: 'gemini',
             projectId: project.projectId,
             reply: gem.text,
+            patchStored,
           });
           return;
         }
 
         try {
           const out = await hermes.callHermes({
-            prompt: message,
+            prompt: promptWithPatch,
             context,
             lang,
             projectId: project.projectId,
@@ -277,11 +330,12 @@ function registerAdminEndpoints(exportsObj) {
             engine: 'hermes',
             projectId: project.projectId,
             reply: out.text,
+            patchStored,
           });
         } catch (err) {
           try {
             const gem = await callGeminiChat({
-              prompt: message,
+              prompt: promptWithPatch,
               lang,
               context,
               timeoutMs: 25000,
@@ -292,6 +346,7 @@ function registerAdminEndpoints(exportsObj) {
               projectId: project.projectId,
               reply: gem.text,
               fallbackFrom: err.code || 'hermes_error',
+              patchStored,
             });
           } catch {
             res.status(503).json({
@@ -638,6 +693,46 @@ function registerAdminEndpoints(exportsObj) {
       } catch {
         /* optional */
       }
+      const url = String(req.originalUrl || req.url || '');
+      let view = String(req.query.view || '').toLowerCase();
+      if (!view) {
+        if (url.includes('/export')) view = 'export';
+        else if (url.includes('/overview') || url.includes('/trends')) view = 'overview';
+        else view = 'dashboard';
+      }
+      const projectId = String(req.query.projectId || req.query.project || 'all').trim();
+      const fromMonth = String(req.query.from || req.query.fromMonth || '').trim() || undefined;
+      const toMonth = String(req.query.to || req.query.toMonth || '').trim() || undefined;
+
+      if (view === 'export' || view === 'csv') {
+        const overview = await buildFinanceOverview(db, {
+          revenueCents30d: revenueHint,
+          projectId,
+          fromMonth,
+          toMonth,
+        });
+        const csv = overviewToCsv(overview);
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="bossmind-financials-${overview.filters.toMonth}.csv"`
+        );
+        res.status(200).send(csv);
+        return;
+      }
+
+      if (view === 'overview' || view === 'trends' || view === 'full') {
+        const overview = await buildFinanceOverview(db, {
+          revenueCents30d: revenueHint,
+          projectId,
+          fromMonth,
+          toMonth,
+        });
+        const fx = await getFxRates();
+        res.status(200).json({ ok: true, overview, fx });
+        return;
+      }
+
       const financials = await buildFinancialDashboard(db, {
         revenueCents30d: revenueHint,
       });
@@ -645,6 +740,27 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Financials load failed' });
+    }
+  });
+
+  exportsObj.updateAdminFinanceSettings = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = req.body && typeof req.body === 'object' ? req.body : {};
+      const settings = await writeFinanceSettings(db, body);
+      res.status(200).json({ ok: true, settings });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Settings update failed' });
     }
   });
 

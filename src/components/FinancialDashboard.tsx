@@ -1,4 +1,5 @@
 import { mapAdminPlan, toAdminEnglish } from '../lib/adminEnglishLabels';
+import { Link } from 'react-router-dom';
 
 export type FinanceProjectRow = {
   projectId: string;
@@ -90,6 +91,9 @@ export default function FinancialDashboardPanel({ data, busy, onRefresh, onRunAl
         {settings?.allocationEnabled === false ? ' (disabled)' : ''}.
       </p>
       <div className="admin-tasks-toolbar">
+        <Link className="admin-master__btn" to="/admin/financials">
+          Open full Financials page
+        </Link>
         <button
           type="button"
           className="admin-master__btn admin-master__btn--ghost"

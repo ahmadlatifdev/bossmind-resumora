@@ -92,7 +92,14 @@ export async function fetchMasterProjects(password: string) {
 
 export async function postAdminHermesCommand(
   password: string,
-  body: { projectId: string; message: string; lang?: string; taskType?: string }
+  body: {
+    projectId: string;
+    message: string;
+    lang?: string;
+    taskType?: string;
+    codeDiff?: string;
+    codePatch?: string;
+  }
 ) {
   const res = await fetch('/api/admin/hermes-command', {
     method: 'POST',
@@ -101,7 +108,13 @@ export async function postAdminHermesCommand(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-  return data as { ok?: boolean; reply?: string; engine?: string; projectId?: string };
+  return data as {
+    ok?: boolean;
+    reply?: string;
+    engine?: string;
+    projectId?: string;
+    patchStored?: boolean;
+  };
 }
 
 export type HarnessTask = {
@@ -208,6 +221,157 @@ export async function fetchAdminFinancials(password: string) {
     ok?: boolean;
     financials?: import('../components/FinancialDashboard').FinancialDashboard;
   };
+}
+
+export type FinanceOverview = {
+  generatedAt?: string;
+  currency?: string;
+  filters?: { projectId?: string; fromMonth?: string; toMonth?: string };
+  settings?: {
+    taxRatePct?: number;
+    stockAllocationPct?: number;
+    allocationEnabled?: boolean;
+    avgUnitRevenueCents?: number;
+    taxRegions?: Record<string, number>;
+  };
+  summary?: {
+    month?: {
+      revenueCents: number;
+      costCents: number;
+      taxCents: number;
+      netProfitCents: number;
+    };
+    cumulative?: {
+      revenueCents: number;
+      costCents: number;
+      taxCents: number;
+      netProfitCents: number;
+      allocatedToStockCents: number;
+    };
+    allocatedToStockCents?: number;
+  };
+  projects?: Array<{
+    projectId: string;
+    name: string;
+    revenueCents: number;
+    costCents: number;
+    taxCents: number;
+    netProfitCents: number;
+    profitMarginPct?: number | null;
+    momGrowthPct?: number;
+    costsByCategory?: Record<string, number>;
+    allocatedToStockCents?: number;
+    monthly?: {
+      revenueCents: number;
+      costCents: number;
+      taxCents: number;
+      netProfitCents: number;
+    };
+    cumulative?: {
+      revenueCents: number;
+      costCents: number;
+      taxCents: number;
+      netProfitCents: number;
+    };
+    breakEvenUnits?: number;
+    trend?: Array<{
+      monthKey: string;
+      revenueCents: number;
+      costCents: number;
+      taxCents: number;
+      netProfitCents: number;
+    }>;
+  }>;
+  pnl?: Array<Record<string, unknown>>;
+  costDistribution?: Array<{ category: string; amountCents: number }>;
+  trends?: {
+    revenueProfit?: Array<{
+      monthKey: string;
+      revenueCents: number;
+      netProfitCents: number;
+      costCents?: number;
+      allocatedCents?: number;
+    }>;
+    allocation?: Array<{ monthKey: string; allocatedCents: number }>;
+  };
+  allocationHistory?: Array<{
+    id?: string;
+    date?: string | null;
+    sourceProjectId?: string;
+    sourceProjectName?: string;
+    amountCents?: number;
+    destinationProjectId?: string;
+  }>;
+  analytics?: {
+    forecast?: { nextQuarterRevenueCents?: number; slope?: number };
+    taxByRegion?: Record<string, { ratePct: number; estimatedTaxCents: number }>;
+    breakEven?: Array<{
+      projectId: string;
+      name: string;
+      breakEvenUnits: number;
+      avgUnitRevenueCents: number;
+      costCents: number;
+    }>;
+    cashFlow?: {
+      actualNetCents?: number;
+      projectedNextQuarterRevenueCents?: number;
+      note?: string;
+    };
+  };
+};
+
+export async function fetchFinanceOverview(
+  password: string,
+  opts?: { projectId?: string; fromMonth?: string; toMonth?: string }
+) {
+  const q = new URLSearchParams({ view: 'overview' });
+  if (opts?.projectId) q.set('projectId', opts.projectId);
+  if (opts?.fromMonth) q.set('from', opts.fromMonth);
+  if (opts?.toMonth) q.set('to', opts.toMonth);
+  const res = await fetch(`/api/admin/financials/overview?${q}`, {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; overview?: FinanceOverview; fx?: Record<string, number> };
+}
+
+export async function exportFinanceCsv(
+  password: string,
+  opts?: { projectId?: string; fromMonth?: string; toMonth?: string }
+) {
+  const q = new URLSearchParams({ view: 'export' });
+  if (opts?.projectId) q.set('projectId', opts.projectId);
+  if (opts?.fromMonth) q.set('from', opts.fromMonth);
+  if (opts?.toMonth) q.set('to', opts.toMonth);
+  const res = await fetch(`/api/admin/financials/export?${q}`, {
+    headers: adminHeaders(password),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `HTTP ${res.status}`);
+  }
+  return res.text();
+}
+
+export async function updateFinanceSettings(
+  password: string,
+  body: {
+    taxRatePct?: number;
+    stockAllocationPct?: number;
+    allocationEnabled?: boolean;
+    avgUnitRevenueCents?: number;
+    taxRegions?: { US?: number; EU?: number; CA?: number };
+  }
+) {
+  const res = await fetch('/api/admin/financials/settings', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; settings?: Record<string, unknown> };
 }
 
 export async function runFinanceAllocation(password: string) {
