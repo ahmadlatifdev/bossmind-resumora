@@ -181,6 +181,7 @@ export default function MasterAdminPage() {
   const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
   const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
   const [financeBusy, setFinanceBusy] = useState(false);
+  const [showIncidents, setShowIncidents] = useState(false);
 
   const loadTasks = useCallback(
     async (opts?: { quiet?: boolean }) => {
@@ -706,42 +707,61 @@ export default function MasterAdminPage() {
         aria-label={t(lang, 'master.feedTitle')}
         id="incidents"
       >
-        <h2>{t(lang, 'master.feedTitle')}</h2>
-        {(data?.feed || []).length ? (
-          <ul className="admin-feed">
-            {(data?.feed || []).map((item) => (
-              <li key={`${item.kind}-${item.id}`}>
-                <div className="admin-feed__main">
-                  <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
-                  <span className="admin-feed__title">{toAdminEnglish(item.title)}</span>
-                  {item.status ? (
-                    <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
-                  ) : null}
-                  <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
-                </div>
-                <div className="admin-feed__actions">
-                  <button
-                    type="button"
-                    className="admin-master__btn admin-master__btn--ghost admin-feed__btn"
-                    onClick={() => openFeedDetails(item)}
-                  >
-                    {t(lang, 'master.feedViewDetails')}
-                  </button>
-                  {item.kind === 'incident' && item.status !== 'resolved' ? (
-                    <button
-                      type="button"
-                      className="admin-master__btn admin-feed__btn"
-                      onClick={() => void onResolveFeedItem(item)}
-                    >
-                      {t(lang, 'master.feedResolve')}
-                    </button>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
+        <div className="admin-feed-toggle-row">
+          <h2>{t(lang, 'master.feedTitle')}</h2>
+          <button
+            type="button"
+            className="admin-master__btn admin-feed-view-btn"
+            aria-expanded={showIncidents}
+            aria-controls="admin-incidents-list"
+            onClick={() => setShowIncidents((v) => !v)}
+          >
+            {showIncidents
+              ? t(lang, 'master.feedHideIncidents')
+              : t(lang, 'master.feedViewIncidents')}
+          </button>
+        </div>
+        {showIncidents ? (
+          <div id="admin-incidents-list">
+            {(data?.feed || []).length ? (
+              <ul className="admin-feed">
+                {(data?.feed || []).map((item) => (
+                  <li key={`${item.kind}-${item.id}`}>
+                    <div className="admin-feed__main">
+                      <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
+                      <span className="admin-feed__title">{toAdminEnglish(item.title)}</span>
+                      {item.status ? (
+                        <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
+                      ) : null}
+                      <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
+                    </div>
+                    <div className="admin-feed__actions">
+                      <button
+                        type="button"
+                        className="admin-master__btn admin-master__btn--ghost admin-feed__btn"
+                        onClick={() => openFeedDetails(item)}
+                      >
+                        {t(lang, 'master.feedViewDetails')}
+                      </button>
+                      {item.kind === 'incident' && item.status !== 'resolved' ? (
+                        <button
+                          type="button"
+                          className="admin-master__btn admin-feed__btn"
+                          onClick={() => void onResolveFeedItem(item)}
+                        >
+                          {t(lang, 'master.feedResolve')}
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+            )}
+          </div>
         ) : (
-          <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+          <p className="admin-master__lead">{t(lang, 'master.feedHiddenHint')}</p>
         )}
       </section>
 

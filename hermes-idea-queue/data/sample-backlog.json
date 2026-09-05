@@ -1,0 +1,56 @@
+[
+  {
+    "id": "IQ-001",
+    "title": "Add empty-state copy to admin feed",
+    "description": "When Refunds/alerts/incidents feed is empty, show a clearer English empty state under the master feed title.",
+    "tags": ["admin", "ui", "copy"],
+    "requestedFiles": ["src/pages/MasterAdminPage.tsx", "locales/en.json"],
+    "dependsOn": [],
+    "priorityHint": 40
+  },
+  {
+    "id": "IQ-002",
+    "title": "Document incident resolve API",
+    "description": "Add a short docs note for PATCH /api/admin/incidents/resolve and admin password header requirements.",
+    "tags": ["docs", "admin"],
+    "requestedFiles": ["docs"],
+    "dependsOn": [],
+    "priorityHint": 30
+  },
+  {
+    "id": "IQ-003",
+    "title": "Incident detail breadcrumb polish",
+    "description": "Ensure Back to list scrolls to #incidents on Master Admin after viewing an incident.",
+    "tags": ["admin", "ux"],
+    "requestedFiles": ["src/pages/AdminIncidentPage.tsx"],
+    "dependsOn": ["IQ-001"],
+    "priorityHint": 35
+  },
+  {
+    "id": "IQ-010",
+    "title": "Stripe webhook idempotency hardening",
+    "description": "CRITICAL: review webhook handler for double-credit edge cases. Requires human approval.",
+    "tags": ["payments", "stripe", "security"],
+    "requestedFiles": ["functions/index.js", "functions/lib"],
+    "dependsOn": [],
+    "priorityHint": 90
+  },
+  {
+    "id": "IQ-011",
+    "title": "Auth session refresh tweak",
+    "description": "Adjust Firebase auth token refresh timing on account page. Requires HITL.",
+    "tags": ["auth", "security"],
+    "requestedFiles": ["src/auth", "src/pages/AccountPage.tsx"],
+    "dependsOn": [],
+    "priorityHint": 70
+  },
+  {
+    "id": "IQ-012",
+    "title": "Shared memory schema note",
+    "description": "Propose Neon bossmind_shared schema documentation update only — no DDL. Still flag as schema-adjacent.",
+    "tags": ["database", "schema", "docs"],
+    "requestedFiles": ["docs"],
+    "dependsOn": [],
+    "priorityHint": 50
+  }
+]

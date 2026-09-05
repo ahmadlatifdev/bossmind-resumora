@@ -84,3 +84,9 @@ artifacts/**
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Hermes Idea Queue
+hermes-idea-queue/.env
+hermes-idea-queue/dist/
+hermes-idea-queue/dist-test/
+hermes-idea-queue/node_modules/

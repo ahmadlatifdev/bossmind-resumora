@@ -309,6 +309,28 @@
   font-size: 0.8rem;
 }
 
+.admin-feed-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-feed-toggle-row h2 {
+  margin: 0;
+}
+
+.admin-feed-view-btn {
+  background: linear-gradient(180deg, #3a2f0d, #1b1608);
+  border-color: rgba(212, 175, 55, 0.55);
+  color: #d4af37;
+  font-weight: 600;
+  min-height: 42px;
+  padding: 8px 18px;
+}
+
 .admin-toast {
   position: fixed;
   right: 20px;

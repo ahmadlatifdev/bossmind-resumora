@@ -236,7 +236,7 @@ export async function fetchAdminIncident(password: string, id: string, kind = 'i
 }
 
 export async function resolveAdminIncident(password: string, id: string, note?: string) {
-  const res = await fetch(`/api/admin/incidents/resolve?id=${encodeURIComponent(id)}`, {
+  const res = await fetch(`/api/incidents/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: adminHeaders(password, true),
     body: JSON.stringify({ id, status: 'resolved', note }),

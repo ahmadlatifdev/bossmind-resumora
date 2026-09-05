@@ -779,10 +779,15 @@ function registerAdminEndpoints(exportsObj) {
     try {
       await assertAdminAccess(req, db, readAdminPassword());
       const body = parseBody(req);
-      const id = String(body.id || body.incidentId || req.query.id || '')
+      const pathId = String(req.path || req.url || '')
+        .split('?')[0]
+        .split('/')
+        .filter(Boolean)
+        .pop();
+      const id = String(body.id || body.incidentId || req.query.id || pathId || '')
         .trim()
         .slice(0, 128);
-      if (!id) {
+      if (!id || id === 'incidents' || id === 'resolve') {
         res.status(400).json({ error: 'id required' });
         return;
       }

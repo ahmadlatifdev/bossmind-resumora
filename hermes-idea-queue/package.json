@@ -1,0 +1,40 @@
+{
+  "name": "@bossmind/hermes-idea-queue",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Autonomous Idea Request Queue — Hermes triage, RAG context, Cursor orchestration, HITL, nightly sweeper",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-hitl-public.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js",
+    "dev": "npm run build && node dist/index.js",
+    "ingest": "npm run build && node dist/index.js ingest",
+    "worker": "npm run build && node dist/index.js worker",
+    "sweep": "npm run build && node dist/index.js sweep",
+    "mcp": "npm run build && node dist/index.js mcp",
+    "hitl": "npm run build && node dist/index.js hitl",
+    "self-heal": "npm run build && node dist/index.js self-heal",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/ingestion/triage.test.js"
+  },
+  "dependencies": {
+    "bullmq": "^5.34.5",
+    "csv-parse": "^5.6.0",
+    "express": "^4.21.2",
+    "ioredis": "^5.4.2",
+    "node-cron": "^3.0.3",
+    "zod": "^3.24.1"
+  },
+  "optionalDependencies": {
+    "@cursor/sdk": "*"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.7.2"
+  }
+}

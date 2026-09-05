@@ -209,6 +209,10 @@
         "function": "resolveAdminIncident"
       },
       {
+        "source": "/api/incidents/**",
+        "function": "resolveAdminIncident"
+      },
+      {
         "source": "/api/admin/financials",
         "function": "getAdminFinancials"
       },
