@@ -198,6 +198,34 @@ export async function setHarnessAutomation(
   return data as { ok?: boolean; settings?: Record<string, unknown> };
 }
 
+export async function fetchAdminFinancials(password: string) {
+  const res = await fetch('/api/admin/financials', {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    financials?: import('../components/FinancialDashboard').FinancialDashboard;
+  };
+}
+
+export async function runFinanceAllocation(password: string) {
+  const res = await fetch('/api/admin/financials/allocate', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: '{}',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    skipped?: boolean;
+    reason?: string;
+    transfers?: Array<{ from: string; to: string; amountCents: number }>;
+  };
+}
+
 export async function requestAdminPasswordReset() {
   const res = await fetch('/api/admin/password-reset/request', {
     method: 'POST',

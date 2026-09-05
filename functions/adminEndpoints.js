@@ -20,6 +20,8 @@ const {
 } = require('./lib/adminGateAuth');
 const harnessTasks = require('./lib/harnessTasks');
 const { handleGitHubWebhook } = require('./lib/githubWebhook');
+const { buildFinancialDashboard } = require('./lib/financeLedger');
+const { runDailyStockAllocation } = require('./lib/financeAllocation');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -613,6 +615,69 @@ function registerAdminEndpoints(exportsObj) {
         const code = err.statusCode || 500;
         res.status(code).json({ error: err.message || 'Webhook failed' });
       }
+    }
+  );
+
+  exportsObj.getAdminFinancials = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const snapshot = await selfHeal.getHealthSnapshot(db).catch(() => null);
+      let revenueHint = null;
+      try {
+        const dash = await getMasterDashboardData(db, snapshot);
+        revenueHint = dash?.analytics?.revenueCents30d;
+      } catch {
+        /* optional */
+      }
+      const financials = await buildFinancialDashboard(db, {
+        revenueCents30d: revenueHint,
+      });
+      res.status(200).json({ ok: true, financials });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Financials load failed' });
+    }
+  });
+
+  exportsObj.runFinanceAllocation = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const out = await runDailyStockAllocation(db);
+      res.status(200).json({ ok: true, ...out });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Allocation failed' });
+    }
+  });
+
+  exportsObj.financeAllocationCron = onSchedule(
+    {
+      schedule: '15 7 * * *',
+      timeZone: 'America/Toronto',
+      region: 'us-central1',
+      timeoutSeconds: 120,
+      memory: '512MiB',
+    },
+    async () => {
+      await runDailyStockAllocation(db);
     }
   );
 

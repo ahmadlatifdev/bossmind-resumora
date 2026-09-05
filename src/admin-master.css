@@ -312,12 +312,79 @@
 .admin-harness-card {
   text-align: left;
   min-height: 120px;
-  padding: 14px;
+  padding: 0;
   border-radius: 14px;
   border: 1px solid rgba(212, 175, 55, 0.28);
   background: rgba(0, 0, 0, 0.28);
   color: inherit;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  cursor: default;
+}
+
+.admin-harness-card__select {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
+  font: inherit;
+}
+
+.admin-harness-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 14px 10px;
+  align-items: center;
+}
+
+.admin-harness-no-url {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+.admin-harness-pause-note {
+  margin: 0 14px 12px;
+  font-size: 0.72rem;
+}
+
+.admin-harness-score--ok {
+  color: #3dd68c;
+}
+
+.admin-harness-score--warn {
+  color: #d4af37;
+}
+
+.admin-harness-score--bad {
+  color: #ff6b6b;
+}
+
+.admin-harness-score--na {
+  opacity: 0.7;
+}
+
+.admin-harness-chat__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.admin-harness-chat__typing {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: #d4af37;
+}
+
+.admin-refresh-spinner {
+  margin: 0 0 12px;
 }
 
 .admin-harness-card.is-selected {
@@ -530,6 +597,108 @@
   gap: 8px;
   margin-top: 8px;
   align-items: center;
+}
+
+.admin-fin-totals {
+  margin: 16px 0 8px;
+}
+
+.admin-fin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.admin-fin-card {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.admin-fin-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.admin-fin-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #f5e6b8;
+}
+
+.admin-fin-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.admin-fin-card dt {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.admin-fin-card dd {
+  margin: 0;
+  font-weight: 600;
+  color: #f5e6b8;
+}
+
+.admin-fin-cats {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.admin-fin-cats li {
+  padding: 2px 0;
+}
+
+.admin-fin-trend {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 72px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.admin-fin-trend__col {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  position: relative;
+}
+
+.admin-fin-trend__bar {
+  width: 6px;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+}
+
+.admin-fin-trend__bar--rev {
+  background: rgba(212, 175, 55, 0.85);
+}
+
+.admin-fin-trend__bar--profit {
+  background: rgba(61, 214, 140, 0.75);
+}
+
+.admin-fin-trend__label {
+  position: absolute;
+  bottom: -16px;
+  font-size: 0.65rem;
+  opacity: 0.65;
 }
 
 .sr-only {

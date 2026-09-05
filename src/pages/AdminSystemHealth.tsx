@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import LanguageSwitcher from '../components/LanguageSwitcher';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
 import '../app-shell.css';
+
+/** Admin health page is English-only (same policy as Master Admin). */
+const ADMIN_LANG = 'en';
 
 const HEALTH_URL = '/api/admin/system-health';
 const RUN_URL = '/api/admin/system-health/run';
@@ -55,7 +57,7 @@ function scoreColor(score?: number) {
 }
 
 export default function AdminSystemHealthPage() {
-  const [lang, setLangState] = useState(() => getLang());
+  const lang = ADMIN_LANG;
   const [password, setPassword] = useState(() => sessionStorage.getItem(SESSION_KEY) || '');
   const [unlocked, setUnlocked] = useState(() => Boolean(sessionStorage.getItem(SESSION_KEY)));
   const [health, setHealth] = useState<HealthDoc | null>(null);
@@ -76,8 +78,6 @@ export default function AdminSystemHealthPage() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-
-  const onLang = (code: string) => setLangState(setLang(code));
 
   const load = useCallback(
     async (pw: string) => {
@@ -213,7 +213,6 @@ export default function AdminSystemHealthPage() {
         <a href="/" className="site-logo" aria-label="RESUMORA.NET">
           <img src="/resumora-logo.png" alt="" width="160" height="40" />
         </a>
-        <LanguageSwitcher lang={lang} onChange={onLang} />
       </header>
 
       <main className="app-main" style={{ maxWidth: 960 }}>
