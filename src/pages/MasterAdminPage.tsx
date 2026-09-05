@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../components/AdminAuthGate';
+import { mapAdminStatus, toAdminEnglish } from '../lib/adminEnglishLabels';
+import FinancialDashboardPanel, { type FinancialDashboard } from '../components/FinancialDashboard';
 import {
   fetchMasterDashboard,
   adminHeaders,
@@ -13,11 +15,31 @@ import {
   ackHarnessTask,
   markHarnessTaskApplied,
   setHarnessAutomation,
+  fetchAdminFinancials,
+  runFinanceAllocation,
   type MasterProject,
   type HarnessTask,
 } from '../lib/adminApi';
 import AdminHermesCommandChat from '../components/AdminHermesCommandChat';
 import { t, tFormat } from '../lib/i18n.js';
+
+const SELECTED_PROJECT_KEY = 'resumora_admin_selected_project';
+
+function readStoredProjectId(): string {
+  try {
+    return sessionStorage.getItem(SELECTED_PROJECT_KEY) || 'resumora';
+  } catch {
+    return 'resumora';
+  }
+}
+
+function writeStoredProjectId(projectId: string) {
+  try {
+    sessionStorage.setItem(SELECTED_PROJECT_KEY, projectId);
+  } catch {
+    /* ignore */
+  }
+}
 
 type ProjectCard = {
   id: string;
@@ -65,7 +87,7 @@ type Dashboard = {
 
 function money(cents: number | null | undefined, lang: string) {
   if (cents == null || Number.isNaN(Number(cents))) return t(lang, 'master.metricNa');
-  return new Intl.NumberFormat(lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es' : 'en-US', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
@@ -125,6 +147,8 @@ export default function MasterAdminPage() {
   const [data, setData] = useState<Dashboard | null>(null);
   const [error, setError] = useState('');
   const [healBusy, setHealBusy] = useState(false);
+  const [refreshBusy, setRefreshBusy] = useState(false);
+  const [showRefreshSpinner, setShowRefreshSpinner] = useState(false);
   const [notice, setNotice] = useState('');
   const [hermes, setHermes] = useState<{
     configured?: boolean;
@@ -144,78 +168,134 @@ export default function MasterAdminPage() {
   const [hermesBusy, setHermesBusy] = useState(false);
   const [insights, setInsights] = useState('');
   const [harnessProjects, setHarnessProjects] = useState<MasterProject[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState('resumora');
+  const [selectedProjectId, setSelectedProjectId] = useState(readStoredProjectId);
   const [tasks, setTasks] = useState<HarnessTask[]>([]);
   const [tasksBusy, setTasksBusy] = useState(false);
   const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
+  const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
+  const [financeBusy, setFinanceBusy] = useState(false);
 
-  const loadTasks = useCallback(async () => {
-    try {
-      const out = await fetchHarnessTasks(password);
-      setTasks(out.tasks || []);
-      setAutoDeployAfterAck(Boolean(out.settings?.autoDeployAfterAck));
-    } catch {
-      /* keep prior */
-    }
-  }, [password]);
+  const loadTasks = useCallback(
+    async (opts?: { quiet?: boolean }) => {
+      try {
+        const out = await fetchHarnessTasks(password);
+        setTasks(out.tasks || []);
+        setAutoDeployAfterAck(Boolean(out.settings?.autoDeployAfterAck));
+        if (!opts?.quiet) setNotice(t(lang, 'master.tasksRefreshed'));
+      } catch (err) {
+        if (!opts?.quiet) {
+          setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+        }
+      }
+    },
+    [password, lang]
+  );
 
-  const load = useCallback(async () => {
-    setError('');
-    try {
-      const dashboard = await fetchMasterDashboard(password);
-      setData(dashboard);
+  const loadFinancials = useCallback(
+    async (opts?: { quiet?: boolean }) => {
       try {
-        const registry = await fetchMasterProjects(password);
-        const list = registry.projects || dashboard.harness?.projects || [];
-        setHarnessProjects(list);
-        setSelectedProjectId((cur) =>
-          list.find((p) => p.projectId === cur) ? cur : list[0]?.projectId || 'resumora'
-        );
-      } catch {
-        setHarnessProjects(dashboard.harness?.projects || []);
+        const out = await fetchAdminFinancials(password);
+        setFinancials(out.financials || null);
+      } catch (err) {
+        if (!opts?.quiet) {
+          setError(err instanceof Error ? err.message : t(lang, 'master.financeFailed'));
+        }
       }
+    },
+    [password, lang]
+  );
+
+  const load = useCallback(
+    async (opts?: { quiet?: boolean }) => {
+      setError('');
+      setRefreshBusy(true);
       try {
-        const status = await fetchHermesStatus(password);
-        setHermes(status);
-      } catch {
-        setHermes({ configured: false, active: false, chatEnabled: false });
+        const dashboard = await fetchMasterDashboard(password);
+        setData(dashboard);
+        try {
+          const registry = await fetchMasterProjects(password);
+          const list = registry.projects || dashboard.harness?.projects || [];
+          setHarnessProjects(list);
+          setSelectedProjectId((cur) => {
+            const next = list.find((p) => p.projectId === cur)
+              ? cur
+              : list[0]?.projectId || 'resumora';
+            writeStoredProjectId(next);
+            return next;
+          });
+        } catch {
+          setHarnessProjects(dashboard.harness?.projects || []);
+        }
+        try {
+          const status = await fetchHermesStatus(password);
+          setHermes(status);
+        } catch {
+          setHermes({ configured: false, active: false, chatEnabled: false });
+        }
+        await loadTasks({ quiet: true });
+        await loadFinancials({ quiet: true });
+        if (!opts?.quiet) setNotice(t(lang, 'master.dashboardRefreshed'));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t(lang, 'master.loadFailed'));
+      } finally {
+        setRefreshBusy(false);
       }
-      await loadTasks();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t(lang, 'master.loadFailed'));
-    }
-  }, [password, lang, loadTasks]);
+    },
+    [password, lang, loadTasks, loadFinancials]
+  );
 
   useEffect(() => {
-    void load();
+    void load({ quiet: true });
   }, [load]);
 
-  // Hash: #orchestration?project=resumora | #hermes-chat?project=resumora
   useEffect(() => {
-    function applyHashProject() {
-      const raw = String(window.location.hash || '');
-      const section = raw.startsWith('#orchestration')
-        ? 'orchestration'
-        : raw.startsWith('#hermes-chat')
-          ? 'hermes-chat'
-          : '';
-      if (!section) return;
-      const qIndex = raw.indexOf('?');
-      if (qIndex < 0) return;
-      const params = new URLSearchParams(raw.slice(qIndex + 1));
-      const project = String(params.get('project') || '').trim();
-      if (!project) return;
-      setSelectedProjectId(project);
+    if (!refreshBusy) {
+      setShowRefreshSpinner(false);
+      return;
     }
-    applyHashProject();
-    window.addEventListener('hashchange', applyHashProject);
-    return () => window.removeEventListener('hashchange', applyHashProject);
-  }, []);
+    const timer = window.setTimeout(() => setShowRefreshSpinner(true), 400);
+    return () => window.clearTimeout(timer);
+  }, [refreshBusy]);
+
+  useEffect(() => {
+    writeStoredProjectId(selectedProjectId);
+  }, [selectedProjectId]);
+
+  // Hash: #orchestration?project=resumora | #hermes-chat?project=resumora + section scroll
+  useEffect(() => {
+    function sectionIdFromHash(raw: string): string {
+      const bare = String(raw || '').replace(/^#/, '');
+      if (!bare) return '';
+      return bare.split('?')[0] || '';
+    }
+
+    function applyHash() {
+      const raw = String(window.location.hash || '');
+      const section = sectionIdFromHash(raw);
+      if (raw.includes('orchestration') || raw.includes('hermes-chat')) {
+        const qIndex = raw.indexOf('?');
+        if (qIndex >= 0) {
+          const params = new URLSearchParams(raw.slice(qIndex + 1));
+          const project = String(params.get('project') || '').trim();
+          if (project) setSelectedProjectId(project);
+        }
+      }
+      if (!section) return;
+      window.requestAnimationFrame(() => {
+        document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
+  }, [data, harnessProjects.length]);
 
   useEffect(() => {
     if (!harnessProjects.length) return;
     if (harnessProjects.some((p) => p.projectId === selectedProjectId)) return;
-    setSelectedProjectId(harnessProjects[0]?.projectId || 'resumora');
+    const next = harnessProjects[0]?.projectId || 'resumora';
+    setSelectedProjectId(next);
+    writeStoredProjectId(next);
   }, [harnessProjects, selectedProjectId]);
 
   function selectHarnessProject(
@@ -223,6 +303,7 @@ export default function MasterAdminPage() {
     hashBase: 'orchestration' | 'hermes-chat' = 'orchestration'
   ) {
     setSelectedProjectId(projectId);
+    writeStoredProjectId(projectId);
     const next = `#${hashBase}?project=${encodeURIComponent(projectId)}`;
     if (window.location.hash !== next) {
       window.history.replaceState(
@@ -231,6 +312,21 @@ export default function MasterAdminPage() {
         `${window.location.pathname}${window.location.search}${next}`
       );
     }
+  }
+
+  function openHermesChatForProject(projectId: string) {
+    selectHarnessProject(projectId, 'hermes-chat');
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById('hermes-chat')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function publicUrlFor(p: MasterProject): string {
+    const url = String(p.envRegistry?.PUBLIC_URL || '').trim();
+    if (/^https?:\/\//i.test(url)) return url;
+    return '';
   }
 
   function harnessConnectivity(p: MasterProject): 'online' | 'degraded' | 'offline' {
@@ -243,7 +339,16 @@ export default function MasterAdminPage() {
     return p.status === 'active' ? 'online' : 'offline';
   }
 
+  function healthTone(score: number | null | undefined): 'ok' | 'warn' | 'bad' | 'na' {
+    const n = Number(score);
+    if (!Number.isFinite(n)) return 'na';
+    if (n >= 80) return 'ok';
+    if (n >= 50) return 'warn';
+    return 'bad';
+  }
+
   async function runHeal() {
+    if (!window.confirm(t(lang, 'master.healConfirm'))) return;
     setHealBusy(true);
     setNotice('');
     setError('');
@@ -256,7 +361,7 @@ export default function MasterAdminPage() {
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
       setNotice(t(lang, 'master.healStarted'));
-      await load();
+      await load({ quiet: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'heal.errorRun'));
     } finally {
@@ -299,7 +404,7 @@ export default function MasterAdminPage() {
     try {
       await ackHarnessTask(password, { taskId, ack, reject: !ack, note: ack ? 'ACK' : 'reject' });
       setNotice(ack ? t(lang, 'master.tasksAckOk') : t(lang, 'master.tasksRejectOk'));
-      await loadTasks();
+      await loadTasks({ quiet: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
     } finally {
@@ -313,7 +418,7 @@ export default function MasterAdminPage() {
     try {
       await markHarnessTaskApplied(password, taskId, 'dashboard');
       setNotice(t(lang, 'master.tasksAppliedOk'));
-      await loadTasks();
+      await loadTasks({ quiet: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
     } finally {
@@ -338,9 +443,19 @@ export default function MasterAdminPage() {
           '// Read process.env.LOG_LEVEL in Functions structured logs (no secret values).\n',
       });
       setNotice(t(lang, 'master.tasksCreateOk'));
-      await loadTasks();
+      await loadTasks({ quiet: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
+    }
+  }
+
+  async function onRefreshTasks() {
+    setTasksBusy(true);
+    setError('');
+    try {
+      await loadTasks();
     } finally {
       setTasksBusy(false);
     }
@@ -348,9 +463,13 @@ export default function MasterAdminPage() {
 
   async function onToggleAutoDeploy(enabled: boolean) {
     setTasksBusy(true);
+    setError('');
     try {
       await setHarnessAutomation(password, { autoDeployAfterAck: enabled });
       setAutoDeployAfterAck(enabled);
+      setNotice(
+        enabled ? t(lang, 'master.tasksAutoDeployOn') : t(lang, 'master.tasksAutoDeployOff')
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
     } finally {
@@ -358,11 +477,40 @@ export default function MasterAdminPage() {
     }
   }
 
+  async function onRefreshFinancials() {
+    setFinanceBusy(true);
+    setError('');
+    try {
+      await loadFinancials();
+      setNotice(t(lang, 'master.financeRefreshed'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.financeFailed'));
+    } finally {
+      setFinanceBusy(false);
+    }
+  }
+
+  async function onRunAllocation() {
+    setFinanceBusy(true);
+    setError('');
+    try {
+      const out = await runFinanceAllocation(password);
+      setNotice(
+        out.skipped ? t(lang, 'master.financeAllocSkipped') : t(lang, 'master.financeAllocOk')
+      );
+      await loadFinancials();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.financeFailed'));
+    } finally {
+      setFinanceBusy(false);
+    }
+  }
+
   const score = data?.globalHealth?.score ?? null;
   const series = data?.analytics?.series || [];
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard" aria-busy={refreshBusy || healBusy}>
       <div className="admin-actions">
         <Link className="admin-master__btn" to="/admin/system-health">
           {t(lang, 'master.quickHealth')}
@@ -374,7 +522,8 @@ export default function MasterAdminPage() {
           type="button"
           className="admin-master__btn admin-master__btn--ghost"
           onClick={() => void runHeal()}
-          disabled={healBusy}
+          disabled={healBusy || refreshBusy}
+          aria-label={t(lang, 'master.quickHeal')}
         >
           {healBusy ? t(lang, 'heal.running') : t(lang, 'master.quickHeal')}
         </button>
@@ -382,10 +531,20 @@ export default function MasterAdminPage() {
           type="button"
           className="admin-master__btn admin-master__btn--ghost"
           onClick={() => void load()}
+          disabled={refreshBusy || healBusy}
+          aria-label={t(lang, 'heal.refresh')}
         >
-          {t(lang, 'heal.refresh')}
+          {showRefreshSpinner || refreshBusy
+            ? t(lang, 'master.refreshing')
+            : t(lang, 'heal.refresh')}
         </button>
       </div>
+
+      {showRefreshSpinner ? (
+        <p className="admin-master__lead admin-refresh-spinner" role="status" aria-live="polite">
+          {t(lang, 'master.refreshing')}
+        </p>
+      ) : null}
 
       {error ? (
         <p className="admin-master__alert" role="alert">
@@ -418,7 +577,7 @@ export default function MasterAdminPage() {
             <header>
               <h3>{p.name}</h3>
               <span className={`admin-status admin-status--${p.status}`}>
-                {t(lang, `master.status.${p.status}`) || p.status}
+                {t(lang, `master.status.${p.status}`) || mapAdminStatus(p.status)}
               </span>
             </header>
             <dl>
@@ -464,8 +623,11 @@ export default function MasterAdminPage() {
           <ul className="admin-feed">
             {(data?.feed || []).map((item) => (
               <li key={`${item.kind}-${item.id}`}>
-                <span className="admin-feed__kind">{item.kind}</span>
-                <span>{item.title}</span>
+                <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
+                <span>{toAdminEnglish(item.title)}</span>
+                {item.status ? (
+                  <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
+                ) : null}
                 <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
               </li>
             ))}
@@ -491,63 +653,76 @@ export default function MasterAdminPage() {
             const conn = harnessConnectivity(p);
             const tone = conn === 'online' ? 'ok' : conn === 'degraded' ? 'warn' : 'bad';
             const selected = selectedProjectId === p.projectId;
+            const visitUrl = publicUrlFor(p);
+            const hTone = healthTone(score);
             return (
-              <button
-                type="button"
+              <div
                 key={p.projectId}
                 className={`admin-harness-card admin-harness-card--${tone}${
                   selected ? ' is-selected' : ''
                 }`}
-                onClick={() => selectHarnessProject(p.projectId)}
-                aria-pressed={selected}
               >
-                <header>
-                  <h3>{p.name}</h3>
-                  <span className={`admin-status admin-status--${p.status}`}>
-                    {t(lang, `master.harnessStatus.${p.status}`) || p.status}
-                  </span>
-                </header>
-                <p className={`admin-harness-live admin-harness-live--${conn}`}>
-                  <span className="admin-harness-live__dot" aria-hidden="true" />
-                  {conn === 'online'
-                    ? t(lang, 'master.harnessOnline')
-                    : conn === 'degraded'
-                      ? t(lang, 'master.harnessDegraded')
-                      : t(lang, 'master.harnessOffline')}
+                <button
+                  type="button"
+                  className="admin-harness-card__select"
+                  onClick={() => selectHarnessProject(p.projectId)}
+                  aria-pressed={selected}
+                  aria-label={`${p.name} — ${t(lang, 'master.harnessOpenChat')}`}
+                >
+                  <header>
+                    <h3>{p.name}</h3>
+                    <span className={`admin-status admin-status--${p.status}`}>
+                      {t(lang, `master.harnessStatus.${p.status}`) || mapAdminStatus(p.status)}
+                    </span>
+                  </header>
+                  <p className={`admin-harness-live admin-harness-live--${conn}`}>
+                    <span className="admin-harness-live__dot" aria-hidden="true" />
+                    {conn === 'online'
+                      ? t(lang, 'master.harnessOnline')
+                      : conn === 'degraded'
+                        ? t(lang, 'master.harnessDegraded')
+                        : t(lang, 'master.harnessOffline')}
+                  </p>
+                  <p className={`admin-harness-score admin-harness-score--${hTone}`}>
+                    {t(lang, 'master.metricHealth')}:{' '}
+                    {score != null ? `${Math.round(score)}%` : t(lang, 'master.metricNa')}
+                  </p>
+                  <ul className="admin-harness-tools">
+                    {Object.entries(p.tools || {}).map(([tool, on]) => (
+                      <li key={tool} className={on ? 'is-on' : 'is-off'}>
+                        {tool}
+                      </li>
+                    ))}
+                  </ul>
+                </button>
+                <div className="admin-harness-card__actions">
+                  <button
+                    type="button"
+                    className="admin-master__btn"
+                    onClick={() => openHermesChatForProject(p.projectId)}
+                  >
+                    {t(lang, 'master.harnessOpenChatBtn')}
+                  </button>
+                  {visitUrl ? (
+                    <a
+                      className="admin-master__btn admin-master__btn--ghost"
+                      href={visitUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t(lang, 'master.harnessVisit')}
+                    </a>
+                  ) : (
+                    <span className="admin-harness-no-url">{t(lang, 'master.harnessNoUrl')}</span>
+                  )}
+                </div>
+                <p className="admin-master__lead admin-harness-pause-note">
+                  {t(lang, 'master.harnessPauseNa')}
                 </p>
-                <p>
-                  {t(lang, 'master.metricHealth')}:{' '}
-                  {score != null ? `${Math.round(score)}%` : t(lang, 'master.metricNa')}
-                </p>
-                <ul className="admin-harness-tools">
-                  {Object.entries(p.tools || {}).map(([tool, on]) => (
-                    <li key={tool} className={on ? 'is-on' : 'is-off'}>
-                      {tool}
-                    </li>
-                  ))}
-                </ul>
-                {selected ? (
-                  <span className="admin-harness-chat-hint">
-                    {t(lang, 'master.harnessChatReady')}
-                  </span>
-                ) : (
-                  <span className="admin-harness-chat-hint">
-                    {t(lang, 'master.harnessOpenChat')}
-                  </span>
-                )}
-              </button>
+              </div>
             );
           })}
         </div>
-        <AdminHermesCommandChat
-          lang={lang}
-          password={password}
-          projectId={selectedProjectId}
-          projectName={
-            (harnessProjects.find((p) => p.projectId === selectedProjectId) || {}).name ||
-            selectedProjectId
-          }
-        />
       </section>
 
       <section id="agents" className="admin-master__card">
@@ -680,7 +855,7 @@ export default function MasterAdminPage() {
             type="button"
             className="admin-master__btn admin-master__btn--ghost"
             disabled={tasksBusy}
-            onClick={() => void loadTasks()}
+            onClick={() => void onRefreshTasks()}
           >
             {tasksBusy ? t(lang, 'master.tasksBusy') : t(lang, 'master.tasksRefresh')}
           </button>
@@ -709,7 +884,7 @@ export default function MasterAdminPage() {
                 <header>
                   <strong>{task.id}</strong>
                   <span className={`admin-status admin-status--${task.status || 'pending'}`}>
-                    {task.status || 'pending'}
+                    {mapAdminStatus(task.status || 'pending')}
                   </span>
                 </header>
                 <p>{task.description}</p>
@@ -761,6 +936,13 @@ export default function MasterAdminPage() {
         )}
       </section>
 
+      <FinancialDashboardPanel
+        data={financials}
+        busy={financeBusy}
+        onRefresh={() => void onRefreshFinancials()}
+        onRunAllocation={() => void onRunAllocation()}
+      />
+
       <section id="users" className="admin-master__card">
         <h2>{t(lang, 'master.usersTitle')}</h2>
         <p>
@@ -771,11 +953,13 @@ export default function MasterAdminPage() {
             ),
           })}
         </p>
+        <p className="admin-master__lead">{t(lang, 'master.usersManageNa')}</p>
       </section>
 
       <section id="settings" className="admin-master__card">
         <h2>{t(lang, 'master.settingsTitle')}</h2>
         <p className="admin-master__lead">{t(lang, 'master.settingsBody')}</p>
+        <p className="admin-master__lead">{t(lang, 'master.settingsNoirNote')}</p>
         <Link to="/admin/system-health">{t(lang, 'master.quickHealth')}</Link>
       </section>
     </div>

@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Outlet } from 'react-router-dom';
-import LanguageSwitcher from './LanguageSwitcher';
-import { getLang, setLang, t } from '../lib/i18n.js';
+import { t } from '../lib/i18n.js';
 import {
   fetchMasterDashboard,
   readAdminPassword,
@@ -10,6 +9,9 @@ import {
   confirmAdminPasswordReset,
 } from '../lib/adminApi';
 import '../admin-master.css';
+
+/** Master Admin is English-only (client site keeps EN/FR/ES). */
+const ADMIN_LANG = 'en';
 
 type AdminAuthValue = {
   lang: string;
@@ -27,7 +29,7 @@ export function useAdminAuth() {
 }
 
 export default function AdminAuthGate() {
-  const [lang, setLangState] = useState(() => getLang());
+  const lang = ADMIN_LANG;
   const [password, setPassword] = useState(() => readAdminPassword());
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +40,9 @@ export default function AdminAuthGate() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const setLangCode = (code: string) => setLangState(setLang(code));
+  const setLangCode = (_code: string) => {
+    /* Admin UI locked to English */
+  };
 
   useEffect(() => {
     const pw = readAdminPassword();
@@ -133,8 +137,8 @@ export default function AdminAuthGate() {
   }
 
   const value = useMemo(
-    () => ({ lang, setLangCode, password, unlocked }),
-    [lang, password, unlocked]
+    () => ({ lang: ADMIN_LANG, setLangCode, password, unlocked }),
+    [password, unlocked]
   );
 
   if (!unlocked) {
@@ -142,7 +146,6 @@ export default function AdminAuthGate() {
       <div className="admin-master admin-master--gate">
         <header className="admin-master__top">
           <p className="admin-master__brand">{t(lang, 'master.brand')}</p>
-          <LanguageSwitcher lang={lang} onChange={setLangCode} />
         </header>
         <main className="admin-master__gate-main">
           {mode === 'login' ? (

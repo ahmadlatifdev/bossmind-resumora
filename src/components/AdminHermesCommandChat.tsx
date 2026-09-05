@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { t, tFormat } from '../lib/i18n.js';
 import { postAdminHermesCommand } from '../lib/adminApi';
 
@@ -11,11 +11,42 @@ type Props = {
   projectName: string;
 };
 
+function mapCommandError(raw: string, lang: string): string {
+  const m = String(raw || '');
+  if (
+    /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|tunnel|fetch failed|502|503|504|HERMES_API|unreachable|network/i.test(
+      m
+    )
+  ) {
+    return t(lang, 'master.harnessTunnelDown');
+  }
+  return m || t(lang, 'master.harnessCommandFailed');
+}
+
 export default function AdminHermesCommandChat({ lang, password, projectId, projectName }: Props) {
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [byProject, setByProject] = useState<Record<string, Msg[]>>({});
+
+  const messages = byProject[projectId] || [];
+
+  useEffect(() => {
+    setError('');
+  }, [projectId]);
+
+  function setProjectMessages(next: Msg[] | ((prev: Msg[]) => Msg[])) {
+    setByProject((prev) => {
+      const cur = prev[projectId] || [];
+      const resolved = typeof next === 'function' ? next(cur) : next;
+      return { ...prev, [projectId]: resolved };
+    });
+  }
+
+  function clearChat() {
+    setProjectMessages([]);
+    setError('');
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -24,33 +55,48 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
     setBusy(true);
     setError('');
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', text }]);
+    setProjectMessages((prev) => [...prev, { role: 'user', text }]);
     try {
       const out = await postAdminHermesCommand(password, {
         projectId,
         message: text,
         lang,
       });
-      setMessages((prev) => [
+      setProjectMessages((prev) => [
         ...prev,
         { role: 'assistant', text: String(out.reply || ''), engine: out.engine },
       ]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t(lang, 'master.harnessCommandFailed'));
+      setError(mapCommandError(err instanceof Error ? err.message : '', lang));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="admin-harness-chat" aria-label={t(lang, 'master.harnessChatAria')}>
-      <p className="admin-master__lead">
-        {tFormat(lang, 'master.harnessChatLead', { project: projectName })}
-      </p>
+    <div
+      className="admin-harness-chat"
+      aria-label={t(lang, 'master.harnessChatAria')}
+      aria-busy={busy}
+    >
+      <div className="admin-harness-chat__head">
+        <p className="admin-master__lead">
+          {tFormat(lang, 'master.harnessChatLead', { project: projectName })}
+        </p>
+        <button
+          type="button"
+          className="admin-master__btn admin-master__btn--ghost"
+          onClick={clearChat}
+          disabled={busy || messages.length === 0}
+          aria-label={t(lang, 'master.harnessClearChat')}
+        >
+          {t(lang, 'master.harnessClearChat')}
+        </button>
+      </div>
       <ul className="admin-harness-chat__log">
         {messages.map((m, i) => (
           <li
-            key={`${m.role}-${i}`}
+            key={`${projectId}-${m.role}-${i}`}
             className={`admin-harness-chat__msg admin-harness-chat__msg--${m.role}`}
           >
             <span className="admin-harness-chat__role">
@@ -61,6 +107,11 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
           </li>
         ))}
       </ul>
+      {busy ? (
+        <p className="admin-harness-chat__typing" role="status" aria-live="polite">
+          {t(lang, 'master.harnessTyping')}
+        </p>
+      ) : null}
       {error ? (
         <p className="admin-master__alert" role="alert">
           {error}
@@ -75,6 +126,7 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
             placeholder={t(lang, 'master.harnessPlaceholder')}
             disabled={busy}
             maxLength={4000}
+            aria-label={t(lang, 'master.harnessCommand')}
           />
         </label>
         <button type="submit" className="admin-master__btn" disabled={busy || !input.trim()}>
