@@ -54,7 +54,7 @@ function adminCors(res, req) {
   ]);
   const allow = allowed.has(origin) ? origin : 'https://resumora.net';
   res.set('Access-Control-Allow-Origin', allow);
-  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Password');
   res.set('Vary', 'Origin');
 }
@@ -672,6 +672,150 @@ function registerAdminEndpoints(exportsObj) {
       }
     }
   );
+
+  exportsObj.getAdminIncident = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const id = String(req.query.id || '')
+        .trim()
+        .slice(0, 128);
+      if (!id) {
+        res.status(400).json({ error: 'id required' });
+        return;
+      }
+      const kind = String(req.query.kind || 'incident')
+        .trim()
+        .toLowerCase();
+
+      if (kind === 'refund') {
+        const snap = await db.collection('refund_requests').doc(id).get();
+        if (!snap.exists) {
+          res.status(404).json({ error: 'Refund not found' });
+          return;
+        }
+        const data = snap.data() || {};
+        res.status(200).json({
+          ok: true,
+          item: {
+            id: snap.id,
+            kind: 'refund',
+            title: 'Pending refund',
+            status: data.status || 'pending',
+            at: data.createdAt?.toDate?.()?.toISOString?.() || data.createdAt || null,
+            description: data.reason || data.note || 'Refund request',
+            logs: [],
+            raw: {
+              status: data.status,
+              amountCents: data.amountCents ?? data.amount_cents ?? null,
+            },
+          },
+        });
+        return;
+      }
+
+      const snap = await db.collection('system_incidents').doc(id).get();
+      if (!snap.exists) {
+        res.status(404).json({ error: 'Incident not found' });
+        return;
+      }
+      const data = snap.data() || {};
+      const findings = Array.isArray(data.findings) ? data.findings : [];
+      const description =
+        findings
+          .slice(0, 8)
+          .map((f) => f.code || f.severity || JSON.stringify(f))
+          .filter(Boolean)
+          .join('\n') ||
+        data.status ||
+        'No description';
+      const logs = findings.map((f, i) => ({
+        id: String(i),
+        level: f.severity || 'info',
+        message: f.code || f.message || JSON.stringify(f),
+        detail: f.detail || null,
+      }));
+      res.status(200).json({
+        ok: true,
+        item: {
+          id: snap.id,
+          kind: 'incident',
+          title: data.status || 'incident',
+          status: data.resolved ? 'resolved' : data.status || 'open',
+          at: data.createdAt?.toDate?.()?.toISOString?.() || data.createdAt || null,
+          score: data.score ?? null,
+          description,
+          cycleId: data.cycleId || null,
+          requiresHumanReview: Boolean(data.requiresHumanReview),
+          resolved: Boolean(data.resolved),
+          logs,
+        },
+      });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Incident load failed' });
+    }
+  });
+
+  exportsObj.resolveAdminIncident = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    // PATCH preferred for status updates; POST kept for existing clients.
+    if (req.method !== 'PATCH' && req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const id = String(body.id || body.incidentId || req.query.id || '')
+        .trim()
+        .slice(0, 128);
+      if (!id) {
+        res.status(400).json({ error: 'id required' });
+        return;
+      }
+      const nextStatus = String(body.status || 'resolved')
+        .trim()
+        .toLowerCase();
+      if (nextStatus !== 'resolved') {
+        res.status(400).json({ error: 'Only status=resolved is supported' });
+        return;
+      }
+      const ref = db.collection('system_incidents').doc(id);
+      const snap = await ref.get();
+      if (!snap.exists) {
+        res.status(404).json({ error: 'Incident not found' });
+        return;
+      }
+      await ref.set(
+        {
+          resolved: true,
+          status: 'resolved',
+          resolvedAt: FieldValue.serverTimestamp(),
+          resolvedBy: 'admin_dashboard',
+          resolveNote: String(body.note || 'Marked resolved from Master Admin').slice(0, 500),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+      res.status(200).json({ ok: true, id, status: 'resolved' });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Resolve failed' });
+    }
+  });
 
   exportsObj.getAdminFinancials = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);

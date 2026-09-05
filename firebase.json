@@ -201,6 +201,14 @@
         "function": "githubDeployWebhook"
       },
       {
+        "source": "/api/admin/incidents",
+        "function": "getAdminIncident"
+      },
+      {
+        "source": "/api/admin/incidents/resolve",
+        "function": "resolveAdminIncident"
+      },
+      {
         "source": "/api/admin/financials",
         "function": "getAdminFinancials"
       },

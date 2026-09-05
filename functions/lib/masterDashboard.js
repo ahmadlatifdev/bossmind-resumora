@@ -177,13 +177,25 @@ async function buildMasterDashboard(db, snapshot) {
     });
   }
   for (const inc of (snapshot.incidents || []).slice(0, 8)) {
+    const findings = Array.isArray(inc.findings) ? inc.findings : [];
+    const summary =
+      findings
+        .slice(0, 3)
+        .map((f) => f.code || f.severity || f.message)
+        .filter(Boolean)
+        .join(', ') ||
+      inc.status ||
+      'incident';
     feed.push({
       kind: 'incident',
       id: inc.id,
-      title: inc.status || 'incident',
+      title: summary,
       status: inc.status || 'open',
       at: inc.createdAt || null,
       score: inc.score,
+      description: summary,
+      requiresHumanReview: Boolean(inc.requiresHumanReview),
+      cycleId: inc.cycleId || null,
     });
   }
   for (const n of (snapshot.notificationHistory || []).slice(0, 6)) {

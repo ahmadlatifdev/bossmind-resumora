@@ -7,6 +7,7 @@ import MasterAdminPage from './pages/MasterAdminPage';
 import AdminRefundsPage from './pages/AdminRefundsPage';
 import AdminSystemHealthPage from './pages/AdminSystemHealth';
 import FinancialPage from './pages/FinancialPage';
+import AdminIncidentPage from './pages/AdminIncidentPage';
 import { LangProvider } from './i18n/LangContext';
 import './index.css';
 import './styles/tokens.css';
@@ -25,6 +26,7 @@ function AdminApp() {
             <Route element={<AdminShell />}>
               <Route path="/admin/master" element={<MasterAdminPage />} />
               <Route path="/admin/financials" element={<FinancialPage />} />
+              <Route path="/admin/incidents/:id" element={<AdminIncidentPage />} />
               <Route path="/admin/refunds" element={<AdminRefundsPage />} />
               <Route path="/admin" element={<Navigate to="/admin/master" replace />} />
               <Route path="/bossmind" element={<Navigate to="/admin/master" replace />} />
