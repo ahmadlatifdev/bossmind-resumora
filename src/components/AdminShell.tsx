@@ -12,6 +12,7 @@ const LINKS = [
   { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
   { to: '/admin/master#agents', key: 'master.nav.agents' },
   { to: '/admin/master#hermes-chat', key: 'master.nav.hermesChat' },
+  { to: '/admin/master#tasks', key: 'master.nav.tasks' },
   { to: '/admin/master#settings', key: 'master.nav.settings' },
 ] as const;
 

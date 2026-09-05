@@ -104,6 +104,7 @@ function cors(res, req) {
 const videoCatalog = require('./videoCatalog');
 const bilibiliPublish = require('./bilibiliPublish');
 const { stripeApiSecrets, getStripeClient } = require('./lib/stripeSecrets');
+const { resolveProjectCheckout, normalizeProject } = require('./lib/projectCheckout');
 
 function parseBody(req) {
   let body = req.body;
@@ -136,32 +137,47 @@ exports.createCheckoutSession = onRequest(
       return;
     }
 
-    const secret = process.env.STRIPE_SECRET_KEY;
-    if (!secret) {
-      res.status(500).json({ error: 'STRIPE_SECRET_KEY is not configured on the server.' });
+    let body = parseBody(req);
+    const projectIdEarly = normalizeProject(body.project || body.projectId || 'resumora');
+    const planId = String(body.planId || '').trim();
+
+    if (!planId) {
+      res.status(400).json({ error: 'planId is required.' });
       return;
     }
 
-    let body = parseBody(req);
+    // Resumora keeps the canonical plan allow-list; ElegancyArt plans are env-mapped.
+    if (projectIdEarly === 'resumora') {
+      if (!CANONICAL_PRICE_IDS[planId] && !PLAN_ENV_KEYS[planId]) {
+        res.status(400).json({
+          error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
+        });
+        return;
+      }
+    }
 
-    const planId = String(body.planId || '').trim();
-    if (!CANONICAL_PRICE_IDS[planId] && !PLAN_ENV_KEYS[planId]) {
-      res.status(400).json({
-        error: `Invalid planId. Expected one of: ${Object.keys(CANONICAL_PRICE_IDS).join(', ')}`,
+    const resolved = resolveProjectCheckout({
+      project: projectIdEarly,
+      planId,
+      bodyPriceId: body.priceId,
+      resolveResumoraPriceId: resolvePriceId,
+      defaultSuccessUrl: 'https://resumora.net/pricing?checkout=success',
+      defaultCancelUrl: 'https://resumora.net/pricing?checkout=canceled',
+      bodySuccessUrl: body.successUrl,
+      bodyCancelUrl: body.cancelUrl,
+    });
+
+    if (!resolved.configured) {
+      res.status(resolved.projectId === 'elegancyart' ? 503 : 400).json({
+        error: resolved.error || 'Checkout not configured',
+        projectId: resolved.projectId,
       });
       return;
     }
 
-    const priceId = resolvePriceId(planId, body.priceId);
-    if (!priceId) {
-      res.status(400).json({ error: `No Stripe Price ID mapped for plan "${planId}".` });
-      return;
-    }
-
-    const expectedCents = Number(body.expectedCents || EXPECTED_CENTS[planId] || 0);
-
-    const successUrl = body.successUrl || 'https://resumora.net/pricing?checkout=success';
-    const cancelUrl = body.cancelUrl || 'https://resumora.net/pricing?checkout=canceled';
+    const { secret, priceId, successUrl, cancelUrl, projectId, source } = resolved;
+    const expectedCents =
+      projectId === 'resumora' ? Number(body.expectedCents || EXPECTED_CENTS[planId] || 0) : 0;
 
     try {
       const Stripe = require('stripe');
@@ -173,7 +189,7 @@ exports.createCheckoutSession = onRequest(
         res.status(400).json({
           error: `Stripe price amount mismatch for "${planId}": expected ${expectedCents}, got ${price.unit_amount}.`,
           planId,
-          priceId,
+          projectId,
           expectedCents,
           actualCents: price.unit_amount,
         });
@@ -212,7 +228,8 @@ exports.createCheckoutSession = onRequest(
           cancel_url: cancelUrl,
           metadata: {
             planId,
-            source: 'resumora.net',
+            projectId,
+            source,
             expected_cents: String(expectedCents || price.unit_amount || ''),
             advisory_only_ui: 'true',
           },
@@ -221,20 +238,23 @@ exports.createCheckoutSession = onRequest(
       );
 
       const session = await stripe.checkout.sessions.create(sessionParams, {
-        idempotencyKey: `checkout_${planId}_${priceId}_${Date.now().toString(36)}`,
+        idempotencyKey: `checkout_${projectId}_${planId}_${Date.now().toString(36)}`,
       });
 
       res.status(200).json({
         sessionId: session.id,
         url: session.url,
         planId,
-        priceId,
+        projectId,
         mode,
         amount: price.unit_amount,
+        // Omit priceId from response for ElegancyArt; Resumora clients historically expect it.
+        ...(projectId === 'resumora' ? { priceId } : {}),
       });
     } catch (err) {
       res.status(500).json({
         error: err && err.message ? err.message : 'Stripe Checkout session creation failed',
+        projectId,
       });
     }
   }

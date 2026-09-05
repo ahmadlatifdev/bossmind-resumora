@@ -8,7 +8,13 @@ import {
   setHermesChatEnabled,
   fetchHermesInsights,
   fetchMasterProjects,
+  fetchHarnessTasks,
+  createHarnessTask,
+  ackHarnessTask,
+  markHarnessTaskApplied,
+  setHarnessAutomation,
   type MasterProject,
+  type HarnessTask,
 } from '../lib/adminApi';
 import AdminHermesCommandChat from '../components/AdminHermesCommandChat';
 import { t, tFormat } from '../lib/i18n.js';
@@ -139,6 +145,19 @@ export default function MasterAdminPage() {
   const [insights, setInsights] = useState('');
   const [harnessProjects, setHarnessProjects] = useState<MasterProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState('resumora');
+  const [tasks, setTasks] = useState<HarnessTask[]>([]);
+  const [tasksBusy, setTasksBusy] = useState(false);
+  const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
+
+  const loadTasks = useCallback(async () => {
+    try {
+      const out = await fetchHarnessTasks(password);
+      setTasks(out.tasks || []);
+      setAutoDeployAfterAck(Boolean(out.settings?.autoDeployAfterAck));
+    } catch {
+      /* keep prior */
+    }
+  }, [password]);
 
   const load = useCallback(async () => {
     setError('');
@@ -161,10 +180,11 @@ export default function MasterAdminPage() {
       } catch {
         setHermes({ configured: false, active: false, chatEnabled: false });
       }
+      await loadTasks();
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.loadFailed'));
     }
-  }, [password, lang]);
+  }, [password, lang, loadTasks]);
 
   useEffect(() => {
     void load();
@@ -270,6 +290,71 @@ export default function MasterAdminPage() {
       setError(err instanceof Error ? err.message : t(lang, 'master.hermesInsightsFailed'));
     } finally {
       setHermesBusy(false);
+    }
+  }
+
+  async function onAckTask(taskId: string, ack: boolean) {
+    setTasksBusy(true);
+    setError('');
+    try {
+      await ackHarnessTask(password, { taskId, ack, reject: !ack, note: ack ? 'ACK' : 'reject' });
+      setNotice(ack ? t(lang, 'master.tasksAckOk') : t(lang, 'master.tasksRejectOk'));
+      await loadTasks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
+    }
+  }
+
+  async function onMarkApplied(taskId: string) {
+    setTasksBusy(true);
+    setError('');
+    try {
+      await markHarnessTaskApplied(password, taskId, 'dashboard');
+      setNotice(t(lang, 'master.tasksAppliedOk'));
+      await loadTasks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
+    }
+  }
+
+  async function onCreateSampleTask() {
+    setTasksBusy(true);
+    setError('');
+    try {
+      await createHarnessTask(password, {
+        description:
+          'Sample: set LOG_LEVEL=info on Resumora backend (ACK then apply locally; do not auto-deploy secrets).',
+        projectId: 'resumora',
+        actor: 'admin',
+        risk: 'low',
+        commands: [
+          'gcloud run services update postadminhermescommand --region=us-central1 --project=resumora-live --update-env-vars=LOG_LEVEL=info',
+        ],
+        codeDiff:
+          '// Read process.env.LOG_LEVEL in Functions structured logs (no secret values).\n',
+      });
+      setNotice(t(lang, 'master.tasksCreateOk'));
+      await loadTasks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
+    }
+  }
+
+  async function onToggleAutoDeploy(enabled: boolean) {
+    setTasksBusy(true);
+    try {
+      await setHarnessAutomation(password, { autoDeployAfterAck: enabled });
+      setAutoDeployAfterAck(enabled);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
     }
   }
 
@@ -585,6 +670,95 @@ export default function MasterAdminPage() {
             selectedProjectId
           }
         />
+      </section>
+
+      <section id="tasks" className="admin-master__card">
+        <h2>{t(lang, 'master.tasksTitle')}</h2>
+        <p className="admin-master__lead">{t(lang, 'master.tasksLead')}</p>
+        <div className="admin-tasks-toolbar">
+          <button
+            type="button"
+            className="admin-master__btn admin-master__btn--ghost"
+            disabled={tasksBusy}
+            onClick={() => void loadTasks()}
+          >
+            {tasksBusy ? t(lang, 'master.tasksBusy') : t(lang, 'master.tasksRefresh')}
+          </button>
+          <button
+            type="button"
+            className="admin-master__btn admin-master__btn--ghost"
+            disabled={tasksBusy}
+            onClick={() => void onCreateSampleTask()}
+          >
+            {t(lang, 'master.tasksCreateSample')}
+          </button>
+          <label className="admin-hermes-toggle">
+            <input
+              type="checkbox"
+              checked={autoDeployAfterAck}
+              disabled={tasksBusy}
+              onChange={(e) => void onToggleAutoDeploy(e.target.checked)}
+            />
+            {t(lang, 'master.tasksAutoDeploy')}
+          </label>
+        </div>
+        {tasks.length ? (
+          <ul className="admin-tasks-list">
+            {tasks.map((task) => (
+              <li key={task.id} className="admin-tasks-item">
+                <header>
+                  <strong>{task.id}</strong>
+                  <span className={`admin-status admin-status--${task.status || 'pending'}`}>
+                    {task.status || 'pending'}
+                  </span>
+                </header>
+                <p>{task.description}</p>
+                {task.commands?.length ? (
+                  <pre className="admin-tasks-commands">{task.commands.join('\n')}</pre>
+                ) : null}
+                <div className="admin-tasks-actions">
+                  {task.status === 'pending' ? (
+                    <>
+                      <button
+                        type="button"
+                        className="admin-master__btn"
+                        disabled={tasksBusy}
+                        onClick={() => void onAckTask(task.id, true)}
+                      >
+                        {t(lang, 'master.tasksAck')}
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-master__btn admin-master__btn--ghost"
+                        disabled={tasksBusy}
+                        onClick={() => void onAckTask(task.id, false)}
+                      >
+                        {t(lang, 'master.tasksReject')}
+                      </button>
+                    </>
+                  ) : null}
+                  {task.status === 'acked' ? (
+                    <button
+                      type="button"
+                      className="admin-master__btn admin-master__btn--ghost"
+                      disabled={tasksBusy}
+                      onClick={() => void onMarkApplied(task.id)}
+                    >
+                      {t(lang, 'master.tasksMarkApplied')}
+                    </button>
+                  ) : null}
+                  {task.deployRunUrl ? (
+                    <a href={task.deployRunUrl} target="_blank" rel="noreferrer">
+                      deploy run
+                    </a>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="admin-master__lead">{t(lang, 'master.tasksEmpty')}</p>
+        )}
       </section>
 
       <section id="users" className="admin-master__card">
