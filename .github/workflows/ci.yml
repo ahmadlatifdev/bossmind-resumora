@@ -50,6 +50,7 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:5173
           PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          # Optional — suite mocks master-dashboard unlock when unset; CI=true supplies a local unlock password.
           ADMIN_REFUND_PASSWORD: ${{ secrets.ADMIN_REFUND_PASSWORD }}
           CI: 'true'
         run: npm run test:hermes-chat

@@ -23,13 +23,46 @@ function adminPassword() {
     process.env.ADMIN_PASSWORD ||
     process.env.SELF_HEAL_ADMIN_PASSWORD ||
     process.env.VITE_ADMIN_PASSWORD ||
-    ''
+    // CI unlock uses mocked master-dashboard — password value is not validated by backend.
+    (process.env.CI ? 'ci-hermes-chat-unlock' : '')
   );
+}
+
+/** Unlock + catalog APIs mocked so Hermes Chat UI tests stay self-contained (local + CI). */
+async function mockAdminUnlockApis(page) {
+  await page.route('**/api/admin/master-dashboard', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        dashboard: {
+          ok: true,
+          projects: [{ projectId: 'resumora', name: 'Resumora', status: 'active' }],
+        },
+      }),
+    });
+  });
+  await page.route('**/api/admin/master-projects', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        projects: [{ projectId: 'resumora', name: 'Resumora', status: 'active' }],
+      }),
+    });
+  });
+  await page.route('**/api/admin/hermes-status', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: { online: true, chatEnabled: true } }),
+    });
+  });
 }
 
 async function unlockAdmin(page) {
   const pw = adminPassword();
-  test.skip(!pw, 'Admin password not available in env/vault — cannot unlock production admin');
+  test.skip(!pw, 'Admin password not available in env/vault — cannot unlock admin');
 
   const passwordInput = page.locator('input[type="password"]').first();
   if (await passwordInput.isVisible({ timeout: 4000 }).catch(() => false)) {
@@ -42,6 +75,7 @@ async function unlockAdmin(page) {
 }
 
 async function openHermesChat(page) {
+  await mockAdminUnlockApis(page);
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
   await unlockAdmin(page);
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
