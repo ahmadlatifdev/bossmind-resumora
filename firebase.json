@@ -6,7 +6,42 @@
     "site": "client-resumora-live",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      {
+        "source": "/vite.svg",
+        "destination": "/resumora-logo.png",
+        "type": 301
+      },
+      {
+        "source": "/vercel.svg",
+        "destination": "/resumora-logo.png",
+        "type": 301
+      },
+      {
+        "source": "/favicon.ico",
+        "destination": "/resumora-logo.png",
+        "type": 301
+      }
+    ],
     "headers": [
+      {
+        "source": "/vite.svg",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, max-age=0"
+          }
+        ]
+      },
+      {
+        "source": "/vercel.svg",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store, max-age=0"
+          }
+        ]
+      },
       {
         "source": "**",
         "headers": [

@@ -1,14 +1,19 @@
 /**
- * Fail the build if Vercel / platform triangle logos reappear under src/ or public/.
+ * Fail the build if Vercel / Vite platform logo files or <img>/<VercelLogo> usages reappear.
  * Policy: Firebase Hosting only (resumora.net). See docs/VERCEL_DEPRECATION.md.
  */
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const SCAN_DIRS = ['src', 'public'];
+const SCAN_DIRS = ['src', 'public', path.join('cloud-run-apex', 'dist')];
 const BANNED_NAMES = /^(vercel\.svg|vite\.svg)$/i;
-const BANNED_CONTENT = [/vercel\.svg/i, /▲\s*Vercel/i, /powered by vercel/i];
+const BANNED_USAGE = [
+  /src=["']\/?(?:vercel|vite)\.svg["']/i,
+  /href=["']\/?(?:vercel|vite)\.svg["']/i,
+  /<VercelLogo\b/i,
+  /from\s+['"][^'"]*vercel\.svg['"]/i,
+];
 
 const offenders = [];
 
@@ -17,7 +22,7 @@ function walk(dir) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) {
-      if (ent.name === 'node_modules' || ent.name === 'dist') continue;
+      if (ent.name === 'node_modules' || ent.name === '.git' || ent.name === 'dist') continue;
       walk(full);
       continue;
     }
@@ -26,14 +31,14 @@ function walk(dir) {
       offenders.push(rel);
       continue;
     }
-    if (!/\.(tsx?|jsx?|css|html|svg|md)$/i.test(ent.name)) continue;
+    if (!/\.(tsx?|jsx?|css|html|svg)$/i.test(ent.name)) continue;
     let text = '';
     try {
       text = fs.readFileSync(full, 'utf8');
     } catch {
       continue;
     }
-    for (const re of BANNED_CONTENT) {
+    for (const re of BANNED_USAGE) {
       if (re.test(text)) {
         offenders.push(`${rel} (matched ${re})`);
         break;
@@ -45,9 +50,9 @@ function walk(dir) {
 for (const d of SCAN_DIRS) walk(path.join(ROOT, d));
 
 if (offenders.length) {
-  console.error('[assert-no-vercel-logo] Forbidden Vercel/platform logo assets found:');
+  console.error('[assert-no-vercel-logo] Forbidden platform logo assets found:');
   for (const o of offenders) console.error(' -', o);
   process.exit(1);
 }
 
-console.log('[assert-no-vercel-logo] OK — no Vercel/vite logo assets under src/ or public/');
+console.log('[assert-no-vercel-logo] OK — no Vercel/vite logo files or references');

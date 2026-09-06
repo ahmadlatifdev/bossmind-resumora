@@ -211,7 +211,14 @@ export default function AdminSystemHealthPage() {
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
         <a href="/" className="site-logo" aria-label="RESUMORA.NET">
-          <img src="/resumora-logo.png" alt="" width="160" height="40" />
+          <img
+            className="site-logo__mark"
+            src="/resumora-logo.png"
+            alt=""
+            width={56}
+            height={56}
+            decoding="async"
+          />
         </a>
       </header>
 
