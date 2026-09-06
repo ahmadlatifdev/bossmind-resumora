@@ -1,4 +1,6 @@
 export const ADMIN_PW_KEY = 'resumora_admin_heal_pw';
+export const OWNER_MODE_KEY = 'resumora_owner_mode';
+export const OWNER_PW_KEY = 'resumora_owner_pw';
 
 export function readAdminPassword(): string {
   try {
@@ -12,6 +14,40 @@ export function writeAdminPassword(value: string): void {
   try {
     if (value) sessionStorage.setItem(ADMIN_PW_KEY, value);
     else sessionStorage.removeItem(ADMIN_PW_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readOwnerMode(): boolean {
+  try {
+    return sessionStorage.getItem(OWNER_MODE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function writeOwnerMode(on: boolean): void {
+  try {
+    if (on) sessionStorage.setItem(OWNER_MODE_KEY, '1');
+    else sessionStorage.removeItem(OWNER_MODE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readOwnerPassword(): string {
+  try {
+    return sessionStorage.getItem(OWNER_PW_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function writeOwnerPassword(value: string): void {
+  try {
+    if (value) sessionStorage.setItem(OWNER_PW_KEY, value);
+    else sessionStorage.removeItem(OWNER_PW_KEY);
   } catch {
     /* ignore */
   }
@@ -104,6 +140,98 @@ export async function updateMasterProjectStatus(
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data as { ok?: boolean; status?: string; project?: MasterProject };
+}
+
+/** Owner console — requires ADMIN_REFUND_PASSWORD (server-side only). */
+export async function fetchOwnerProjects(ownerPassword: string) {
+  const res = await fetch('/api/owner/projects', {
+    headers: adminHeaders(ownerPassword),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    owner?: boolean;
+    projects?: MasterProject[];
+    averageHealth?: number | null;
+    catalog?: Array<{ projectId: string; name: string } | string>;
+  };
+}
+
+export async function ownerGlobalHealthCheck(ownerPassword: string) {
+  const res = await fetch('/api/owner/projects', {
+    method: 'POST',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify({ action: 'globalHealthCheck' }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    projects?: MasterProject[];
+    globalHealth?: { score?: number | null; status?: string | null };
+    logs?: unknown[];
+    healSummary?: unknown;
+  };
+}
+
+export async function ownerReviewUpdateAll(
+  ownerPassword: string,
+  status: 'active' | 'paused' | 'building' | 'offline' = 'active',
+  projectIds?: string[]
+) {
+  const res = await fetch('/api/owner/projects', {
+    method: 'POST',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify({ action: 'reviewUpdateAll', status, projectIds }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    projects?: MasterProject[];
+    batch?: { projects?: MasterProject[] };
+  };
+}
+
+export async function ownerSetProjectStatus(
+  ownerPassword: string,
+  projectId: string,
+  status: 'active' | 'paused' | 'building' | 'offline'
+) {
+  const res = await fetch('/api/owner/projects', {
+    method: 'PATCH',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify({ projectId, status, source: 'owner' }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; status?: string; project?: MasterProject };
+}
+
+export async function ownerUpsertProject(
+  ownerPassword: string,
+  project: Partial<MasterProject> & { projectId: string }
+) {
+  const res = await fetch('/api/owner/projects', {
+    method: 'POST',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify(project),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; created?: boolean; project?: MasterProject };
+}
+
+export async function ownerDeleteProject(ownerPassword: string, projectId: string) {
+  const res = await fetch(`/api/owner/projects/${encodeURIComponent(projectId)}`, {
+    method: 'DELETE',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify({ projectId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; deleted?: string };
 }
 
 /** Probe local Hermes HITL/MCP (HERMES_API_URL or defaults). */

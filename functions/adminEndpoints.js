@@ -14,11 +14,18 @@ const {
   listMasterProjects,
   getProjectContext,
   setMasterProjectStatus,
+  setOwnerProjectStatus,
+  setOwnerProjectsStatusBatch,
+  upsertOwnerProject,
+  deleteOwnerProject,
+  ownerGlobalHealthCheck,
+  CANONICAL_PROJECTS,
 } = require('./lib/projectRegistry');
 const { routeTool, runSkill } = require('./lib/toolRouter');
 const { callGeminiChat } = require('./lib/geminiChat');
 const {
   assertAdminAccess,
+  assertOwnerAccess,
   requestAdminPasswordReset,
   confirmAdminPasswordReset,
 } = require('./lib/adminGateAuth');
@@ -47,6 +54,11 @@ function readAdminPassword() {
   );
 }
 
+/** Owner console: ADMIN_REFUND_PASSWORD only (no weaker fallbacks). */
+function readOwnerPassword() {
+  return String(process.env.ADMIN_REFUND_PASSWORD || '').trim();
+}
+
 function adminCors(res, req) {
   const origin = String((req && req.get && req.get('origin')) || '');
   const allowed = new Set([
@@ -58,7 +70,7 @@ function adminCors(res, req) {
   ]);
   const allow = allowed.has(origin) ? origin : 'https://resumora.net';
   res.set('Access-Control-Allow-Origin', allow);
-  res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Password');
   res.set('Vary', 'Origin');
 }
@@ -248,6 +260,126 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Project status update failed' });
+    }
+  });
+
+  /**
+   * Owner / Super Admin master console.
+   * Routes: GET|POST|PATCH|DELETE /api/owner/projects and /api/owner/master
+   * Auth: ADMIN_REFUND_PASSWORD only via X-Admin-Password.
+   */
+  exportsObj.ownerMasterConsole = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    try {
+      assertOwnerAccess(req, readOwnerPassword());
+      const body = parseBody(req);
+      const pathParts = String(req.path || req.url || '')
+        .split('?')[0]
+        .split('/')
+        .filter(Boolean);
+      // ["api","owner","projects", ...] or ["api","owner","master"]
+      const ownerIdx = pathParts.indexOf('owner');
+      const resource = ownerIdx >= 0 ? pathParts[ownerIdx + 1] || 'projects' : 'projects';
+      const resourceId = ownerIdx >= 0 ? pathParts[ownerIdx + 2] || '' : '';
+
+      if (req.method === 'GET' && (resource === 'master' || resource === 'projects')) {
+        const snapshot = await selfHeal.getHealthSnapshot(db);
+        if (resource === 'master' || String(req.query.health || '') === '1') {
+          const out = await ownerGlobalHealthCheck(db, snapshot);
+          res
+            .status(200)
+            .json({ ...out, owner: true, catalog: CANONICAL_PROJECTS.map((p) => p.projectId) });
+          return;
+        }
+        const registry = await listMasterProjects(db, snapshot);
+        res.status(200).json({
+          ok: true,
+          owner: true,
+          ...registry,
+          catalog: CANONICAL_PROJECTS.map((p) => ({ projectId: p.projectId, name: p.name })),
+        });
+        return;
+      }
+
+      if (req.method === 'POST' && resource === 'projects') {
+        const action = String(body.action || '').toLowerCase();
+        if (action === 'globalhealthcheck' || action === 'global_health_check') {
+          const summary = await selfHeal.runSelfHealCycle(db, null, {
+            trigger: 'owner-global-health',
+          });
+          const snapshot = await selfHeal.getHealthSnapshot(db);
+          const out = await ownerGlobalHealthCheck(db, snapshot);
+          res.status(200).json({ ...out, healSummary: summary, owner: true });
+          return;
+        }
+        if (action === 'reviewupdateall' || action === 'review_update_all') {
+          const status = String(body.status || 'active').toLowerCase();
+          const batch = await setOwnerProjectsStatusBatch(db, status, body.projectIds, {
+            source: 'owner-review-all',
+          });
+          const snapshot = await selfHeal.getHealthSnapshot(db);
+          const out = await ownerGlobalHealthCheck(db, snapshot);
+          res.status(200).json({ ...out, batch, owner: true });
+          return;
+        }
+        // Create / upsert
+        const created = await upsertOwnerProject(db, body);
+        res.status(created.created ? 201 : 200).json({ ...created, owner: true });
+        return;
+      }
+
+      if (req.method === 'PATCH' && resource === 'projects') {
+        // Batch statuses: { projects: [{projectId,status}] } or single {projectId,status} or force all
+        if (Array.isArray(body.projects)) {
+          const updated = [];
+          for (const row of body.projects) {
+            if (row && row.projectId && row.status) {
+              const out = await setOwnerProjectStatus(db, row.projectId, row.status, {
+                source: body.source || 'owner',
+              });
+              updated.push(out.project);
+            } else if (row && row.projectId) {
+              const out = await upsertOwnerProject(db, row);
+              updated.push(out.project);
+            }
+          }
+          res.status(200).json({ ok: true, owner: true, projects: updated });
+          return;
+        }
+        if (body.projectId && body.status && body.name == null && body.envRegistry == null) {
+          const out = await setOwnerProjectStatus(db, body.projectId, body.status, {
+            source: body.source || 'owner',
+          });
+          res.status(200).json({ ...out, owner: true });
+          return;
+        }
+        if (body.projectId || resourceId) {
+          const out = await upsertOwnerProject(db, {
+            ...body,
+            projectId: body.projectId || resourceId,
+          });
+          res.status(200).json({ ...out, owner: true });
+          return;
+        }
+        res.status(400).json({ error: 'projectId required' });
+        return;
+      }
+
+      if (req.method === 'DELETE' && resource === 'projects') {
+        const id = String(body.projectId || resourceId || req.query.projectId || '').trim();
+        const out = await deleteOwnerProject(db, id);
+        res.status(200).json({ ...out, owner: true });
+        return;
+      }
+
+      res.status(405).json({ error: 'Method not allowed' });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Owner console failed' });
     }
   });
 

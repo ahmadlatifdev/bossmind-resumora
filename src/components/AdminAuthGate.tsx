@@ -3,8 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { t } from '../lib/i18n.js';
 import {
   fetchMasterDashboard,
+  fetchOwnerProjects,
   readAdminPassword,
   writeAdminPassword,
+  readOwnerMode,
+  writeOwnerMode,
+  readOwnerPassword,
+  writeOwnerPassword,
   requestAdminPasswordReset,
   confirmAdminPasswordReset,
 } from '../lib/adminApi';
@@ -18,6 +23,10 @@ type AdminAuthValue = {
   setLangCode: (code: string) => void;
   password: string;
   unlocked: boolean;
+  ownerMode: boolean;
+  ownerPassword: string;
+  enableOwnerMode: (ownerPw: string) => Promise<void>;
+  disableOwnerMode: () => void;
 };
 
 const AdminAuthContext = createContext<AdminAuthValue | null>(null);
@@ -32,6 +41,8 @@ export default function AdminAuthGate() {
   const lang = ADMIN_LANG;
   const [password, setPassword] = useState(() => readAdminPassword());
   const [unlocked, setUnlocked] = useState(false);
+  const [ownerMode, setOwnerMode] = useState(() => readOwnerMode());
+  const [ownerPassword, setOwnerPassword] = useState(() => readOwnerPassword());
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -58,6 +69,10 @@ export default function AdminAuthGate() {
       .catch(() => {
         if (cancelled) return;
         writeAdminPassword('');
+        writeOwnerMode(false);
+        writeOwnerPassword('');
+        setOwnerMode(false);
+        setOwnerPassword('');
         setUnlocked(false);
       })
       .finally(() => {
@@ -95,6 +110,23 @@ export default function AdminAuthGate() {
     }
   }
 
+  async function enableOwnerMode(ownerPw: string) {
+    const pw = String(ownerPw || '').trim();
+    if (!pw) throw new Error(t(lang, 'master.ownerPasswordRequired'));
+    await fetchOwnerProjects(pw);
+    writeOwnerPassword(pw);
+    writeOwnerMode(true);
+    setOwnerPassword(pw);
+    setOwnerMode(true);
+  }
+
+  function disableOwnerMode() {
+    writeOwnerMode(false);
+    writeOwnerPassword('');
+    setOwnerMode(false);
+    setOwnerPassword('');
+  }
+
   async function onRequestReset(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -122,8 +154,6 @@ export default function AdminAuthGate() {
     }
     try {
       await confirmAdminPasswordReset(resetCode.trim(), newPassword);
-      writeAdminPassword(newPassword);
-      setPassword(newPassword);
       setNotice(t(lang, 'master.resetSuccess'));
       setMode('login');
       setResetCode('');
@@ -137,8 +167,17 @@ export default function AdminAuthGate() {
   }
 
   const value = useMemo(
-    () => ({ lang: ADMIN_LANG, setLangCode, password, unlocked }),
-    [password, unlocked]
+    () => ({
+      lang: ADMIN_LANG,
+      setLangCode,
+      password,
+      unlocked,
+      ownerMode,
+      ownerPassword,
+      enableOwnerMode,
+      disableOwnerMode,
+    }),
+    [password, unlocked, ownerMode, ownerPassword]
   );
 
   if (!unlocked) {
@@ -162,100 +201,83 @@ export default function AdminAuthGate() {
                   required
                 />
               </label>
-              {error ? (
-                <p className="admin-master__alert" role="alert">
-                  {error}
-                </p>
-              ) : null}
-              {notice ? (
-                <p className="admin-master__ok" role="status">
-                  {notice}
-                </p>
-              ) : null}
+              {error ? <p className="admin-master__error">{error}</p> : null}
+              {notice ? <p className="admin-master__notice">{notice}</p> : null}
               <button type="submit" className="admin-master__btn" disabled={busy}>
                 {busy ? t(lang, 'master.unlocking') : t(lang, 'heal.unlock')}
               </button>
               <button
                 type="button"
-                className="admin-master__link-btn"
+                className="admin-master__btn admin-master__btn--ghost"
+                disabled={busy}
                 onClick={() => {
                   setMode('reset');
                   setError('');
                   setNotice('');
                 }}
               >
-                {t(lang, 'master.forgotPassword')}
+                {busy ? t(lang, 'master.unlocking') : t(lang, 'master.resetSendCode')}
               </button>
             </form>
           ) : (
-            <div className="admin-master__card">
+            <form className="admin-master__card" onSubmit={onConfirmReset}>
               <h1>{t(lang, 'master.resetTitle')}</h1>
               <p className="admin-master__lead">{t(lang, 'master.resetLead')}</p>
-              <form onSubmit={onRequestReset}>
-                <button type="submit" className="admin-master__btn" disabled={busy}>
-                  {busy ? t(lang, 'master.unlocking') : t(lang, 'master.resetSendCode')}
-                </button>
-              </form>
-              <form onSubmit={onConfirmReset} style={{ marginTop: 16 }}>
-                <label>
-                  {t(lang, 'master.resetCode')}
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    value={resetCode}
-                    onChange={(e) => setResetCode(e.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  {t(lang, 'master.resetNewPassword')}
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    minLength={12}
-                    required
-                  />
-                </label>
-                <label>
-                  {t(lang, 'master.resetConfirmPassword')}
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    minLength={12}
-                    required
-                  />
-                </label>
-                {error ? (
-                  <p className="admin-master__alert" role="alert">
-                    {error}
-                  </p>
-                ) : null}
-                {notice ? (
-                  <p className="admin-master__ok" role="status">
-                    {notice}
-                  </p>
-                ) : null}
-                <button type="submit" className="admin-master__btn" disabled={busy}>
-                  {t(lang, 'master.resetConfirm')}
-                </button>
-              </form>
               <button
                 type="button"
-                className="admin-master__link-btn"
+                className="admin-master__btn admin-master__btn--ghost"
+                disabled={busy}
+                onClick={(e) => void onRequestReset(e)}
+              >
+                {t(lang, 'master.resetSendCode')}
+              </button>
+              <label>
+                {t(lang, 'master.resetCode')}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                {t(lang, 'master.resetNewPassword')}
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </label>
+              <label>
+                {t(lang, 'master.resetConfirmPassword')}
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </label>
+              {error ? <p className="admin-master__error">{error}</p> : null}
+              {notice ? <p className="admin-master__notice">{notice}</p> : null}
+              <button type="submit" className="admin-master__btn" disabled={busy}>
+                {t(lang, 'master.resetConfirm')}
+              </button>
+              <button
+                type="button"
+                className="admin-master__btn admin-master__btn--ghost"
                 onClick={() => {
                   setMode('login');
                   setError('');
                   setNotice('');
                 }}
               >
-                {t(lang, 'master.backToLogin')}
+                {t(lang, 'master.resetBack')}
               </button>
-            </div>
+            </form>
           )}
         </main>
       </div>

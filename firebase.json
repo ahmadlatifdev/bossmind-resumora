@@ -153,6 +153,10 @@
         "function": "getMasterProjects"
       },
       {
+        "source": "/api/owner/**",
+        "function": "ownerMasterConsole"
+      },
+      {
         "source": "/api/admin/projects/status",
         "function": "updateMasterProjectStatus"
       },
