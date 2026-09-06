@@ -3,7 +3,8 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { t } from '../lib/i18n.js';
 
 /**
- * Shared top header — SSoT chrome (logo, nav, EN/FR/ES).
+ * Shared top header — SSoT chrome (single Resumora mark + nav + EN/FR/ES).
+ * Brand mark: /resumora-logo.png only. Never third-party platform badges.
  * Render only from Layout — do not duplicate per page.
  */
 export default function SiteHeader({
@@ -40,6 +41,7 @@ export default function SiteHeader({
           alt=""
           width={56}
           height={56}
+          decoding="async"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}

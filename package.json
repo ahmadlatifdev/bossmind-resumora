@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "dev:all": "node start-bossmind.mjs",
-    "build": "vite build",
+    "build": "node scripts/assert-no-vercel-logo.cjs && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",

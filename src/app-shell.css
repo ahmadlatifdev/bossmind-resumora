@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: nowrap;
   padding: var(--header-pad-y) var(--header-pad-x);
   background: var(--header-bg);
@@ -193,6 +193,7 @@
   height: 56px;
   object-fit: contain;
   flex-shrink: 0;
+  display: block;
   filter: drop-shadow(0 3px 10px rgba(212, 175, 55, 0.32));
 }
 .site-logo__text {
