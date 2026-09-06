@@ -251,6 +251,8 @@ export async function fetchBrocStatus(ownerPassword: string) {
     backupLog?: Array<Record<string, unknown>>;
     recovery?: { intervalMs?: number; hermesPorts?: number[]; hint?: string };
     globalHealth?: { score?: number | null; status?: string | null };
+    healthyRevision?: { revisionId?: string | null; service?: string | null };
+    isQuarantined?: boolean;
   };
 }
 
@@ -368,6 +370,9 @@ export type HarnessTask = {
   risk?: string;
   logs?: string[];
   autoDeployEligible?: boolean;
+  lastKnownHealthyRevision?: string | null;
+  lastKnownHealthyService?: string | null;
+  isSample?: boolean;
   createdAt?: string;
   updatedAt?: string;
   deployRunUrl?: string | null;
@@ -383,9 +388,16 @@ export async function fetchHarnessTasks(password: string, status?: string) {
   return data as {
     ok?: boolean;
     tasks?: HarnessTask[];
+    isQuarantined?: boolean;
+    healthyRevision?: {
+      revisionId?: string | null;
+      service?: string | null;
+      capturedAt?: string | null;
+    };
     settings?: {
       autoDeployAfterAck?: boolean;
       createTasksOnLowHealth?: boolean;
+      allowSampleTasks?: boolean;
       healthThreshold?: number;
     };
   };
@@ -439,7 +451,12 @@ export async function markHarnessTaskApplied(password: string, taskId: string, l
 
 export async function setHarnessAutomation(
   password: string,
-  body: { autoDeployAfterAck?: boolean; createTasksOnLowHealth?: boolean; healthThreshold?: number }
+  body: {
+    autoDeployAfterAck?: boolean;
+    createTasksOnLowHealth?: boolean;
+    allowSampleTasks?: boolean;
+    healthThreshold?: number;
+  }
 ) {
   const res = await fetch('/api/admin/tasks/automation', {
     method: 'POST',

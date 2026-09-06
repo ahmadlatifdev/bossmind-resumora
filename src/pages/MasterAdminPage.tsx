@@ -177,6 +177,12 @@ export default function MasterAdminPage() {
   const [tasks, setTasks] = useState<HarnessTask[]>([]);
   const [tasksBusy, setTasksBusy] = useState(false);
   const [autoDeployAfterAck, setAutoDeployAfterAck] = useState(false);
+  const [allowSampleTasks, setAllowSampleTasks] = useState(false);
+  const [healthyRevision, setHealthyRevision] = useState<{
+    revisionId?: string | null;
+    service?: string | null;
+  } | null>(null);
+  const [tasksQuarantined, setTasksQuarantined] = useState(false);
   const [financials, setFinancials] = useState<FinancialDashboard | null>(null);
   const [financeBusy, setFinanceBusy] = useState(false);
   const [projectStatusBusy, setProjectStatusBusy] = useState<string | null>(null);
@@ -189,7 +195,11 @@ export default function MasterAdminPage() {
       try {
         const out = await fetchHarnessTasks(password);
         setTasks(out.tasks || []);
-        setAutoDeployAfterAck(Boolean(out.settings?.autoDeployAfterAck));
+        // Permanent default OFF — never treat missing as enabled.
+        setAutoDeployAfterAck(out.settings?.autoDeployAfterAck === true);
+        setAllowSampleTasks(out.settings?.allowSampleTasks === true);
+        setHealthyRevision(out.healthyRevision || null);
+        setTasksQuarantined(Boolean(out.isQuarantined));
         if (!opts?.quiet) setNotice(t(lang, 'master.tasksRefreshed'));
       } catch (err) {
         if (!opts?.quiet) {
@@ -623,6 +633,10 @@ export default function MasterAdminPage() {
   }
 
   async function onCreateSampleTask() {
+    if (!allowSampleTasks) {
+      setError(t(lang, 'master.tasksSampleDisabled'));
+      return;
+    }
     setTasksBusy(true);
     setError('');
     try {
@@ -640,6 +654,20 @@ export default function MasterAdminPage() {
       });
       setNotice(t(lang, 'master.tasksCreateOk'));
       await loadTasks({ quiet: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
+    } finally {
+      setTasksBusy(false);
+    }
+  }
+
+  async function onToggleSampleTasks(enabled: boolean) {
+    setTasksBusy(true);
+    setError('');
+    try {
+      await setHarnessAutomation(password, { allowSampleTasks: enabled });
+      setAllowSampleTasks(enabled);
+      setNotice(enabled ? t(lang, 'master.tasksSampleOn') : t(lang, 'master.tasksSampleOff'));
     } catch (err) {
       setError(err instanceof Error ? err.message : t(lang, 'master.tasksFailed'));
     } finally {
@@ -1133,6 +1161,21 @@ export default function MasterAdminPage() {
       <section id="tasks" className="admin-master__card">
         <h2>{t(lang, 'master.tasksTitle')}</h2>
         <p className="admin-master__lead">{t(lang, 'master.tasksLead')}</p>
+        {tasksQuarantined ? (
+          <p className="admin-master__alert" role="status">
+            {t(lang, 'master.tasksQuarantineBlock')}
+          </p>
+        ) : null}
+        {healthyRevision?.revisionId ? (
+          <p className="admin-master__lead">
+            {tFormat(lang, 'master.tasksHealthyRevision', {
+              rev: String(healthyRevision.revisionId),
+              service: String(healthyRevision.service || 'cloud-run'),
+            })}
+          </p>
+        ) : (
+          <p className="admin-master__lead">{t(lang, 'master.tasksHealthyRevisionPending')}</p>
+        )}
         <div className="admin-tasks-toolbar">
           <button
             type="button"
@@ -1142,14 +1185,25 @@ export default function MasterAdminPage() {
           >
             {tasksBusy ? t(lang, 'master.tasksBusy') : t(lang, 'master.tasksRefresh')}
           </button>
-          <button
-            type="button"
-            className="admin-master__btn admin-master__btn--ghost"
-            disabled={tasksBusy}
-            onClick={() => void onCreateSampleTask()}
-          >
-            {t(lang, 'master.tasksCreateSample')}
-          </button>
+          {allowSampleTasks ? (
+            <button
+              type="button"
+              className="admin-master__btn admin-master__btn--ghost"
+              disabled={tasksBusy || tasksQuarantined}
+              onClick={() => void onCreateSampleTask()}
+            >
+              {t(lang, 'master.tasksCreateSample')}
+            </button>
+          ) : null}
+          <label className="admin-hermes-toggle">
+            <input
+              type="checkbox"
+              checked={allowSampleTasks}
+              disabled={tasksBusy}
+              onChange={(e) => void onToggleSampleTasks(e.target.checked)}
+            />
+            {t(lang, 'master.tasksShowSample')}
+          </label>
           <label className="admin-hermes-toggle">
             <input
               type="checkbox"
@@ -1171,6 +1225,13 @@ export default function MasterAdminPage() {
                   </span>
                 </header>
                 <p>{task.description}</p>
+                {task.lastKnownHealthyRevision ? (
+                  <p className="admin-master__lead">
+                    {tFormat(lang, 'master.tasksAckRevision', {
+                      rev: String(task.lastKnownHealthyRevision),
+                    })}
+                  </p>
+                ) : null}
                 {task.commands?.length ? (
                   <pre className="admin-tasks-commands">{task.commands.join('\n')}</pre>
                 ) : null}
@@ -1180,7 +1241,7 @@ export default function MasterAdminPage() {
                       <button
                         type="button"
                         className="admin-master__btn"
-                        disabled={tasksBusy}
+                        disabled={tasksBusy || (tasksQuarantined && Boolean(task.commands?.length))}
                         onClick={() => void onAckTask(task.id, true)}
                       >
                         {t(lang, 'master.tasksAck')}
@@ -1199,7 +1260,7 @@ export default function MasterAdminPage() {
                     <button
                       type="button"
                       className="admin-master__btn admin-master__btn--ghost"
-                      disabled={tasksBusy}
+                      disabled={tasksBusy || (tasksQuarantined && Boolean(task.commands?.length))}
                       onClick={() => void onMarkApplied(task.id)}
                     >
                       {t(lang, 'master.tasksMarkApplied')}

@@ -34,6 +34,7 @@ export default function AdminMissionControlPage() {
     projects?: MasterProject[];
     backupLog?: BackupRow[];
     globalHealth?: { score?: number | null; status?: string | null };
+    healthyRevision?: { revisionId?: string | null; service?: string | null };
   } | null>(null);
   const [hermesUp, setHermesUp] = useState(false);
   const [diag, setDiag] = useState<{ checks?: DiagCheck[]; message?: string; ok?: boolean } | null>(
@@ -273,6 +274,14 @@ export default function AdminMissionControlPage() {
               {quarantine ? t(lang, 'broc.quarantineOn') : t(lang, 'broc.quarantineOff')}
             </strong>
           </div>
+          <div className="broc-metric">
+            <span className="broc-metric__label">{t(lang, 'broc.healthyRevision')}</span>
+            <strong className="broc-metric__value">
+              {status?.healthyRevision?.revisionId
+                ? String(status.healthyRevision.revisionId).slice(0, 28)
+                : t(lang, 'master.metricNa')}
+            </strong>
+          </div>
         </div>
         <ul className="broc-project-grid">
           {projects.map((p) => (
@@ -334,7 +343,7 @@ export default function AdminMissionControlPage() {
             disabled={Boolean(busy) || !apiPw}
             onClick={() => setShowHardLock(quarantine ? 'resume' : 'safe-mode')}
           >
-            {quarantine ? t(lang, 'broc.resume') : t(lang, 'broc.panic')}
+            {quarantine ? t(lang, 'broc.resume') : t(lang, 'broc.enterSafeMode')}
           </button>
         </div>
         <p className="admin-master__lead">{t(lang, 'broc.zeroLoss')}</p>
