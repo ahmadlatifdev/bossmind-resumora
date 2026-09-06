@@ -306,7 +306,7 @@ async function monitorFirestore(db) {
 
 async function monitorStripe(stripe) {
   if (!stripe) {
-    return { ok: false, reason: 'stripe_client_missing' };
+    return { ok: false, reason: 'stripe_client_missing', latencyMs: null };
   }
   const started = Date.now();
   try {
@@ -1404,7 +1404,12 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
       .concat(approvals.map((a) => `pending:${a.actionId}`)),
   };
 
-  await db.collection(HEALTH_COL).doc(HEALTH_DOC).set(snapshot, { merge: true });
+  // Strip undefined (e.g. stripe.latencyMs when Stripe client missing) without dropping FieldValue.
+  const dataToWrite = {
+    ...snapshot,
+    lastObservations: JSON.parse(JSON.stringify(snapshot.lastObservations)),
+  };
+  await db.collection(HEALTH_COL).doc(HEALTH_DOC).set(dataToWrite, { merge: true });
 
   const alert = await maybeSendHealthAlert(db, {
     cycleId,
