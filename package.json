@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "node start-bossmind.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",

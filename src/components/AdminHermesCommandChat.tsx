@@ -20,7 +20,7 @@ type Props = {
 function mapCommandError(raw: string, lang: string): string {
   const m = String(raw || '');
   if (
-    /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|tunnel|fetch failed|502|503|504|HERMES_API|unreachable|network/i.test(
+    /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|tunnel|fetch failed|502|503|504|HERMES_API|unreachable|network|local queue/i.test(
       m
     )
   ) {

@@ -32,6 +32,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  flex-wrap: nowrap;
   padding: var(--header-pad-y) var(--header-pad-x);
   background: var(--header-bg);
   backdrop-filter: blur(12px);

@@ -532,7 +532,7 @@
   "master.harnessPatchBadge": "patch",
   "master.harnessPatchStored": "Code patch stored for the selected project.",
   "master.harnessCodeCopied": "Code copied to clipboard.",
-  "master.harnessTunnelDown": "Hermes unreachable (tunnel or endpoint down). Check HERMES_API_URL, then retry.",
+  "master.harnessTunnelDown": "Hermes local queue unreachable. Run npm run dev:all so HITL :8790 is healthy, then retry.",
   "master.usersManageNa": "User management is not available in this panel — count only.",
   "master.settingsNoirNote": "NOIR LUXE opens a separate cockpit page; it is not a theme switcher for this dashboard.",
   "master.healthTitle": "Global health score",
