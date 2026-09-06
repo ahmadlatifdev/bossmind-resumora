@@ -1,5 +1,5 @@
-import { getFirestore, collection, addDoc, getDocs, query, where, limit } from 'firebase/firestore';
-import { app } from './firebase';
+import { collection, addDoc, getDocs, query, where, limit } from 'firebase/firestore';
+import { db as sharedDb } from './firebase';
 import { MAX_VIDEO_DOWNLOADS } from './videoLibrary.js';
 
 const ACCESS_KEY = 'resumora_video_downloads_v2';
@@ -58,7 +58,7 @@ export function hasDownloadedVideo(videoId, language) {
 
 async function firestoreDownloadCount(userId) {
   try {
-    const db = getFirestore(app);
+    const db = sharedDb;
     const q = query(collection(db, 'user_downloads'), where('user_id', '==', userId), limit(20));
     const snap = await getDocs(q);
     return snap.size;
@@ -108,7 +108,7 @@ export async function recordVideoDownload({ videoId, language, action = 'downloa
   writeJson(ACCESS_KEY, { items: localItems });
 
   try {
-    const db = getFirestore(app);
+    const db = sharedDb;
     await addDoc(collection(db, 'user_downloads'), entry);
   } catch (_) {
     /* local enforcement still valid */

@@ -12,6 +12,11 @@ const { getFirestore } = require('firebase-admin/firestore');
 
 initializeApp();
 const db = getFirestore();
+try {
+  db.settings({ ignoreUndefinedProperties: true });
+} catch {
+  /* settings already applied */
+}
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 
 function loadEnvFiles() {

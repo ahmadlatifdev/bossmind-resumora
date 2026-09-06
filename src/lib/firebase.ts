@@ -4,7 +4,7 @@
  */
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { initializeFirestore, type Firestore } from 'firebase/firestore';
 import { getAnalytics, initializeAnalytics, isSupported } from 'firebase/analytics';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
@@ -64,7 +64,7 @@ if (typeof window !== 'undefined' && appCheckSiteKey) {
 }
 
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+export const db: Firestore = initializeFirestore(app, { ignoreUndefinedProperties: true });
 
 /** Sets Auth email-template language only (en|fr|es). Does not touch Firestore or sessions. */
 export function setAuthEmailLanguage(code: 'en' | 'fr' | 'es' | string): void {

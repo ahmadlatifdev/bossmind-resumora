@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAdminAuth } from './AdminAuthGate';
 import { t } from '../lib/i18n.js';
 import '../admin-master.css';
@@ -7,6 +7,7 @@ import '../admin-master.css';
 const LINKS = [
   { to: '/admin/master', key: 'master.nav.overview' },
   { to: '/admin/mission-control', key: 'master.nav.missionControl' },
+  { to: '/admin/global-chat', key: 'master.nav.globalChat' },
   { to: '/admin/system-health', key: 'master.nav.health' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },
   { to: '/admin/master#users', key: 'master.nav.users' },
@@ -55,7 +56,16 @@ export default function AdminShell() {
   return (
     <div className={`admin-master${ownerMode ? ' admin-master--owner' : ''}`}>
       <aside className="admin-master__sidebar" aria-label={t(lang, 'master.sidebarAria')}>
-        <p className="admin-master__brand">{t(lang, 'master.brand')}</p>
+        <div className="admin-master__brand-row">
+          <p className="admin-master__brand">{t(lang, 'master.brand')}</p>
+          <Link
+            to="/admin/global-chat"
+            className="admin-master__btn admin-global-chat-nav"
+            title={t(lang, 'master.nav.globalChat')}
+          >
+            {t(lang, 'master.nav.globalChat')}
+          </Link>
+        </div>
         <nav className="admin-master__nav">
           <button
             type="button"
@@ -88,7 +98,12 @@ export default function AdminShell() {
       </aside>
       <div className="admin-master__main-wrap">
         <header className="admin-master__top">
-          <h1 className="admin-master__page-title">{t(lang, 'master.title')}</h1>
+          <div className="admin-master__top-left">
+            <h1 className="admin-master__page-title">{t(lang, 'master.title')}</h1>
+            <Link to="/admin/global-chat" className="admin-master__btn admin-global-chat-nav">
+              {t(lang, 'master.nav.globalChat')}
+            </Link>
+          </div>
           <button
             type="button"
             className={`admin-owner-toggle admin-owner-toggle--bar${ownerMode ? ' is-on' : ''}`}
