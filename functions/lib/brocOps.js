@@ -48,6 +48,13 @@ async function enterQuarantine(db, opts = {}) {
   const actor = String(opts.actor || 'owner').slice(0, 80);
   const reason = String(opts.reason || 'Safe Mode panic').slice(0, 500);
 
+  try {
+    const harnessTasks = require('./harnessTasks');
+    await harnessTasks.captureHealthyRevision(db, { source: 'safe-mode-enter' });
+  } catch {
+    /* revision capture is best-effort */
+  }
+
   return db.runTransaction(async (tx) => {
     const refs = ids.map((id) => db.collection(PROJECT_COLLECTION).doc(id));
     const snaps = await Promise.all(refs.map((ref) => tx.get(ref)));
@@ -236,16 +243,30 @@ async function getBrocStatus(db) {
       })
     : [];
 
+  let healthyRevision = null;
+  try {
+    const harnessTasks = require('./harnessTasks');
+    healthyRevision = await harnessTasks.readHealthyRevision(db);
+    if (!quarantineActive) {
+      await harnessTasks.captureHealthyRevision(db, { source: 'broc-status' });
+      healthyRevision = await harnessTasks.readHealthyRevision(db);
+    }
+  } catch {
+    healthyRevision = null;
+  }
+
   return {
     ok: true,
     broc: true,
     quarantineActive,
+    isQuarantined: quarantineActive,
     generatedAt: new Date().toISOString(),
     averageHealth: registry.averageHealth,
     globalHealth: health?.globalHealth || null,
     projects,
     catalog: CANONICAL_PROJECTS.map((p) => ({ projectId: p.projectId, name: p.name })),
     backupLog,
+    healthyRevision,
     recovery: {
       intervalMs: 10000,
       hermesPorts: [8790, 8791],

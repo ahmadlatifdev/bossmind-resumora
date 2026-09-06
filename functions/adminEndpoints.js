@@ -851,7 +851,15 @@ function registerAdminEndpoints(exportsObj) {
       const status = String(req.query.status || '').trim();
       const tasks = await harnessTasks.listTasks(db, { status: status || undefined });
       const settings = await harnessTasks.readAutomationSettings(db);
-      res.status(200).json({ ok: true, tasks, settings });
+      const healthyRevision = await harnessTasks.readHealthyRevision(db);
+      const quarantined = await harnessTasks.isQuarantined(db);
+      res.status(200).json({
+        ok: true,
+        tasks,
+        settings,
+        healthyRevision,
+        isQuarantined: quarantined,
+      });
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'List tasks failed' });
