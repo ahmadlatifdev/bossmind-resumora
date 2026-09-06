@@ -158,6 +158,16 @@ async function setMasterProjectStatus(db, projectId, status, opts = {}) {
     .trim()
     .slice(0, 40);
   const ref = db.collection(COLLECTION).doc(id);
+  const existingSnap = await ref.get();
+  const existing = existingSnap.exists ? existingSnap.data() || {} : {};
+  if (
+    (existing.quarantine === true || existing.readOnly === true) &&
+    !String(source).startsWith('broc')
+  ) {
+    const err = new Error('Project is in Safe Mode quarantine (read-only). Use BRoC Resume.');
+    err.statusCode = 423;
+    throw err;
+  }
   await ref.set(
     {
       projectId: id,
@@ -204,6 +214,8 @@ async function listMasterProjects(db, snapshot) {
       healthScore: Number.isFinite(Number(healthScore)) ? Number(healthScore) : null,
       tools: { ...(canon.tools || {}), ...(row.tools || {}) },
       live: status === 'active',
+      quarantine: row.quarantine === true,
+      readOnly: row.readOnly === true,
     };
   });
 

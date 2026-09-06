@@ -110,6 +110,8 @@ export type MasterProject = {
   healthScore?: number | null;
   tools?: Record<string, boolean>;
   live?: boolean;
+  quarantine?: boolean;
+  readOnly?: boolean;
 };
 
 export async function fetchMasterProjects(password: string) {
@@ -232,6 +234,79 @@ export async function ownerDeleteProject(ownerPassword: string, projectId: strin
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data as { ok?: boolean; deleted?: string };
+}
+
+/** BRoC Mission Control — Level 2: ADMIN_REFUND_PASSWORD via X-Admin-Password. */
+export async function fetchBrocStatus(ownerPassword: string) {
+  const res = await fetch('/api/admin/broc/status', {
+    headers: adminHeaders(ownerPassword),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    quarantineActive?: boolean;
+    averageHealth?: number | null;
+    projects?: MasterProject[];
+    backupLog?: Array<Record<string, unknown>>;
+    recovery?: { intervalMs?: number; hermesPorts?: number[]; hint?: string };
+    globalHealth?: { score?: number | null; status?: string | null };
+  };
+}
+
+export async function postBrocAction(
+  ownerPassword: string,
+  action: string,
+  body: Record<string, unknown> = {}
+) {
+  const res = await fetch(`/api/admin/broc/${encodeURIComponent(action)}`, {
+    method: 'POST',
+    headers: adminHeaders(ownerPassword, true),
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as Record<string, unknown>;
+}
+
+export async function brocLocalBackup(commit = false) {
+  const base = String(import.meta.env.VITE_HERMES_API_URL || 'http://127.0.0.1:8790').replace(
+    /\/$/,
+    ''
+  );
+  const res = await fetch(`${base}/api/broc/local-backup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ commit }),
+    signal: AbortSignal.timeout(120000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as Record<string, unknown>;
+}
+
+export async function brocAutofixHint() {
+  const base = String(import.meta.env.VITE_HERMES_API_URL || 'http://127.0.0.1:8790').replace(
+    /\/$/,
+    ''
+  );
+  try {
+    const res = await fetch(`${base}/api/broc/autofix-hint`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+      signal: AbortSignal.timeout(5000),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) return data as { ok?: boolean; command?: string; message?: string };
+  } catch {
+    /* fall through */
+  }
+  return {
+    ok: true,
+    command: 'npm run dev:all',
+    message: 'Hermes local offline — run npm run dev:all to sync Vite + queue.',
+  };
 }
 
 /** Probe local Hermes HITL/MCP (HERMES_API_URL or defaults). */

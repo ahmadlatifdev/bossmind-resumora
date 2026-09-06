@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AdminAuthGate from './components/AdminAuthGate';
 import AdminShell from './components/AdminShell';
 import MasterAdminPage from './pages/MasterAdminPage';
+import AdminMissionControlPage from './pages/AdminMissionControlPage';
 import AdminRefundsPage from './pages/AdminRefundsPage';
 import AdminSystemHealthPage from './pages/AdminSystemHealth';
 import FinancialPage from './pages/FinancialPage';
@@ -24,6 +25,7 @@ function AdminApp() {
           <Route element={<AdminAuthGate />}>
             <Route element={<AdminShell />}>
               <Route path="/admin/master" element={<MasterAdminPage />} />
+              <Route path="/admin/mission-control" element={<AdminMissionControlPage />} />
               <Route path="/admin/financials" element={<FinancialPage />} />
               <Route path="/admin/refunds" element={<AdminRefundsPage />} />
               <Route path="/admin" element={<Navigate to="/admin/master" replace />} />

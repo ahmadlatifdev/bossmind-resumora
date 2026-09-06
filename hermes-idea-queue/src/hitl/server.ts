@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from '../config.js';
 import { enqueueIdea } from '../queue/queues.js';
@@ -10,7 +12,9 @@ import {
   loadIdea,
 } from '../safety/hitlStore.js';
 
+const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, '../../..');
 
 /** OpenAI-compatible Hermes surface on HITL — no tunnels; local LLM or stub. */
 function mountHermesOpenAiCompat(app: express.Express): void {
@@ -172,6 +176,48 @@ export function createHitlApp() {
       const status = (err as { statusCode?: number }).statusCode || 500;
       res.status(status).json({ error: err instanceof Error ? err.message : 'error' });
     }
+  });
+
+  /** BRoC local helpers — no new deps; git backup + stack hint for Mission Control. */
+  app.get('/api/broc/health', (_req, res) => {
+    const cfg = loadConfig();
+    res.json({
+      ok: true,
+      hitlPort: cfg.HITL_PORT,
+      mcpPort: cfg.MCP_PORT,
+      autoRecovery: true,
+      intervalMs: 10000,
+    });
+  });
+
+  app.post('/api/broc/local-backup', async (req, res) => {
+    try {
+      const commit = Boolean(req.body?.commit);
+      const script = path.join(repoRoot, 'scripts', 'broc-auto-backup.cjs');
+      const args = commit ? [script, '--commit'] : [script];
+      const { stdout } = await execFileAsync(process.execPath, args, {
+        cwd: repoRoot,
+        timeout: 120_000,
+        windowsHide: true,
+      });
+      const parsed = JSON.parse(String(stdout || '{}'));
+      res.json({ ok: true, local: true, ...parsed });
+    } catch (err) {
+      res.status(500).json({
+        ok: false,
+        error: err instanceof Error ? err.message : 'local backup failed',
+      });
+    }
+  });
+
+  app.post('/api/broc/autofix-hint', (_req, res) => {
+    res.json({
+      ok: true,
+      command: 'npm run dev:all',
+      message:
+        'Run npm run dev:all in the Resumora repo to sync Vite (:5173) with hermes-idea-queue (:8790/:8791).',
+      ports: [5173, 8790, 8791],
+    });
   });
 
   return app;
