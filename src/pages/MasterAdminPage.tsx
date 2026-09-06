@@ -182,6 +182,7 @@ export default function MasterAdminPage() {
   const [projectStatusBusy, setProjectStatusBusy] = useState<string | null>(null);
   const [ownerBusy, setOwnerBusy] = useState(false);
   const [ownerLogs, setOwnerLogs] = useState<string>('');
+  const [showIncidents, setShowIncidents] = useState(false);
 
   const loadTasks = useCallback(
     async (opts?: { quiet?: boolean }) => {
@@ -813,22 +814,34 @@ export default function MasterAdminPage() {
       </section>
 
       <section className="admin-master__card" aria-label={t(lang, 'master.feedTitle')}>
-        <h2>{t(lang, 'master.feedTitle')}</h2>
-        {(data?.feed || []).length ? (
-          <ul className="admin-feed">
-            {(data?.feed || []).map((item) => (
-              <li key={`${item.kind}-${item.id}`}>
-                <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
-                <span>{toAdminEnglish(item.title)}</span>
-                {item.status ? (
-                  <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
-                ) : null}
-                <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+        <button
+          type="button"
+          className="admin-master__btn"
+          aria-expanded={showIncidents}
+          onClick={() => setShowIncidents(!showIncidents)}
+        >
+          {showIncidents ? 'Hide Incidents' : 'View Incidents'}
+        </button>
+        {showIncidents && (
+          <div>
+            <h2>{t(lang, 'master.feedTitle')}</h2>
+            {(data?.feed || []).length ? (
+              <ul className="admin-feed">
+                {(data?.feed || []).map((item) => (
+                  <li key={`${item.kind}-${item.id}`}>
+                    <span className="admin-feed__kind">{toAdminEnglish(item.kind)}</span>
+                    <span>{toAdminEnglish(item.title)}</span>
+                    {item.status ? (
+                      <span className="admin-feed__status">{mapAdminStatus(item.status)}</span>
+                    ) : null}
+                    <time>{item.at ? String(item.at).slice(0, 16).replace('T', ' ') : ''}</time>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="admin-master__lead">{t(lang, 'master.feedEmpty')}</p>
+            )}
+          </div>
         )}
       </section>
 
