@@ -1,5 +1,6 @@
 /**
  * Fail the build if Vercel / Vite platform logo files or <img>/<VercelLogo> usages reappear.
+ * Policy: Firebase Hosting only (resumora.net). See docs/VERCEL_DEPRECATION.md.
  */
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +22,7 @@ function walk(dir) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) {
-      if (ent.name === 'node_modules' || ent.name === '.git') continue;
+      if (ent.name === 'node_modules' || ent.name === '.git' || ent.name === 'dist') continue;
       walk(full);
       continue;
     }
