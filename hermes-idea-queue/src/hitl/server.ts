@@ -1,9 +1,10 @@
 import express from 'express';
+import fs from 'node:fs';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { loadConfig } from '../config.js';
+import { loadConfig, resetConfigCache } from '../config.js';
 import { enqueueIdea } from '../queue/queues.js';
 import {
   applyHitlDecision,
@@ -15,6 +16,29 @@ import {
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../../..');
+
+/** Minimal .env loader (no extra deps) — KEY=VALUE lines into process.env. */
+function applyEnvFile(filePath: string): boolean {
+  if (!fs.existsSync(filePath)) return false;
+  const text = fs.readFileSync(filePath, 'utf8');
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const eq = line.indexOf('=');
+    if (eq <= 0) continue;
+    const key = line.slice(0, eq).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
+    let value = line.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
+  }
+  return true;
+}
 
 /** OpenAI-compatible Hermes surface on HITL — no tunnels; local LLM or stub. */
 function mountHermesOpenAiCompat(app: express.Express): void {
@@ -218,6 +242,34 @@ export function createHitlApp() {
         'Run npm run dev:all in the Resumora repo to sync Vite (:5173) with hermes-idea-queue (:8790/:8791).',
       ports: [5173, 8790, 8791],
     });
+  });
+
+  /** Reload root + queue .env into process (CHECKOUT_SESSION_PREFIX etc.) without full process exit. */
+  app.post('/api/broc/reload-env', (_req, res) => {
+    try {
+      const rootEnv = path.join(repoRoot, '.env');
+      const rootEnvLocal = path.join(repoRoot, '.env.local');
+      const queueEnv = path.join(repoRoot, 'hermes-idea-queue', '.env');
+      const loaded: string[] = [];
+      for (const file of [rootEnv, rootEnvLocal, queueEnv]) {
+        if (applyEnvFile(file)) loaded.push(file);
+      }
+      resetConfigCache();
+      const cfg = loadConfig();
+      res.json({
+        ok: true,
+        loaded,
+        checkoutSessionPrefix: process.env.CHECKOUT_SESSION_PREFIX || null,
+        hitlPort: cfg.HITL_PORT,
+        mcpPort: cfg.MCP_PORT,
+        message: 'Env reloaded for hermes-idea-queue process',
+      });
+    } catch (err) {
+      res.status(500).json({
+        ok: false,
+        error: err instanceof Error ? err.message : 'reload-env failed',
+      });
+    }
   });
 
   return app;

@@ -190,8 +190,12 @@ function readEnvInventory() {
     advanced: process.env.STRIPE_PRICE_ADVANCED || process.env.VITE_STRIPE_PRICE_ADVANCED || '',
   };
 
+  const stripeSecretShape = secretShape(stripeSecret, ['sk_live_', 'sk_test_']);
+  const liveMode = stripeSecretShape.ok && String(stripeSecret || '').startsWith('sk_live_');
+  const checkoutSessionPrefix = resolveCheckoutSessionPrefix({ liveMode });
+
   return {
-    stripeSecret: secretShape(stripeSecret, ['sk_live_', 'sk_test_']),
+    stripeSecret: stripeSecretShape,
     webhookSecret: secretShape(webhook, ['whsec_']),
     publishableKey: secretShape(publishable, ['pk_live_', 'pk_test_']),
     prices: Object.fromEntries(Object.entries(prices).map(([k, v]) => [k, priceShape(v)])),
@@ -199,7 +203,50 @@ function readEnvInventory() {
     adminPasswordConfigured: Boolean(String(process.env.ADMIN_REFUND_PASSWORD || '').trim()),
     allowRestart: String(process.env.SELF_HEAL_ALLOW_RESTART || '').toLowerCase() === 'true',
     allowCdnPurge: String(process.env.SELF_HEAL_ALLOW_CDN_PURGE || '').toLowerCase() === 'true',
+    checkoutSessionPrefix,
+    liveMode,
   };
+}
+
+/**
+ * Checkout session ID prefix — env override first, else derive from Stripe live/test mode.
+ * Never hardcode only cs_live_ without reading CHECKOUT_SESSION_PREFIX.
+ */
+function resolveCheckoutSessionPrefix(opts = {}) {
+  const fromEnv = String(process.env.CHECKOUT_SESSION_PREFIX || '')
+    .trim()
+    .toLowerCase();
+  if (fromEnv === 'cs_live_' || fromEnv === 'cs_test_') return fromEnv;
+  if (fromEnv.startsWith('cs_live')) return 'cs_live_';
+  if (fromEnv.startsWith('cs_test')) return 'cs_test_';
+  return opts.liveMode ? 'cs_live_' : 'cs_test_';
+}
+
+/**
+ * Best-effort: reload local hermes-idea-queue after .env changes so Guardian sees fresh config.
+ * No-op in Cloud Functions when HERMES_API_URL is unreachable.
+ */
+async function maybeRestartLocalQueue() {
+  const base = String(process.env.HERMES_API_URL || 'http://127.0.0.1:8790').replace(/\/$/, '');
+  try {
+    const res = await fetch(`${base}/api/broc/reload-env`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'self-heal-env-refresh' }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) {
+      return { ok: false, status: res.status, skipped: false };
+    }
+    const data = await res.json().catch(() => ({}));
+    return { ok: true, ...data };
+  } catch (err) {
+    return {
+      ok: false,
+      skipped: true,
+      error: String(err && err.message ? err.message : err).slice(0, 160),
+    };
+  }
 }
 
 async function probeUrl(url, { method = 'GET', timeoutMs = 12000 } = {}) {
@@ -406,6 +453,22 @@ function analyze(observations) {
       rcaKey: 'heal.rca.stripeApi',
     });
     score -= 20;
+  }
+
+  const checkoutPrefix = String(
+    (observations.env && observations.env.checkoutSessionPrefix) ||
+      resolveCheckoutSessionPrefix({
+        liveMode: Boolean(observations.env && observations.env.liveMode),
+      })
+  );
+  if (checkoutPrefix !== 'cs_live_' && checkoutPrefix !== 'cs_test_') {
+    findings.push({
+      code: 'checkout_prefix_invalid',
+      severity: 'medium',
+      detail: { checkoutSessionPrefix: checkoutPrefix },
+      rcaKey: 'heal.rca.checkoutPrefix',
+    });
+    score -= 5;
   }
 
   if (observations.iam && observations.iam.blocked) {
@@ -1082,16 +1145,20 @@ async function executeWarmup() {
 
 /**
  * Guardian: re-verify hosting + Stripe + env shapes after remediation.
- * Checkout session IDs must remain live-capable (cs_live_ prefix when live keys).
+ * Checkout session IDs use CHECKOUT_SESSION_PREFIX (cs_live_ / cs_test_) from env.
  */
 async function runGuardian(db, stripe) {
+  const queueReload = await maybeRestartLocalQueue();
   const hosting = await monitorHosting();
   const firestore = await monitorFirestore(db);
   const env = readEnvInventory();
   const stripeHealth = await monitorStripe(stripe);
 
-  const liveMode =
-    env.stripeSecret.ok && String(env.stripeSecret.prefix || '').startsWith('sk_live_');
+  const expectedCheckoutPrefix = resolveCheckoutSessionPrefix({
+    liveMode: Boolean(env.liveMode),
+  });
+  const checkoutPrefixOk =
+    expectedCheckoutPrefix === 'cs_live_' || expectedCheckoutPrefix === 'cs_test_';
 
   const checks = {
     hostingOk: hosting.every((p) => p.healthy),
@@ -1099,7 +1166,10 @@ async function runGuardian(db, stripe) {
     stripeOk: stripeHealth.ok,
     envStripeOk: env.stripeSecret.ok,
     envWebhookOk: env.webhookSecret.ok,
-    expectedCheckoutPrefix: liveMode ? 'cs_live_' : 'cs_test_',
+    checkoutPrefixOk,
+    expectedCheckoutPrefix,
+    queueReloaded: Boolean(queueReload && queueReload.ok),
+    queueReloadSkipped: Boolean(queueReload && queueReload.skipped),
     note: 'Guardian does not create Checkout Sessions; verifies API + env shapes only.',
   };
 
@@ -1108,9 +1178,10 @@ async function runGuardian(db, stripe) {
     checks.firestoreOk &&
     checks.stripeOk &&
     checks.envStripeOk &&
-    checks.envWebhookOk;
+    checks.envWebhookOk &&
+    checks.checkoutPrefixOk;
 
-  return { passed, checks, hosting, firestore, stripe: stripeHealth, env };
+  return { passed, checks, hosting, firestore, stripe: stripeHealth, env, queueReload };
 }
 
 async function writeRemediation(db, entry) {
@@ -1147,6 +1218,14 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
   const cycleId = `cycle_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
   structuredLog('info', 'cycle.start', { cycleId, trigger });
 
+  // Refresh local queue env (CHECKOUT_SESSION_PREFIX / Hermes) before monitor.
+  const queueReload = await maybeRestartLocalQueue();
+  structuredLog('info', 'cycle.queue_reload', {
+    cycleId,
+    ok: Boolean(queueReload && queueReload.ok),
+    skipped: Boolean(queueReload && queueReload.skipped),
+  });
+
   // MONITOR
   const observations = {
     hosting: await monitorHosting(),
@@ -1155,6 +1234,7 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     stripe: await monitorStripe(stripe),
     iam: await monitorIamProbes(),
     security: await monitorSecurityAlerts(db),
+    queueReload,
     deployment: {
       note: 'gcloud/firebase deploy are HITL-only; Functions never rewrite secrets or .env files',
     },
@@ -1660,6 +1740,8 @@ module.exports = {
   structuredLog,
   readEnvInventory,
   envDriftFingerprint,
+  resolveCheckoutSessionPrefix,
+  maybeRestartLocalQueue,
   runSelfHealCycle,
   getHealthSnapshot,
   decideApproval,
