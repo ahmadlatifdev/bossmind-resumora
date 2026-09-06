@@ -257,7 +257,8 @@ export async function probeHermesLocalHealth(): Promise<boolean> {
 export async function postAdminHermesCommand(
   password: string,
   body: {
-    projectId: string;
+    projectId?: string;
+    scope?: 'global' | 'project';
     message: string;
     lang?: string;
     taskType?: string;

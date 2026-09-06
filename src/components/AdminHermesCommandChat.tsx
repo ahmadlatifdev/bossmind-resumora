@@ -13,9 +13,13 @@ type Msg = {
 type Props = {
   lang: string;
   password: string;
-  projectId: string;
-  projectName: string;
+  /** Omit or use with mode="global" for Global Admin Chat (no project dropdown). */
+  projectId?: string;
+  projectName?: string;
+  mode?: 'project' | 'global';
 };
+
+const GLOBAL_THREAD = '__global__';
 
 function mapCommandError(raw: string, lang: string): string {
   const m = String(raw || '');
@@ -29,7 +33,15 @@ function mapCommandError(raw: string, lang: string): string {
   return m || t(lang, 'master.harnessCommandFailed');
 }
 
-export default function AdminHermesCommandChat({ lang, password, projectId, projectName }: Props) {
+export default function AdminHermesCommandChat({
+  lang,
+  password,
+  projectId = '',
+  projectName = '',
+  mode = 'project',
+}: Props) {
+  const isGlobal = mode === 'global';
+  const threadKey = isGlobal ? GLOBAL_THREAD : projectId || 'resumora';
   const [input, setInput] = useState('');
   const [codePatch, setCodePatch] = useState('');
   const [showPatch, setShowPatch] = useState(false);
@@ -39,29 +51,29 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
   const [byProject, setByProject] = useState<Record<string, Msg[]>>({});
   const logRef = useRef<HTMLDivElement | null>(null);
 
-  const messages = byProject[projectId] || [];
+  const messages = byProject[threadKey] || [];
 
   useEffect(() => {
     setError('');
     setNotice('');
-  }, [projectId]);
+  }, [threadKey]);
 
   useEffect(() => {
     const el = logRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [messages, busy, projectId]);
+  }, [messages, busy, threadKey]);
 
-  function setProjectMessages(next: Msg[] | ((prev: Msg[]) => Msg[])) {
+  function setThreadMessages(next: Msg[] | ((prev: Msg[]) => Msg[])) {
     setByProject((prev) => {
-      const cur = prev[projectId] || [];
+      const cur = prev[threadKey] || [];
       const resolved = typeof next === 'function' ? next(cur) : next;
-      return { ...prev, [projectId]: resolved };
+      return { ...prev, [threadKey]: resolved };
     });
   }
 
   function clearChat() {
-    setProjectMessages([]);
+    setThreadMessages([]);
     setError('');
     setNotice('');
     setCodePatch('');
@@ -82,20 +94,22 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
     setError('');
     setNotice('');
     setInput('');
-    setProjectMessages((prev) => [
+    setThreadMessages((prev) => [
       ...prev,
       { role: 'user', text: displayText, hasCodePatch: Boolean(patch) },
     ]);
 
     try {
       const out = await postAdminHermesCommand(password, {
-        projectId,
+        ...(isGlobal
+          ? { scope: 'global' as const }
+          : { projectId: projectId || 'resumora', scope: 'project' as const }),
         message: text || 'Please review the attached code patch for this project.',
         lang,
         codeDiff: patch || undefined,
         codePatch: patch || undefined,
       });
-      setProjectMessages((prev) => [
+      setThreadMessages((prev) => [
         ...prev,
         { role: 'assistant', text: String(out.reply || ''), engine: out.engine },
       ]);
@@ -112,21 +126,23 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
   }
 
   const canSend = Boolean(input.trim() || codePatch.trim()) && !busy;
+  const lead = isGlobal
+    ? t(lang, 'master.globalChatLead')
+    : tFormat(lang, 'master.harnessChatLead', { project: projectName });
+  const contextLine = isGlobal
+    ? t(lang, 'master.globalChatContext')
+    : tFormat(lang, 'master.harnessChatContext', { project: projectName });
 
   return (
     <div
       className="admin-harness-chat"
-      aria-label={t(lang, 'master.harnessChatAria')}
+      aria-label={isGlobal ? t(lang, 'master.globalChatAria') : t(lang, 'master.harnessChatAria')}
       aria-busy={busy}
     >
       <div className="admin-harness-chat__head">
         <div>
-          <p className="admin-master__lead admin-harness-chat__lead">
-            {tFormat(lang, 'master.harnessChatLead', { project: projectName })}
-          </p>
-          <p className="admin-harness-chat__context">
-            {tFormat(lang, 'master.harnessChatContext', { project: projectName })}
-          </p>
+          <p className="admin-master__lead admin-harness-chat__lead">{lead}</p>
+          <p className="admin-harness-chat__context">{contextLine}</p>
         </div>
         <button
           type="button"
@@ -148,14 +164,16 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
       >
         {!messages.length && !busy ? (
           <div className="admin-harness-chat__empty">
-            <p>{t(lang, 'master.harnessChatEmpty')}</p>
-            <p className="admin-master__lead">{t(lang, 'master.harnessChatEmptyHint')}</p>
+            <p>{t(lang, isGlobal ? 'master.globalChatEmpty' : 'master.harnessChatEmpty')}</p>
+            <p className="admin-master__lead">
+              {t(lang, isGlobal ? 'master.globalChatEmptyHint' : 'master.harnessChatEmptyHint')}
+            </p>
           </div>
         ) : null}
 
         {messages.map((m, i) => (
           <article
-            key={`${projectId}-${m.role}-${i}`}
+            key={`${threadKey}-${m.role}-${i}`}
             className={`admin-harness-chat__bubble admin-harness-chat__bubble--${m.role}`}
           >
             <header className="admin-harness-chat__role">
@@ -234,7 +252,10 @@ export default function AdminHermesCommandChat({ lang, password, projectId, proj
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t(lang, 'master.harnessPlaceholder')}
+            placeholder={t(
+              lang,
+              isGlobal ? 'master.globalChatPlaceholder' : 'master.harnessPlaceholder'
+            )}
             disabled={busy}
             maxLength={8000}
             rows={3}

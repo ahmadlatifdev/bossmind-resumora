@@ -396,6 +396,7 @@ function registerAdminEndpoints(exportsObj) {
         return;
       }
       try {
+        // Primary auth: ADMIN_REFUND_PASSWORD (via assertAdminAccess / Secret Manager).
         await assertAdminAccess(req, db, readAdminPassword());
         const body = parseBody(req);
         const message = String(body.message || body.text || '')
@@ -408,10 +409,31 @@ function registerAdminEndpoints(exportsObj) {
           res.status(400).json({ error: 'message required' });
           return;
         }
-        const project = getProjectContext(body.projectId || body.project);
+        const rawProject = String(body.projectId || body.project || '')
+          .trim()
+          .toLowerCase();
+        const scope = String(body.scope || '')
+          .trim()
+          .toLowerCase();
+        const isGlobal =
+          scope === 'global' ||
+          rawProject === 'global' ||
+          rawProject === 'master' ||
+          rawProject === 'bossmind';
+        const project = isGlobal
+          ? {
+              projectId: 'global',
+              name: 'Global Admin',
+              tools: [],
+              envRegistry: {},
+            }
+          : getProjectContext(rawProject || 'resumora');
         const lang = String(body.lang || 'en');
         const effectiveMessage =
-          message || 'Please review the attached code patch for this project.';
+          message ||
+          (isGlobal
+            ? 'Please review the attached code patch (global admin scope).'
+            : 'Please review the attached code patch for this project.');
 
         let patchStored = false;
         if (codePatch) {
@@ -419,20 +441,22 @@ function registerAdminEndpoints(exportsObj) {
             projectId: project.projectId,
             codeDiff: codePatch,
             message: effectiveMessage.slice(0, 2000),
-            source: 'admin_hermes_chat',
+            source: isGlobal ? 'admin_global_chat' : 'admin_hermes_chat',
             createdAt: FieldValue.serverTimestamp(),
           });
-          await db
-            .collection('projects')
-            .doc(project.projectId)
-            .set(
-              {
-                lastCodePatchAt: FieldValue.serverTimestamp(),
-                lastCodePatchPreview: codePatch.slice(0, 500),
-                updatedAt: FieldValue.serverTimestamp(),
-              },
-              { merge: true }
-            );
+          if (!isGlobal) {
+            await db
+              .collection('projects')
+              .doc(project.projectId)
+              .set(
+                {
+                  lastCodePatchAt: FieldValue.serverTimestamp(),
+                  lastCodePatchPreview: codePatch.slice(0, 500),
+                  updatedAt: FieldValue.serverTimestamp(),
+                },
+                { merge: true }
+              );
+          }
           patchStored = true;
         }
 
@@ -474,13 +498,16 @@ function registerAdminEndpoints(exportsObj) {
 
         const context = JSON.stringify({
           project,
-          note: 'Admin harness command. Non-sensitive envRegistry only.',
+          scope: isGlobal ? 'global' : 'project',
+          note: isGlobal
+            ? 'Global Admin Chat. Not tied to a single project. Non-sensitive context only.'
+            : 'Admin harness command. Non-sensitive envRegistry only.',
           codePatchAttached: Boolean(codePatch),
           codePatchPreview: codePatch ? codePatch.slice(0, 2500) : undefined,
         }).slice(0, 6000);
 
         const promptWithPatch = codePatch
-          ? `${effectiveMessage}\n\n--- Attached code patch (project ${project.projectId}) ---\n${codePatch.slice(0, 12000)}`
+          ? `${effectiveMessage}\n\n--- Attached code patch (${isGlobal ? 'global admin' : `project ${project.projectId}`}) ---\n${codePatch.slice(0, 12000)}`
           : effectiveMessage;
 
         if (route === 'gemini') {
