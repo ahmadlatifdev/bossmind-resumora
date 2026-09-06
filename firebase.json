@@ -192,6 +192,10 @@
         "function": "ownerMasterConsole"
       },
       {
+        "source": "/api/admin/broc/**",
+        "function": "brocMissionControl"
+      },
+      {
         "source": "/api/admin/projects/status",
         "function": "updateMasterProjectStatus"
       },

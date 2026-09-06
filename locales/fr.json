@@ -465,6 +465,7 @@
   "master.backToLogin": "Retour à la connexion",
   "master.loadFailed": "Impossible de charger le tableau de bord.",
   "master.nav.overview": "Vue d’ensemble",
+  "master.nav.missionControl": "Mission Control",
   "master.nav.health": "Santé système",
   "master.nav.refunds": "Remboursements",
   "master.nav.users": "Utilisateurs",

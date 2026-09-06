@@ -6,6 +6,7 @@ import '../admin-master.css';
 
 const LINKS = [
   { to: '/admin/master', key: 'master.nav.overview' },
+  { to: '/admin/mission-control', key: 'master.nav.missionControl' },
   { to: '/admin/global-chat', key: 'master.nav.globalChat' },
   { to: '/admin/system-health', key: 'master.nav.health' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },

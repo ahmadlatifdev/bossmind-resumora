@@ -465,6 +465,7 @@
   "master.backToLogin": "Volver al inicio de sesión",
   "master.loadFailed": "No se pudo cargar el panel maestro.",
   "master.nav.overview": "Resumen",
+  "master.nav.missionControl": "Mission Control",
   "master.nav.health": "Salud del sistema",
   "master.nav.refunds": "Reembolsos",
   "master.nav.users": "Usuarios",

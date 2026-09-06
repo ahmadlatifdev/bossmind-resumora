@@ -39,6 +39,7 @@ const {
   getFxRates,
 } = require('./lib/financeLedger');
 const { runDailyStockAllocation } = require('./lib/financeAllocation');
+const brocOps = require('./lib/brocOps');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -385,6 +386,102 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Owner console failed' });
+    }
+  });
+
+  /**
+   * BRoC Mission Control — Level 2 auth: ADMIN_REFUND_PASSWORD only.
+   * Destructive Safe Mode also requires Level 3 hard-lock password in body.confirmPassword.
+   */
+  exportsObj.brocMissionControl = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    try {
+      assertOwnerAccess(req, readOwnerPassword());
+      const body = parseBody(req);
+      const pathParts = String(req.path || req.url || '')
+        .split('?')[0]
+        .split('/')
+        .filter(Boolean);
+      const brocIdx = pathParts.indexOf('broc');
+      const action = String((brocIdx >= 0 ? pathParts[brocIdx + 1] : '') || body.action || 'status')
+        .toLowerCase()
+        .trim();
+
+      function assertHardLock() {
+        const confirm = String(body.confirmPassword || body.hardLockPassword || '').trim();
+        const expected = readOwnerPassword();
+        if (!confirm || confirm !== expected) {
+          const err = new Error('Hard Lock failed — re-enter ADMIN_REFUND_PASSWORD');
+          err.statusCode = 403;
+          throw err;
+        }
+      }
+
+      if (req.method === 'GET') {
+        const out = await brocOps.getBrocStatus(db);
+        res.status(200).json(out);
+        return;
+      }
+
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+
+      if (action === 'status') {
+        const out = await brocOps.getBrocStatus(db);
+        res.status(200).json(out);
+        return;
+      }
+
+      if (action === 'diagnostics' || action === 'diagnose') {
+        const out = await brocOps.runDiagnostics(db, {
+          hermesLocal: body.hermesLocal || null,
+        });
+        res.status(200).json(out);
+        return;
+      }
+
+      if (action === 'auto-recover' || action === 'autorecover' || action === 'recover') {
+        const out = await brocOps.autoRecover(db, { actor: 'broc' });
+        res.status(out.ok ? 200 : 409).json(out);
+        return;
+      }
+
+      if (action === 'backup' || action === 'auto-backup') {
+        const out = await brocOps.createAutoBackup(db, {
+          actor: 'broc',
+          git: body.git || null,
+        });
+        res.status(200).json(out);
+        return;
+      }
+
+      if (action === 'safe-mode' || action === 'quarantine' || action === 'panic') {
+        assertHardLock();
+        const out = await brocOps.enterQuarantine(db, {
+          actor: 'broc-hard-lock',
+          reason: body.reason || 'Safe Mode panic button',
+        });
+        res.status(200).json(out);
+        return;
+      }
+
+      if (action === 'resume' || action === 'exit-quarantine') {
+        assertHardLock();
+        const out = await brocOps.exitQuarantine(db, { actor: 'broc-hard-lock' });
+        res.status(200).json(out);
+        return;
+      }
+
+      res.status(400).json({ error: `Unknown BRoC action: ${action}` });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'BRoC operation failed' });
     }
   });
 
