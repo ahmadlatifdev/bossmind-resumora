@@ -44,6 +44,11 @@ const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
 
 const db = getFirestore();
+try {
+  db.settings({ ignoreUndefinedProperties: true });
+} catch {
+  /* settings already applied (e.g. via functions/index.js) */
+}
 
 function readAdminPassword() {
   return (
