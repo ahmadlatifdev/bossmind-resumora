@@ -614,7 +614,7 @@ function registerAdminEndpoints(exportsObj) {
         }
 
         if (route.startsWith('skill:')) {
-          const skillOut = runSkill(route, {
+          const skillOut = await runSkill(route, {
             message: effectiveMessage,
             lang,
             projectId: project.projectId,
@@ -623,7 +623,7 @@ function registerAdminEndpoints(exportsObj) {
             ok: true,
             engine: route,
             projectId: project.projectId,
-            reply: skillOut.reply,
+            reply: (skillOut && skillOut.reply) || 'Skill completed.',
             patchStored,
           });
           return;
@@ -894,6 +894,33 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'List tasks failed' });
+    }
+  });
+
+  /** Admin Video Asset Manager — lists title/status/bucket via existing videoCatalog. */
+  exportsObj.getAdminVideoAssets = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const { runRetrieveVideoAssets } = require('./lib/skills/retrieve-video-assets');
+      const out = await runRetrieveVideoAssets({});
+      res.status(200).json({
+        ok: true,
+        source: out.source,
+        count: out.count,
+        videos: out.videos,
+      });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Video assets load failed' });
     }
   });
 

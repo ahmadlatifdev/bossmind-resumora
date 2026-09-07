@@ -236,6 +236,10 @@
         "function": "listHarnessTasks"
       },
       {
+        "source": "/api/admin/video-assets",
+        "function": "getAdminVideoAssets"
+      },
+      {
         "source": "/api/admin/tasks/create",
         "function": "createHarnessTask"
       },

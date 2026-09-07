@@ -5,6 +5,7 @@
 const { runResumeAnalysis } = require('./skills/resume-analysis');
 const { runMarketSentiment } = require('./skills/market-sentiment');
 const { runVideoScriptGen } = require('./skills/video-script-gen');
+const { runRetrieveVideoAssets } = require('./skills/retrieve-video-assets');
 const { runStockRiskGuard } = require('./skills/stock-risk-guard');
 const { runSocialPipeline } = require('./skills/social-pipeline');
 const { runEcommerceSync } = require('./skills/ecommerce-sync');
@@ -84,7 +85,28 @@ function routeTool({ message, projectId, taskType }) {
     return 'skill:ecommerce-sync';
   }
 
-  if (hinted === 'video' || pid === 'ai-video' || pid === 'tiktok-ai' || /video|script/.test(hay)) {
+  // Video library / asset manager — MUST win over video-script-gen.
+  if (
+    hinted === 'video-assets' ||
+    hinted === 'retrieve-video-assets' ||
+    hinted === 'video-library' ||
+    /video\s*library|manage\s+videos?|list\s+videos?|video\s+assets?|retrieve[- ]video|bucket\s+path|\blibrary\b/.test(
+      hay
+    )
+  ) {
+    return 'skill:retrieve-video-assets';
+  }
+
+  if (
+    hinted === 'video' ||
+    hinted === 'video-script' ||
+    hinted === 'video-script-gen' ||
+    pid === 'ai-video' ||
+    pid === 'tiktok-ai' ||
+    /video\s*script|script\s+(for\s+)?(a\s+)?video|outline.*(video|reel)/.test(hay) ||
+    (/video/.test(hay) && /script|outline|hook|storyboard/.test(hay)) ||
+    (/video/.test(hay) && !/library|manage|asset|catalog|bucket/.test(hay))
+  ) {
     return 'skill:video-script-gen';
   }
 
@@ -93,9 +115,10 @@ function routeTool({ message, projectId, taskType }) {
   return 'hermes';
 }
 
-function runSkill(route, opts) {
+async function runSkill(route, opts) {
   if (route === 'skill:resume-analysis') return runResumeAnalysis(opts);
   if (route === 'skill:market-sentiment') return runMarketSentiment(opts);
+  if (route === 'skill:retrieve-video-assets') return runRetrieveVideoAssets(opts);
   if (route === 'skill:video-script-gen') return runVideoScriptGen(opts);
   if (route === 'skill:stock-risk-guard') return runStockRiskGuard(opts);
   if (route === 'skill:social-pipeline') return runSocialPipeline(opts);
