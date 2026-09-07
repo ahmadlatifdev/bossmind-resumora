@@ -73,6 +73,34 @@ function bilibiliConfigured() {
   return bilibiliPublish.cookiesConfigured(bilibiliPublish.readCookieBundle());
 }
 
+/** Build { en, fr, es } play URLs; missing FR/ES fall back to EN. */
+function multilingualUrls(video = {}) {
+  const nested = video.urls && typeof video.urls === 'object' ? video.urls : null;
+  const en = String(
+    (nested && nested.en) ||
+      video.url_mp4_en ||
+      video.url_en ||
+      video.url_mp4 ||
+      video.url ||
+      video.src ||
+      ''
+  ).trim();
+  const fr = String((nested && nested.fr) || video.url_mp4_fr || video.url_fr || en).trim() || en;
+  const es = String((nested && nested.es) || video.url_mp4_es || video.url_es || en).trim() || en;
+  return { en, fr: fr || en, es: es || en };
+}
+
+function normalizeVideo(video = {}) {
+  const urls = multilingualUrls(video);
+  return {
+    ...video,
+    urls,
+    url_mp4_en: video.url_mp4_en || urls.en,
+    url_mp4_fr: video.url_mp4_fr || urls.fr,
+    url_mp4_es: video.url_mp4_es || urls.es,
+  };
+}
+
 async function loadCatalogFromFirestore() {
   try {
     const db = getFirestore();
@@ -84,14 +112,21 @@ async function loadCatalogFromFirestore() {
   }
 }
 
+exports.multilingualUrls = multilingualUrls;
+exports.normalizeVideo = normalizeVideo;
+
 exports.getCatalog = async function getCatalog() {
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
   if (fromFs && fromFs.length) {
-    return { videos: fromFs, source: 'firestore', bilibiliConfigured: configured };
+    return {
+      videos: fromFs.map(normalizeVideo),
+      source: 'firestore',
+      bilibiliConfigured: configured,
+    };
   }
   return {
-    videos: FALLBACK_CATALOG,
+    videos: FALLBACK_CATALOG.map(normalizeVideo),
     source: 'fallback',
     bilibiliConfigured: configured,
     note: 'Upload masters to gs://resumora-videos/masters/; auto-publish via bilibili-outbox/ when cookies are set.',
