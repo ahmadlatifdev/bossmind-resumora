@@ -39,6 +39,26 @@ function readEnvFile(filePath) {
   return out;
 }
 
+/** Load root .env then .env.local into process.env (local wins). Never logs values. */
+function loadRootEnvIntoProcess() {
+  const merged = {
+    ...readEnvFile(path.join(ROOT, '.env')),
+    ...readEnvFile(path.join(ROOT, '.env.local')),
+  };
+  for (const [k, v] of Object.entries(merged)) {
+    if (v == null || v === '') continue;
+    // Prefer already-set shell/CI values; fill gaps from files.
+    if (process.env[k] == null || process.env[k] === '') {
+      process.env[k] = v;
+    }
+  }
+  const admin = Boolean(String(process.env.ADMIN_REFUND_PASSWORD || '').trim());
+  const viteAdmin = Boolean(String(process.env.VITE_ADMIN_PASSWORD || '').trim());
+  console.log(
+    `[bossmind] env loaded ADMIN_REFUND_PASSWORD=${admin ? 'SET' : 'MISSING'} VITE_ADMIN_PASSWORD=${viteAdmin ? 'SET' : 'MISSING'}`
+  );
+}
+
 function detectHitlPort() {
   const fromProcess = Number(process.env.HITL_PORT || process.env.HERMES_HITL_PORT || '');
   if (Number.isFinite(fromProcess) && fromProcess > 0) return fromProcess;
@@ -130,16 +150,24 @@ async function ensureQueueBuilt() {
 }
 
 async function main() {
+  loadRootEnvIntoProcess();
+
   const hitlPort = detectHitlPort();
   const mcpPort = Number(process.env.MCP_PORT || 8791) || 8791;
   const hermesApiUrl = `http://127.0.0.1:${hitlPort}`;
 
-  upsertRootEnv({
+  // Keep admin passwords in root .env so Hermes child + Vite both see matching names.
+  const adminPw = String(process.env.ADMIN_REFUND_PASSWORD || '').trim();
+  const viteAdminPw = String(process.env.VITE_ADMIN_PASSWORD || process.env.ADMIN_REFUND_PASSWORD || '').trim();
+  const envUpsert = {
     HERMES_API_URL: hermesApiUrl,
     VITE_HERMES_API_URL: hermesApiUrl,
     HITL_PORT: String(hitlPort),
     MCP_PORT: String(mcpPort),
-  });
+  };
+  if (adminPw) envUpsert.ADMIN_REFUND_PASSWORD = adminPw;
+  if (viteAdminPw) envUpsert.VITE_ADMIN_PASSWORD = viteAdminPw;
+  upsertRootEnv(envUpsert);
 
   await ensureQueueBuilt();
 
@@ -153,6 +181,8 @@ async function main() {
       HITL_PORT: String(hitlPort),
       MCP_PORT: String(mcpPort),
       HERMES_API_URL: hermesApiUrl,
+      ADMIN_REFUND_PASSWORD: adminPw || viteAdminPw,
+      VITE_ADMIN_PASSWORD: viteAdminPw || adminPw,
     }
   );
 
@@ -171,6 +201,8 @@ async function main() {
     {
       HERMES_API_URL: hermesApiUrl,
       VITE_HERMES_API_URL: hermesApiUrl,
+      ADMIN_REFUND_PASSWORD: adminPw || viteAdminPw,
+      VITE_ADMIN_PASSWORD: viteAdminPw || adminPw,
     }
   );
 

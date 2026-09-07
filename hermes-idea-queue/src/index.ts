@@ -1,4 +1,4 @@
-import { loadConfig } from './config.js';
+import { loadConfig, resetConfigCache } from './config.js';
 import { loadBacklog } from './ingestion/loadBacklog.js';
 import { triageIdeas } from './ingestion/triage.js';
 import { saveIdea } from './safety/hitlStore.js';
@@ -9,6 +9,44 @@ import { startHitlServer } from './hitl/server.js';
 import { handleSelfHeal, parseIdeaIdFromBranch } from './qa/selfHeal.js';
 import { closeRedis } from './queue/connection.js';
 import { startAutoRecoveryMonitor, runRecoveryTick } from './recovery/autoRecovery.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, '../..');
+
+/** Load root + queue .env before config/auto-recovery (no extra deps). */
+function bootstrapEnvFiles() {
+  for (const rel of [
+    '.env',
+    '.env.local',
+    'hermes-idea-queue/.env',
+    'hermes-idea-queue/.env.local',
+  ]) {
+    const filePath = path.join(repoRoot, rel);
+    if (!fs.existsSync(filePath)) continue;
+    for (const raw of fs.readFileSync(filePath, 'utf8').split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      const eq = line.indexOf('=');
+      if (eq <= 0) continue;
+      const key = line.slice(0, eq).trim();
+      if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
+      let value = line.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      if (process.env[key] == null || process.env[key] === '') process.env[key] = value;
+    }
+  }
+  resetConfigCache();
+}
+
+bootstrapEnvFiles();
 
 async function cmdIngest(): Promise<void> {
   const cfg = loadConfig();
