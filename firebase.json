@@ -216,6 +216,14 @@
         "function": "getAdminGlobalChat"
       },
       {
+        "source": "/api/admin/chat/conversations",
+        "function": "adminChatRouter"
+      },
+      {
+        "source": "/api/admin/chat/conversations/**",
+        "function": "adminChatRouter"
+      },
+      {
         "source": "/api/admin/password-reset/request",
         "function": "requestAdminPasswordReset"
       },

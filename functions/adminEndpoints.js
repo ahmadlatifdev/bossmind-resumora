@@ -30,6 +30,7 @@ const {
   confirmAdminPasswordReset,
 } = require('./lib/adminGateAuth');
 const harnessTasks = require('./lib/harnessTasks');
+const adminChatThreads = require('./lib/adminChatThreads');
 const { handleGitHubWebhook } = require('./lib/githubWebhook');
 const {
   buildFinancialDashboard,
@@ -562,6 +563,11 @@ function registerAdminEndpoints(exportsObj) {
             }
           : getProjectContext(rawProject || 'resumora');
         const lang = String(body.lang || 'en');
+        const conversationId = String(body.conversation_id || body.conversationId || '').trim();
+        if (isGlobal && !conversationId) {
+          res.status(400).json({ error: 'conversation_id required' });
+          return;
+        }
         const effectiveMessage =
           message ||
           (isGlobal
@@ -570,8 +576,18 @@ function registerAdminEndpoints(exportsObj) {
 
         async function persistChatTurn(userText, assistantText, engine) {
           try {
+            if (conversationId) {
+              await adminChatThreads.persistTurn(db, {
+                conversationId,
+                userText,
+                assistantText,
+                engine,
+              });
+            }
+            // Legacy flat archive (backward compatible)
             const col = db.collection('admin_global_chat');
             const base = {
+              conversation_id: conversationId || null,
               projectId: project.projectId,
               scope: isGlobal ? 'global' : 'project',
               source: isGlobal ? 'admin_global_chat' : 'admin_hermes_chat',
@@ -793,6 +809,64 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Global chat history failed' });
+    }
+  });
+
+  /**
+   * Multi-thread chat API:
+   * GET/POST /api/admin/chat/conversations
+   * GET/DELETE /api/admin/chat/conversations/:id
+   */
+  exportsObj.adminChatRouter = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const raw = String(req.originalUrl || req.url || '');
+      const pathOnly = raw.split('?')[0];
+      const match = pathOnly.match(/\/api\/admin\/chat\/conversations(?:\/([^/?#]+))?\/?$/i);
+      if (!match) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+      const conversationId = match[1] ? decodeURIComponent(match[1]) : null;
+
+      if (!conversationId && req.method === 'GET') {
+        const rows = await adminChatThreads.listConversations(db, {
+          limit: Number(req.query.limit || 100),
+        });
+        res.status(200).json({ ok: true, count: rows.length, conversations: rows });
+        return;
+      }
+
+      if (!conversationId && req.method === 'POST') {
+        const body = parseBody(req);
+        const created = await adminChatThreads.createConversation(db, {
+          title: body.title || body.firstQuestion || 'New chat',
+        });
+        res.status(201).json({ ok: true, conversation: created });
+        return;
+      }
+
+      if (conversationId && req.method === 'GET') {
+        const full = await adminChatThreads.getConversation(db, conversationId);
+        res.status(200).json({ ok: true, conversation: full, messages: full.messages });
+        return;
+      }
+
+      if (conversationId && req.method === 'DELETE') {
+        const out = await adminChatThreads.deleteConversation(db, conversationId);
+        res.status(200).json(out);
+        return;
+      }
+
+      res.status(405).json({ error: 'Method not allowed' });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Chat router failed' });
     }
   });
 

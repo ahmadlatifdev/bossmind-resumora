@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { t, tFormat } from '../lib/i18n.js';
-import { postAdminHermesCommand } from '../lib/adminApi';
+import { createAdminChatConversation, postAdminHermesCommand } from '../lib/adminApi';
 import AdminMarkdown from './AdminMarkdown';
 
 type Msg = {
@@ -17,6 +17,10 @@ type Props = {
   projectId?: string;
   projectName?: string;
   mode?: 'project' | 'global';
+  /** Active Firestore conversation id (required for global persist). */
+  conversationId?: string | null;
+  onConversationIdChange?: (id: string) => void;
+  onConversationTitled?: (id: string, title: string) => void;
 };
 
 const GLOBAL_THREAD = '__global__';
@@ -33,15 +37,26 @@ function mapCommandError(raw: string, lang: string): string {
   return m || t(lang, 'master.harnessCommandFailed');
 }
 
+function titleFromFirstQuestion(text: string): string {
+  const cleaned = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return 'New chat';
+  return cleaned.length > 72 ? `${cleaned.slice(0, 69)}…` : cleaned;
+}
+
 export default function AdminHermesCommandChat({
   lang,
   password,
   projectId = '',
   projectName = '',
   mode = 'project',
+  conversationId = null,
+  onConversationIdChange,
+  onConversationTitled,
 }: Props) {
   const isGlobal = mode === 'global';
-  const threadKey = isGlobal ? GLOBAL_THREAD : projectId || 'resumora';
+  const threadKey = isGlobal ? conversationId || GLOBAL_THREAD : projectId || 'resumora';
   const [input, setInput] = useState('');
   const [codePatch, setCodePatch] = useState('');
   const [showPatch, setShowPatch] = useState(false);
@@ -50,6 +65,11 @@ export default function AdminHermesCommandChat({
   const [notice, setNotice] = useState('');
   const [byProject, setByProject] = useState<Record<string, Msg[]>>({});
   const logRef = useRef<HTMLDivElement | null>(null);
+  const activeConversationRef = useRef<string | null>(conversationId || null);
+
+  useEffect(() => {
+    activeConversationRef.current = conversationId || null;
+  }, [conversationId]);
 
   const messages = byProject[threadKey] || [];
 
@@ -78,6 +98,23 @@ export default function AdminHermesCommandChat({
     setNotice('');
     setCodePatch('');
     setShowPatch(false);
+    if (isGlobal) {
+      activeConversationRef.current = null;
+      onConversationIdChange?.('');
+    }
+  }
+
+  async function ensureConversationId(firstQuestion: string): Promise<string | null> {
+    if (!isGlobal) return null;
+    if (activeConversationRef.current) return activeConversationRef.current;
+    const title = titleFromFirstQuestion(firstQuestion);
+    const created = await createAdminChatConversation(password, title);
+    const id = created.conversation?.id || '';
+    if (!id) throw new Error('Failed to create conversation');
+    activeConversationRef.current = id;
+    onConversationIdChange?.(id);
+    onConversationTitled?.(id, title);
+    return id;
   }
 
   async function onSubmit(e: FormEvent) {
@@ -100,19 +137,44 @@ export default function AdminHermesCommandChat({
     ]);
 
     try {
+      let convId: string | null = null;
+      if (isGlobal) {
+        convId = await ensureConversationId(text || displayText);
+        // Migrate in-memory bubbles from pending key → real conversation id
+        if (convId) {
+          setByProject((prev) => {
+            const pending = prev[GLOBAL_THREAD] || [];
+            const existing = prev[convId!] || [];
+            const merged = existing.length ? existing : pending;
+            const next = { ...prev, [convId!]: merged };
+            delete next[GLOBAL_THREAD];
+            return next;
+          });
+        }
+      }
       const out = await postAdminHermesCommand(password, {
         ...(isGlobal
-          ? { scope: 'global' as const }
+          ? { scope: 'global' as const, conversation_id: convId || undefined }
           : { projectId: projectId || 'resumora', scope: 'project' as const }),
         message: text || 'Please review the attached code patch for this project.',
         lang,
         codeDiff: patch || undefined,
         codePatch: patch || undefined,
       });
-      setThreadMessages((prev) => [
-        ...prev,
-        { role: 'assistant', text: String(out.reply || ''), engine: out.engine },
-      ]);
+      const assistantKey = isGlobal ? convId || GLOBAL_THREAD : threadKey;
+      setByProject((prev) => {
+        const cur = prev[assistantKey] || [];
+        return {
+          ...prev,
+          [assistantKey]: [
+            ...cur,
+            { role: 'assistant' as const, text: String(out.reply || ''), engine: out.engine },
+          ],
+        };
+      });
+      if (isGlobal && convId) {
+        onConversationTitled?.(convId, titleFromFirstQuestion(text || displayText));
+      }
       if (patch) {
         setCodePatch('');
         setShowPatch(false);

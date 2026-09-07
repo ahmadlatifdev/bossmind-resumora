@@ -336,6 +336,8 @@ export async function postAdminHermesCommand(
   body: {
     projectId?: string;
     scope?: 'global' | 'project';
+    conversation_id?: string;
+    conversationId?: string;
     message: string;
     lang?: string;
     taskType?: string;
@@ -507,11 +509,14 @@ export type AdminGlobalChatMessage = {
   id?: string;
   role?: 'user' | 'assistant' | 'hermes' | string;
   text?: string;
+  content?: string;
   engine?: string | null;
   projectId?: string | null;
   scope?: string | null;
   source?: string | null;
   createdAt?: string | null;
+  timestamp?: string | null;
+  conversation_id?: string | null;
 };
 
 export async function fetchAdminGlobalChat(password: string) {
@@ -525,6 +530,61 @@ export async function fetchAdminGlobalChat(password: string) {
     count?: number;
     messages?: AdminGlobalChatMessage[];
   };
+}
+
+export type AdminChatConversation = {
+  id: string;
+  title?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+  messages?: AdminGlobalChatMessage[];
+};
+
+export async function listAdminChatConversations(password: string) {
+  const res = await fetch('/api/admin/chat/conversations', {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    count?: number;
+    conversations?: AdminChatConversation[];
+  };
+}
+
+export async function getAdminChatConversation(password: string, id: string) {
+  const res = await fetch(`/api/admin/chat/conversations/${encodeURIComponent(id)}`, {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    conversation?: AdminChatConversation;
+    messages?: AdminGlobalChatMessage[];
+  };
+}
+
+export async function createAdminChatConversation(password: string, title?: string) {
+  const res = await fetch('/api/admin/chat/conversations', {
+    method: 'POST',
+    headers: adminHeaders(password, true),
+    body: JSON.stringify({ title: title || 'New chat' }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; conversation?: AdminChatConversation };
+}
+
+export async function deleteAdminChatConversation(password: string, id: string) {
+  const res = await fetch(`/api/admin/chat/conversations/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; id?: string };
 }
 
 export type FinanceOverview = {
