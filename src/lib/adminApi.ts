@@ -503,6 +503,30 @@ export async function fetchAdminVideoAssets(password: string) {
   };
 }
 
+export type AdminGlobalChatMessage = {
+  id?: string;
+  role?: 'user' | 'assistant' | 'hermes' | string;
+  text?: string;
+  engine?: string | null;
+  projectId?: string | null;
+  scope?: string | null;
+  source?: string | null;
+  createdAt?: string | null;
+};
+
+export async function fetchAdminGlobalChat(password: string) {
+  const res = await fetch('/api/admin/global-chat', {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    count?: number;
+    messages?: AdminGlobalChatMessage[];
+  };
+}
+
 export type FinanceOverview = {
   generatedAt?: string;
   currency?: string;

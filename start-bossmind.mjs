@@ -149,19 +149,37 @@ async function ensureQueueBuilt() {
   });
 }
 
+function ensureHermesApiUrlInEnv() {
+  const envPath = path.join(ROOT, '.env');
+  const existing = readEnvFile(envPath);
+  if (String(existing.HERMES_API_URL || '').trim()) {
+    console.log('[bossmind] HERMES_API_URL already set in .env (left unchanged)');
+    return String(existing.HERMES_API_URL).trim().replace(/\/$/, '');
+  }
+  const value = 'http://localhost:8791';
+  upsertRootEnv({ HERMES_API_URL: value });
+  process.env.HERMES_API_URL = value;
+  console.log('[bossmind] wrote missing HERMES_API_URL=http://localhost:8791 → .env');
+  return value;
+}
+
 async function main() {
   loadRootEnvIntoProcess();
 
   const hitlPort = detectHitlPort();
   const mcpPort = Number(process.env.MCP_PORT || 8791) || 8791;
-  const hermesApiUrl = `http://127.0.0.1:${hitlPort}`;
+  const hermesHitlUrl = `http://127.0.0.1:${hitlPort}`;
+  // HITL OpenAI-compat lives on :8790; MCP reactive link on :8791.
+  // Only auto-fill HERMES_API_URL when missing (user-requested localhost:8791).
+  ensureHermesApiUrlInEnv();
 
   // Keep admin passwords in root .env so Hermes child + Vite both see matching names.
   const adminPw = String(process.env.ADMIN_REFUND_PASSWORD || '').trim();
-  const viteAdminPw = String(process.env.VITE_ADMIN_PASSWORD || process.env.ADMIN_REFUND_PASSWORD || '').trim();
+  const viteAdminPw = String(
+    process.env.VITE_ADMIN_PASSWORD || process.env.ADMIN_REFUND_PASSWORD || ''
+  ).trim();
   const envUpsert = {
-    HERMES_API_URL: hermesApiUrl,
-    VITE_HERMES_API_URL: hermesApiUrl,
+    VITE_HERMES_API_URL: hermesHitlUrl,
     HITL_PORT: String(hitlPort),
     MCP_PORT: String(mcpPort),
   };
@@ -180,17 +198,25 @@ async function main() {
     {
       HITL_PORT: String(hitlPort),
       MCP_PORT: String(mcpPort),
-      HERMES_API_URL: hermesApiUrl,
+      HERMES_API_URL: hermesHitlUrl,
       ADMIN_REFUND_PASSWORD: adminPw || viteAdminPw,
       VITE_ADMIN_PASSWORD: viteAdminPw || adminPw,
     }
   );
 
-  const healthy = await waitForHealth(`${hermesApiUrl}/api/health`, HEALTH_TIMEOUT_MS);
+  const healthy = await waitForHealth(`${hermesHitlUrl}/api/health`, HEALTH_TIMEOUT_MS);
   if (!healthy) {
     queue.kill('SIGTERM');
     process.exit(1);
   }
+
+  const mcpReady = await waitForHealth(
+    `http://127.0.0.1:${mcpPort}/health`,
+    HEALTH_TIMEOUT_MS
+  );
+  console.log(
+    `[hermes] listening on ${mcpPort}${mcpReady ? '' : ' (announced; MCP /health pending)'}`
+  );
 
   console.log('[bossmind] starting Vite on :5173…');
   const vite = spawnLogged(
@@ -199,12 +225,19 @@ async function main() {
     ['vite', '--host', '127.0.0.1', '--port', '5173'],
     ROOT,
     {
-      HERMES_API_URL: hermesApiUrl,
-      VITE_HERMES_API_URL: hermesApiUrl,
+      HERMES_API_URL: hermesHitlUrl,
+      VITE_HERMES_API_URL: hermesHitlUrl,
       ADMIN_REFUND_PASSWORD: adminPw || viteAdminPw,
       VITE_ADMIN_PASSWORD: viteAdminPw || adminPw,
     }
   );
+
+  const viteReady = await waitForHealth('http://127.0.0.1:5173/', 30_000);
+  if (viteReady) {
+    console.log('[vite] ready on 5173');
+  } else {
+    console.error('[vite] not ready on 5173 within timeout');
+  }
 
   const shutdown = () => {
     console.log('[bossmind] shutting down…');

@@ -8,6 +8,7 @@ import AdminMissionControlPage from './pages/AdminMissionControlPage';
 import AdminGlobalChatPage from './pages/AdminGlobalChatPage';
 import AdminRefundsPage from './pages/AdminRefundsPage';
 import AdminVideoAssetsPage from './pages/AdminVideoAssetsPage';
+import ChatHistoryPage from './pages/ChatHistoryPage';
 import AdminSystemHealthPage from './pages/AdminSystemHealth';
 import FinancialPage from './pages/FinancialPage';
 import { LangProvider } from './i18n/LangContext';
@@ -32,6 +33,7 @@ function AdminApp() {
               <Route path="/admin/financials" element={<FinancialPage />} />
               <Route path="/admin/refunds" element={<AdminRefundsPage />} />
               <Route path="/admin/videos" element={<AdminVideoAssetsPage />} />
+              <Route path="/admin/chat-history" element={<ChatHistoryPage />} />
               <Route path="/admin" element={<Navigate to="/admin/master" replace />} />
               <Route path="/bossmind" element={<Navigate to="/admin/master" replace />} />
             </Route>

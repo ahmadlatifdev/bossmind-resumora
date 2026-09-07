@@ -68,5 +68,8 @@ export function createMcpApp() {
 
 export function startMcpServer(port = 8791): void {
   const app = createMcpApp();
-  app.listen(port, () => console.log(`[mcp] listening on :${port}`));
+  app.listen(port, () => {
+    console.log(`[mcp] listening on :${port}`);
+    console.log(`[hermes] listening on ${port}`);
+  });
 }
