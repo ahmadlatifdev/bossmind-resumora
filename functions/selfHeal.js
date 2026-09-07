@@ -503,6 +503,275 @@ function analyze(observations) {
   return { score, status, findings };
 }
 
+/**
+ * Dynamic operator checklist from live findings + Guardian gates.
+ * Never includes secret values — key names and runbook commands only.
+ */
+function buildNextChecklist({ findings = [], guardian = null, score = null } = {}) {
+  const codes = [...new Set((findings || []).map((f) => f && f.code).filter(Boolean))];
+  const checks = (guardian && guardian.checks) || {};
+  const guardianFailed = guardian && guardian.passed === false;
+  const region = String(process.env.GCP_REGION || process.env.FUNCTION_REGION || 'us-central1');
+  const service = String(
+    process.env.HEALTH_CHECKLIST_SERVICE || process.env.K_SERVICE || 'getsystemhealth'
+  );
+  const project = String(
+    process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || 'YOUR_GCP_PROJECT'
+  );
+
+  const playbooks = {
+    env_stripe_secret_drift: {
+      id: 'stripe_secret',
+      priority: 10,
+      hitl: true,
+      title: 'Fix Stripe secret shape (HITL)',
+      points: 30,
+      envKeys: ['STRIPE_SECRET_KEY', 'SECRET_STRIPE', 'STRIPE_API_KEY'],
+      iam: [
+        'roles/secretmanager.secretAccessor on runtime service account',
+        'Secret Manager secret version mounted as STRIPE_SECRET_KEY',
+      ],
+      commands: [
+        `gcloud run services update ${service} --project=${project} --region=${region} --update-secrets=STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest`,
+      ],
+      steps: [
+        'Confirm Secret Manager has a live key starting with sk_live_ (or sk_test_ in test).',
+        'Mount it on the Cloud Run / Functions service as STRIPE_SECRET_KEY.',
+        'Redeploy via git push → GitHub Actions (do not firebase deploy locally).',
+        'Run System Health once.',
+      ],
+    },
+    env_webhook_drift: {
+      id: 'webhook_secret',
+      priority: 20,
+      hitl: true,
+      title: 'Fix Stripe webhook secret (HITL)',
+      points: 20,
+      envKeys: ['STRIPE_WEBHOOK_SECRET', 'STRIPE_WEBHOOK_SECRET_LIVE'],
+      iam: ['roles/secretmanager.secretAccessor on stripeWebhook / resumora-checkout SA'],
+      commands: [
+        `gcloud run services update ${service} --project=${project} --region=${region} --update-secrets=STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest`,
+      ],
+      steps: [
+        'Copy webhook signing secret from Stripe Dashboard (whsec_…).',
+        'Store in Secret Manager; mount as STRIPE_WEBHOOK_SECRET.',
+        'Ensure stripeWebhook function uses the same secret.',
+        'Run System Health once.',
+      ],
+    },
+    env_price_drift: {
+      id: 'price_ids',
+      priority: 30,
+      hitl: true,
+      title: 'Set plan price env vars (HITL)',
+      points: 10,
+      envKeys: [
+        'STRIPE_PRICE_BASIC',
+        'STRIPE_PRICE_BALANCED',
+        'STRIPE_PRICE_PROFESSIONAL_TIER',
+        'STRIPE_PRICE_ADVANCED',
+      ],
+      iam: [],
+      commands: [
+        `gcloud run services update ${service} --project=${project} --region=${region} --update-env-vars=STRIPE_PRICE_BASIC=price_REPLACE,STRIPE_PRICE_BALANCED=price_REPLACE,STRIPE_PRICE_PROFESSIONAL_TIER=price_REPLACE,STRIPE_PRICE_ADVANCED=price_REPLACE`,
+      ],
+      steps: [
+        'Set all four STRIPE_PRICE_* to live price_… IDs (−10 score each if missing).',
+        'Prefer Secret Manager or CI-injected env — never commit values.',
+        'Run System Health once.',
+      ],
+    },
+    stripe_api_unhealthy: {
+      id: 'stripe_api',
+      priority: 25,
+      hitl: true,
+      title: 'Repair Stripe API client (HITL)',
+      points: 20,
+      envKeys: ['STRIPE_SECRET_KEY'],
+      iam: ['Secret mounted and readable by Cloud Run runtime SA'],
+      commands: [
+        `gcloud run services update ${service} --project=${project} --region=${region} --update-secrets=STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest`,
+      ],
+      steps: [
+        'Verify STRIPE_SECRET_KEY is present in the running revision (shape only).',
+        'If secret was rotated, update Secret Manager version and redeploy.',
+        'Confirm prices.list succeeds after heal.',
+      ],
+    },
+    checkout_prefix_invalid: {
+      id: 'checkout_prefix',
+      priority: 40,
+      hitl: false,
+      title: 'Set CHECKOUT_SESSION_PREFIX',
+      points: 5,
+      envKeys: ['CHECKOUT_SESSION_PREFIX'],
+      iam: [],
+      commands: [
+        `gcloud run services update ${service} --project=${project} --region=${region} --update-env-vars=CHECKOUT_SESSION_PREFIX=cs_live_`,
+      ],
+      steps: [
+        'Set CHECKOUT_SESSION_PREFIX=cs_live_ on Cloud Run (and local .env for Hermes reload).',
+        'Run System Health once — Guardian checkoutPrefixOk should pass.',
+      ],
+    },
+    firestore_unreachable: {
+      id: 'firestore',
+      priority: 15,
+      hitl: true,
+      title: 'Restore Firestore access (HITL)',
+      points: 35,
+      envKeys: ['GCLOUD_PROJECT', 'GCP_PROJECT'],
+      iam: [
+        'roles/datastore.user (or Firestore equivalent) on Functions runtime SA',
+        'No org policy blocking Firestore Admin SDK writes',
+      ],
+      commands: [
+        `gcloud projects add-iam-policy-binding ${project} --member=serviceAccount:RUNTIME_SA@${project}.iam.gserviceaccount.com --role=roles/datastore.user`,
+      ],
+      steps: [
+        'Confirm system_health/current can be written by the Functions SA.',
+        'Grant datastore/Firestore roles if missing; redeploy Functions.',
+        'Run System Health once.',
+      ],
+    },
+    iam_policy_block: {
+      id: 'iam_invoker',
+      priority: 35,
+      hitl: true,
+      title: 'Fix public API invoker IAM (HITL)',
+      points: 15,
+      envKeys: [],
+      iam: [
+        'roles/run.invoker for allUsers (or load balancer) on create-checkout-session',
+        'Allow OPTIONS/POST on /api/create-checkout-session and /api/video/catalog',
+      ],
+      commands: [
+        `gcloud run services add-iam-policy-binding ${service} --project=${project} --region=${region} --member=allUsers --role=roles/run.invoker`,
+      ],
+      steps: [
+        'Public checkout must not return 401/403 on OPTIONS.',
+        'Apply invoker binding carefully (org policy may block allUsers — use LB identity if required).',
+        'Run System Health once.',
+      ],
+    },
+    hosting_probe_failed: {
+      id: 'hosting_down',
+      priority: 45,
+      hitl: true,
+      title: 'Restore Firebase Hosting probes',
+      points: 25,
+      envKeys: [],
+      iam: [],
+      commands: [
+        'git push origin main  # triggers Deploy Firebase Hosting Production (do not firebase deploy locally)',
+      ],
+      steps: [
+        'Confirm https://resumora.net/, /pricing, /login return 2xx/3xx.',
+        'Approve pending CDN purge HITL ticket if present, then redeploy via GHA.',
+        'Safe auto-heal may warmup; re-run heal once.',
+      ],
+    },
+    hosting_high_latency: {
+      id: 'hosting_latency',
+      priority: 50,
+      hitl: false,
+      title: 'Warm cold Hosting paths',
+      points: 8,
+      envKeys: [],
+      iam: [],
+      commands: [],
+      steps: [
+        'Click Run system heal once (allowlisted warmup_endpoints).',
+        'If still >4s, check Firebase Hosting / CDN — not Vercel.',
+      ],
+    },
+    scc_critical_finding: {
+      id: 'scc',
+      priority: 18,
+      hitl: true,
+      title: 'Acknowledge SCC CRITICAL alerts (HITL)',
+      points: 25,
+      envKeys: [],
+      iam: ['Security Command Center viewer (optional) for root cause'],
+      commands: [],
+      steps: [
+        'Open Firestore security_alerts where severity=CRITICAL and acknowledged=false.',
+        'Fix the underlying issue, then set acknowledged=true.',
+        'Run System Health once (−25 returns when none remain).',
+      ],
+    },
+  };
+
+  const items = [];
+  for (const code of codes) {
+    const pb = playbooks[code];
+    if (!pb) {
+      items.push({
+        id: code,
+        code,
+        priority: 90,
+        hitl: true,
+        title: `Review finding: ${code}`,
+        points: null,
+        envKeys: [],
+        iam: [],
+        commands: [],
+        steps: [
+          'Open Findings on System Health and follow the RCA text.',
+          'Run heal once after fix.',
+        ],
+      });
+      continue;
+    }
+    items.push({ ...pb, code });
+  }
+
+  // Guardian-only gaps (score may already include finding, but surface failed gates explicitly)
+  if (guardianFailed) {
+    const gateMap = [
+      ['envStripeOk', 'env_stripe_secret_drift'],
+      ['envWebhookOk', 'env_webhook_drift'],
+      ['stripeOk', 'stripe_api_unhealthy'],
+      ['firestoreOk', 'firestore_unreachable'],
+      ['hostingOk', 'hosting_probe_failed'],
+      ['checkoutPrefixOk', 'checkout_prefix_invalid'],
+    ];
+    for (const [gate, code] of gateMap) {
+      if (checks[gate] === false && !codes.includes(code) && playbooks[code]) {
+        items.push({ ...playbooks[code], code, fromGuardian: true });
+      }
+    }
+  }
+
+  items.sort((a, b) => (a.priority || 99) - (b.priority || 99));
+
+  const envKeys = [...new Set(items.flatMap((i) => i.envKeys || []))];
+  const hitlGates = items.filter((i) => i.hitl).map((i) => i.id);
+  const pointsAtStake = items.reduce((sum, i) => sum + (Number(i.points) || 0), 0);
+  const nScore = Number(score);
+  const gap = Number.isFinite(nScore) ? Math.max(0, 100 - nScore) : null;
+
+  return {
+    generatedAt: new Date().toISOString(),
+    score: Number.isFinite(nScore) ? nScore : null,
+    gapTo100: gap,
+    pointsAtStake,
+    hitlRequired: hitlGates.length > 0,
+    hitlGates: [...new Set(hitlGates)],
+    findingCodes: codes,
+    guardianPassed: guardian ? Boolean(guardian.passed) : null,
+    failedGuardianGates: Object.entries(checks)
+      .filter(([k, v]) => k.endsWith('Ok') && v === false)
+      .map(([k]) => k),
+    envKeys,
+    service,
+    region,
+    projectHint: project,
+    items,
+    note: 'Safe auto-heal is warmup only. Secrets, prices, IAM, SCC, and deploys require human ops. Never use Vercel for resumora.net.',
+  };
+}
+
 function mapFindingToErrorType(code) {
   const table = {
     hosting_probe_failed: 'HOSTING_PROBE',
@@ -1466,6 +1735,11 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
       passed: guardian.passed,
       checks: guardian.checks,
     },
+    nextChecklist: buildNextChecklist({
+      findings: analysis.findings,
+      guardian,
+      score: analysis.score,
+    }),
     lastIncidentId: incidentId,
     lastCircuit: {
       events: circuitEvents.map((e) => ({
@@ -1631,17 +1905,27 @@ async function getHealthSnapshot(db) {
     criticalAlerts.failedPublishJobs +
     criticalAlerts.stripeKyc;
 
+  const healthBase = data
+    ? {
+        ...data,
+        updatedAt:
+          data.updatedAt && typeof data.updatedAt.toDate === 'function'
+            ? data.updatedAt.toDate().toISOString()
+            : data.updatedAt || null,
+        stripeAccount: data.stripeAccount || null,
+      }
+    : null;
+
+  if (healthBase) {
+    healthBase.nextChecklist = buildNextChecklist({
+      findings: healthBase.findings || [],
+      guardian: healthBase.lastGuardian || null,
+      score: healthBase.score,
+    });
+  }
+
   return {
-    health: data
-      ? {
-          ...data,
-          updatedAt:
-            data.updatedAt && typeof data.updatedAt.toDate === 'function'
-              ? data.updatedAt.toDate().toISOString()
-              : data.updatedAt || null,
-          stripeAccount: data.stripeAccount || null,
-        }
-      : null,
+    health: healthBase,
     incidents: incidentDocs.map(serialize),
     remediations: remediationDocs.map(serialize),
     pendingApprovals,
@@ -1742,6 +2026,7 @@ module.exports = {
   envDriftFingerprint,
   resolveCheckoutSessionPrefix,
   maybeRestartLocalQueue,
+  buildNextChecklist,
   runSelfHealCycle,
   getHealthSnapshot,
   decideApproval,

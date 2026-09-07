@@ -27,6 +27,30 @@ type Finding = {
   detail?: Record<string, unknown>;
 };
 
+type NextChecklistItem = {
+  id?: string;
+  code?: string;
+  title?: string;
+  hitl?: boolean;
+  points?: number | null;
+  envKeys?: string[];
+  iam?: string[];
+  commands?: string[];
+  steps?: string[];
+  fromGuardian?: boolean;
+};
+
+type NextChecklist = {
+  gapTo100?: number | null;
+  pointsAtStake?: number;
+  hitlRequired?: boolean;
+  hitlGates?: string[];
+  envKeys?: string[];
+  failedGuardianGates?: string[];
+  items?: NextChecklistItem[];
+  note?: string;
+};
+
 type HealthDoc = {
   score?: number;
   status?: string;
@@ -36,6 +60,7 @@ type HealthDoc = {
   activeRemediations?: string[];
   lastGuardian?: { passed?: boolean; checks?: Record<string, unknown> };
   lastExecuted?: Array<{ actionId?: string; result?: { ok?: boolean } }>;
+  nextChecklist?: NextChecklist | null;
   stripeAccount?: {
     needsAttention?: boolean;
     payoutsEnabled?: boolean;
@@ -361,14 +386,13 @@ export default function AdminSystemHealthPage() {
                   margin: '8px 0',
                 }}
               >
-                {health?.score ?? '╬ô├ç├╢'}
+                {health?.score ?? '—'}
                 <span style={{ fontSize: '1rem', marginLeft: 12, opacity: 0.85 }}>
                   {health?.status || t(lang, 'heal.statusUnknown')}
                 </span>
               </p>
               <p className="opacity-80 text-sm">
-                {t(lang, 'heal.updated')}: {health?.updatedAt || '╬ô├ç├╢'} Γö¼Γòû{' '}
-                {health?.cycleId || ''}
+                {t(lang, 'heal.updated')}: {health?.updatedAt || '—'} · {health?.cycleId || ''}
               </p>
               <p>
                 {t(lang, 'heal.guardian')}:{' '}
@@ -380,6 +404,92 @@ export default function AdminSystemHealthPage() {
                 <p className="text-sm opacity-70">
                   {t(lang, 'heal.checkoutPrefix')}:{' '}
                   {String(health.lastGuardian.checks.expectedCheckoutPrefix)}
+                </p>
+              ) : null}
+            </section>
+
+            <section className="panel" aria-labelledby="heal-next-heading">
+              <h2 id="heal-next-heading">{t(lang, 'heal.nextTitle')}</h2>
+              <p className="text-sm opacity-80">{t(lang, 'heal.nextLead')}</p>
+              {health?.nextChecklist?.gapTo100 != null ? (
+                <p>
+                  <strong>{t(lang, 'heal.nextGap')}:</strong>{' '}
+                  {String(health.nextChecklist.gapTo100)}
+                  {health.nextChecklist.hitlRequired ? (
+                    <>
+                      {' '}
+                      · <strong>{t(lang, 'heal.nextHitl')}</strong>
+                    </>
+                  ) : null}
+                </p>
+              ) : null}
+              {(health?.nextChecklist?.failedGuardianGates || []).length ? (
+                <p className="text-sm">
+                  {t(lang, 'heal.nextGuardian')}:{' '}
+                  {(health?.nextChecklist?.failedGuardianGates || []).join(', ')}
+                </p>
+              ) : null}
+              {(health?.nextChecklist?.envKeys || []).length ? (
+                <p className="text-sm">
+                  {t(lang, 'heal.nextEnv')}: {(health?.nextChecklist?.envKeys || []).join(', ')}
+                </p>
+              ) : null}
+              {(health?.nextChecklist?.items || []).length ? (
+                <ol style={{ paddingLeft: '1.25rem', marginTop: 12 }}>
+                  {(health?.nextChecklist?.items || []).map((item, idx) => (
+                    <li
+                      key={`${item.id || item.code || 'step'}-${idx}`}
+                      style={{ marginBottom: 16 }}
+                    >
+                      <strong>
+                        {item.hitl ? '[HITL] ' : ''}
+                        {item.title || item.code}
+                      </strong>
+                      {item.points != null ? (
+                        <span className="opacity-70"> (+{String(item.points)} pts)</span>
+                      ) : null}
+                      {(item.envKeys || []).length ? (
+                        <p className="text-sm opacity-80" style={{ margin: '4px 0' }}>
+                          {t(lang, 'heal.nextEnv')}: {(item.envKeys || []).join(', ')}
+                        </p>
+                      ) : null}
+                      {(item.iam || []).length ? (
+                        <p className="text-sm opacity-80" style={{ margin: '4px 0' }}>
+                          {t(lang, 'heal.nextIam')}: {(item.iam || []).join('; ')}
+                        </p>
+                      ) : null}
+                      {(item.commands || []).length ? (
+                        <div style={{ margin: '6px 0' }}>
+                          <p className="text-sm" style={{ marginBottom: 4 }}>
+                            {t(lang, 'heal.nextCommands')}:
+                          </p>
+                          <ul style={{ paddingLeft: '1rem' }}>
+                            {(item.commands || []).map((cmd) => (
+                              <li key={cmd}>
+                                <code className="text-sm">{cmd}</code>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {(item.steps || []).length ? (
+                        <ol style={{ paddingLeft: '1.1rem', marginTop: 4 }}>
+                          {(item.steps || []).map((step) => (
+                            <li key={step} className="text-sm">
+                              {step}
+                            </li>
+                          ))}
+                        </ol>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="opacity-70">{t(lang, 'heal.nextEmpty')}</p>
+              )}
+              {health?.nextChecklist?.note ? (
+                <p className="text-sm opacity-70" style={{ marginTop: 8 }}>
+                  {health.nextChecklist.note}
                 </p>
               ) : null}
             </section>
