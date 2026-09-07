@@ -26,8 +26,11 @@ import './styles/tokens.css';
 import './v6-luxury.css';
 import './app-shell.css';
 
-/** Live Gen2 Cloud Run checkout endpoint (not a relative /api path). */
-const CHECKOUT_BACKEND_URL = 'https://createcheckoutsession-lip26fm72a-uc.a.run.app';
+/** Prefer Firebase Hosting rewrite → Cloud Run; then regional Cloud Functions URL. */
+const CHECKOUT_ENDPOINTS = [
+  '/api/create-checkout-session',
+  'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
+] as const;
 
 const PLAN_ID_MAP: Record<string, string> = {
   price_29: 'basic',
@@ -76,18 +79,24 @@ function HomePage() {
         CANONICAL_STRIPE_PRICE_IDS[planId as keyof typeof CANONICAL_STRIPE_PRICE_IDS] ||
         selectedStripePriceId;
       const expectedCents = getExpectedCentsForPlan(planId);
-      const response = await fetch(CHECKOUT_BACKEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          planId,
-          priceId,
-          expectedCents,
-          successUrl: `${window.location.origin}/?checkout=success&plan=${encodeURIComponent(planId)}`,
-          cancelUrl: `${window.location.origin}/?checkout=canceled&plan=${encodeURIComponent(planId)}`,
-        }),
+      const body = JSON.stringify({
+        planId,
+        priceId,
+        expectedCents,
+        successUrl: `${window.location.origin}/?checkout=success&plan=${encodeURIComponent(planId)}`,
+        cancelUrl: `${window.location.origin}/?checkout=canceled&plan=${encodeURIComponent(planId)}`,
       });
-      const session = await response.json().catch(() => ({}));
+
+      let session: { url?: string; error?: string } = {};
+      for (const endpoint of CHECKOUT_ENDPOINTS) {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body,
+        });
+        session = await response.json().catch(() => ({}));
+        if (response.ok && session.url) break;
+      }
       console.log('Backend session response:', session);
       if (session.url) {
         window.location.href = session.url;
@@ -162,7 +171,7 @@ function HomePage() {
         ))}
       </div>
 
-      <div className="flex flex-col items-center gap-6 w-full max-w-md">
+      <div className="flex flex-col items-center gap-4 w-full max-w-md">
         <button
           id="checkout-button"
           onClick={redirectToStripe}
@@ -170,6 +179,13 @@ function HomePage() {
         >
           <span id="checkout-button-text">{checkoutButtonText}</span>
         </button>
+        <a
+          id="create-resume-cta"
+          href="/studio"
+          className="text-center font-semibold underline underline-offset-4 opacity-90 hover:opacity-100"
+        >
+          {t(lang, 'home.createResume')}
+        </a>
       </div>
     </section>
   );

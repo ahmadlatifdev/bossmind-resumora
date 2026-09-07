@@ -54,6 +54,10 @@ export default function AdminRefundsPage() {
     <div className="admin-dashboard">
       <p>
         <Link to="/admin/master">{t(lang, 'master.backOverview')}</Link>
+        {' · '}
+        <button type="button" className="admin-master__btn" onClick={() => void load()}>
+          {t(lang, 'heal.refresh')}
+        </button>
       </p>
       {error ? (
         <p className="admin-master__alert" role="alert">

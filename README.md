@@ -1,77 +1,31 @@
-<<<<<<< HEAD
-# React + TypeScript + Vite
+# Resumora (bossmind-resumora)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Premium resume & cover letter platform — **https://resumora.net**
 
-Currently, two official plugins are available:
+## Stack (Google-only)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Hosting:** Firebase Hosting (`client-resumora-live`)
+- **API:** Firebase Functions gen2 → Cloud Run (`us-central1`)
+- **Secrets:** GCP Secret Manager
+- **AI:** Vertex AI / Gemini (optional `VERTEX_AI=true`)
+- **Payments:** Stripe (keys in Secret Manager only)
 
-## React Compiler
+Do not reintroduce Vercel, Netlify, Cloudflare Pages, Railway, or Render as hosting.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Scripts
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build          # asserts no Vercel logos + Google-only stack, then Vite build
+npm run gcp:scheduler  # dry-run Cloud Scheduler sync
+npm run self-heal      # local self-heal test runner
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Performance audit
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+See [docs/PERFORMANCE_100_AUDIT.md](docs/PERFORMANCE_100_AUDIT.md) for the full-stack activation checklist (admin buttons, checkout routes, social metatags).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-=======
+## Related docs
 
->>>>>>> 70b26eca2231eb11a53450f594a02a1bed784c45
+- [docs/GOOGLE_ONLY_STACK.md](docs/GOOGLE_ONLY_STACK.md)
+- [docs/VERCEL_DEPRECATION.md](docs/VERCEL_DEPRECATION.md)
+- [docs/DEPLOYMENT_MASTER_GUIDE.md](docs/DEPLOYMENT_MASTER_GUIDE.md)
