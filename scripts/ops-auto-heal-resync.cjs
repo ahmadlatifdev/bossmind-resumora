@@ -385,9 +385,7 @@ function runOnce() {
       const v = String(priceValues[k] || '').trim();
       if (/^price_/.test(v)) envUpdates.push(`${k}=${v}`);
     }
-    if (!svc.hasZeroTouch) {
-      envUpdates.push('SELF_HEAL_ALLOW_GCLOUD=true', 'SELF_HEAL_ALLOW_AUTO_ACK=true');
-    }
+    envUpdates.push('SELF_HEAL_ALLOW_GCLOUD=true', 'SELF_HEAL_ALLOW_AUTO_ACK=true');
     if (envUpdates.length) {
       plan.actions.push({
         type: 'update_env',
