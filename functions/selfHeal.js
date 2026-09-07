@@ -8,6 +8,10 @@
  */
 const crypto = require('crypto');
 const { FieldValue, Timestamp } = require('firebase-admin/firestore');
+const {
+  advanceHealStateMachine,
+  loadState: loadHealStateMachine,
+} = require('./lib/healStateMachine');
 
 const HEALTH_COL = 'system_health';
 const HEALTH_DOC = 'current';
@@ -1684,6 +1688,29 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
 
   // GUARDIAN
   const guardian = await runGuardian(db, stripe);
+
+  // DURABLE STATE MACHINE — ordered phases (IAM → Stripe → … → verify)
+  let stateMachine = null;
+  try {
+    stateMachine = await advanceHealStateMachine(db, {
+      analysis,
+      guardian,
+      cycleId,
+    });
+    structuredLog('info', 'cycle.state_machine', {
+      cycleId,
+      status: stateMachine.state && stateMachine.state.status,
+      phase: stateMachine.state && stateMachine.state.currentPhase,
+      attempt: stateMachine.state && stateMachine.state.attempt,
+      blocked: Boolean(stateMachine.blocked),
+    });
+  } catch (err) {
+    structuredLog('warn', 'cycle.state_machine_failed', {
+      cycleId,
+      message: err && err.message ? String(err.message).slice(0, 200) : 'unknown',
+    });
+  }
+
   if (!guardian.passed && executed.length) {
     // Reflexion: safe patch did not restore health → escalate rollback
     const rollback = await createApproval(
@@ -1740,6 +1767,20 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
       guardian,
       score: analysis.score,
     }),
+    healStateMachine: stateMachine
+      ? {
+          status: stateMachine.state.status,
+          currentPhase: stateMachine.state.currentPhase,
+          currentTitle: stateMachine.state.currentTitle,
+          currentMode: stateMachine.state.currentMode,
+          phaseQueue: stateMachine.state.phaseQueue,
+          attempt: stateMachine.state.attempt,
+          maxAttempts: stateMachine.state.maxAttempts,
+          blocked: Boolean(stateMachine.blocked),
+          opsHint: stateMachine.state.opsHint,
+          lastError: stateMachine.state.lastError,
+        }
+      : null,
     lastIncidentId: incidentId,
     lastCircuit: {
       events: circuitEvents.map((e) => ({
@@ -1922,6 +1963,22 @@ async function getHealthSnapshot(db) {
       guardian: healthBase.lastGuardian || null,
       score: healthBase.score,
     });
+    try {
+      const sm = await loadHealStateMachine(db);
+      healthBase.healStateMachine = {
+        status: sm.status,
+        currentPhase: sm.currentPhase,
+        currentTitle: sm.currentTitle,
+        currentMode: sm.currentMode,
+        phaseQueue: sm.phaseQueue || [],
+        attempt: sm.attempt,
+        maxAttempts: sm.maxAttempts,
+        opsHint: sm.opsHint,
+        lastError: sm.lastError,
+      };
+    } catch (_) {
+      /* keep prior healStateMachine on doc if any */
+    }
   }
 
   return {
@@ -2027,6 +2084,7 @@ module.exports = {
   resolveCheckoutSessionPrefix,
   maybeRestartLocalQueue,
   buildNextChecklist,
+  advanceHealStateMachine: advanceHealStateMachine,
   runSelfHealCycle,
   getHealthSnapshot,
   decideApproval,
