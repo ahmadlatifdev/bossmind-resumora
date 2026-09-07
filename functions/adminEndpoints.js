@@ -1131,6 +1131,23 @@ function registerAdminEndpoints(exportsObj) {
       await systemManual.updateSystemManual(db, { trigger: 'weekly_cron' });
     }
   );
+
+  /** Google-only health tick — Cloud Scheduler can also mirror this HTTP endpoint. */
+  exportsObj.systemHealthCron = onSchedule(
+    {
+      schedule: 'every 15 minutes',
+      timeZone: 'America/Toronto',
+      region: 'us-central1',
+      timeoutSeconds: 300,
+      memory: '512MiB',
+      secrets: [adminRefundPassword, ...stripeApiSecrets],
+    },
+    async () => {
+      const { getStripeClient } = require('./lib/stripeSecrets');
+      const stripe = getStripeClient();
+      await selfHeal.runSelfHealCycle(db, stripe, { trigger: 'scheduler' });
+    }
+  );
 }
 
 module.exports = { registerAdminEndpoints };
