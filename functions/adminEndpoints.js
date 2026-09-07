@@ -897,8 +897,8 @@ function registerAdminEndpoints(exportsObj) {
     }
   });
 
-  /** Admin Video Asset Manager — lists title/status/bucket via existing videoCatalog. */
-  exportsObj.getAdminVideoAssets = onRequest(adminHttpOpts, async (req, res) => {
+  /** Admin Video Asset Manager — authenticated proxy over videoCatalog (Firestore/Admin SDK). */
+  async function handleAdminVideoAssets(req, res) {
     adminCors(res, req);
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
@@ -910,19 +910,48 @@ function registerAdminEndpoints(exportsObj) {
     }
     try {
       await assertAdminAccess(req, db, readAdminPassword());
-      const { runRetrieveVideoAssets } = require('./lib/skills/retrieve-video-assets');
-      const out = await runRetrieveVideoAssets({});
+      const videoCatalog = require('./videoCatalog');
+      const catalog = await videoCatalog.getCatalog();
+      const videos = Array.isArray(catalog.videos) ? catalog.videos : [];
+      const rows = videos.map((v) => {
+        const video_id = String(v.video_id || v.id || '');
+        const title = String(v.title_EN || v.title || v.name || video_id || 'untitled');
+        const status = String(
+          v.status ||
+            v.publish_status ||
+            v.state ||
+            (v.source === 'fallback' ? 'fallback' : 'available')
+        );
+        const bucket_path = String(
+          v.bucket_path ||
+            v.gcs_path ||
+            v.gs_uri ||
+            v.storagePath ||
+            v.storage_path ||
+            v.master_path ||
+            v.url_mp4_en ||
+            v.url_mp4 ||
+            v.url ||
+            (video_id ? `gs://resumora-videos/masters/${video_id}` : '—')
+        );
+        return { video_id, title, status, bucket_path };
+      });
       res.status(200).json({
         ok: true,
-        source: out.source,
-        count: out.count,
-        videos: out.videos,
+        source: catalog.source || null,
+        count: rows.length,
+        videos: rows,
+        bilibiliConfigured: catalog.bilibiliConfigured === true,
       });
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Video assets load failed' });
     }
-  });
+  }
+
+  exportsObj.getAdminVideoAssets = onRequest(adminHttpOpts, handleAdminVideoAssets);
+  /** Canonical path alias used by the Videos sidebar page. */
+  exportsObj.getAdminVideos = onRequest(adminHttpOpts, handleAdminVideoAssets);
 
   exportsObj.createHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
