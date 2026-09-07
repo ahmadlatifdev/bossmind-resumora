@@ -9,11 +9,11 @@ const LINKS = [
   { to: '/admin/mission-control', key: 'master.nav.missionControl' },
   { to: '/admin/global-chat', key: 'master.nav.globalChat' },
   { to: '/admin/system-health', key: 'master.nav.health' },
-  { to: '/admin/videos', key: 'master.nav.videos' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },
   { to: '/admin/master#users', key: 'master.nav.users' },
   { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
   { to: '/admin/master#agents', key: 'master.nav.agents' },
+  { to: '/admin/videos', key: 'master.nav.videos' },
   { to: '/admin/master#hermes-chat', key: 'master.nav.hermesChat' },
   { to: '/admin/master#tasks', key: 'master.nav.tasks' },
   { to: '/admin/financials', key: 'master.nav.financials' },
@@ -80,8 +80,15 @@ export default function AdminShell() {
             <NavLink
               key={link.to}
               to={link.to}
+              end={link.to === '/admin/videos'}
               className={({ isActive }) =>
-                `admin-master__nav-link${isActive && !link.to.includes('#') ? ' is-active' : ''}`
+                [
+                  'admin-master__nav-link',
+                  link.to === '/admin/videos' ? 'admin-master__nav-link--videos' : '',
+                  isActive && !link.to.includes('#') ? 'is-active' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')
               }
             >
               {t(lang, link.key)}
