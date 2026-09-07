@@ -77,6 +77,20 @@
   outline: none;
 }
 
+.admin-master__nav-link--videos {
+  border-color: rgba(212, 175, 55, 0.35);
+  color: #f5e6b8;
+  font-weight: 600;
+}
+
+.admin-master__nav-link--videos.is-active,
+.admin-master__nav-link--videos:hover,
+.admin-master__nav-link--videos:focus-visible {
+  border-color: rgba(212, 175, 55, 0.7);
+  background: rgba(212, 175, 55, 0.18);
+  color: #ffe9a8;
+}
+
 .admin-master__main-wrap {
   min-width: 0;
 }
