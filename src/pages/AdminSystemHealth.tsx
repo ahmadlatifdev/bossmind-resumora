@@ -61,6 +61,18 @@ type HealthDoc = {
   lastGuardian?: { passed?: boolean; checks?: Record<string, unknown> };
   lastExecuted?: Array<{ actionId?: string; result?: { ok?: boolean } }>;
   nextChecklist?: NextChecklist | null;
+  healStateMachine?: {
+    status?: string;
+    currentPhase?: string | null;
+    currentTitle?: string | null;
+    currentMode?: string | null;
+    phaseQueue?: string[];
+    attempt?: number;
+    maxAttempts?: number;
+    blocked?: boolean;
+    opsHint?: string;
+    lastError?: string | null;
+  } | null;
   stripeAccount?: {
     needsAttention?: boolean;
     payoutsEnabled?: boolean;
@@ -493,6 +505,37 @@ export default function AdminSystemHealthPage() {
                 </p>
               ) : null}
             </section>
+
+            {health?.healStateMachine ? (
+              <section className="panel" aria-labelledby="heal-sm-heading">
+                <h2 id="heal-sm-heading">{t(lang, 'heal.stateMachineTitle')}</h2>
+                <p>
+                  <strong>{t(lang, 'heal.stateMachinePhase')}:</strong>{' '}
+                  {health.healStateMachine.currentTitle ||
+                    health.healStateMachine.currentPhase ||
+                    '—'}{' '}
+                  ({health.healStateMachine.status || '—'})
+                </p>
+                <p className="text-sm opacity-80">
+                  attempt {String(health.healStateMachine.attempt ?? 0)}/
+                  {String(health.healStateMachine.maxAttempts ?? 5)}
+                  {(health.healStateMachine.phaseQueue || []).length
+                    ? ` · queue: ${(health.healStateMachine.phaseQueue || []).join(' → ')}`
+                    : ''}
+                </p>
+                {health.healStateMachine.lastError ? (
+                  <p className="text-sm" style={{ color: '#ff6b6b' }}>
+                    {health.healStateMachine.lastError}
+                  </p>
+                ) : null}
+                {health.healStateMachine.opsHint ? (
+                  <p className="text-sm opacity-80">
+                    {t(lang, 'heal.stateMachineOps')}:{' '}
+                    <code>{health.healStateMachine.opsHint}</code>
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
 
             <section className="panel">
               <h2>{t(lang, 'heal.activeTitle')}</h2>

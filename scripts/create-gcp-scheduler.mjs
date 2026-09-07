@@ -14,7 +14,44 @@
  * Env: GCP_PROJECT_ID, GCP_REGION (default us-central1), SCHEDULER_OIDC_SA (optional)
  */
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function resolveGcloudBin() {
+  if (process.env.GCLOUD_BIN && fs.existsSync(process.env.GCLOUD_BIN)) {
+    return process.env.GCLOUD_BIN;
+  }
+  if (process.platform === 'win32') {
+    const candidates = [
+      path.join(
+        process.env.LOCALAPPDATA || '',
+        'Google',
+        'Cloud SDK',
+        'google-cloud-sdk',
+        'bin',
+        'gcloud.cmd'
+      ),
+      path.join(
+        process.env.ProgramFiles || 'C:\\Program Files',
+        'Google',
+        'Cloud SDK',
+        'google-cloud-sdk',
+        'bin',
+        'gcloud.cmd'
+      ),
+    ];
+    for (const c of candidates) {
+      if (c && fs.existsSync(c)) return c;
+    }
+    return 'gcloud.cmd';
+  }
+  return 'gcloud';
+}
+
+const GCLOUD = resolveGcloudBin();
 const apply = process.argv.includes('--apply');
 const project = process.env.GCP_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || '';
 const region = process.env.GCP_REGION || 'us-central1';
