@@ -63,7 +63,6 @@ export async function startStripeCheckoutForPlan(planId) {
   const endpoints = [
     '/api/create-checkout-session',
     'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
-    'https://createcheckoutsession-lip26fm72a-uc.a.run.app',
   ];
 
   let payload = null;

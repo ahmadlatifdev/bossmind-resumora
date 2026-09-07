@@ -7,7 +7,7 @@ const { defineSecret } = require('firebase-functions/params');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const selfHeal = require('./selfHeal');
 const systemManual = require('./systemManual');
-const { stripeApiSecrets, stripeWebhookSecrets } = require('./lib/stripeSecrets');
+const { stripeWebhookSecrets } = require('./lib/stripeSecrets');
 const hermes = require('./lib/hermesClient');
 const { getMasterDashboardData } = require('./getMasterDashboardData');
 const {
@@ -1140,7 +1140,7 @@ function registerAdminEndpoints(exportsObj) {
       region: 'us-central1',
       timeoutSeconds: 300,
       memory: '512MiB',
-      secrets: [adminRefundPassword, ...stripeApiSecrets],
+      secrets: [adminRefundPassword, ...stripeWebhookSecrets],
     },
     async () => {
       const { getStripeClient } = require('./lib/stripeSecrets');
