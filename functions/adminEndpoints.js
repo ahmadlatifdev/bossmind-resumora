@@ -7,7 +7,7 @@ const { defineSecret } = require('firebase-functions/params');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const selfHeal = require('./selfHeal');
 const systemManual = require('./systemManual');
-const { stripeApiSecrets } = require('./lib/stripeSecrets');
+const { stripeApiSecrets, stripeWebhookSecrets } = require('./lib/stripeSecrets');
 const hermes = require('./lib/hermesClient');
 const { getMasterDashboardData } = require('./getMasterDashboardData');
 const {
@@ -100,7 +100,7 @@ const adminHttpOpts = {
   memory: '512MiB',
   // Do not set invoker: 'public' — org policy blocks Cloud Run setIamPolicy(allUsers).
   // CI applies --no-invoker-iam-check (run.googleapis.com/invoker-iam-disabled: 'true').
-  secrets: [geminiApiKey, adminRefundPassword, ...stripeApiSecrets],
+  secrets: [geminiApiKey, adminRefundPassword, ...stripeWebhookSecrets],
 };
 
 function registerAdminEndpoints(exportsObj) {

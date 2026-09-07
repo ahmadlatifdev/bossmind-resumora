@@ -87,11 +87,13 @@ const JOBS = [
 ];
 
 function gcloud(args) {
-  return execFileSync('gcloud', args, {
+  const opts = {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
-  });
+  };
+  if (process.platform === 'win32') opts.shell = true;
+  return execFileSync(GCLOUD, args, opts);
 }
 
 function jobUri(job) {
