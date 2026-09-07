@@ -110,11 +110,14 @@ function shape(value, prefixes) {
 }
 
 function gcloud(args, { json = false } = {}) {
-  const out = execFileSync(GCLOUD, args, {
+  const opts = {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
-  });
+  };
+  // Windows: .cmd shims require shell for Node spawn
+  if (process.platform === 'win32') opts.shell = true;
+  const out = execFileSync(GCLOUD, args, opts);
   if (!json) return out;
   return JSON.parse(out || '{}');
 }
