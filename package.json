@@ -31,7 +31,9 @@
     "index:codebase": "node scripts/index-codebase.mjs",
     "security:audit": "node scripts/security-audit.mjs",
     "self-heal": "node scripts/self-heal-runner.mjs",
-    "health:daily": "node scripts/daily-health-report.mjs"
+    "health:daily": "node scripts/daily-health-report.mjs",
+    "gcp:scheduler": "node scripts/create-gcp-scheduler.mjs",
+    "gcp:scheduler:apply": "node scripts/create-gcp-scheduler.mjs --apply"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

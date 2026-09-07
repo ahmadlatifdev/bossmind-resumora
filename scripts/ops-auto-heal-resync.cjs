@@ -22,6 +22,39 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
+
+function resolveGcloudBin() {
+  if (process.env.GCLOUD_BIN && fs.existsSync(process.env.GCLOUD_BIN)) {
+    return process.env.GCLOUD_BIN;
+  }
+  if (process.platform === 'win32') {
+    const candidates = [
+      path.join(
+        process.env.LOCALAPPDATA || '',
+        'Google',
+        'Cloud SDK',
+        'google-cloud-sdk',
+        'bin',
+        'gcloud.cmd'
+      ),
+      path.join(
+        process.env.ProgramFiles || 'C:\\Program Files',
+        'Google',
+        'Cloud SDK',
+        'google-cloud-sdk',
+        'bin',
+        'gcloud.cmd'
+      ),
+    ];
+    for (const c of candidates) {
+      if (c && fs.existsSync(c)) return c;
+    }
+    return 'gcloud.cmd';
+  }
+  return 'gcloud';
+}
+
+const GCLOUD = resolveGcloudBin();
 const apply = process.argv.includes('--apply');
 const allowGcloud = String(process.env.SELF_HEAL_ALLOW_GCLOUD || '').toLowerCase() === 'true';
 const allowIam = String(process.env.SELF_HEAL_ALLOW_IAM_BIND || '').toLowerCase() === 'true';
@@ -77,7 +110,7 @@ function shape(value, prefixes) {
 }
 
 function gcloud(args, { json = false } = {}) {
-  const out = execFileSync('gcloud', args, {
+  const out = execFileSync(GCLOUD, args, {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
