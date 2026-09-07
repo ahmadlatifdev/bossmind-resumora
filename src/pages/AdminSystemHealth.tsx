@@ -8,6 +8,7 @@ const ADMIN_LANG = 'en';
 const HEALTH_URL = '/api/admin/system-health';
 const RUN_URL = '/api/admin/system-health/run';
 const DECIDE_URL = '/api/admin/system-health/decide';
+const AUTO_ACK_URL = '/api/admin/system-health/auto-ack';
 const MANUAL_UPDATE_URL = '/api/admin/system-manual/update';
 const SESSION_KEY = 'resumora_admin_heal_pw';
 
@@ -163,16 +164,21 @@ export default function AdminSystemHealthPage() {
     if (unlocked && password) void load(password);
   }, [unlocked, password, load]);
 
-  async function onUnlock(e: FormEvent) {
-    e.preventDefault();
-    await load(password.trim());
-  }
-
-  async function runCycle() {
+  const runCycle = useCallback(async () => {
     setRunning(true);
     setNotice('');
     setError('');
     try {
+      // Clear pending heal tickets first when zero-touch gate is on (server-side).
+      await fetch(AUTO_ACK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': password,
+        },
+        body: JSON.stringify({ limit: 25, note: 'dashboard_10s_loop' }),
+      }).catch(() => null);
+
       const res = await fetch(RUN_URL, {
         method: 'POST',
         headers: {
@@ -185,8 +191,8 @@ export default function AdminSystemHealthPage() {
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       setNotice(
         t(lang, 'heal.runOk')
-          .replace('{score}', String(data.score ?? '╬ô├ç├╢'))
-          .replace('{status}', String(data.status ?? '╬ô├ç├╢'))
+          .replace('{score}', String(data.score ?? '—'))
+          .replace('{status}', String(data.status ?? '—'))
       );
       await load(password);
     } catch (err) {
@@ -194,6 +200,39 @@ export default function AdminSystemHealthPage() {
     } finally {
       setRunning(false);
     }
+  }, [password, lang, load]);
+
+  // Continuous loop: auto-ack + re-run heal every 10s while score < 100 (no full page reload).
+  useEffect(() => {
+    if (!unlocked || !password) return undefined;
+    const tick = async () => {
+      if (running || loading) return;
+      const score = Number(health?.score);
+      if (Number.isFinite(score) && score >= 100 && health?.lastGuardian?.passed) return;
+      try {
+        await runCycle();
+      } catch {
+        await load(password);
+      }
+    };
+    const id = window.setInterval(() => {
+      void tick();
+    }, 10_000);
+    return () => window.clearInterval(id);
+  }, [
+    unlocked,
+    password,
+    health?.score,
+    health?.lastGuardian?.passed,
+    running,
+    loading,
+    load,
+    runCycle,
+  ]);
+
+  async function onUnlock(e: FormEvent) {
+    e.preventDefault();
+    await load(password.trim());
   }
 
   async function decide(approvalId: string, decision: 'approve' | 'reject') {

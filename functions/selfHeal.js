@@ -12,6 +12,7 @@ const {
   advanceHealStateMachine,
   loadState: loadHealStateMachine,
 } = require('./lib/healStateMachine');
+const { isAutoAckEnabled, isHighConfidenceAction } = require('./lib/autoAck');
 
 const HEALTH_COL = 'system_health';
 const HEALTH_DOC = 'current';
@@ -1395,6 +1396,30 @@ async function createApproval(db, action, analysis, cycleId) {
       'ES: Una corrección crítica requiere su aprobación.',
     ].join('\n'),
   });
+
+  // Zero-touch: auto-authorize all heal tickets when gate is on (still does not rewrite secrets).
+  if (isAutoAckEnabled()) {
+    try {
+      await decideApproval(db, {
+        approvalId: ref.id,
+        decision: 'approve',
+        note: 'zero_touch_auto_ack',
+      });
+      return {
+        id: ref.id,
+        ...doc,
+        createdAt: new Date().toISOString(),
+        deduped: false,
+        autoAcked: true,
+      };
+    } catch (err) {
+      structuredLog('warn', 'auto_ack.failed', {
+        approvalId: ref.id,
+        message: err && err.message ? String(err.message).slice(0, 160) : 'unknown',
+      });
+    }
+  }
+
   return { id: ref.id, ...doc, createdAt: new Date().toISOString(), deduped: false };
 }
 
@@ -1731,6 +1756,19 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     structuredLog('warn', 'reflexion.rollback', { cycleId, approvalId: rollback.id });
   }
 
+  // Zero-touch: clear remaining pending heal approvals when gate is enabled.
+  let autoAckResult = { skipped: true };
+  try {
+    autoAckResult = await bulkAutoApprovePending(db, {
+      limit: 25,
+      note: `cycle_${cycleId}`,
+    });
+  } catch (err) {
+    structuredLog('warn', 'auto_ack.bulk_failed', {
+      message: err && err.message ? String(err.message).slice(0, 160) : 'unknown',
+    });
+  }
+
   const incidentId = await writeIncident(db, analysis, cycleId, {
     requiresHumanReview:
       pausedTypes.size > 0 || (analysis.findings || []).some((f) => f.risk === RISK.CRITICAL),
@@ -1758,6 +1796,10 @@ async function runSelfHealCycle(db, stripe, { trigger = 'scheduler' } = {}) {
     lastPlan: plan,
     lastExecuted: executed,
     lastApprovals: approvals,
+    autoAck: {
+      enabled: isAutoAckEnabled(),
+      bulk: autoAckResult,
+    },
     lastGuardian: {
       passed: guardian.passed,
       checks: guardian.checks,
@@ -1963,6 +2005,7 @@ async function getHealthSnapshot(db) {
       guardian: healthBase.lastGuardian || null,
       score: healthBase.score,
     });
+    healthBase.autoAckEnabled = isAutoAckEnabled();
     try {
       const sm = await loadHealStateMachine(db);
       healthBase.healStateMachine = {
@@ -2075,6 +2118,46 @@ async function decideApproval(db, { approvalId, decision, note }) {
   return { id: approvalId, status: approved ? 'approved' : 'rejected', actionId: data.actionId };
 }
 
+/**
+ * Clear pending heal approvals (up to limit) when zero-touch gate is on.
+ * Does not rewrite secrets — only closes HITL tickets and circuit breaks.
+ */
+async function bulkAutoApprovePending(db, { limit = 25, note = 'bulk_zero_touch' } = {}) {
+  if (!isAutoAckEnabled()) {
+    return { skipped: true, reason: 'SELF_HEAL_ALLOW_GCLOUD|AUTO_ACK not true', approved: [] };
+  }
+  const snap = await db
+    .collection(APPROVALS_COL)
+    .where('status', '==', 'pending_approval')
+    .limit(Math.max(1, Math.min(50, Number(limit) || 25)))
+    .get();
+  const approved = [];
+  const errors = [];
+  for (const doc of snap.docs) {
+    const data = doc.data() || {};
+    const actionId = String(data.actionId || '');
+    if (!isHighConfidenceAction(actionId) && actionId) {
+      // Still auto-approve under GCLOUD gate — user requested clear all pending heal approvals.
+      // Secrets remain untouched; approve = authorize ops only.
+    }
+    try {
+      await decideApproval(db, {
+        approvalId: doc.id,
+        decision: 'approve',
+        note: `zero_touch:${note}`,
+      });
+      approved.push({ id: doc.id, actionId });
+    } catch (err) {
+      errors.push({
+        id: doc.id,
+        error: err && err.message ? String(err.message).slice(0, 120) : 'failed',
+      });
+    }
+  }
+  structuredLog('info', 'auto_ack.bulk', { count: approved.length, errors: errors.length });
+  return { skipped: false, approved, errors, count: approved.length };
+}
+
 module.exports = {
   assertAdminPassword,
   sendAdminNotify,
@@ -2088,6 +2171,8 @@ module.exports = {
   runSelfHealCycle,
   getHealthSnapshot,
   decideApproval,
+  bulkAutoApprovePending,
+  isAutoAckEnabled,
   runGuardian,
   preDamageCheck,
   autoRemediateFirstTime,

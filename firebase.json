@@ -176,6 +176,10 @@
         "function": "decideSystemHeal"
       },
       {
+        "source": "/api/admin/system-health/auto-ack",
+        "function": "autoAckSystemHeal"
+      },
+      {
         "source": "/api/admin/system-manual/update",
         "function": "updateSystemManual"
       },

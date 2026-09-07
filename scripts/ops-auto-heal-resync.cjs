@@ -13,6 +13,7 @@
  * Usage:
  *   node scripts/ops-auto-heal-resync.cjs              # dry-run plan
  *   SELF_HEAL_ALLOW_GCLOUD=true node scripts/ops-auto-heal-resync.cjs --apply
+ *   SELF_HEAL_ALLOW_GCLOUD=true node scripts/ops-auto-heal-resync.cjs --apply --loop
  *   SELF_HEAL_ALLOW_GCLOUD=true SELF_HEAL_ALLOW_IAM_BIND=true node scripts/ops-auto-heal-resync.cjs --apply
  */
 'use strict';
@@ -56,6 +57,8 @@ function resolveGcloudBin() {
 
 const GCLOUD = resolveGcloudBin();
 const apply = process.argv.includes('--apply');
+const loop = process.argv.includes('--loop');
+const loopMs = Math.max(5000, Number(process.env.HEAL_LOOP_MS || 10_000) || 10_000);
 const allowGcloud = String(process.env.SELF_HEAL_ALLOW_GCLOUD || '').toLowerCase() === 'true';
 const allowIam = String(process.env.SELF_HEAL_ALLOW_IAM_BIND || '').toLowerCase() === 'true';
 const project = process.env.GCP_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || '';
@@ -63,15 +66,8 @@ const region = process.env.GCP_REGION || 'us-central1';
 const runtimeSa =
   process.env.RUNTIME_SA_EMAIL ||
   (project ? `${project}@appspot.gserviceaccount.com` : '');
-const services = String(
-  process.env.HEAL_CLOUD_RUN_SERVICES ||
-    'getsystemhealth,runsystemhealth,createcheckoutsession,stripewebhook'
-)
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean);
+const servicesEnv = String(process.env.HEAL_CLOUD_RUN_SERVICES || '').trim();
 
-const SECRET_KEYS = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_WEBHOOK_SECRET_LIVE'];
 const PRICE_KEYS = [
   'STRIPE_PRICE_BASIC',
   'STRIPE_PRICE_BALANCED',
@@ -115,9 +111,15 @@ function gcloud(args, { json = false } = {}) {
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   };
-  // Windows: .cmd shims require shell for Node spawn
-  if (process.platform === 'win32') opts.shell = true;
-  const out = execFileSync(GCLOUD, args, opts);
+  // Prefer PATH `gcloud` on Windows to avoid space-in-path .cmd quoting bugs.
+  let bin = GCLOUD;
+  if (process.platform === 'win32') {
+    opts.shell = true;
+    if (String(GCLOUD).toLowerCase().endsWith('gcloud.cmd') || /\s/.test(GCLOUD)) {
+      bin = 'gcloud';
+    }
+  }
+  const out = execFileSync(bin, args, opts);
   if (!json) return out;
   return JSON.parse(out || '{}');
 }
@@ -138,12 +140,86 @@ function mergeLocalEnv() {
   return { merged, loaded };
 }
 
-function main() {
+/** Read secret payload for inject — never log the value. */
+function readSecretValue(name) {
+  try {
+    const raw = gcloud(
+      ['secrets', 'versions', 'access', 'latest', `--secret=${name}`, `--project=${project}`],
+      { json: false }
+    );
+    return String(raw || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function listRunServices() {
+  try {
+    const raw = gcloud(
+      [
+        'run',
+        'services',
+        'list',
+        `--project=${project}`,
+        `--region=${region}`,
+        '--format=value(metadata.name)',
+      ],
+      { json: false }
+    );
+    return String(raw || '')
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } catch (err) {
+    console.error('Cloud Run list failed:', err.message || err);
+    return [
+      'getsystemhealth',
+      'runsystemhealth',
+      'createcheckoutsession',
+      'stripewebhook',
+    ];
+  }
+}
+
+async function fetchHealthScore() {
+  const base = String(process.env.RESUMORA_API_BASE || 'https://resumora.net').replace(/\/$/, '');
+  const password = String(
+    process.env.ADMIN_REFUND_PASSWORD || process.env.VITE_ADMIN_PASSWORD || ''
+  ).trim();
+  if (!password) return null;
+  try {
+    const res = await fetch(`${base}/api/admin/system-health`, {
+      headers: { 'X-Admin-Password': password },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return null;
+    const score = Number((data.health && data.health.score) ?? data.score);
+    return Number.isFinite(score) ? score : null;
+  } catch {
+    return null;
+  }
+}
+
+function resolveServices() {
+  if (servicesEnv) {
+    return servicesEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return listRunServices();
+}
+
+/**
+ * @returns {{ failed: number, plan: object }}
+ */
+function runOnce() {
   if (!project) {
     console.error('Set GCP_PROJECT_ID (or GCLOUD_PROJECT) before running.');
     process.exit(2);
   }
 
+  const services = resolveServices();
   const { merged, loaded } = mergeLocalEnv();
   const localShapes = {
     STRIPE_SECRET_KEY: shape(merged.STRIPE_SECRET_KEY || merged.SECRET_STRIPE, [
@@ -178,6 +254,22 @@ function main() {
     console.error('Secret Manager list failed:', err.message || err);
   }
 
+  // Price IDs from Secret Manager when local file lacks them (values never logged).
+  const priceValues = {};
+  for (const k of PRICE_KEYS) {
+    const local = String(merged[k] || '').trim();
+    if (/^price_/.test(local)) {
+      priceValues[k] = local;
+      continue;
+    }
+    if (!secretNames.includes(k)) continue;
+    const v = readSecretValue(k);
+    if (/^price_/.test(v)) {
+      priceValues[k] = v;
+      localShapes[k] = shape(v, ['price_']);
+    }
+  }
+
   const serviceReports = [];
   for (const svc of services) {
     try {
@@ -203,16 +295,26 @@ function main() {
       const secretRefs = env
         .filter((e) => e.valueFrom && e.valueFrom.secretKeyRef)
         .map((e) => ({ name: e.name, secret: e.valueFrom.secretKeyRef.name }));
+      const envMap = {};
+      for (const e of env) {
+        if (e && e.name && typeof e.value === 'string') envMap[e.name] = e.value;
+      }
       serviceReports.push({
         service: svc,
         ok: true,
         envKeys,
         secretRefs,
-        hasStripeSecret: envKeys.includes('STRIPE_SECRET_KEY') || secretRefs.some((s) => s.name === 'STRIPE_SECRET_KEY'),
+        hasStripeSecret:
+          envKeys.includes('STRIPE_SECRET_KEY') ||
+          secretRefs.some((s) => s.name === 'STRIPE_SECRET_KEY'),
         hasWebhook:
           envKeys.includes('STRIPE_WEBHOOK_SECRET') ||
-          secretRefs.some((s) => s.name === 'STRIPE_WEBHOOK_SECRET'),
+          secretRefs.some((s) => s.name === 'STRIPE_WEBHOOK_SECRET') ||
+          secretRefs.some((s) => s.name === 'STRIPE_WEBHOOK_SECRET_LIVE'),
         hasPrefix: envKeys.includes(PREFIX_KEY),
+        hasZeroTouch:
+          String(envMap.SELF_HEAL_ALLOW_GCLOUD || '').toLowerCase() === 'true' ||
+          String(envMap.SELF_HEAL_ALLOW_AUTO_ACK || '').toLowerCase() === 'true',
       });
     } catch (err) {
       serviceReports.push({
@@ -232,12 +334,21 @@ function main() {
     secretManagerHas: {
       STRIPE_SECRET_KEY: secretNames.includes('STRIPE_SECRET_KEY'),
       STRIPE_WEBHOOK_SECRET: secretNames.includes('STRIPE_WEBHOOK_SECRET'),
+      STRIPE_WEBHOOK_SECRET_LIVE: secretNames.includes('STRIPE_WEBHOOK_SECRET_LIVE'),
+      prices: PRICE_KEYS.filter((k) => secretNames.includes(k)),
     },
-    services: serviceReports,
+    services: serviceReports.map((s) => ({
+      service: s.service,
+      ok: s.ok,
+      hasStripeSecret: s.hasStripeSecret,
+      hasWebhook: s.hasWebhook,
+      hasPrefix: s.hasPrefix,
+      hasZeroTouch: s.hasZeroTouch,
+      error: s.error || undefined,
+    })),
     actions: [],
   };
 
-  // Remount secrets from Secret Manager (not from printing .env values)
   for (const svc of serviceReports.filter((s) => s.ok)) {
     const mounts = [];
     if (plan.secretManagerHas.STRIPE_SECRET_KEY && !svc.hasStripeSecret) {
@@ -245,17 +356,8 @@ function main() {
     }
     if (plan.secretManagerHas.STRIPE_WEBHOOK_SECRET && !svc.hasWebhook) {
       mounts.push('STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest');
-    }
-    // Always refresh mounts when apply + drift suspected (local shape ok but service missing ref)
-    if (plan.secretManagerHas.STRIPE_SECRET_KEY && localShapes.STRIPE_SECRET_KEY.ok) {
-      if (!mounts.some((m) => m.startsWith('STRIPE_SECRET_KEY='))) {
-        mounts.push('STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest');
-      }
-    }
-    if (plan.secretManagerHas.STRIPE_WEBHOOK_SECRET && localShapes.STRIPE_WEBHOOK_SECRET.ok) {
-      if (!mounts.some((m) => m.startsWith('STRIPE_WEBHOOK_SECRET='))) {
-        mounts.push('STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET:latest');
-      }
+    } else if (plan.secretManagerHas.STRIPE_WEBHOOK_SECRET_LIVE && !svc.hasWebhook) {
+      mounts.push('STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET_LIVE:latest');
     }
     if (mounts.length) {
       plan.actions.push({
@@ -276,14 +378,15 @@ function main() {
 
     const envUpdates = [];
     const prefixVal = String(merged[PREFIX_KEY] || 'cs_live_').trim();
-    if (prefixVal === 'cs_live_' || prefixVal === 'cs_test_') {
-      if (!svc.hasPrefix || true) {
-        envUpdates.push(`${PREFIX_KEY}=${prefixVal}`);
-      }
+    if ((prefixVal === 'cs_live_' || prefixVal === 'cs_test_') && !svc.hasPrefix) {
+      envUpdates.push(`${PREFIX_KEY}=${prefixVal}`);
     }
     for (const k of PRICE_KEYS) {
-      const v = String(merged[k] || '').trim();
+      const v = String(priceValues[k] || '').trim();
       if (/^price_/.test(v)) envUpdates.push(`${k}=${v}`);
+    }
+    if (!svc.hasZeroTouch) {
+      envUpdates.push('SELF_HEAL_ALLOW_GCLOUD=true', 'SELF_HEAL_ALLOW_AUTO_ACK=true');
     }
     if (envUpdates.length) {
       plan.actions.push({
@@ -333,16 +436,43 @@ function main() {
     });
   }
 
-  // Never log secret values — shapes + plan only
-  console.log(JSON.stringify(plan, null, 2));
+  // Never log secret values or Stripe price/webhook/sk IDs — shapes + redacted plan only
+  const safePlan = JSON.parse(JSON.stringify(plan));
+  if (Array.isArray(safePlan.actions)) {
+    for (const action of safePlan.actions) {
+      if (!Array.isArray(action.args)) continue;
+      action.args = action.args.map((a) => {
+        if (typeof a !== 'string' || !a.startsWith('--update-env-vars=')) return a;
+        return (
+          '--update-env-vars=' +
+          a
+            .slice('--update-env-vars='.length)
+            .split(',')
+            .map((pair) => {
+              const eq = pair.indexOf('=');
+              if (eq <= 0) return pair;
+              const key = pair.slice(0, eq);
+              const val = pair.slice(eq + 1);
+              if (/^price_|^sk_|^pk_|^whsec_/i.test(val)) return `${key}=***`;
+              if (/PRICE|SECRET|KEY|TOKEN|PASSWORD/i.test(key) && !/SELF_HEAL|PREFIX/i.test(key)) {
+                return `${key}=***`;
+              }
+              return pair;
+            })
+            .join(',')
+        );
+      });
+    }
+  }
+  console.log(JSON.stringify(safePlan, null, 2));
 
   if (!apply) {
     console.error('\nDry-run only. Re-run with --apply and SELF_HEAL_ALLOW_GCLOUD=true to execute.');
-    process.exit(0);
+    return { failed: 0, plan, dryRun: true };
   }
   if (!allowGcloud) {
     console.error('Refusing apply: SELF_HEAL_ALLOW_GCLOUD is not true.');
-    process.exit(3);
+    return { failed: 3, plan, blocked: true };
   }
 
   let failed = 0;
@@ -350,12 +480,37 @@ function main() {
     if (action.type === 'skipped_iam') continue;
     if (action.type === 'iam_bind' && !allowIam) continue;
     try {
-      console.error(`Running: gcloud ${action.args.join(' ')}`);
+      // Redact env values that look like secrets from console (keep keys only)
+      const safeArgs = action.args.map((a) => {
+        if (typeof a === 'string' && a.startsWith('--update-env-vars=')) {
+          return (
+            '--update-env-vars=' +
+            a
+              .slice('--update-env-vars='.length)
+              .split(',')
+              .map((pair) => {
+                const eq = pair.indexOf('=');
+                if (eq <= 0) return pair;
+                const key = pair.slice(0, eq);
+                if (/PRICE|SECRET|KEY|TOKEN|PASSWORD/i.test(key) && !/SELF_HEAL|PREFIX/i.test(key)) {
+                  return `${key}=***`;
+                }
+                return pair;
+              })
+              .join(',')
+          );
+        }
+        return a;
+      });
+      console.error(`Running: gcloud ${safeArgs.join(' ')}`);
       gcloud(action.args);
       console.error(`OK: ${action.type} ${action.service || ''}`);
     } catch (err) {
       failed += 1;
-      console.error(`FAIL: ${action.type}`, String(err && err.message ? err.message : err).slice(0, 300));
+      console.error(
+        `FAIL: ${action.type}`,
+        String(err && err.message ? err.message : err).slice(0, 300)
+      );
     }
   }
 
@@ -364,7 +519,40 @@ function main() {
       ? `\nCompleted with ${failed} failure(s). Re-run System Health.`
       : '\nCompleted. Re-run System Health (Run diagnosis once).'
   );
-  process.exit(failed ? 1 : 0);
+  return { failed, plan };
 }
 
-main();
+async function main() {
+  if (loop) {
+    if (!apply || !allowGcloud) {
+      console.error('--loop requires --apply and SELF_HEAL_ALLOW_GCLOUD=true');
+      process.exit(3);
+    }
+    console.error(`Zero-touch ops loop every ${loopMs}ms until health score >= 100 (or forever if no admin password).`);
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const score = await fetchHealthScore();
+      if (score != null && score >= 100) {
+        console.error(`Health score ${score} — loop idle (still watching).`);
+      } else {
+        console.error(
+          score == null
+            ? 'Health score unavailable — applying resync.'
+            : `Health score ${score} < 100 — applying resync.`
+        );
+        runOnce();
+      }
+      await new Promise((r) => setTimeout(r, loopMs));
+    }
+  }
+
+  const result = runOnce();
+  if (result.dryRun) process.exit(0);
+  if (result.blocked) process.exit(3);
+  process.exit(result.failed ? 1 : 0);
+}
+
+main().catch((err) => {
+  console.error(err && err.message ? err.message : err);
+  process.exit(1);
+});

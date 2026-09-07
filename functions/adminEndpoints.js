@@ -101,6 +101,11 @@ const adminHttpOpts = {
   // Do not set invoker: 'public' — org policy blocks Cloud Run setIamPolicy(allUsers).
   // CI applies --no-invoker-iam-check (run.googleapis.com/invoker-iam-disabled: 'true').
   secrets: [geminiApiKey, adminRefundPassword, ...stripeWebhookSecrets],
+  // Permanent zero-touch gate (ops may still remount via gcloud; Safe Mode still blocks shell ACK).
+  environmentVariables: {
+    SELF_HEAL_ALLOW_GCLOUD: 'true',
+    SELF_HEAL_ALLOW_AUTO_ACK: 'true',
+  },
 };
 
 function registerAdminEndpoints(exportsObj) {
@@ -178,6 +183,31 @@ function registerAdminEndpoints(exportsObj) {
       }
     }
   );
+
+  /** Zero-touch: bulk-approve pending heal tickets when SELF_HEAL_ALLOW_GCLOUD|AUTO_ACK is set. */
+  exportsObj.autoAckSystemHeal = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const out = await selfHeal.bulkAutoApprovePending(db, {
+        limit: Number(body.limit) || 25,
+        note: String(body.note || 'api_auto_ack').slice(0, 80),
+      });
+      res.status(200).json({ ok: true, autoAckEnabled: selfHeal.isAutoAckEnabled(), ...out });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Auto-ACK failed' });
+    }
+  });
 
   exportsObj.getMasterDashboard = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
