@@ -359,7 +359,9 @@ function runOnce() {
     } else if (plan.secretManagerHas.STRIPE_WEBHOOK_SECRET_LIVE && !svc.hasWebhook) {
       mounts.push('STRIPE_WEBHOOK_SECRET=STRIPE_WEBHOOK_SECRET_LIVE:latest');
     }
-    if (mounts.length) {
+    // Firebase Gen2 Cloud Run rejects gcloud --update-secrets (annotation crash).
+    // Stripe secrets stay on Functions via defineSecret; only inject plain env here.
+    if (mounts.length && String(process.env.HEAL_ALLOW_UPDATE_SECRETS || '').toLowerCase() === 'true') {
       plan.actions.push({
         type: 'update_secrets',
         service: svc.service,
@@ -373,6 +375,12 @@ function runOnce() {
           `--update-secrets=${[...new Set(mounts)].join(',')}`,
           '--quiet',
         ],
+      });
+    } else if (mounts.length) {
+      plan.actions.push({
+        type: 'skipped_secrets',
+        service: svc.service,
+        reason: 'Set HEAL_ALLOW_UPDATE_SECRETS=true to remount (Firebase Gen2 often crashes); prices/gates still applied',
       });
     }
 
@@ -475,7 +483,7 @@ function runOnce() {
 
   let failed = 0;
   for (const action of plan.actions) {
-    if (action.type === 'skipped_iam') continue;
+    if (action.type === 'skipped_iam' || action.type === 'skipped_secrets') continue;
     if (action.type === 'iam_bind' && !allowIam) continue;
     try {
       // Redact env values that look like secrets from console (keep keys only)
