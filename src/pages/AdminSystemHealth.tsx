@@ -84,6 +84,7 @@ type HealthDoc = {
     disabledReason?: string | null;
     checkedAt?: string;
   } | null;
+  autoAckEnabled?: boolean;
 };
 
 function scoreColor(score?: number) {
@@ -125,7 +126,16 @@ export default function AdminSystemHealthPage() {
         const res = await fetch(HEALTH_URL, { headers: { 'X-Admin-Password': pw } });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-        setHealth((data.health as HealthDoc) || null);
+        setHealth(
+          data.health && typeof data.health === 'object'
+            ? {
+                ...(data.health as HealthDoc),
+                autoAckEnabled:
+                  Boolean((data.health as HealthDoc).autoAckEnabled) ||
+                  Boolean(data.autoAckEnabled),
+              }
+            : null
+        );
         setIncidents(Array.isArray(data.incidents) ? data.incidents : []);
         setRemediations(Array.isArray(data.remediations) ? data.remediations : []);
         setPending(Array.isArray(data.pendingApprovals) ? data.pendingApprovals : []);
@@ -169,14 +179,13 @@ export default function AdminSystemHealthPage() {
     setNotice('');
     setError('');
     try {
-      // Clear pending heal tickets first when zero-touch gate is on (server-side).
       await fetch(AUTO_ACK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Admin-Password': password,
         },
-        body: JSON.stringify({ limit: 25, note: 'dashboard_10s_loop' }),
+        body: JSON.stringify({ limit: 50, note: 'force_100_loop' }),
       }).catch(() => null);
 
       const res = await fetch(RUN_URL, {
@@ -202,11 +211,12 @@ export default function AdminSystemHealthPage() {
     }
   }, [password, lang, load]);
 
-  // Continuous loop: auto-ack + re-run heal every 10s while score < 100 (no full page reload).
+  // Hands-free: heal immediately on unlock, then every 10s until score is 100.
   useEffect(() => {
     if (!unlocked || !password) return undefined;
+    let cancelled = false;
     const tick = async () => {
-      if (running || loading) return;
+      if (cancelled || running || loading) return;
       const score = Number(health?.score);
       if (Number.isFinite(score) && score >= 100 && health?.lastGuardian?.passed) return;
       try {
@@ -215,10 +225,14 @@ export default function AdminSystemHealthPage() {
         await load(password);
       }
     };
+    void tick();
     const id = window.setInterval(() => {
       void tick();
     }, 10_000);
-    return () => window.clearInterval(id);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
   }, [
     unlocked,
     password,
@@ -322,14 +336,13 @@ export default function AdminSystemHealthPage() {
         ) : (
           <>
             <div className="row-actions">
-              <button
-                type="button"
-                className="primary"
-                onClick={() => void runCycle()}
-                disabled={running}
-              >
-                {running ? t(lang, 'heal.running') : t(lang, 'heal.runNow')}
-              </button>
+              <p className="plan-chip" role="status">
+                {Number(health?.score) >= 100 && health?.lastGuardian?.passed
+                  ? t(lang, 'heal.autoIdle')
+                  : running
+                    ? t(lang, 'heal.running')
+                    : t(lang, 'heal.autoHealing')}
+              </p>
               <button
                 type="button"
                 className="secondary"
@@ -649,6 +662,9 @@ export default function AdminSystemHealthPage() {
 
             <section className="panel">
               <h2>{t(lang, 'heal.approvalsTitle')}</h2>
+              {health?.autoAckEnabled ? (
+                <p className="text-sm opacity-80">{t(lang, 'heal.autoAckNote')}</p>
+              ) : null}
               {pending.length ? (
                 <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 12 }}>
                   {pending.map((a) => (
@@ -660,22 +676,26 @@ export default function AdminSystemHealthPage() {
                         <strong>{String(a.actionId || a.id)}</strong>
                         <p className="text-sm opacity-80">{String(a.reason || '')}</p>
                       </div>
-                      <div className="row-actions">
-                        <button
-                          type="button"
-                          className="primary"
-                          onClick={() => void decide(String(a.id), 'approve')}
-                        >
-                          {t(lang, 'heal.approve')}
-                        </button>
-                        <button
-                          type="button"
-                          className="secondary"
-                          onClick={() => void decide(String(a.id), 'reject')}
-                        >
-                          {t(lang, 'heal.reject')}
-                        </button>
-                      </div>
+                      {health?.autoAckEnabled ? (
+                        <p className="plan-chip">{t(lang, 'heal.autoAckPending')}</p>
+                      ) : (
+                        <div className="row-actions">
+                          <button
+                            type="button"
+                            className="primary"
+                            onClick={() => void decide(String(a.id), 'approve')}
+                          >
+                            {t(lang, 'heal.approve')}
+                          </button>
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => void decide(String(a.id), 'reject')}
+                          >
+                            {t(lang, 'heal.reject')}
+                          </button>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

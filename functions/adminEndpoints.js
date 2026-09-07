@@ -105,6 +105,7 @@ const adminHttpOpts = {
   environmentVariables: {
     SELF_HEAL_ALLOW_GCLOUD: 'true',
     SELF_HEAL_ALLOW_AUTO_ACK: 'true',
+    CHECKOUT_SESSION_PREFIX: 'cs_live_',
   },
 };
 
@@ -1162,15 +1163,20 @@ function registerAdminEndpoints(exportsObj) {
     }
   );
 
-  /** Google-only health tick — Cloud Scheduler can also mirror this HTTP endpoint. */
+  /** Google-only health tick — every minute while score climbs to 100. */
   exportsObj.systemHealthCron = onSchedule(
     {
-      schedule: 'every 15 minutes',
+      schedule: 'every 1 minutes',
       timeZone: 'America/Toronto',
       region: 'us-central1',
       timeoutSeconds: 300,
       memory: '512MiB',
       secrets: [adminRefundPassword, ...stripeWebhookSecrets],
+      environmentVariables: {
+        SELF_HEAL_ALLOW_GCLOUD: 'true',
+        SELF_HEAL_ALLOW_AUTO_ACK: 'true',
+        CHECKOUT_SESSION_PREFIX: 'cs_live_',
+      },
     },
     async () => {
       const { getStripeClient } = require('./lib/stripeSecrets');
