@@ -220,6 +220,18 @@ async function createTask(db, input = {}) {
     updatedAt: FieldValue.serverTimestamp(),
   };
   await ref.set(row);
+
+  // Zero-touch: auto-ACK non-shell tasks when SELF_HEAL_ALLOW_GCLOUD|AUTO_ACK is on.
+  // Safe Mode quarantine still blocks shell/gcloud ACK via assertCommandsAllowed.
+  try {
+    const { isAutoAckEnabled } = require('./autoAck');
+    if (isAutoAckEnabled() && !looksLikeShellOrGcloud(commands)) {
+      return await ackTask(db, ref.id, { ack: true, note: 'zero_touch_auto_ack' });
+    }
+  } catch (_) {
+    /* keep pending */
+  }
+
   return {
     id: ref.id,
     ...row,
