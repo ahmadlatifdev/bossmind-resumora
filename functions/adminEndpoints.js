@@ -568,6 +568,31 @@ function registerAdminEndpoints(exportsObj) {
             ? 'Please review the attached code patch (global admin scope).'
             : 'Please review the attached code patch for this project.');
 
+        async function persistChatTurn(userText, assistantText, engine) {
+          try {
+            const col = db.collection('admin_global_chat');
+            const base = {
+              projectId: project.projectId,
+              scope: isGlobal ? 'global' : 'project',
+              source: isGlobal ? 'admin_global_chat' : 'admin_hermes_chat',
+              createdAt: FieldValue.serverTimestamp(),
+            };
+            if (userText) {
+              await col.add({ ...base, role: 'user', text: String(userText).slice(0, 16000) });
+            }
+            if (assistantText) {
+              await col.add({
+                ...base,
+                role: 'assistant',
+                text: String(assistantText).slice(0, 32000),
+                engine: engine || null,
+              });
+            }
+          } catch (_) {
+            /* never fail the chat response on history write */
+          }
+        }
+
         let patchStored = false;
         if (codePatch) {
           await db.collection('hermes_chat_patches').add({
@@ -603,6 +628,7 @@ function registerAdminEndpoints(exportsObj) {
           const { runProjectHealth } = require('./lib/skills/project-health');
           const snapshot = await selfHeal.getHealthSnapshot(db).catch(() => null);
           const skillOut = await runProjectHealth({ db, snapshot, lang });
+          await persistChatTurn(effectiveMessage, skillOut.reply, route);
           res.status(200).json({
             ok: true,
             engine: route,
@@ -619,11 +645,13 @@ function registerAdminEndpoints(exportsObj) {
             lang,
             projectId: project.projectId,
           });
+          const reply = (skillOut && skillOut.reply) || 'Skill completed.';
+          await persistChatTurn(effectiveMessage, reply, route);
           res.status(200).json({
             ok: true,
             engine: route,
             projectId: project.projectId,
-            reply: (skillOut && skillOut.reply) || 'Skill completed.',
+            reply,
             patchStored,
           });
           return;
@@ -650,6 +678,7 @@ function registerAdminEndpoints(exportsObj) {
             context,
             timeoutMs: 25000,
           });
+          await persistChatTurn(effectiveMessage, gem.text, 'gemini');
           res.status(200).json({
             ok: true,
             engine: 'gemini',
@@ -669,6 +698,7 @@ function registerAdminEndpoints(exportsObj) {
             timeoutMs: 70000,
             db,
           });
+          await persistChatTurn(effectiveMessage, out.text, 'hermes');
           res.status(200).json({
             ok: true,
             engine: 'hermes',
@@ -684,6 +714,7 @@ function registerAdminEndpoints(exportsObj) {
               context,
               timeoutMs: 25000,
             });
+            await persistChatTurn(effectiveMessage, gem.text, 'gemini');
             res.status(200).json({
               ok: true,
               engine: 'gemini',
@@ -705,6 +736,65 @@ function registerAdminEndpoints(exportsObj) {
       }
     }
   );
+
+  /** Full Global Chat history (user + Hermes/assistant turns). */
+  exportsObj.getAdminGlobalChat = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const limitRaw = Number(req.query.limit || 500);
+      const limit = Number.isFinite(limitRaw)
+        ? Math.min(Math.max(Math.floor(limitRaw), 1), 1000)
+        : 500;
+      let snap;
+      try {
+        snap = await db
+          .collection('admin_global_chat')
+          .orderBy('createdAt', 'asc')
+          .limit(limit)
+          .get();
+      } catch (_) {
+        snap = await db.collection('admin_global_chat').limit(limit).get();
+      }
+      const messages = snap.docs.map((doc) => {
+        const d = doc.data() || {};
+        const created = d.createdAt;
+        let createdAt = null;
+        if (created && typeof created.toDate === 'function') {
+          createdAt = created.toDate().toISOString();
+        } else if (typeof created === 'string') {
+          createdAt = created;
+        }
+        return {
+          id: doc.id,
+          role: d.role === 'assistant' || d.role === 'hermes' ? 'assistant' : 'user',
+          text: String(d.text || d.message || d.reply || ''),
+          engine: d.engine || null,
+          projectId: d.projectId || null,
+          scope: d.scope || null,
+          source: d.source || null,
+          createdAt,
+        };
+      });
+      messages.sort((a, b) => {
+        const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const tb = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return ta - tb;
+      });
+      res.status(200).json({ ok: true, count: messages.length, messages });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Global chat history failed' });
+    }
+  });
 
   exportsObj.updateSystemManual = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);

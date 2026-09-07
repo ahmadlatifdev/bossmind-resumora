@@ -212,6 +212,10 @@
         "function": "postAdminHermesCommand"
       },
       {
+        "source": "/api/admin/global-chat",
+        "function": "getAdminGlobalChat"
+      },
+      {
         "source": "/api/admin/password-reset/request",
         "function": "requestAdminPasswordReset"
       },
