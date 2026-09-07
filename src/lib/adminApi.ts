@@ -480,6 +480,27 @@ export async function fetchAdminFinancials(password: string) {
   };
 }
 
+export type AdminVideoAsset = {
+  video_id?: string;
+  title?: string;
+  status?: string;
+  bucket_path?: string;
+};
+
+export async function fetchAdminVideoAssets(password: string) {
+  const res = await fetch('/api/admin/video-assets', {
+    headers: adminHeaders(password),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    source?: string | null;
+    count?: number;
+    videos?: AdminVideoAsset[];
+  };
+}
+
 export type FinanceOverview = {
   generatedAt?: string;
   currency?: string;

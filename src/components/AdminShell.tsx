@@ -9,6 +9,7 @@ const LINKS = [
   { to: '/admin/mission-control', key: 'master.nav.missionControl' },
   { to: '/admin/global-chat', key: 'master.nav.globalChat' },
   { to: '/admin/system-health', key: 'master.nav.health' },
+  { to: '/admin/videos', key: 'master.nav.videos' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },
   { to: '/admin/master#users', key: 'master.nav.users' },
   { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
