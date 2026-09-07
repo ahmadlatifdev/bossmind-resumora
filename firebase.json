@@ -240,6 +240,10 @@
         "function": "getAdminVideoAssets"
       },
       {
+        "source": "/api/admin/videos",
+        "function": "getAdminVideos"
+      },
+      {
         "source": "/api/admin/tasks/create",
         "function": "createHarnessTask"
       },
