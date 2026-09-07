@@ -934,7 +934,17 @@ function registerAdminEndpoints(exportsObj) {
             v.url ||
             (video_id ? `gs://resumora-videos/masters/${video_id}` : '—')
         );
-        return { video_id, title, status, bucket_path };
+        const urls =
+          v.urls && typeof v.urls === 'object'
+            ? v.urls
+            : videoCatalog.multilingualUrls
+              ? videoCatalog.multilingualUrls(v)
+              : {
+                  en: String(v.url_mp4_en || v.url_mp4 || v.url || ''),
+                  fr: String(v.url_mp4_fr || v.url_mp4_en || v.url_mp4 || v.url || ''),
+                  es: String(v.url_mp4_es || v.url_mp4_en || v.url_mp4 || v.url || ''),
+                };
+        return { video_id, title, status, bucket_path, urls };
       });
       res.status(200).json({
         ok: true,
