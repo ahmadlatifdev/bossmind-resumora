@@ -125,36 +125,19 @@ function buildRuleBasedSummary(context) {
 }
 
 async function generateAiSummary(context) {
-  const apiKey =
-    process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey) return buildRuleBasedSummary(context);
-
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-  const prompt = [
-    'You are a Site Reliability Engineer writing a concise BossMind operations summary.',
-    'Use only the JSON facts below. Never invent secrets, API keys, or price IDs.',
-    'Write 3-5 sentences: current status, recent incidents/remediations, publish pipeline, recommended admin actions.',
-    'JSON:',
-    JSON.stringify(context, null, 2),
-  ].join('\n');
-
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 512 },
-        }),
-      }
-    );
-    if (!res.ok) return buildRuleBasedSummary(context);
-    const json = await res.json();
-    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const { callGeminiChat, geminiApiKeyConfigured } = require('./lib/geminiChat');
+    if (!geminiApiKeyConfigured()) return buildRuleBasedSummary(context);
+    const prompt = [
+      'You are a Site Reliability Engineer writing a concise BossMind operations summary.',
+      'Use only the JSON facts below. Never invent secrets, API keys, or price IDs.',
+      'Write 3-5 sentences: current status, recent incidents/remediations, publish pipeline, recommended admin actions.',
+      'JSON:',
+      JSON.stringify(context, null, 2),
+    ].join('\n');
+    const { text } = await callGeminiChat({ prompt, lang: 'en', timeoutMs: 25000 });
     if (!text) return buildRuleBasedSummary(context);
-    return redactText(text.trim());
+    return redactText(String(text).trim());
   } catch {
     return buildRuleBasedSummary(context);
   }
@@ -261,7 +244,13 @@ async function updateSystemManual(db, options = {}) {
   const context = await gatherContext(db);
   const aiSummary = await generateAiSummary(context);
   const aiProvider =
-    process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY ? 'google-ai' : 'rules';
+    process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_API_KEY
+      ? process.env.VERTEX_AI === 'true' || process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true'
+        ? 'vertex-ai'
+        : 'google-ai'
+      : process.env.VERTEX_AI === 'true' || process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true'
+        ? 'vertex-ai'
+        : 'rules';
 
   const markdown = buildMarkdown({
     context,
