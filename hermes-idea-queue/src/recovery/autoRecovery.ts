@@ -38,11 +38,18 @@ async function probeLocalQueue(): Promise<{ ok: boolean; hitl: boolean; mcp: boo
 }
 
 async function pushProjectStatus(status: RecoveryStatus, attempt: number): Promise<boolean> {
+  if (!allowProdStatusSync()) {
+    console.log(
+      '[auto-recovery] status:active sync SKIPPED (local/dev or missing admin passwords; set NODE_ENV=production or ALLOW_PROD_STATUS_SYNC=1)'
+    );
+    return false;
+  }
+
   const cfg = loadConfig();
   const password = cfg.ADMIN_REFUND_PASSWORD || cfg.VITE_ADMIN_PASSWORD;
   if (!password) {
-    console.error(
-      '[auto-recovery] ADMIN_REFUND_PASSWORD (or VITE_ADMIN_PASSWORD) missing — cannot sync status'
+    console.log(
+      '[auto-recovery] ADMIN_REFUND_PASSWORD (or VITE_ADMIN_PASSWORD) missing — status sync skipped'
     );
     return false;
   }
@@ -81,6 +88,16 @@ async function pushProjectStatus(status: RecoveryStatus, attempt: number): Promi
   }
 }
 
+/** Mirror functions/selfHeal.js allowProductionStatusSync — no cross-package import. */
+function allowProdStatusSync(): boolean {
+  if (String(process.env.SKIP_PROD_STATUS_SYNC || '').trim() === '1') return false;
+  const admin = Boolean(String(process.env.ADMIN_REFUND_PASSWORD || '').trim());
+  const vite = Boolean(String(process.env.VITE_ADMIN_PASSWORD || '').trim());
+  if (!admin && !vite) return false;
+  if (String(process.env.NODE_ENV || '').toLowerCase() === 'production') return true;
+  return String(process.env.ALLOW_PROD_STATUS_SYNC || '').trim() === '1';
+}
+
 async function pushWithRetries(status: RecoveryStatus): Promise<boolean> {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     const ok = await pushProjectStatus(status, attempt);
@@ -107,6 +124,18 @@ export async function runRecoveryTick(): Promise<void> {
   try {
     const probe = await probeLocalQueue();
     const next: RecoveryStatus = probe.ok ? 'active' : 'offline';
+    if (!allowProdStatusSync()) {
+      // Still probe locally; never PATCH production from local/dev.
+      if (next !== lastApplied) {
+        console.log(
+          `[auto-recovery] local state ${lastApplied ?? 'unknown'} → ${next} (prod status sync disabled)`
+        );
+        lastApplied = next;
+      } else {
+        console.log(`[auto-recovery] no change (still ${next}, prod sync off)`);
+      }
+      return;
+    }
     if (next === lastApplied) {
       console.log(`[auto-recovery] no change (still ${next})`);
       return;
