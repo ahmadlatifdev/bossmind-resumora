@@ -1,150 +1,138 @@
 /**
- * Videos Library — 4 professional training videos × ~5:00, EN/FR/ES voice.
- * Sources prefer Firebase Storage / Bilibili masters when catalog API is live.
- * Voiceover scripts drive SpeechSynthesis narration (EN/FR/ES) until production MP4s land.
+ * Videos Library — Premium Interview Series v1 (4 × ≤8:00, EN/FR/ES).
+ * Playable MDN/W3Schools placeholders until 1080p masters upload.
+ * Full scripts: content/interview-series/
  */
 
 export const MAX_VIDEO_DOWNLOADS = 5;
-export const VIDEO_DURATION_SEC = 300;
+export const VIDEO_DURATION_SEC = 480;
+export const SERIES_ID = 'premium-interview-series-v1';
 
-/** Public sample MP4s that include an audio track (not silent). */
-const AUDIO_MP4_A = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
-const AUDIO_MP4_B = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
-const AUDIO_MP4_C = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-const AUDIO_MP4_D =
-  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4';
+/** Public sample MP4s (gtv-videos-bucket returns 403). */
+const AUDIO_MP4_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+const AUDIO_MP4_B = 'https://www.w3schools.com/html/mov_bbb.mp4';
+const AUDIO_MP4_C = 'https://www.w3schools.com/html/movie.mp4';
+const AUDIO_MP4_D = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
 
 export const VIDEO_LIBRARY = Object.freeze([
   {
-    id: 'vid-resume-writing',
+    id: 'vid-resume-to-interview',
     order: 1,
-    topic: 'resume',
+    topic: 'resume-ats',
+    seriesId: SERIES_ID,
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: 'Resume writing that gets interviews',
-      fr: 'Rédiger un CV qui obtient des entretiens',
-      es: 'Redacción de CV que consigue entrevistas',
+      en: 'Resume-to-Interview Mastery (ATS Optimization)',
+      fr: 'Du CV à l’entretien (optimisation ATS)',
+      es: 'Del CV a la entrevista (optimización ATS)',
     },
     description: {
-      en: 'Structure, impact bullets, and role targeting in 5 minutes.',
-      fr: 'Structure, puces d’impact et ciblage du poste en 5 minutes.',
-      es: 'Estructura, logros medibles y enfoque al puesto en 5 minutos.',
+      en: 'Align keywords with the JD, turn ATS gains into talking points, project-first formats.',
+      fr: 'Alignez les mots-clés, transformez le score ATS en arguments, format projet-d’abord.',
+      es: 'Alinee palabras clave, convierta mejoras ATS en argumentos, formato proyecto-primero.',
     },
     voiceover: {
-      en: 'Welcome to Resumora. In this lesson, structure your resume for impact: lead with a clear headline, write achievement bullets with metrics, and target every line to the role you want. Strong resumes get interviews.',
-      fr: 'Bienvenue sur Resumora. Dans cette leçon, structurez votre CV pour l’impact: un titre clair, des puces de réalisations avec des chiffres, et chaque ligne alignée sur le poste visé. Un CV fort obtient des entretiens.',
-      es: 'Bienvenido a Resumora. En esta lección, estructure su CV con impacto: un titular claro, logros medibles y cada línea alineada al puesto deseado. Un CV sólido consigue entrevistas.',
+      en: 'Resume and interview are one system. Use Resumora’s AI Keyword Tool to mirror the job description honestly, convert ATS score lifts into STAR talking points, and open with a project-first story for fresher or senior profiles. Claim, proof, relevance, ask.',
+      fr: 'CV et entretien forment un seul système. Utilisez l’outil AI Keyword de Resumora, convertissez le score ATS en arguments STAR, et ouvrez par un récit projet-d’abord. Affirmation, preuve, pertinence, invitation.',
+      es: 'CV y entrevista son un solo sistema. Use la herramienta AI Keyword de Resumora, convierta el score ATS en argumentos STAR y abra con una historia proyecto-primero. Afirmación, prueba, relevancia, invitación.',
     },
     thumbnail: AUDIO_MP4_A,
-    sources: {
-      en: AUDIO_MP4_A,
-      fr: AUDIO_MP4_A,
-      es: AUDIO_MP4_A,
-    },
+    sources: { en: AUDIO_MP4_A, fr: AUDIO_MP4_A, es: AUDIO_MP4_A },
     downloadName: {
-      en: 'resumora-resume-writing-en.mp4',
-      fr: 'resumora-redaction-cv-fr.mp4',
-      es: 'resumora-redaccion-cv-es.mp4',
+      en: 'resumora-vid-resume-to-interview-en.mp4',
+      fr: 'resumora-vid-resume-to-interview-fr.mp4',
+      es: 'resumora-vid-resume-to-interview-es.mp4',
     },
   },
   {
-    id: 'vid-ats-optimization',
+    id: 'vid-star-behavioral',
     order: 2,
-    topic: 'ats',
+    topic: 'star-behavioral',
+    seriesId: SERIES_ID,
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: 'ATS optimization essentials',
-      fr: 'Essentiels de l’optimisation ATS',
-      es: 'Fundamentos de optimización ATS',
+      en: 'Behavioral & STAR Method Excellence',
+      fr: 'Excellence comportementale et méthode STAR',
+      es: 'Excelencia conductual y método STAR',
     },
     description: {
-      en: 'Keywords, formatting, and parser-safe layouts recruiters rely on.',
-      fr: 'Mots-clés, mise en forme et structures compatibles parseurs.',
-      es: 'Palabras clave, formato y diseños seguros para parsers.',
+      en: 'Deep STAR, 4–5 versatile story blocks, transparent greatest-weakness answers.',
+      fr: 'STAR en profondeur, 4–5 blocs d’histoires, faiblesse traitée avec transparence.',
+      es: 'STAR a fondo, 4–5 bloques de historias, debilidad con transparencia.',
     },
     voiceover: {
-      en: 'Applicant tracking systems scan for keywords and clean structure. Mirror the job description language, avoid text boxes that break parsers, and keep headings standard so recruiters see you first.',
-      fr: 'Les ATS analysent les mots-clés et une structure propre. Reprenez le langage de l’offre, évitez les zones de texte fragiles, et utilisez des titres standards pour être visible.',
-      es: 'Los ATS buscan palabras clave y una estructura limpia. Refleje el lenguaje de la oferta, evite cajas de texto frágiles y use títulos estándar para que lo vean primero.',
+      en: 'Prepare four to five STAR story blocks: conflict, ambiguity, failure recovery, leadership without authority, and a quality save. Keep Action longest and Result crisp. For greatest weakness, name a real gap, show your detection system, and your improvement status.',
+      fr: 'Préparez quatre à cinq blocs STAR : conflit, ambiguïté, reprise après échec, leadership sans titre, sauvetage qualité. Action détaillée, résultat net. Pour la faiblesse : écart réel, système de détection, progrès actuel.',
+      es: 'Prepare cuatro o cinco bloques STAR: conflicto, ambigüedad, recuperación, liderazgo sin título y rescate de calidad. Acción detallada, resultado claro. Para la debilidad: brecha real, sistema de detección y progreso.',
     },
     thumbnail: AUDIO_MP4_B,
-    sources: {
-      en: AUDIO_MP4_B,
-      fr: AUDIO_MP4_B,
-      es: AUDIO_MP4_B,
-    },
+    sources: { en: AUDIO_MP4_B, fr: AUDIO_MP4_B, es: AUDIO_MP4_B },
     downloadName: {
-      en: 'resumora-ats-optimization-en.mp4',
-      fr: 'resumora-optimisation-ats-fr.mp4',
-      es: 'resumora-optimizacion-ats-es.mp4',
+      en: 'resumora-vid-star-behavioral-en.mp4',
+      fr: 'resumora-vid-star-behavioral-fr.mp4',
+      es: 'resumora-vid-star-behavioral-es.mp4',
     },
   },
   {
-    id: 'vid-linkedin-tips',
+    id: 'vid-situational-async',
     order: 3,
-    topic: 'linkedin',
+    topic: 'situational-async',
+    seriesId: SERIES_ID,
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: 'LinkedIn tips that sync with your resume',
-      fr: 'Astuces LinkedIn alignées sur votre CV',
-      es: 'Consejos LinkedIn alineados con su CV',
+      en: 'Situational & Asynchronous Interview Strategy',
+      fr: 'Stratégie d’entretiens situationnels et asynchrones',
+      es: 'Estrategia de entrevistas situacionales y asíncronas',
     },
     description: {
-      en: 'Headline, About, and experience alignment for recruiter search.',
-      fr: 'Titre, À propos et expériences pour la recherche recruteurs.',
-      es: 'Titular, Acerca de y experiencia para búsquedas de reclutadores.',
+      en: 'Situational EQ prompts, 2+6 minute timing, brief commanding introductions.',
+      fr: 'Prompts situationnels, timing 2+6 minutes, intros brèves et impactantes.',
+      es: 'Prompts situacionales, timing 2+6 minutos, intros breves e impactantes.',
     },
     voiceover: {
-      en: 'Align LinkedIn with your resume. Craft a searchable headline, write an About section that proves value, and keep experience dates and titles consistent so recruiters trust your story.',
-      fr: 'Alignez LinkedIn sur votre CV. Créez un titre searchable, un À propos qui prouve votre valeur, et des expériences cohérentes pour gagner la confiance des recruteurs.',
-      es: 'Alinee LinkedIn con su CV. Cree un titular buscable, un Acerca de que demuestre valor, y mantenga títulos y fechas coherentes para generar confianza.',
+      en: 'For situational prompts, clarify goals and constraints, choose a principle, then walk Action to Result. In async rounds, use two minutes to read and outline, six minutes to speak. Open with a thirty-second intro: name, target role, one proof line, and agenda.',
+      fr: 'Pour les prompts situationnels, clarifiez but et contraintes, choisissez un principe, puis Action vers Résultat. En asynchrone : deux minutes pour lire et planifier, six pour parler. Intro de trente secondes : nom, cible, preuve, agenda.',
+      es: 'En prompts situacionales, aclare meta y restricciones, elija un principio y pase de Acción a Resultado. En asíncrono: dos minutos para leer y planear, seis para hablar. Intro de treinta segundos: nombre, objetivo, prueba y agenda.',
     },
     thumbnail: AUDIO_MP4_C,
-    sources: {
-      en: AUDIO_MP4_C,
-      fr: AUDIO_MP4_C,
-      es: AUDIO_MP4_C,
-    },
+    sources: { en: AUDIO_MP4_C, fr: AUDIO_MP4_C, es: AUDIO_MP4_C },
     downloadName: {
-      en: 'resumora-linkedin-tips-en.mp4',
-      fr: 'resumora-linkedin-conseils-fr.mp4',
-      es: 'resumora-linkedin-consejos-es.mp4',
+      en: 'resumora-vid-situational-async-en.mp4',
+      fr: 'resumora-vid-situational-async-fr.mp4',
+      es: 'resumora-vid-situational-async-es.mp4',
     },
   },
   {
-    id: 'vid-interview-prep',
+    id: 'vid-global-career',
     order: 4,
-    topic: 'interview',
+    topic: 'global-multilang',
+    seriesId: SERIES_ID,
     durationSec: VIDEO_DURATION_SEC,
     hasVoice: true,
     title: {
-      en: 'Interview preparation that closes offers',
-      fr: 'Préparation d’entretien qui conclut des offres',
-      es: 'Preparación de entrevistas que cierra ofertas',
+      en: 'Multi-Language & Global Career Positioning',
+      fr: 'Multilingue et positionnement de carrière mondiale',
+      es: 'Multilingüe y posicionamiento profesional global',
     },
     description: {
-      en: 'STAR answers, closing questions, and calm delivery under pressure.',
-      fr: 'Réponses STAR, questions de clôture et aisance sous pression.',
-      es: 'Respuestas STAR, cierre y dominio bajo presión.',
+      en: 'India/US/UK/Canada/Australia norms, global body language, geo-tuned AI job search.',
+      fr: 'Normes Inde/US/UK/Canada/Australie, présence globale, recherche IA par marché.',
+      es: 'Normas India/EE. UU./UK/Canadá/Australia, presencia global, búsqueda IA por mercado.',
     },
     voiceover: {
-      en: 'Prepare STAR stories, ask strong closing questions, and practice calm delivery under pressure. Clear answers and confident presence help you close the offer.',
-      fr: 'Préparez des récits STAR, posez de bonnes questions de clôture, et travaillez une aisance calme sous pression. Des réponses claires aident à conclure l’offre.',
-      es: 'Prepare historias STAR, haga buenas preguntas de cierre y practique una entrega calmada bajo presión. Respuestas claras ayudan a cerrar la oferta.',
+      en: 'Tune stories to market nuance: India ownership and learning path, US impact metrics, UK understated confidence, Canada collaboration, Australia practical outcomes. Record separate EN, FR, and ES masters. Point Resumora’s AI Job Search Assistant at the right geography and title synonyms.',
+      fr: 'Adaptez vos récits : Inde ownership et parcours, US métriques d’impact, UK confiance mesurée, Canada collaboration, Australie résultats concrets. Enregistrez des masters EN, FR et ES séparés. Réglez l’assistant IA de Resumora sur le bon marché.',
+      es: 'Adapte historias: India ownership y aprendizaje, EE. UU. métricas, UK confianza mesurada, Canadá colaboración, Australia resultados prácticos. Grabe masters EN, FR y ES por separado. Apunte el asistente IA de Resumora al mercado correcto.',
     },
     thumbnail: AUDIO_MP4_D,
-    sources: {
-      en: AUDIO_MP4_D,
-      fr: AUDIO_MP4_D,
-      es: AUDIO_MP4_D,
-    },
+    sources: { en: AUDIO_MP4_D, fr: AUDIO_MP4_D, es: AUDIO_MP4_D },
     downloadName: {
-      en: 'resumora-interview-prep-en.mp4',
-      fr: 'resumora-preparation-entretien-fr.mp4',
-      es: 'resumora-preparacion-entrevista-es.mp4',
+      en: 'resumora-vid-global-career-en.mp4',
+      fr: 'resumora-vid-global-career-fr.mp4',
+      es: 'resumora-vid-global-career-es.mp4',
     },
   },
 ]);

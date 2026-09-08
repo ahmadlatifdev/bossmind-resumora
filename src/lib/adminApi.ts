@@ -488,6 +488,9 @@ export type AdminVideoAsset = {
   status?: string;
   bucket_path?: string;
   urls?: { en?: string; fr?: string; es?: string };
+  duration_sec?: number;
+  series_id?: string;
+  script_path?: string;
 };
 
 export async function fetchAdminVideoAssets(password: string) {

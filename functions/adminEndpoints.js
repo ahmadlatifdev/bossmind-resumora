@@ -1087,7 +1087,11 @@ function registerAdminEndpoints(exportsObj) {
           v.status ||
             v.publish_status ||
             v.state ||
-            (v.source === 'fallback' || v.source === 'public-demo' ? 'public-demo' : 'available')
+            (v.source === 'interview-series' ||
+            v.source === 'fallback' ||
+            v.source === 'public-demo'
+              ? 'public-demo'
+              : 'available')
         );
         const bucket_path = String(
           v.bucket_path ||
@@ -1096,18 +1100,31 @@ function registerAdminEndpoints(exportsObj) {
             v.storagePath ||
             v.storage_path ||
             v.master_path ||
-            (video_id ? `gs://resumora-videos/masters/${video_id}` : '—')
+            (video_id ? `gs://resumora-videos/masters/interview-series-v1/${video_id}` : '—')
         );
-        // Hard-force public MDN/W3Schools MP4s (no query params) for admin player.
         const demo = String(demos[i % Math.max(demos.length, 1)] || demos[0] || '').trim();
         const forced =
           demo || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
-        const urls = { en: forced, fr: forced, es: forced };
-        return { video_id, title, status, bucket_path, urls };
+        const urls = {
+          en: String(v.url_mp4_en || v.urls?.en || forced),
+          fr: String(v.url_mp4_fr || v.urls?.fr || forced),
+          es: String(v.url_mp4_es || v.urls?.es || forced),
+        };
+        return {
+          video_id,
+          title,
+          status,
+          bucket_path,
+          urls,
+          duration_sec: Number(v.duration || 480),
+          series_id: String(v.series_id || catalog.series_id || 'premium-interview-series-v1'),
+          script_path: String(v.script_path || ''),
+        };
       });
       res.status(200).json({
         ok: true,
-        source: catalog.source || 'public-demo',
+        source: catalog.source || 'interview-series',
+        series_id: catalog.series_id || 'premium-interview-series-v1',
         count: rows.length,
         videos: rows,
         bilibiliConfigured: catalog.bilibiliConfigured === true,

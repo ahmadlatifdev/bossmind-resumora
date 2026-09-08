@@ -12,6 +12,9 @@ type AdminMultilingualVideoPlayerProps = {
   title: string;
   status?: string;
   urls: VideoUrls;
+  durationSec?: number;
+  seriesId?: string;
+  scriptPath?: string;
 };
 
 const LANGS: VideoLang[] = ['en', 'fr', 'es'];
@@ -21,7 +24,6 @@ function cleanPlayUrl(raw: string): string {
   const s = String(raw || '').trim();
   if (!s) return '';
   const noHash = s.split('#')[0];
-  // Public demos must not carry cache-busters or signed query junk.
   return noHash.split('?')[0];
 }
 
@@ -34,16 +36,28 @@ function resolveUrl(urls: VideoUrls, lang: VideoLang): string {
   return en;
 }
 
+function formatDuration(sec?: number): string {
+  const n = Number(sec);
+  if (!Number.isFinite(n) || n <= 0) return '';
+  const m = Math.floor(n / 60);
+  const s = Math.round(n % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 /** Admin Video Asset Manager player — gold EN / FR / ES source switch. */
 export default function AdminMultilingualVideoPlayer({
   title,
   status,
   urls,
+  durationSec,
+  seriesId,
+  scriptPath,
 }: AdminMultilingualVideoPlayerProps) {
   const [lang, setLang] = useState<VideoLang>('en');
   const [mediaError, setMediaError] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const src = resolveUrl(urls, lang);
+  const durationLabel = formatDuration(durationSec);
 
   useEffect(() => {
     setMediaError('');
@@ -58,7 +72,15 @@ export default function AdminMultilingualVideoPlayer({
     <article className="admin-video-player">
       <header className="admin-video-player__header">
         <h3 className="admin-video-player__title">{title || '—'}</h3>
-        {status ? <span className="admin-video-player__status">{status}</span> : null}
+        <div className="admin-video-player__meta">
+          {seriesId ? <span className="admin-video-player__status">{seriesId}</span> : null}
+          {status ? <span className="admin-video-player__status">{status}</span> : null}
+          {durationLabel ? (
+            <span className="admin-video-player__status" title="Target lesson length">
+              {durationLabel} max
+            </span>
+          ) : null}
+        </div>
       </header>
       <div className="admin-video-player__langs" role="group" aria-label="Video language">
         {LANGS.map((code) => (
@@ -99,6 +121,11 @@ export default function AdminMultilingualVideoPlayer({
           <p className="admin-video-player__src" title={src}>
             {src}
           </p>
+          {scriptPath ? (
+            <p className="admin-video-player__src" title={scriptPath}>
+              Script: {scriptPath}
+            </p>
+          ) : null}
         </>
       ) : (
         <p className="admin-master__lead">No playable URL for this asset.</p>

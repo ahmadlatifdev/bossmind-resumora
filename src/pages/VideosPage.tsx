@@ -13,7 +13,7 @@ function mapCatalogItem(item) {
   return {
     id,
     order: item.order || 0,
-    durationSec: item.duration || 300,
+    durationSec: item.duration || 480,
     title: {
       en: item.title_EN || item.title?.en || id,
       fr: item.title_FR || item.title?.fr || item.title_EN || id,
@@ -31,9 +31,9 @@ function mapCatalogItem(item) {
     },
     hasVoice: item.hasVoice !== false,
     sources: {
-      en: item.url_mp4_en || item.sources?.en || '',
-      fr: item.url_mp4_fr || item.sources?.fr || item.url_mp4_en || '',
-      es: item.url_mp4_es || item.sources?.es || item.url_mp4_en || '',
+      en: item.urls?.en || item.url_mp4_en || item.sources?.en || '',
+      fr: item.urls?.fr || item.url_mp4_fr || item.sources?.fr || item.url_mp4_en || '',
+      es: item.urls?.es || item.url_mp4_es || item.sources?.es || item.url_mp4_en || '',
     },
     downloadName: {
       en: `resumora-${id}-en.mp4`,

@@ -42,27 +42,27 @@ export function trackVideoDownload(payload) {
 
 export const CORE_VIDEO_PROMPTS = Object.freeze([
   {
-    id: 'vid-resume-writing',
-    title: 'Resume writing that gets interviews',
+    id: 'vid-resume-to-interview',
+    title: 'Resume-to-Interview Mastery (ATS Optimization)',
     prompt:
-      'Professional career coach avatar. Scene 1 talking-head intro. Scene 2 B-roll desk writing. Scene 3 bullet examples on screen. Scene 4 B-roll handshake. Scene 5 closing tip. Duration about 5 minutes. English.',
+      '8-minute Resumora lesson: AI Keyword Tool alignment, ATS score to STAR talking points, project-first formats for fresher and senior. EN/FR/ES masters. 1080p.',
   },
   {
-    id: 'vid-ats-optimization',
-    title: 'ATS optimization essentials',
+    id: 'vid-star-behavioral',
+    title: 'Behavioral & STAR Method Excellence',
     prompt:
-      'Career coach explains ATS keywords. Mix talking-head with B-roll of resume scanning UI. Include two pure B-roll scenes. About 5 minutes. English.',
+      '8-minute Resumora lesson: STAR deep-dive, 4-5 story blocks, greatest weakness with transparent growth. On-screen STAR diagram. EN/FR/ES. 1080p.',
   },
   {
-    id: 'vid-linkedin-tips',
-    title: 'LinkedIn tips that sync with your resume',
+    id: 'vid-situational-async',
+    title: 'Situational & Asynchronous Interview Strategy',
     prompt:
-      'Coach covers LinkedIn headline and About section. Talking-head + LinkedIn UI B-roll + office B-roll. About 5 minutes. English.',
+      '8-minute Resumora lesson: situational EQ prompts, 2+6 timing, 30-second commanding intro. EN/FR/ES. 1080p.',
   },
   {
-    id: 'vid-interview-prep',
-    title: 'Interview preparation that closes offers',
+    id: 'vid-global-career',
+    title: 'Multi-Language & Global Career Positioning',
     prompt:
-      'Coach teaches STAR answers and closing questions. Include two B-roll scenes (interview room, notes). About 5 minutes. English.',
+      '8-minute Resumora lesson: India/US/UK/Canada/Australia nuances, body language, geo-tuned AI Job Search Assistant. EN/FR/ES. 1080p.',
   },
 ]);

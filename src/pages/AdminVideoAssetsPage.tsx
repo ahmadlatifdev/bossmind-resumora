@@ -66,6 +66,9 @@ export default function AdminVideoAssetsPage() {
                 title={row.title || '—'}
                 status={row.status}
                 urls={row.urls || {}}
+                durationSec={row.duration_sec}
+                seriesId={row.series_id}
+                scriptPath={row.script_path}
               />
             ))}
           </div>
