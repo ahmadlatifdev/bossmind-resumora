@@ -493,7 +493,12 @@ export type AdminVideoAsset = {
 export async function fetchAdminVideoAssets(password: string) {
   // Always proxy through authenticated admin backend — never call public videocatalog Cloud Run.
   const res = await fetch('/api/admin/videos', {
-    headers: adminHeaders(password),
+    cache: 'no-store',
+    headers: {
+      ...adminHeaders(password),
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);

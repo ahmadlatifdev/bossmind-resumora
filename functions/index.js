@@ -287,6 +287,8 @@ exports.videoCatalog = onRequest(
     }
     try {
       const catalog = await videoCatalog.getCatalog();
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+      res.set('Pragma', 'no-cache');
       res.status(200).json(catalog);
     } catch (err) {
       res.status(500).json({ error: err.message || 'Catalog failed' });

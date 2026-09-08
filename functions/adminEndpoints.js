@@ -1064,6 +1064,8 @@ function registerAdminEndpoints(exportsObj) {
   /** Admin Video Asset Manager — authenticated proxy over videoCatalog (Firestore/Admin SDK). */
   async function handleAdminVideoAssets(req, res) {
     adminCors(res, req);
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.set('Pragma', 'no-cache');
     if (req.method === 'OPTIONS') {
       res.status(204).send('');
       return;
@@ -1077,14 +1079,15 @@ function registerAdminEndpoints(exportsObj) {
       const videoCatalog = require('./videoCatalog');
       const catalog = await videoCatalog.getCatalog();
       const videos = Array.isArray(catalog.videos) ? catalog.videos : [];
-      const rows = videos.map((v) => {
+      const demos = Array.isArray(videoCatalog.PLAYABLE_DEMOS) ? videoCatalog.PLAYABLE_DEMOS : [];
+      const rows = videos.map((v, i) => {
         const video_id = String(v.video_id || v.id || '');
         const title = String(v.title_EN || v.title || v.name || video_id || 'untitled');
         const status = String(
           v.status ||
             v.publish_status ||
             v.state ||
-            (v.source === 'fallback' ? 'fallback' : 'available')
+            (v.source === 'fallback' || v.source === 'public-demo' ? 'public-demo' : 'available')
         );
         const bucket_path = String(
           v.bucket_path ||
@@ -1093,34 +1096,22 @@ function registerAdminEndpoints(exportsObj) {
             v.storagePath ||
             v.storage_path ||
             v.master_path ||
-            v.url_mp4_en ||
-            v.url_mp4 ||
-            v.url ||
             (video_id ? `gs://resumora-videos/masters/${video_id}` : '—')
         );
-        const urlsRaw =
-          v.urls && typeof v.urls === 'object'
-            ? v.urls
-            : videoCatalog.multilingualUrls
-              ? videoCatalog.multilingualUrls(v)
-              : {
-                  en: String(v.url_mp4_en || v.url_mp4 || v.url || ''),
-                  fr: String(v.url_mp4_fr || v.url_mp4_en || v.url_mp4 || v.url || ''),
-                  es: String(v.url_mp4_es || v.url_mp4_en || v.url_mp4 || v.url || ''),
-                };
-        const urls = {
-          en: String(urlsRaw.en || '').trim(),
-          fr: String(urlsRaw.fr || urlsRaw.en || '').trim(),
-          es: String(urlsRaw.es || urlsRaw.en || '').trim(),
-        };
+        // Hard-force public MDN/W3Schools MP4s (no query params) for admin player.
+        const demo = String(demos[i % Math.max(demos.length, 1)] || demos[0] || '').trim();
+        const forced =
+          demo || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+        const urls = { en: forced, fr: forced, es: forced };
         return { video_id, title, status, bucket_path, urls };
       });
       res.status(200).json({
         ok: true,
-        source: catalog.source || null,
+        source: catalog.source || 'public-demo',
         count: rows.length,
         videos: rows,
         bilibiliConfigured: catalog.bilibiliConfigured === true,
+        cacheControl: 'no-store',
       });
     } catch (err) {
       const code = err.statusCode || 500;

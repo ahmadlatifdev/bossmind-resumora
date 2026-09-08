@@ -16,13 +16,22 @@ type AdminMultilingualVideoPlayerProps = {
 
 const LANGS: VideoLang[] = ['en', 'fr', 'es'];
 
+/** Strip query/hash so <video src> is exactly the public MP4 path. */
+function cleanPlayUrl(raw: string): string {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const noHash = s.split('#')[0];
+  // Public demos must not carry cache-busters or signed query junk.
+  return noHash.split('?')[0];
+}
+
 function resolveUrl(urls: VideoUrls, lang: VideoLang): string {
-  const en = String(urls?.en || '').trim();
-  const fr = String(urls?.fr || '').trim();
-  const es = String(urls?.es || '').trim();
+  const en = cleanPlayUrl(urls?.en || '');
+  const fr = cleanPlayUrl(urls?.fr || '');
+  const es = cleanPlayUrl(urls?.es || '');
   if (lang === 'fr') return fr || en;
   if (lang === 'es') return es || en;
-  return en || fr || es;
+  return en;
 }
 
 /** Admin Video Asset Manager player — gold EN / FR / ES source switch. */
@@ -40,6 +49,7 @@ export default function AdminMultilingualVideoPlayer({
     setMediaError('');
     const el = videoRef.current;
     if (!el || !src) return;
+    el.setAttribute('src', src);
     el.src = src;
     el.load();
   }, [src]);
@@ -87,7 +97,7 @@ export default function AdminMultilingualVideoPlayer({
             </p>
           ) : null}
           <p className="admin-video-player__src" title={src}>
-            {src.length > 96 ? `${src.slice(0, 96)}…` : src}
+            {src}
           </p>
         </>
       ) : (
