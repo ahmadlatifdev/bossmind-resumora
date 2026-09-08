@@ -4,7 +4,16 @@
  */
 
 const { getFirestore } = require('firebase-admin/firestore');
+const { getStorage } = require('firebase-admin/storage');
 const bilibiliPublish = require('./bilibiliPublish');
+
+/** Public, CORS-friendly demo MP4s (Google sample bucket now returns 403). */
+const PLAYABLE_DEMOS = [
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  'https://www.w3schools.com/html/mov_bbb.mp4',
+  'https://www.w3schools.com/html/movie.mp4',
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+];
 
 const FALLBACK_CATALOG = [
   {
@@ -17,9 +26,9 @@ const FALLBACK_CATALOG = [
     description_ES: 'Estructura, logros medibles y enfoque al puesto en 5 minutos.',
     duration: 300,
     order: 1,
-    url_mp4_en: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    url_mp4_fr: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    url_mp4_es: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+    url_mp4_en: PLAYABLE_DEMOS[0],
+    url_mp4_fr: PLAYABLE_DEMOS[0],
+    url_mp4_es: PLAYABLE_DEMOS[0],
     source: 'fallback',
   },
   {
@@ -32,9 +41,9 @@ const FALLBACK_CATALOG = [
     description_ES: 'Palabras clave, formato y diseños seguros para parsers.',
     duration: 300,
     order: 2,
-    url_mp4_en: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    url_mp4_fr: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    url_mp4_es: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    url_mp4_en: PLAYABLE_DEMOS[1],
+    url_mp4_fr: PLAYABLE_DEMOS[1],
+    url_mp4_es: PLAYABLE_DEMOS[1],
     source: 'fallback',
   },
   {
@@ -47,9 +56,9 @@ const FALLBACK_CATALOG = [
     description_ES: 'Titular, Acerca de y experiencia para búsquedas de reclutadores.',
     duration: 300,
     order: 3,
-    url_mp4_en: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    url_mp4_fr: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    url_mp4_es: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    url_mp4_en: PLAYABLE_DEMOS[3],
+    url_mp4_fr: PLAYABLE_DEMOS[3],
+    url_mp4_es: PLAYABLE_DEMOS[3],
     source: 'fallback',
   },
   {
@@ -62,9 +71,9 @@ const FALLBACK_CATALOG = [
     description_ES: 'Respuestas STAR, cierre y dominio bajo presión.',
     duration: 300,
     order: 4,
-    url_mp4_en: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
-    url_mp4_fr: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
-    url_mp4_es: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    url_mp4_en: PLAYABLE_DEMOS[0],
+    url_mp4_fr: PLAYABLE_DEMOS[1],
+    url_mp4_es: PLAYABLE_DEMOS[3],
     source: 'fallback',
   },
 ];
@@ -73,10 +82,28 @@ function bilibiliConfigured() {
   return bilibiliPublish.cookiesConfigured(bilibiliPublish.readCookieBundle());
 }
 
+/** Convert gs://bucket/path → https://storage.googleapis.com/bucket/path */
+function toHttpsUrl(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  const m = s.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  if (m) return `https://storage.googleapis.com/${m[1]}/${m[2]}`;
+  return s;
+}
+
+function isPlayableHttp(url) {
+  return /^https?:\/\//i.test(String(url || '').trim());
+}
+
+function demoForIndex(index) {
+  return PLAYABLE_DEMOS[Math.abs(Number(index) || 0) % PLAYABLE_DEMOS.length];
+}
+
 /** Build { en, fr, es } play URLs; missing FR/ES fall back to EN. */
-function multilingualUrls(video = {}) {
+function multilingualUrls(video = {}, index = 0) {
   const nested = video.urls && typeof video.urls === 'object' ? video.urls : null;
-  const en = String(
+  let en = toHttpsUrl(
     (nested && nested.en) ||
       video.url_mp4_en ||
       video.url_en ||
@@ -84,20 +111,82 @@ function multilingualUrls(video = {}) {
       video.url ||
       video.src ||
       ''
-  ).trim();
-  const fr = String((nested && nested.fr) || video.url_mp4_fr || video.url_fr || en).trim() || en;
-  const es = String((nested && nested.es) || video.url_mp4_es || video.url_es || en).trim() || en;
-  return { en, fr: fr || en, es: es || en };
+  );
+  let fr = toHttpsUrl((nested && nested.fr) || video.url_mp4_fr || video.url_fr || en) || en;
+  let es = toHttpsUrl((nested && nested.es) || video.url_mp4_es || video.url_es || en) || en;
+
+  // Dead Google sample hosts → replace with known-good demos
+  const deadHost = /gtv-videos-bucket|storage\.googleapis\.com\/gtv-videos-bucket/i;
+  if (!en || deadHost.test(en)) en = demoForIndex(index);
+  if (!fr || deadHost.test(fr)) fr = en;
+  if (!es || deadHost.test(es)) es = en;
+
+  if (!isPlayableHttp(en)) en = demoForIndex(index);
+  if (!isPlayableHttp(fr)) fr = en;
+  if (!isPlayableHttp(es)) es = en;
+
+  return { en, fr, es };
 }
 
-function normalizeVideo(video = {}) {
-  const urls = multilingualUrls(video);
+function normalizeVideo(video = {}, index = 0) {
+  const urls = multilingualUrls(video, index);
   return {
     ...video,
     urls,
     url_mp4_en: video.url_mp4_en || urls.en,
     url_mp4_fr: video.url_mp4_fr || urls.fr,
     url_mp4_es: video.url_mp4_es || urls.es,
+  };
+}
+
+/**
+ * Sign private GCS objects under resumora-videos so the browser can play them.
+ * Org policy blocks allUsers — signed URLs are required.
+ */
+async function signIfPrivateGcs(url) {
+  const href = String(url || '').trim();
+  if (!href) return href;
+  let bucket = '';
+  let filePath = '';
+  const gs = href.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  const https = href.match(/^https?:\/\/storage\.googleapis\.com\/([^/]+)\/(.+)$/i);
+  if (gs) {
+    bucket = gs[1];
+    filePath = gs[2];
+  } else if (https) {
+    bucket = https[1];
+    filePath = decodeURIComponent(https[2].split('?')[0]);
+  } else {
+    return href;
+  }
+  if (bucket !== 'resumora-videos') return href;
+  try {
+    const file = getStorage().bucket(bucket).file(filePath);
+    const [signed] = await file.getSignedUrl({
+      version: 'v4',
+      action: 'read',
+      expires: Date.now() + 60 * 60 * 1000,
+    });
+    return signed;
+  } catch (_) {
+    return href;
+  }
+}
+
+async function withSignedPlayUrls(video, index = 0) {
+  const normalized = normalizeVideo(video, index);
+  const urls = normalized.urls || {};
+  const [en, fr, es] = await Promise.all([
+    signIfPrivateGcs(urls.en),
+    signIfPrivateGcs(urls.fr),
+    signIfPrivateGcs(urls.es),
+  ]);
+  return {
+    ...normalized,
+    urls: { en, fr: fr || en, es: es || en },
+    url_mp4_en: en,
+    url_mp4_fr: fr || en,
+    url_mp4_es: es || en,
   };
 }
 
@@ -114,19 +203,24 @@ async function loadCatalogFromFirestore() {
 
 exports.multilingualUrls = multilingualUrls;
 exports.normalizeVideo = normalizeVideo;
+exports.toHttpsUrl = toHttpsUrl;
+exports.withSignedPlayUrls = withSignedPlayUrls;
+exports.PLAYABLE_DEMOS = PLAYABLE_DEMOS;
+exports.FALLBACK_CATALOG = FALLBACK_CATALOG;
 
 exports.getCatalog = async function getCatalog() {
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
   if (fromFs && fromFs.length) {
+    const videos = await Promise.all(fromFs.map((v, i) => withSignedPlayUrls(v, i)));
     return {
-      videos: fromFs.map(normalizeVideo),
+      videos,
       source: 'firestore',
       bilibiliConfigured: configured,
     };
   }
   return {
-    videos: FALLBACK_CATALOG.map(normalizeVideo),
+    videos: FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i)),
     source: 'fallback',
     bilibiliConfigured: configured,
     note: 'Upload masters to gs://resumora-videos/masters/; auto-publish via bilibili-outbox/ when cookies are set.',

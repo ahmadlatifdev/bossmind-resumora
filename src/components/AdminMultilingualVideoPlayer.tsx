@@ -18,8 +18,11 @@ const LANGS: VideoLang[] = ['en', 'fr', 'es'];
 
 function resolveUrl(urls: VideoUrls, lang: VideoLang): string {
   const en = String(urls?.en || '').trim();
-  const picked = String(urls?.[lang] || '').trim();
-  return picked || en;
+  const fr = String(urls?.fr || '').trim();
+  const es = String(urls?.es || '').trim();
+  if (lang === 'fr') return fr || en;
+  if (lang === 'es') return es || en;
+  return en || fr || es;
 }
 
 /** Admin Video Asset Manager player — gold EN / FR / ES source switch. */
@@ -29,12 +32,15 @@ export default function AdminMultilingualVideoPlayer({
   urls,
 }: AdminMultilingualVideoPlayerProps) {
   const [lang, setLang] = useState<VideoLang>('en');
+  const [mediaError, setMediaError] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const src = resolveUrl(urls, lang);
 
   useEffect(() => {
+    setMediaError('');
     const el = videoRef.current;
-    if (!el) return;
+    if (!el || !src) return;
+    el.src = src;
     el.load();
   }, [src]);
 
@@ -62,16 +68,28 @@ export default function AdminMultilingualVideoPlayer({
         ))}
       </div>
       {src ? (
-        <video
-          ref={videoRef}
-          className="admin-video-player__video"
-          controls
-          playsInline
-          preload="metadata"
-          key={src}
-        >
-          <source src={src} type="video/mp4" />
-        </video>
+        <>
+          <video
+            ref={videoRef}
+            className="admin-video-player__video"
+            controls
+            playsInline
+            preload="metadata"
+            src={src}
+            onError={() =>
+              setMediaError('Playback failed — URL blocked or unreachable for this language.')
+            }
+            onLoadedMetadata={() => setMediaError('')}
+          />
+          {mediaError ? (
+            <p className="admin-master__alert" role="alert">
+              {mediaError}
+            </p>
+          ) : null}
+          <p className="admin-video-player__src" title={src}>
+            {src.length > 96 ? `${src.slice(0, 96)}…` : src}
+          </p>
+        </>
       ) : (
         <p className="admin-master__lead">No playable URL for this asset.</p>
       )}
