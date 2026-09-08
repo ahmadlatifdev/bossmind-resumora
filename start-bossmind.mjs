@@ -20,6 +20,27 @@ const ROOT = __dirname;
 const QUEUE_DIR = path.join(ROOT, 'hermes-idea-queue');
 const HEALTH_TIMEOUT_MS = 10_000;
 const HEALTH_POLL_MS = 400;
+const MIN_NODE = [22, 22, 0];
+
+function assertNodeVersion() {
+  const parts = String(process.versions.node || '0')
+    .split('.')
+    .map((n) => Number(n) || 0);
+  const ok =
+    parts[0] > MIN_NODE[0] ||
+    (parts[0] === MIN_NODE[0] && parts[1] > MIN_NODE[1]) ||
+    (parts[0] === MIN_NODE[0] && parts[1] === MIN_NODE[1] && parts[2] >= MIN_NODE[2]);
+  if (!ok) {
+    console.error(
+      `[bossmind] Node ${process.versions.node} is too old. Require >=22.22.0. ` +
+        'Run: winget install OpenJS.NodeJS.22 --version 22.23.2 --scope user ' +
+        'or .\\scripts\\use-node-22.ps1 then open a new PowerShell. ' +
+        'Manual MSI: https://nodejs.org/en/download'
+    );
+    process.exit(1);
+  }
+  console.log(`[bossmind] node ${process.versions.node} OK (>=22.22.0)`);
+}
 
 function readEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {};
@@ -164,6 +185,7 @@ function ensureHermesApiUrlInEnv() {
 }
 
 async function main() {
+  assertNodeVersion();
   loadRootEnvIntoProcess();
 
   const hitlPort = detectHitlPort();
