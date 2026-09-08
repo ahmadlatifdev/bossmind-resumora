@@ -8,11 +8,10 @@ export const MAX_VIDEO_DOWNLOADS = 5;
 export const VIDEO_DURATION_SEC = 300;
 
 /** Public sample MP4s that include an audio track (not silent). */
-const AUDIO_MP4_A = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
-const AUDIO_MP4_B = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
-const AUDIO_MP4_C = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-const AUDIO_MP4_D =
-  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4';
+const AUDIO_MP4_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+const AUDIO_MP4_B = 'https://www.w3schools.com/html/mov_bbb.mp4';
+const AUDIO_MP4_C = 'https://www.w3schools.com/html/movie.mp4';
+const AUDIO_MP4_D = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
 
 export const VIDEO_LIBRARY = Object.freeze([
   {
