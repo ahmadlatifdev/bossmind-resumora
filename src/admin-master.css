@@ -1856,3 +1856,10 @@
   background: #000;
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
+.admin-video-player__src {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #a89860;
+  word-break: break-all;
+  opacity: 0.85;
+}

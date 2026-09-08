@@ -1098,7 +1098,7 @@ function registerAdminEndpoints(exportsObj) {
             v.url ||
             (video_id ? `gs://resumora-videos/masters/${video_id}` : '—')
         );
-        const urls =
+        const urlsRaw =
           v.urls && typeof v.urls === 'object'
             ? v.urls
             : videoCatalog.multilingualUrls
@@ -1108,6 +1108,11 @@ function registerAdminEndpoints(exportsObj) {
                   fr: String(v.url_mp4_fr || v.url_mp4_en || v.url_mp4 || v.url || ''),
                   es: String(v.url_mp4_es || v.url_mp4_en || v.url_mp4 || v.url || ''),
                 };
+        const urls = {
+          en: String(urlsRaw.en || '').trim(),
+          fr: String(urlsRaw.fr || urlsRaw.en || '').trim(),
+          es: String(urlsRaw.es || urlsRaw.en || '').trim(),
+        };
         return { video_id, title, status, bucket_path, urls };
       });
       res.status(200).json({
