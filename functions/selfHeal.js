@@ -54,6 +54,77 @@ const HEALTH_ALERT_COOLDOWN_MS = Number(
   process.env.SELF_HEAL_ALERT_COOLDOWN_MS || 6 * 60 * 60 * 1000
 );
 
+/**
+ * Gate for production project status:active sync (resumora.net catalog).
+ * Skip when local env lacks admin passwords.
+ * Allow only when NODE_ENV=production, or passwords are set AND explicitly opted in
+ * (ALLOW_PROD_STATUS_SYNC=1). Local `npm run dev:all` must never PATCH production.
+ */
+function allowProductionStatusSync() {
+  if (String(process.env.SKIP_PROD_STATUS_SYNC || '').trim() === '1') {
+    return false;
+  }
+  const admin = Boolean(String(process.env.ADMIN_REFUND_PASSWORD || '').trim());
+  const viteAdmin = Boolean(String(process.env.VITE_ADMIN_PASSWORD || '').trim());
+  if (!admin && !viteAdmin) {
+    return false;
+  }
+  const nodeEnv = String(process.env.NODE_ENV || '').toLowerCase();
+  if (nodeEnv === 'production') {
+    return true;
+  }
+  // Non-production: passwords alone are not enough (local .env often has them).
+  return String(process.env.ALLOW_PROD_STATUS_SYNC || '').trim() === '1';
+}
+
+/**
+ * Best-effort PATCH of production project status. No-op when gate fails.
+ * Used by Cloud self-heal / ops only — never from local dev:all.
+ */
+async function syncProductionProjectStatus(status = 'active', { projectId = 'resumora' } = {}) {
+  if (!allowProductionStatusSync()) {
+    structuredLog('info', 'status_sync.skipped', {
+      reason: 'local_or_missing_password_or_skip_flag',
+      nodeEnv: process.env.NODE_ENV || null,
+      hasAdminPassword: Boolean(String(process.env.ADMIN_REFUND_PASSWORD || '').trim()),
+      hasViteAdminPassword: Boolean(String(process.env.VITE_ADMIN_PASSWORD || '').trim()),
+    });
+    return { ok: false, skipped: true, reason: 'status_sync_gated' };
+  }
+  const password = String(
+    process.env.ADMIN_REFUND_PASSWORD || process.env.VITE_ADMIN_PASSWORD || ''
+  ).trim();
+  const base = String(process.env.RESUMORA_API_BASE || SITE_ORIGIN).replace(/\/$/, '');
+  const url = `${base}/api/projects/${encodeURIComponent(projectId)}/status`;
+  try {
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-password': password,
+        Authorization: `Bearer ${password}`,
+      },
+      body: JSON.stringify({
+        projectId,
+        status,
+        source: 'self-heal',
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false, skipped: false, status: res.status, error: body.error || res.statusText };
+    }
+    return { ok: true, skipped: false, status: body.status || status };
+  } catch (err) {
+    return {
+      ok: false,
+      skipped: false,
+      error: String(err && err.message ? err.message : err).slice(0, 160),
+    };
+  }
+}
+
 const RISK = Object.freeze({
   SAFE: 'safe',
   CRITICAL: 'critical',
@@ -2166,6 +2237,8 @@ module.exports = {
   envDriftFingerprint,
   resolveCheckoutSessionPrefix,
   maybeRestartLocalQueue,
+  allowProductionStatusSync,
+  syncProductionProjectStatus,
   buildNextChecklist,
   advanceHealStateMachine: advanceHealStateMachine,
   runSelfHealCycle,

@@ -211,6 +211,19 @@ async function main() {
 
   await ensureQueueBuilt();
 
+  // Local launcher: never PATCH production project status (even if .env has admin passwords).
+  const skipProdStatusSync = '1';
+  const nodeEnv = String(process.env.NODE_ENV || 'development');
+  const hasAdminPw = Boolean(adminPw || viteAdminPw);
+  if (!hasAdminPw) {
+    console.log(
+      '[bossmind] ADMIN_REFUND_PASSWORD / VITE_ADMIN_PASSWORD missing — status:active sync disabled'
+    );
+  }
+  console.log(
+    `[bossmind] production status sync SKIPPED for local stack (NODE_ENV=${nodeEnv}, SKIP_PROD_STATUS_SYNC=1)`
+  );
+
   console.log(`[bossmind] starting hermes-idea-queue (HITL :${hitlPort}, MCP :${mcpPort})…`);
   const queue = spawnLogged(
     'hermes',
@@ -218,6 +231,8 @@ async function main() {
     ['dist/index.js', 'auto-recovery'],
     QUEUE_DIR,
     {
+      NODE_ENV: nodeEnv === 'production' ? 'production' : 'development',
+      SKIP_PROD_STATUS_SYNC: skipProdStatusSync,
       HITL_PORT: String(hitlPort),
       MCP_PORT: String(mcpPort),
       HERMES_API_URL: hermesHitlUrl,
