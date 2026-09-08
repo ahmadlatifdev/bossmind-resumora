@@ -211,18 +211,46 @@ exports.FALLBACK_CATALOG = FALLBACK_CATALOG;
 exports.getCatalog = async function getCatalog() {
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
+  // Always hardcode public MDN/W3Schools MP4s for playback.
+  // gtv-videos-bucket returns 403; gs://resumora-videos is not publicly readable (org policy).
+  const demos = FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i));
   if (fromFs && fromFs.length) {
-    const videos = await Promise.all(fromFs.map((v, i) => withSignedPlayUrls(v, i)));
+    const videos = fromFs.map((doc, i) => {
+      const demo = demos[i % demos.length];
+      const titleKeep = {
+        title_EN: doc.title_EN || doc.title || demo.title_EN,
+        title_FR: doc.title_FR || demo.title_FR,
+        title_ES: doc.title_ES || demo.title_ES,
+        title: doc.title || doc.title_EN || demo.title_EN,
+      };
+      return {
+        ...demo,
+        ...titleKeep,
+        video_id: String(doc.video_id || doc.id || demo.video_id),
+        id: doc.id || demo.video_id,
+        order: doc.order != null ? doc.order : demo.order,
+        // Force playable public URLs — ignore Firestore gtv / private GCS paths
+        urls: { ...demo.urls },
+        url_mp4_en: demo.urls.en,
+        url_mp4_fr: demo.urls.fr,
+        url_mp4_es: demo.urls.es,
+        source: 'public-demo',
+        status: 'public-demo',
+      };
+    });
     return {
       videos,
-      source: 'firestore',
+      source: 'public-demo',
       bilibiliConfigured: configured,
+      cacheControl: 'no-store',
+      note: 'Playback forced to public MDN/W3Schools MP4s (gtv-videos-bucket 403; resumora-videos private).',
     };
   }
   return {
-    videos: FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i)),
+    videos: demos,
     source: 'fallback',
     bilibiliConfigured: configured,
+    cacheControl: 'no-store',
     note: 'Upload masters to gs://resumora-videos/masters/; auto-publish via bilibili-outbox/ when cookies are set.',
   };
 };
