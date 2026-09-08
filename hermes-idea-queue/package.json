@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Autonomous Idea Request Queue — Hermes triage, RAG context, Cursor orchestration, HITL, nightly sweeper",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/copy-hitl-public.mjs",
