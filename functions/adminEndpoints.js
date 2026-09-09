@@ -1193,6 +1193,39 @@ function registerAdminEndpoints(exportsObj) {
     }
   );
 
+  /** Phase 5 — admin analytics snapshots (pre-computed + on-demand refresh). */
+  exportsObj.getAdminAnalytics = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const analytics = require('./lib/adminVideoAnalytics');
+      const refresh = String(req.query.refresh || '') === '1';
+      if (refresh) {
+        await analytics.computeAndStoreAnalytics(db);
+      }
+      const limit = parseInt(String(req.query.limit || '30'), 10);
+      const snapshots = await analytics.listAnalyticsSnapshots(db, { limit });
+      res.status(200).json({
+        ok: true,
+        count: snapshots.length,
+        latest: snapshots[0] || null,
+        snapshots,
+      });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Analytics load failed' });
+    }
+  });
+
   exportsObj.createHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
     if (req.method === 'OPTIONS') {

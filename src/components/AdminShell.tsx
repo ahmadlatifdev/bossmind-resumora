@@ -15,6 +15,7 @@ const LINKS = [
   { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
   { to: '/admin/master#agents', key: 'master.nav.agents' },
   { to: '/admin/videos', key: 'master.nav.videos' },
+  { to: '/admin/analytics', key: 'master.nav.analytics' },
   { to: '/admin/master#hermes-chat', key: 'master.nav.hermesChat' },
   { to: '/admin/master#tasks', key: 'master.nav.tasks' },
   { to: '/admin/financials', key: 'master.nav.financials' },
@@ -81,7 +82,11 @@ export default function AdminShell() {
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === '/admin/videos' || link.to === '/admin/chat-history'}
+              end={
+                link.to === '/admin/videos' ||
+                link.to === '/admin/chat-history' ||
+                link.to === '/admin/analytics'
+              }
               className={({ isActive }) =>
                 [
                   'admin-master__nav-link',
