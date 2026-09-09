@@ -65,7 +65,7 @@ function mapHit(result) {
     tags = tagsRaw.values.map((v) => String(v.stringValue || v || '')).filter(Boolean);
   }
   return {
-    id: String(doc.id || data.video_id || ''),
+    id: String(data.video_id || doc.id || ''),
     title: String(data.title || data.title_EN || ''),
     summary: String(data.summary || data.enrichment_summary || data.description || ''),
     tags,
