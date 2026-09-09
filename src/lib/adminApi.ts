@@ -493,6 +493,19 @@ export type AdminVideoAsset = {
   script_path?: string;
 };
 
+export type AdminRegistryVideo = {
+  id?: string;
+  doc_id?: string;
+  video_id?: string;
+  title?: string;
+  status?: string;
+  active_url?: string;
+  archive_url?: string;
+  archive_quarter?: string;
+  archived_at?: unknown;
+  restored_at?: unknown;
+};
+
 export async function fetchAdminVideoAssets(password: string) {
   // Always proxy through authenticated admin backend — never call public videocatalog Cloud Run.
   const res = await fetch('/api/admin/videos', {
@@ -511,6 +524,43 @@ export async function fetchAdminVideoAssets(password: string) {
     count?: number;
     videos?: AdminVideoAsset[];
   };
+}
+
+export async function fetchAdminVideoRegistry(
+  password: string,
+  status: 'Current' | 'Archived' = 'Current'
+) {
+  const q = encodeURIComponent(status);
+  const res = await fetch(`/api/admin/video-registry?status=${q}`, {
+    cache: 'no-store',
+    headers: {
+      ...adminHeaders(password),
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    status?: string;
+    count?: number;
+    videos?: AdminRegistryVideo[];
+  };
+}
+
+export async function restoreAdminVideo(password: string, docId: string) {
+  const res = await fetch('/api/admin/videos/restore', {
+    method: 'POST',
+    headers: {
+      ...adminHeaders(password),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ docId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; message?: string; newUrl?: string; docId?: string };
 }
 
 export type AdminGlobalChatMessage = {

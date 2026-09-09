@@ -76,6 +76,7 @@ async function restoreVideo(req, res) {
         restored_at: FieldValue.serverTimestamp(),
         archive_url: FieldValue.delete(),
         archived_at: FieldValue.delete(),
+        archive_quarter: FieldValue.delete(),
       });
     });
 

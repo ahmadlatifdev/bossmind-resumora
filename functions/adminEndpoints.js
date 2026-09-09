@@ -1140,6 +1140,59 @@ function registerAdminEndpoints(exportsObj) {
   /** Canonical path alias used by the Videos sidebar page. */
   exportsObj.getAdminVideos = onRequest(adminHttpOpts, handleAdminVideoAssets);
 
+  /** video_registry Current/Archived list for archival UI. */
+  exportsObj.getAdminVideoRegistry = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const videoRegistry = require('./lib/videoRegistry');
+      const status = String(req.query.status || 'Current').trim();
+      const out = await videoRegistry.listVideoRegistry(db, { status });
+      res.status(200).json({ ok: true, ...out });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Video registry load failed' });
+    }
+  });
+
+  /** Admin-authenticated restore (proxy — no public unauthenticated restore). */
+  exportsObj.postAdminRestoreVideo = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 120, memory: '512MiB' },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        await assertAdminAccess(req, db, readAdminPassword());
+        const body = parseBody(req);
+        const videoRegistry = require('./lib/videoRegistry');
+        const out = await videoRegistry.restoreRegistryVideo(
+          db,
+          body.docId || body.doc_id || body.id
+        );
+        res.status(200).json(out);
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Restore failed' });
+      }
+    }
+  );
+
   exportsObj.createHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
     if (req.method === 'OPTIONS') {
