@@ -6,7 +6,9 @@ import { useLangOptional } from '../i18n/LangContext';
 import { VIDEO_LIBRARY, MAX_VIDEO_DOWNLOADS } from '../lib/videoLibrary.js';
 import { remainingVideoDownloads, recordVideoDownload, downloadMp4 } from '../lib/userAccess.js';
 import { localize } from '../lib/plans.js';
-import { fetchVideoCatalog } from '../lib/videoApi.js';
+import { fetchVideoCatalog, recordVideoWatch } from '../lib/videoApi.js';
+import Recommendations from '../components/Recommendations';
+import { useAuth } from '../auth/AuthContext';
 
 function mapCatalogItem(item) {
   const id = item.video_id || item.id;
@@ -46,6 +48,7 @@ function mapCatalogItem(item) {
 
 export default function VideosPage() {
   const { lang } = useLangOptional();
+  const { user } = useAuth();
   const [remaining, setRemaining] = useState(() => remainingVideoDownloads());
   const [library, setLibrary] = useState(VIDEO_LIBRARY);
   const [catalogMeta, setCatalogMeta] = useState({ bilibiliConfigured: false, source: 'local' });
@@ -96,6 +99,13 @@ export default function VideosPage() {
     setActiveId(video.id);
     setNotice('');
     setError('');
+    if (user) {
+      try {
+        await recordVideoWatch(user, { videoId: video.id, watchPercentage: 0.8 });
+      } catch {
+        /* non-blocking personalization signal */
+      }
+    }
   }
 
   async function onDownload(video, videoLang) {
@@ -139,6 +149,8 @@ export default function VideosPage() {
           {remaining}/{MAX_VIDEO_DOWNLOADS}
         </strong>
       </p>
+
+      <Recommendations />
 
       {notice ? (
         <p className="banner ok" role="status">
