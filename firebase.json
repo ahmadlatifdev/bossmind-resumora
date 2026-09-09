@@ -147,6 +147,10 @@
         "function": "videoCatalog"
       },
       {
+        "source": "/api/video/search",
+        "function": "searchVideos"
+      },
+      {
         "source": "/api/video/download",
         "function": "videoDownload"
       },

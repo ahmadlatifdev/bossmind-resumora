@@ -8,6 +8,7 @@ const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { refreshVideos, refreshVideosPubSub } = require('./refreshVideos');
 const { restoreVideo } = require('./restoreVideo');
 const { registerEnrichVideoMetadata } = require('./enrichVideoMetadata');
+const { registerSearchVideos } = require('./searchVideos');
 
 const region = 'us-central1';
 
@@ -49,6 +50,9 @@ function registerVideoArchiveExports(exportsObj) {
 
   /** Pillar 2 — AI metadata enrichment on create / mark Current. */
   registerEnrichVideoMetadata(exportsObj);
+
+  /** Pillar 6 — Vertex AI Search (Discovery Engine) over video_registry. */
+  registerSearchVideos(exportsObj);
 }
 
 module.exports = { registerVideoArchiveExports };
