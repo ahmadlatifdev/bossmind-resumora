@@ -7,6 +7,7 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { refreshVideos, refreshVideosPubSub } = require('./refreshVideos');
 const { restoreVideo } = require('./restoreVideo');
+const { registerEnrichVideoMetadata } = require('./enrichVideoMetadata');
 
 const region = 'us-central1';
 
@@ -45,6 +46,9 @@ function registerVideoArchiveExports(exportsObj) {
     },
     restoreVideo
   );
+
+  /** Pillar 2 — AI metadata enrichment on create / mark Current. */
+  registerEnrichVideoMetadata(exportsObj);
 }
 
 module.exports = { registerVideoArchiveExports };

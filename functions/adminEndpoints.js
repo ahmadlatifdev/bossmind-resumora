@@ -1164,6 +1164,108 @@ function registerAdminEndpoints(exportsObj) {
     }
   });
 
+  /** Read Pillar-2 enrichment metadata for a registry video. */
+  exportsObj.getAdminVideoMetadata = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const videoId = String(req.query.videoId || req.query.docId || req.query.id || '').trim();
+      if (!videoId) {
+        res.status(400).json({ error: 'Missing videoId' });
+        return;
+      }
+      const snap = await db.collection('video_metadata').doc(videoId).get();
+      const reg = await db.collection('video_registry').doc(videoId).get();
+      const regData = reg.exists ? reg.data() || {} : {};
+      if (!snap.exists) {
+        res.status(200).json({
+          ok: true,
+          videoId,
+          metadata: null,
+          enrichment_status: regData.enrichment_status || '',
+          enrichment_error: regData.enrichment_error || '',
+        });
+        return;
+      }
+      const data = snap.data() || {};
+      res.status(200).json({
+        ok: true,
+        videoId,
+        enrichment_status: regData.enrichment_status || 'ready',
+        enrichment_error: regData.enrichment_error || '',
+        metadata: {
+          transcript: data.transcript || '',
+          summary: data.summary || '',
+          chapters: Array.isArray(data.chapters) ? data.chapters : [],
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          thumbnail_url: data.thumbnail_url || null,
+          thumbnail_pending: Boolean(data.thumbnail_pending),
+          enrichment_mode: data.enrichment_mode || '',
+          speech_to_text: data.speech_to_text || '',
+          ffmpeg_thumbnail: data.ffmpeg_thumbnail || '',
+        },
+      });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Metadata load failed' });
+    }
+  });
+
+  /** Queue re-enrichment by setting enrichment_force on the registry doc. */
+  exportsObj.postAdminEnrichVideo = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 60, memory: '256MiB', secrets: [geminiApiKey] },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        await assertAdminAccess(req, db, readAdminPassword());
+        const body = parseBody(req);
+        const videoId = String(body.videoId || body.docId || body.doc_id || body.id || '').trim();
+        if (!videoId) {
+          res.status(400).json({ error: 'Missing videoId' });
+          return;
+        }
+        const ref = db.collection('video_registry').doc(videoId);
+        const snap = await ref.get();
+        if (!snap.exists) {
+          res.status(404).json({ error: 'Video not found' });
+          return;
+        }
+        await ref.set(
+          {
+            enrichment_force: true,
+            enrichment_status: 'queued',
+          },
+          { merge: true }
+        );
+        res.status(200).json({
+          ok: true,
+          videoId,
+          message: 'Enrichment queued',
+        });
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Enrich queue failed' });
+      }
+    }
+  );
+
   /** Admin-authenticated restore (proxy — no public unauthenticated restore). */
   exportsObj.postAdminRestoreVideo = onRequest(
     { ...adminHttpOpts, timeoutSeconds: 120, memory: '512MiB' },

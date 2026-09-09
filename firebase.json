@@ -261,6 +261,14 @@
         "function": "getAdminVideoRegistry"
       },
       {
+        "source": "/api/admin/video-metadata",
+        "function": "getAdminVideoMetadata"
+      },
+      {
+        "source": "/api/admin/videos/enrich",
+        "function": "postAdminEnrichVideo"
+      },
+      {
         "source": "/api/admin/videos/restore",
         "function": "postAdminRestoreVideo"
       },

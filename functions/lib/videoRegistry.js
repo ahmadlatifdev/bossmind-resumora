@@ -38,6 +38,12 @@ function serializeDoc(doc) {
     archived_at: data.archived_at || null,
     restored_at: data.restored_at || null,
     video_id: String(data.video_id || doc.id),
+    enrichment_status: data.enrichment_status ? String(data.enrichment_status) : '',
+    enrichment_summary: data.enrichment_summary ? String(data.enrichment_summary) : '',
+    enrichment_tags: Array.isArray(data.enrichment_tags)
+      ? data.enrichment_tags.map((t) => String(t)).slice(0, 15)
+      : [],
+    enrichment_error: data.enrichment_error ? String(data.enrichment_error) : '',
   };
 }
 
