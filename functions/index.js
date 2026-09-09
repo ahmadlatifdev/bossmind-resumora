@@ -382,6 +382,9 @@ exports.publishVideoToBilibili = onObjectFinalized(
 const { registerAdminEndpoints } = require('./adminEndpoints');
 registerAdminEndpoints(exports);
 
+const { registerVideoArchiveExports } = require('./src');
+registerVideoArchiveExports(exports);
+
 const { registerStripeWebhook } = require('./stripeWebhook');
 registerStripeWebhook(exports);
 

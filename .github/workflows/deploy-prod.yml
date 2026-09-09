@@ -51,7 +51,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '22.22.2'
           cache: npm
           cache-dependency-path: package-lock.json
 
@@ -241,7 +241,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '22.22.2'
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -480,7 +480,7 @@ jobs:
       - name: Setup Node.js (rollback scripts)
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '22.22.2'
 
       - name: Roll back Hosting live channel (if backup exists)
         continue-on-error: true
