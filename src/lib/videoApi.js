@@ -35,6 +35,13 @@ export function fetchVideoCatalog() {
   return getJson('/api/video/catalog');
 }
 
+/** Vertex AI Search over video_registry (Discovery Engine). */
+export function searchVideos(query, limit = 10) {
+  const q = encodeURIComponent(String(query || '').trim());
+  const lim = encodeURIComponent(String(limit || 10));
+  return getJson(`/api/video/search?q=${q}&limit=${lim}`);
+}
+
 /** Server-side download tracking (5-cap). */
 export function trackVideoDownload(payload) {
   return postJson('/api/video/download', payload);

@@ -504,6 +504,22 @@ export type AdminRegistryVideo = {
   archive_quarter?: string;
   archived_at?: unknown;
   restored_at?: unknown;
+  enrichment_status?: string;
+  enrichment_summary?: string;
+  enrichment_tags?: string[];
+  enrichment_error?: string;
+};
+
+export type AdminVideoMetadata = {
+  transcript?: string;
+  summary?: string;
+  chapters?: Array<{ timestamp?: string; title?: string }>;
+  tags?: string[];
+  thumbnail_url?: string | null;
+  thumbnail_pending?: boolean;
+  enrichment_mode?: string;
+  speech_to_text?: string;
+  ffmpeg_thumbnail?: string;
 };
 
 export async function fetchAdminVideoAssets(password: string) {
@@ -561,6 +577,41 @@ export async function restoreAdminVideo(password: string, docId: string) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data as { ok?: boolean; message?: string; newUrl?: string; docId?: string };
+}
+
+export async function fetchAdminVideoMetadata(password: string, videoId: string) {
+  const q = encodeURIComponent(videoId);
+  const res = await fetch(`/api/admin/video-metadata?videoId=${q}`, {
+    cache: 'no-store',
+    headers: {
+      ...adminHeaders(password),
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    videoId?: string;
+    enrichment_status?: string;
+    enrichment_error?: string;
+    metadata?: AdminVideoMetadata | null;
+  };
+}
+
+export async function queueAdminVideoEnrichment(password: string, videoId: string) {
+  const res = await fetch('/api/admin/videos/enrich', {
+    method: 'POST',
+    headers: {
+      ...adminHeaders(password),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ videoId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; videoId?: string; message?: string };
 }
 
 export type AdminGlobalChatMessage = {

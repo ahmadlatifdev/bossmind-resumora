@@ -1887,3 +1887,58 @@
   border: 1px solid rgba(212, 175, 55, 0.22);
   background: rgba(0, 0, 0, 0.28);
 }
+.admin-video-registry__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.admin-enrichment-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #e8d5a3;
+}
+.admin-enrichment-badge--processing {
+  border-color: rgba(255, 193, 7, 0.55);
+  color: #ffc107;
+}
+.admin-enrichment-badge--ready {
+  border-color: rgba(76, 175, 80, 0.55);
+  color: #81c784;
+}
+.admin-enrichment-badge--failed {
+  border-color: rgba(244, 67, 54, 0.55);
+  color: #ef9a9a;
+}
+.admin-enrichment-tags {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: #c4b484;
+}
+.admin-video-metadata h3 {
+  margin: 12px 0 6px;
+  font-size: 1rem;
+  color: #e8d5a3;
+}
+.admin-video-chapters {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #d8c894;
+}
+.admin-video-transcript {
+  max-height: 220px;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  color: #cbbd8e;
+}
