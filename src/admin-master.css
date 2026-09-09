@@ -1887,3 +1887,52 @@
   border: 1px solid rgba(212, 175, 55, 0.22);
   background: rgba(0, 0, 0, 0.28);
 }
+.admin-analytics-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.admin-analytics-kpi {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+}
+.admin-analytics-kpi h3 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c4b484;
+}
+.admin-analytics-kpi__value {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #e8d5a3;
+}
+.admin-analytics-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.admin-analytics-bars__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  color: #d8c894;
+  font-size: 0.9rem;
+}
+.admin-analytics-bars__track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.admin-analytics-bars__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8a7020, #d4af37);
+}

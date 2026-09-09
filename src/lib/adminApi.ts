@@ -563,6 +563,45 @@ export async function restoreAdminVideo(password: string, docId: string) {
   return data as { ok?: boolean; message?: string; newUrl?: string; docId?: string };
 }
 
+export type AdminAnalyticsSnapshot = {
+  id?: string;
+  date?: string;
+  activeUsers?: number;
+  watchCount?: number;
+  videosCurrent?: number;
+  videosArchived?: number;
+  videoMetadataCount?: number;
+  enrichment?: { ready?: number; processing?: number; failed?: number };
+  topVideos?: Array<{ id?: string; title?: string; viewCount?: number; status?: string }>;
+  computedAt?: unknown;
+};
+
+export async function fetchAdminAnalytics(
+  password: string,
+  opts: { refresh?: boolean; limit?: number } = {}
+) {
+  const q = new URLSearchParams();
+  if (opts.refresh) q.set('refresh', '1');
+  if (opts.limit) q.set('limit', String(opts.limit));
+  const qs = q.toString();
+  const res = await fetch(`/api/admin/analytics${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+    headers: {
+      ...adminHeaders(password),
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    count?: number;
+    latest?: AdminAnalyticsSnapshot | null;
+    snapshots?: AdminAnalyticsSnapshot[];
+  };
+}
+
 export type AdminGlobalChatMessage = {
   id?: string;
   role?: 'user' | 'assistant' | 'hermes' | string;

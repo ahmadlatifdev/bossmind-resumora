@@ -486,6 +486,7 @@
   "master.nav.missionControl": "Mission Control",
   "master.nav.health": "System Health",
   "master.nav.videos": "Videos",
+  "master.nav.analytics": "Analytics",
   "broc.eyebrow": "BRoC · Resilience & Operations",
   "broc.title": "Mission Control War Room",
   "broc.lead": "Emergency maintenance, quarantine Safe Mode, diagnostics, and auto-recovery — zero data deletion.",
