@@ -13,7 +13,7 @@ function mapCatalogItem(item) {
   return {
     id,
     order: item.order || 0,
-    durationSec: item.duration || 300,
+    durationSec: item.duration || 480,
     title: {
       en: item.title_EN || item.title?.en || id,
       fr: item.title_FR || item.title?.fr || item.title_EN || id,

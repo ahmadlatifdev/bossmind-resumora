@@ -1810,9 +1810,15 @@
 }
 .admin-video-player__header {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 8px;
+}
+.admin-video-player__meta {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .admin-video-player__title {

@@ -6,77 +6,10 @@
 const { getFirestore } = require('firebase-admin/firestore');
 const { getStorage } = require('firebase-admin/storage');
 const bilibiliPublish = require('./bilibiliPublish');
+const { PLAYABLE_DEMOS, INTERVIEW_SERIES_CATALOG, SERIES_ID } = require('./interviewSeriesCatalog');
 
-/** Public, CORS-friendly demo MP4s (Google sample bucket now returns 403). */
-const PLAYABLE_DEMOS = [
-  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  'https://www.w3schools.com/html/mov_bbb.mp4',
-  'https://www.w3schools.com/html/movie.mp4',
-  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-];
-
-const FALLBACK_CATALOG = [
-  {
-    video_id: 'vid-resume-writing',
-    title_EN: 'Resume writing that gets interviews',
-    title_FR: 'Rédiger un CV qui obtient des entretiens',
-    title_ES: 'Redacción de CV que consigue entrevistas',
-    description_EN: 'Structure, impact bullets, and role targeting in 5 minutes.',
-    description_FR: 'Structure, puces d’impact et ciblage du poste en 5 minutes.',
-    description_ES: 'Estructura, logros medibles y enfoque al puesto en 5 minutos.',
-    duration: 300,
-    order: 1,
-    url_mp4_en: PLAYABLE_DEMOS[0],
-    url_mp4_fr: PLAYABLE_DEMOS[0],
-    url_mp4_es: PLAYABLE_DEMOS[0],
-    source: 'fallback',
-  },
-  {
-    video_id: 'vid-ats-optimization',
-    title_EN: 'ATS optimization essentials',
-    title_FR: 'Essentiels de l’optimisation ATS',
-    title_ES: 'Fundamentos de optimización ATS',
-    description_EN: 'Keywords, formatting, and parser-safe layouts recruiters rely on.',
-    description_FR: 'Mots-clés, mise en forme et structures compatibles parseurs.',
-    description_ES: 'Palabras clave, formato y diseños seguros para parsers.',
-    duration: 300,
-    order: 2,
-    url_mp4_en: PLAYABLE_DEMOS[1],
-    url_mp4_fr: PLAYABLE_DEMOS[1],
-    url_mp4_es: PLAYABLE_DEMOS[1],
-    source: 'fallback',
-  },
-  {
-    video_id: 'vid-linkedin-tips',
-    title_EN: 'LinkedIn tips that sync with your resume',
-    title_FR: 'Astuces LinkedIn alignées sur votre CV',
-    title_ES: 'Consejos LinkedIn alineados con su CV',
-    description_EN: 'Headline, About, and experience alignment for recruiter search.',
-    description_FR: 'Titre, À propos et expériences pour la recherche recruteurs.',
-    description_ES: 'Titular, Acerca de y experiencia para búsquedas de reclutadores.',
-    duration: 300,
-    order: 3,
-    url_mp4_en: PLAYABLE_DEMOS[3],
-    url_mp4_fr: PLAYABLE_DEMOS[3],
-    url_mp4_es: PLAYABLE_DEMOS[3],
-    source: 'fallback',
-  },
-  {
-    video_id: 'vid-interview-prep',
-    title_EN: 'Interview preparation that closes offers',
-    title_FR: 'Préparation d’entretien qui conclut des offres',
-    title_ES: 'Preparación de entrevistas que cierra ofertas',
-    description_EN: 'STAR answers, closing questions, and calm delivery under pressure.',
-    description_FR: 'Réponses STAR, questions de clôture et aisance sous pression.',
-    description_ES: 'Respuestas STAR, cierre y dominio bajo presión.',
-    duration: 300,
-    order: 4,
-    url_mp4_en: PLAYABLE_DEMOS[0],
-    url_mp4_fr: PLAYABLE_DEMOS[1],
-    url_mp4_es: PLAYABLE_DEMOS[3],
-    source: 'fallback',
-  },
-];
+/** Premium Interview Series catalog (4 × EN/FR/ES) — SSoT for fallback + Firestore seed. */
+const FALLBACK_CATALOG = INTERVIEW_SERIES_CATALOG;
 
 function bilibiliConfigured() {
   return bilibiliPublish.cookiesConfigured(bilibiliPublish.readCookieBundle());
@@ -140,6 +73,33 @@ function normalizeVideo(video = {}, index = 0) {
     url_mp4_fr: urls.fr,
     url_mp4_es: urls.es,
   };
+}
+
+/** Upsert Premium Interview Series docs into Firestore `videos` (idempotent). */
+async function seedFirestoreInterviewSeries() {
+  const db = getFirestore();
+  const batch = db.batch();
+  let upserted = 0;
+  for (const item of INTERVIEW_SERIES_CATALOG) {
+    const ref = db.collection('videos').doc(item.video_id);
+    batch.set(
+      ref,
+      {
+        ...item,
+        urls: {
+          en: item.url_mp4_en,
+          fr: item.url_mp4_fr,
+          es: item.url_mp4_es,
+        },
+        updated_at: new Date().toISOString(),
+        seeded_from: SERIES_ID,
+      },
+      { merge: true }
+    );
+    upserted += 1;
+  }
+  await batch.commit();
+  return { upserted, series_id: SERIES_ID };
 }
 
 /**
@@ -262,27 +222,30 @@ exports.multilingualUrls = multilingualUrls;
 exports.normalizeVideo = normalizeVideo;
 exports.toHttpsUrl = toHttpsUrl;
 exports.withSignedPlayUrls = withSignedPlayUrls;
-exports.isDeadGtvOrMissing = isDeadGtvOrMissing;
-exports.migrateFirestoreGtvVideoUrls = migrateFirestoreGtvVideoUrls;
+exports.seedFirestoreInterviewSeries = seedFirestoreInterviewSeries;
 exports.PLAYABLE_DEMOS = PLAYABLE_DEMOS;
 exports.FALLBACK_CATALOG = FALLBACK_CATALOG;
 
 exports.getCatalog = async function getCatalog() {
-  let migration = null;
+  let seed = null;
   try {
-    migration = await migrateFirestoreGtvVideoUrls();
+    seed = await seedFirestoreInterviewSeries();
   } catch (_) {
-    migration = { scanned: 0, updated: 0, error: true };
+    seed = { upserted: 0, error: true };
   }
 
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
-  // Always hardcode public MDN/W3Schools MP4s for playback.
-  // gtv-videos-bucket returns 403; gs://resumora-videos is not publicly readable (org policy).
+  // Series catalog is canonical; force public MDN/W3Schools until masters are public.
   const demos = FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i));
+  const byId = new Map(demos.map((v) => [v.video_id, v]));
+
   if (fromFs && fromFs.length) {
-    const videos = fromFs.map((doc, i) => {
-      const demo = demos[i % demos.length];
+    const seriesDocs = fromFs.filter((d) => byId.has(String(d.video_id || d.id || '')));
+    const useDocs = seriesDocs.length ? seriesDocs : fromFs;
+    const videos = useDocs.map((doc, i) => {
+      const id = String(doc.video_id || doc.id || '');
+      const demo = byId.get(id) || demos[i % demos.length];
       const titleKeep = {
         title_EN: doc.title_EN || doc.title || demo.title_EN,
         title_FR: doc.title_FR || demo.title_FR,
@@ -292,34 +255,43 @@ exports.getCatalog = async function getCatalog() {
       return {
         ...demo,
         ...titleKeep,
-        video_id: String(doc.video_id || doc.id || demo.video_id),
+        video_id: id || demo.video_id,
         id: doc.id || demo.video_id,
         order: doc.order != null ? doc.order : demo.order,
-        // Force playable public URLs — ignore Firestore gtv / private GCS paths
+        duration: demo.duration || doc.duration || 480,
+        series_id: demo.series_id || SERIES_ID,
+        script_path: demo.script_path || doc.script_path || '',
         urls: { ...demo.urls },
         url_mp4_en: demo.urls.en,
         url_mp4_fr: demo.urls.fr,
         url_mp4_es: demo.urls.es,
-        source: 'public-demo',
+        source: 'interview-series',
         status: 'public-demo',
       };
     });
+    // Prefer exactly the 4 series lessons (sorted by order).
+    const ordered = demos.map((demo) => {
+      const hit = videos.find((v) => v.video_id === demo.video_id);
+      return hit || demo;
+    });
     return {
-      videos,
-      source: 'public-demo',
+      videos: ordered,
+      source: 'interview-series',
+      series_id: SERIES_ID,
+      seed,
       bilibiliConfigured: configured,
       cacheControl: 'no-store',
-      migration,
-      note: 'Playback forced to public MDN/W3Schools MP4s (gtv-videos-bucket 403; resumora-videos private).',
+      note: 'Premium Interview Series v1 — MDN/W3Schools placeholders until 1080p masters upload.',
     };
   }
   return {
     videos: demos,
-    source: 'fallback',
+    source: 'interview-series',
+    series_id: SERIES_ID,
+    seed,
     bilibiliConfigured: configured,
     cacheControl: 'no-store',
-    migration,
-    note: 'Upload masters to gs://resumora-videos/masters/; auto-publish via bilibili-outbox/ when cookies are set.',
+    note: 'Premium Interview Series v1 fallback. Upload masters to gs://resumora-videos/masters/interview-series-v1/.',
   };
 };
 

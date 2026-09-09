@@ -1,0 +1,40 @@
+{
+  "series_id": "premium-interview-series-v1",
+  "format": "mp4",
+  "resolution": "1080p",
+  "max_duration_sec": 480,
+  "structure": { "hook_sec": 120, "body_sec": 300, "cta_sec": 60 },
+  "style": "Professional career coach, luxury black/gold Resumora branding, clear lower-thirds, calm studio lighting, clean audio, on-screen STAR/CPRA graphics. No stock-cliché office montage dominance.",
+  "videos": [
+    {
+      "video_id": "vid-resume-to-interview",
+      "langs": ["en", "fr", "es"],
+      "prompt_en": "8-minute talking-head + B-roll lesson: Resume-to-Interview Mastery. Cover AI Keyword Tool alignment, converting ATS score lifts into STAR talking points, project-first formats for fresher vs senior. End with CTA to practice in Resumora. Brand: Resumora.",
+      "prompt_fr": "Leçon 8 minutes: Du CV à l'entretien (ATS). Outil AI Keyword, score ATS vers arguments STAR, format projet-d'abord junior/senior. CTA Resumora. Branding Resumora.",
+      "prompt_es": "Lección 8 minutos: Del CV a la entrevista (ATS). Herramienta AI Keyword, score ATS a argumentos STAR, formato proyecto-primero junior/senior. CTA Resumora."
+    },
+    {
+      "video_id": "vid-star-behavioral",
+      "langs": ["en", "fr", "es"],
+      "prompt_en": "8-minute lesson: Behavioral & STAR excellence. Deep STAR, 4-5 story blocks, greatest weakness with transparent growth. On-screen STAR diagram. CTA Resumora.",
+      "prompt_fr": "Leçon 8 minutes: STAR comportemental. Diagramme STAR, 4-5 blocs d'histoires, faiblesse transparente. CTA Resumora.",
+      "prompt_es": "Lección 8 minutos: STAR conductual. Diagrama STAR, 4-5 bloques, debilidad transparente. CTA Resumora."
+    },
+    {
+      "video_id": "vid-situational-async",
+      "langs": ["en", "fr", "es"],
+      "prompt_en": "8-minute lesson: Situational & async interviews. Critical thinking + EQ, 2-minute read + 6-minute respond timer graphic, 30-second commanding intro. CTA Resumora.",
+      "prompt_fr": "Leçon 8 minutes: Entretiens situationnels et asynchrones. Timer 2+6, intro 30s, pensée critique + QE. CTA Resumora.",
+      "prompt_es": "Lección 8 minutos: Entrevistas situacionales y asíncronas. Timer 2+6, intro 30s, pensamiento crítico + IE. CTA Resumora."
+    },
+    {
+      "video_id": "vid-global-career",
+      "langs": ["en", "fr", "es"],
+      "prompt_en": "8-minute lesson: Multi-language global career positioning. India/US/UK/Canada/Australia nuances, body language, AI Job Search Assistant by geography. Series finale CTA. Brand Resumora.",
+      "prompt_fr": "Leçon 8 minutes: Carrière mondiale multilingue. Nuances Inde/US/UK/Canada/Australie, langage corporel, assistant IA par marché. CTA finale Resumora.",
+      "prompt_es": "Lección 8 minutos: Carrera global multilingüe. Matices India/EE.UU./UK/Canadá/Australia, lenguaje corporal, asistente IA por mercado. CTA final Resumora."
+    }
+  ],
+  "output_naming": "resumora-{video_id}-{lang}.mp4",
+  "storage_target": "gs://resumora-videos/masters/interview-series-v1/"
+}
