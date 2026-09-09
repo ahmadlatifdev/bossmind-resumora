@@ -39,3 +39,13 @@ gcloud scheduler jobs run refresh-videos-cron --location=us-central1 --project=r
 ```
 
 Deploy path: **git push → GitHub Actions** only (no local `firebase deploy` / `gcloud functions deploy`).
+
+## Admin UI
+
+- `/admin/videos` — **View Archived / Hide Archived** toggles `video_registry` status filter.
+- Restore calls authenticated `POST /api/admin/videos/restore` (not public `--allow-unauthenticated`).
+- Catalog players remain the Premium Interview Series (untouched library metadata).
+
+## Firestore index
+
+Composite index: `video_registry` (`status` ASC, `archived_at` DESC) in `firestore.indexes.json`.

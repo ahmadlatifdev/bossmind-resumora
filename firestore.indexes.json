@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "video_registry",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "archived_at", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

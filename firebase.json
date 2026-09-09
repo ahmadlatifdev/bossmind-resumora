@@ -1,6 +1,7 @@
 {
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "hosting": {
     "site": "client-resumora-live",
@@ -254,6 +255,14 @@
       {
         "source": "/api/admin/videos",
         "function": "getAdminVideos"
+      },
+      {
+        "source": "/api/admin/video-registry",
+        "function": "getAdminVideoRegistry"
+      },
+      {
+        "source": "/api/admin/videos/restore",
+        "function": "postAdminRestoreVideo"
       },
       {
         "source": "/api/admin/tasks/create",
