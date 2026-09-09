@@ -33,6 +33,13 @@ function demoForIndex(index) {
   return PLAYABLE_DEMOS[Math.abs(Number(index) || 0) % PLAYABLE_DEMOS.length];
 }
 
+/** True when URL is a dead Google sample host (403) or otherwise unusable for <video>. */
+function isDeadGtvOrMissing(url) {
+  const s = String(url || '').trim();
+  if (!s) return true;
+  return /gtv-videos-bucket|storage\.googleapis\.com\/gtv-videos-bucket|googlevideo\.com/i.test(s);
+}
+
 /** Build { en, fr, es } play URLs; missing FR/ES fall back to EN. */
 function multilingualUrls(video = {}, index = 0) {
   const nested = video.urls && typeof video.urls === 'object' ? video.urls : null;
@@ -49,14 +56,9 @@ function multilingualUrls(video = {}, index = 0) {
   let es = toHttpsUrl((nested && nested.es) || video.url_mp4_es || video.url_es || en) || en;
 
   // Dead Google sample hosts → replace with known-good demos
-  const deadHost = /gtv-videos-bucket|storage\.googleapis\.com\/gtv-videos-bucket/i;
-  if (!en || deadHost.test(en)) en = demoForIndex(index);
-  if (!fr || deadHost.test(fr)) fr = en;
-  if (!es || deadHost.test(es)) es = en;
-
-  if (!isPlayableHttp(en)) en = demoForIndex(index);
-  if (!isPlayableHttp(fr)) fr = en;
-  if (!isPlayableHttp(es)) es = en;
+  if (isDeadGtvOrMissing(en) || !isPlayableHttp(en)) en = demoForIndex(index);
+  if (isDeadGtvOrMissing(fr) || !isPlayableHttp(fr)) fr = en;
+  if (isDeadGtvOrMissing(es) || !isPlayableHttp(es)) es = en;
 
   return { en, fr, es };
 }
@@ -66,6 +68,7 @@ function normalizeVideo(video = {}, index = 0) {
   return {
     ...video,
     urls,
+    // Always prefer rewritten playable URLs (never keep stale gtv fields).
     url_mp4_en: urls.en,
     url_mp4_fr: urls.fr,
     url_mp4_es: urls.es,
@@ -97,6 +100,60 @@ async function seedFirestoreInterviewSeries() {
   }
   await batch.commit();
   return { upserted, series_id: SERIES_ID };
+}
+
+/**
+ * Persist MDN/W3Schools replacements for any Firestore `videos` docs still on gtv-videos-bucket.
+ * Idempotent — skips docs that already use public demos.
+ */
+async function migrateFirestoreGtvVideoUrls() {
+  const db = getFirestore();
+  const snap = await db.collection('videos').get();
+  if (snap.empty) return { scanned: 0, updated: 0 };
+  let updated = 0;
+  const batch = db.batch();
+  let batchCount = 0;
+  snap.docs.forEach((doc, i) => {
+    const data = doc.data() || {};
+    const demo = demoForIndex(i);
+    const urls = multilingualUrls(data, i);
+    const patch = {
+      urls: { en: urls.en, fr: urls.fr, es: urls.es },
+      url_mp4_en: urls.en,
+      url_mp4_fr: urls.fr,
+      url_mp4_es: urls.es,
+      url: urls.en,
+      playback_source: 'public-demo',
+      gtv_migrated_at: new Date().toISOString(),
+    };
+    const fields = [
+      data.url_mp4_en,
+      data.url_mp4_fr,
+      data.url_mp4_es,
+      data.url_mp4,
+      data.url,
+      data.src,
+      data.url_en,
+      data.url_fr,
+      data.url_es,
+      data.urls && data.urls.en,
+      data.urls && data.urls.fr,
+      data.urls && data.urls.es,
+    ];
+    // Only rewrite docs that still store gtv-videos-bucket (ignore empty optional fields).
+    const needs = fields.some((u) => {
+      const s = String(u || '').trim();
+      return s && /gtv-videos-bucket|googlevideo\.com/i.test(s);
+    });
+    if (!needs) return;
+    // Ensure every lang has a concrete public demo (not empty).
+    if (!patch.url_mp4_en) patch.url_mp4_en = demo;
+    batch.set(doc.ref, patch, { merge: true });
+    batchCount += 1;
+    updated += 1;
+  });
+  if (batchCount > 0) await batch.commit();
+  return { scanned: snap.size, updated };
 }
 
 /**
