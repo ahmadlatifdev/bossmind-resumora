@@ -300,6 +300,8 @@ jobs:
               gethermesstatus sethermeschat gethermesinsights \
               listharnesstasks createharnesstask ackharnesstask markharnesstaskapplied setharnessautomation \
               getadminfinancials runfinanceallocation updateadminfinancesettings \
+              getadminvideoassets getadminvideos getadminvideoregistry postadminrestorevideo \
+              refreshvideoshttp \
               githubdeploywebhook \
               stripewebhook getrefundpreview cancelsubscription recordserviceeventhttp \
               listrefundshttp getrefundpreviewv2 getrevenueanalytics getchurnprediction \
@@ -315,7 +317,7 @@ jobs:
           }
           deploy_fn() {
             npx firebase-tools@latest deploy --only \
-              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:autoAckSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:updateMasterProjectStatus,functions:resumora-checkout:ownerMasterConsole,functions:resumora-checkout:brocMissionControl,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:getAdminGlobalChat,functions:resumora-checkout:adminChatRouter,functions:resumora-checkout:requestAdminPasswordReset,functions:resumora-checkout:confirmAdminPasswordReset,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:listHarnessTasks,functions:resumora-checkout:getAdminVideoAssets,functions:resumora-checkout:getAdminVideos,functions:resumora-checkout:createHarnessTask,functions:resumora-checkout:ackHarnessTask,functions:resumora-checkout:markHarnessTaskApplied,functions:resumora-checkout:setHarnessAutomation,functions:resumora-checkout:getAdminFinancials,functions:resumora-checkout:runFinanceAllocation,functions:resumora-checkout:updateAdminFinanceSettings,functions:resumora-checkout:financeAllocationCron,functions:resumora-checkout:githubDeployWebhook,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:systemHealthCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
+              "functions:resumora-checkout:getSystemHealth,functions:resumora-checkout:runSystemHealth,functions:resumora-checkout:decideSystemHeal,functions:resumora-checkout:autoAckSystemHeal,functions:resumora-checkout:updateSystemManual,functions:resumora-checkout:getMasterDashboard,functions:resumora-checkout:getMasterProjects,functions:resumora-checkout:updateMasterProjectStatus,functions:resumora-checkout:ownerMasterConsole,functions:resumora-checkout:brocMissionControl,functions:resumora-checkout:postAdminHermesCommand,functions:resumora-checkout:getAdminGlobalChat,functions:resumora-checkout:adminChatRouter,functions:resumora-checkout:requestAdminPasswordReset,functions:resumora-checkout:confirmAdminPasswordReset,functions:resumora-checkout:getHermesStatus,functions:resumora-checkout:setHermesChat,functions:resumora-checkout:getHermesInsights,functions:resumora-checkout:listHarnessTasks,functions:resumora-checkout:getAdminVideoAssets,functions:resumora-checkout:getAdminVideos,functions:resumora-checkout:getAdminVideoRegistry,functions:resumora-checkout:postAdminRestoreVideo,functions:resumora-checkout:refreshVideos,functions:resumora-checkout:refreshVideosHttp,functions:resumora-checkout:restoreVideo,functions:resumora-checkout:createHarnessTask,functions:resumora-checkout:ackHarnessTask,functions:resumora-checkout:markHarnessTaskApplied,functions:resumora-checkout:setHarnessAutomation,functions:resumora-checkout:getAdminFinancials,functions:resumora-checkout:runFinanceAllocation,functions:resumora-checkout:updateAdminFinanceSettings,functions:resumora-checkout:financeAllocationCron,functions:resumora-checkout:githubDeployWebhook,functions:resumora-checkout:systemManualCron,functions:resumora-checkout:systemHealthCron,functions:resumora-checkout:stripeWebhook,functions:resumora-checkout:getRefundPreview,functions:resumora-checkout:getRefundPreviewV2,functions:resumora-checkout:cancelSubscription,functions:resumora-checkout:recordServiceEventHttp,functions:resumora-checkout:listRefundsHttp,functions:resumora-checkout:getRevenueAnalytics,functions:resumora-checkout:getChurnPrediction,functions:resumora-checkout:createCheckoutSession,functions:resumora-checkout:videoCatalog,functions:resumora-checkout:videoDownload,functions:resumora-checkout:publishVideoToBilibili,functions:resumora-checkout:sendChatMessage" \
               --project "${GCP_PROJECT_ID}" \
               --non-interactive
           }
@@ -355,6 +357,12 @@ jobs:
             --project "${GCP_PROJECT_ID}" \
             --non-interactive
 
+      - name: Deploy Firestore indexes
+        run: |
+          npx firebase-tools@latest deploy --only firestore:indexes \
+            --project "${GCP_PROJECT_ID}" \
+            --non-interactive || echo "Indexes deploy warning (may already exist or be building)"
+
       - name: Apply Cloud Run IAM bypass (public HTTP services)
         shell: pwsh
         run: |
@@ -365,6 +373,8 @@ jobs:
             'gethermesstatus','sethermeschat','gethermesinsights',
             'listharnesstasks','createharnesstask','ackharnesstask','markharnesstaskapplied','setharnessautomation',
             'getadminfinancials','runfinanceallocation','updateadminfinancesettings',
+            'getadminvideoassets','getadminvideos','getadminvideoregistry','postadminrestorevideo',
+            'refreshvideoshttp',
             'githubdeploywebhook',
             'stripewebhook','getrefundpreview','cancelsubscription','recordserviceeventhttp',
             'listrefundshttp','getrefundpreviewv2','getrevenueanalytics','getchurnprediction',
