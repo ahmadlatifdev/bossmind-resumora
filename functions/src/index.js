@@ -7,6 +7,7 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { onMessagePublished } = require('firebase-functions/v2/pubsub');
 const { refreshVideos, refreshVideosPubSub } = require('./refreshVideos');
 const { restoreVideo } = require('./restoreVideo');
+const { registerPersonalizationExports } = require('./personalization');
 
 const region = 'us-central1';
 
@@ -45,6 +46,9 @@ function registerVideoArchiveExports(exportsObj) {
     },
     restoreVideo
   );
+
+  /** Phase 3 — personalization & recommendations. */
+  registerPersonalizationExports(exportsObj);
 }
 
 module.exports = { registerVideoArchiveExports };

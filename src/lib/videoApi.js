@@ -35,6 +35,49 @@ export function fetchVideoCatalog() {
   return getJson('/api/video/catalog');
 }
 
+/**
+ * @param {import('firebase/auth').User} user
+ * @param {{ refresh?: boolean }} [opts]
+ */
+export async function fetchRecommendations(user, opts = {}) {
+  const token = await user.getIdToken();
+  const q = opts.refresh ? '?refresh=1' : '';
+  const res = await fetch(`/api/recommendations${q}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Recommendations failed (${res.status})`);
+  return data;
+}
+
+/**
+ * Record a watch event (updates user_profiles via onVideoWatch).
+ * @param {import('firebase/auth').User} user
+ * @param {{ videoId: string, watchPercentage?: number }} payload
+ */
+export async function recordVideoWatch(user, payload) {
+  const token = await user.getIdToken();
+  const res = await fetch('/api/video/watch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      videoId: payload.videoId,
+      watchPercentage: payload.watchPercentage ?? 0.8,
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Watch record failed (${res.status})`);
+  return data;
+}
+
 /** Server-side download tracking (5-cap). */
 export function trackVideoDownload(payload) {
   return postJson('/api/video/download', payload);
