@@ -273,6 +273,10 @@
         "function": "postAdminVideoSignedUrl"
       },
       {
+        "source": "/api/get-signed-url",
+        "function": "postAdminVideoSignedUrl"
+      },
+      {
         "source": "/api/admin/tasks/create",
         "function": "createHarnessTask"
       },

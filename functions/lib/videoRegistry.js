@@ -197,7 +197,8 @@ async function signRegistryPlayUrl(db, { docId, url } = {}) {
     throw Object.assign(new Error('Object missing in GCS'), { statusCode: 404 });
   }
 
-  const expiresMs = Date.now() + 60 * 60 * 1000;
+  // Browser-playable HTTPS URL; short TTL for admin dashboard playback.
+  const expiresMs = Date.now() + 15 * 60 * 1000;
   const [signedUrl] = await file.getSignedUrl({
     version: 'v4',
     action: 'read',

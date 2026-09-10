@@ -584,14 +584,19 @@ export async function updateAdminRegistryVideo(
   return data as { ok?: boolean; video?: AdminRegistryVideo };
 }
 
-export async function fetchAdminVideoSignedUrl(password: string, docId: string) {
+export async function fetchAdminVideoSignedUrl(password: string, docId: string, gsUrl?: string) {
   const res = await fetch('/api/admin/videos/signed-url', {
     method: 'POST',
     headers: {
       ...adminHeaders(password),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ docId }),
+    body: JSON.stringify({
+      docId,
+      // Prefer explicit gs:// so the function can sign without re-reading Firestore.
+      url: gsUrl || undefined,
+      gsUrl: gsUrl || undefined,
+    }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);

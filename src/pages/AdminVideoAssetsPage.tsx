@@ -13,10 +13,10 @@ import {
 } from '../lib/adminApi';
 import { t } from '../lib/i18n.js';
 
-function registryLabel(row: AdminRegistryVideo) {
+function registryLabel(row: AdminRegistryVideo, videoNumber: number) {
   const named = String(row.display_name || row.label || '').trim();
   if (named) return named;
-  return String(row.title || row.doc_id || row.id || '—');
+  return `Video ${videoNumber}`;
 }
 
 export default function AdminVideoAssetsPage() {
@@ -125,11 +125,19 @@ export default function AdminVideoAssetsPage() {
     setError('');
     setNotice('');
     try {
-      const out = await fetchAdminVideoSignedUrl(password, selectedId);
+      const row = registry.find((r) => (r.doc_id || r.id) === selectedId);
+      const gsUrl = String(row?.active_url || row?.archive_url || '').trim();
+      if (!gsUrl && !selectedId) {
+        throw new Error('Selected video has no GCS path');
+      }
+      const out = await fetchAdminVideoSignedUrl(password, selectedId, gsUrl || undefined);
       const href = String(out.signedUrl || '').trim();
       if (!href) throw new Error('No signed URL returned');
-      window.open(href, '_blank', 'noopener,noreferrer');
-      setNotice('Opened signed playback URL in a new tab (expires in ~1 hour).');
+      const opened = window.open(href, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        throw new Error('Popup blocked — allow popups for this site and try again');
+      }
+      setNotice('Opened signed playback URL in a new tab (expires in 15 minutes).');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Playback failed');
     } finally {
@@ -199,14 +207,16 @@ export default function AdminVideoAssetsPage() {
           </p>
         ) : (
           <ul className="admin-video-registry">
-            {registry.map((row) => {
+            {registry.map((row, index) => {
               const id = row.doc_id || row.id || '';
+              const videoNumber = index + 1;
               const selected = Boolean(id) && selectedId === id;
               const editing = Boolean(id) && editingId === id;
-              const label = registryLabel(row);
+              const label = registryLabel(row, videoNumber);
+              const techName = String(row.title || '').trim();
               return (
                 <li
-                  key={id || row.title}
+                  key={id || row.title || `video-${videoNumber}`}
                   className={
                     selected
                       ? 'admin-video-registry__row admin-video-registry__row--selected'
@@ -286,6 +296,7 @@ export default function AdminVideoAssetsPage() {
                         </div>
                       ) : (
                         <div className="admin-video-registry__title-line">
+                          <span className="admin-video-registry__num">#{videoNumber}</span>
                           <strong>{label}</strong>
                           <button
                             type="button"
@@ -308,9 +319,9 @@ export default function AdminVideoAssetsPage() {
                           ) : null}
                         </div>
                       )}
-                      {row.display_name && row.title && row.display_name !== row.title ? (
-                        <p className="admin-video-registry__tech" title={row.title}>
-                          {row.title}
+                      {techName && techName !== label ? (
+                        <p className="admin-video-registry__tech" title={techName}>
+                          {techName}
                         </p>
                       ) : null}
                       {row.description ? (
