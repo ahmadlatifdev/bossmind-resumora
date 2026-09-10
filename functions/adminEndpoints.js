@@ -125,7 +125,14 @@ function registerAdminEndpoints(exportsObj) {
       await assertAdminAccess(req, db, readAdminPassword());
       const snapshot = await selfHeal.getHealthSnapshot(db);
       const documentation = await systemManual.getDocumentationStatus(db);
-      res.status(200).json({ ...snapshot, documentation });
+      const sharedMemory = require('./lib/sharedMemory');
+      const errorLedger = await sharedMemory.listSystemErrors(db, { limit: 40 });
+      res.status(200).json({
+        ...snapshot,
+        documentation,
+        systemErrors: errorLedger.errors,
+        systemErrorCount: errorLedger.count,
+      });
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Health load failed' });
@@ -892,6 +899,93 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Manual update failed' });
+    }
+  });
+
+  /** Public-ish ingest for frontend/API errors (redacted). No secrets returned. */
+  exportsObj.postSharedMemoryError = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      const body = parseBody(req);
+      const sharedMemory = require('./lib/sharedMemory');
+      const out = await sharedMemory.logSystemError(db, {
+        message: body.message || body.error,
+        stack: body.stack,
+        source: body.source || 'frontend',
+        url: body.url || body.href,
+        path: body.path,
+        severity: body.severity,
+        context: body.context,
+        userAgent: body.userAgent || req.get('user-agent'),
+      });
+      res.status(200).json(out);
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Error log failed' });
+    }
+  });
+
+  /** Admin list of live system_errors / shared memory error ledger. */
+  exportsObj.getSharedMemoryErrors = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    res.set('Cache-Control', 'no-store');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const sharedMemory = require('./lib/sharedMemory');
+      const limit = Number(req.query.limit || 50);
+      const out = await sharedMemory.listSystemErrors(db, { limit });
+      res.status(200).json(out);
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Error list failed' });
+    }
+  });
+
+  /** Editable BossMind Manual (Firestore `manual` collection) — GET/PUT. */
+  exportsObj.bossMindManual = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    res.set('Cache-Control', 'no-store');
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const sharedMemory = require('./lib/sharedMemory');
+      if (req.method === 'GET') {
+        const out = await sharedMemory.getBossMindManual(db);
+        res.status(200).json(out);
+        return;
+      }
+      if (req.method === 'PUT' || req.method === 'POST') {
+        const body = parseBody(req);
+        const out = await sharedMemory.saveBossMindManual(db, {
+          title: body.title,
+          content: body.content,
+        });
+        res.status(200).json(out);
+        return;
+      }
+      res.status(405).json({ error: 'Method not allowed' });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Manual failed' });
     }
   });
 
