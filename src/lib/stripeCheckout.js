@@ -65,13 +65,29 @@ export async function startStripeCheckoutForPlan(planId) {
     'https://us-central1-resumora-live.cloudfunctions.net/createCheckoutSession',
   ];
 
+  let authHeader = {};
+  try {
+    const { auth } = await import('./firebase');
+    const user = auth.currentUser;
+    if (user) {
+      const token = await user.getIdToken();
+      authHeader = { Authorization: `Bearer ${token}` };
+    }
+  } catch {
+    /* anonymous checkout ok */
+  }
+
   let payload = null;
   let lastError = null;
   for (const endpoint of endpoints) {
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...authHeader,
+        },
         credentials: 'omit',
         body: JSON.stringify({
           planId,

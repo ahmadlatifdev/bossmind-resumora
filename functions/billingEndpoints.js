@@ -312,6 +312,56 @@ function registerBillingEndpoints(exports) {
       }
     }
   );
+
+  /** Stripe Customer Billing Portal (authenticated). */
+  exports.createBillingPortalSession = onRequest(
+    {
+      region: 'us-central1',
+      cors: false,
+      timeoutSeconds: 30,
+      memory: '256MiB',
+      secrets: stripeApiSecrets,
+    },
+    async (req, res) => {
+      cors(res, req);
+      if (req.method === 'OPTIONS') return res.status(204).send('');
+      if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+      try {
+        const decoded = await verifyFirebaseUser(req);
+        if (!decoded) return res.status(401).json({ error: 'Authentication required' });
+
+        const body = parseBody(req);
+        const stripe = getStripe();
+        if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
+
+        const { getFirestore } = require('firebase-admin/firestore');
+        const db = getFirestore();
+        const userSnap = await db.collection('users').doc(decoded.uid).get();
+        let customerId = String(body.customerId || userSnap.data()?.stripeCustomerId || '').trim();
+
+        if (!customerId && decoded.email) {
+          const found = await stripe.customers.list({ email: decoded.email, limit: 1 });
+          if (found.data[0]) customerId = found.data[0].id;
+        }
+        if (!customerId) {
+          return res.status(400).json({
+            error: 'No Stripe customer on file. Complete checkout first.',
+          });
+        }
+
+        const returnUrl = String(body.returnUrl || 'https://resumora.net/account').trim();
+        const session = await stripe.billingPortal.sessions.create({
+          customer: customerId,
+          return_url: returnUrl,
+        });
+
+        return res.status(200).json({ ok: true, url: session.url });
+      } catch (err) {
+        return res.status(500).json({ error: err.message || 'Billing portal failed' });
+      }
+    }
+  );
 }
 
 module.exports = { registerBillingEndpoints };

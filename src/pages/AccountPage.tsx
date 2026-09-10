@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useLangOptional } from '../i18n/LangContext';
 import { t, tFormat } from '../lib/i18n.js';
-import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
+import {
+  getRefundPreview,
+  cancelSubscription,
+  listRefundHistory,
+  openBillingPortal,
+} from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import './account.css';
 
@@ -97,6 +102,7 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [refunds, setRefunds] = useState([]);
+  const [portalBusy, setPortalBusy] = useState(false);
   const plan = getPlanById(readSelectedPlan()) || getPlanById('basic');
 
   const loadRefunds = useCallback(async () => {
@@ -164,6 +170,21 @@ export default function AccountPage() {
     }
   }
 
+  async function onManageSubscription() {
+    setPortalBusy(true);
+    setToast(null);
+    try {
+      await openBillingPortal(`${window.location.origin}/account`);
+    } catch (err) {
+      setToast({
+        type: 'error',
+        text: err instanceof Error ? err.message : t(lang, 'account.portalFailed'),
+      });
+    } finally {
+      setPortalBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="account-page">
@@ -206,9 +227,22 @@ export default function AccountPage() {
             ? t(lang, 'account.planStatusActive')
             : t(lang, 'account.planStatusInactive')}
         </p>
-        <button type="button" className="btn-cancel-plan" onClick={openCancelModal}>
-          {t(lang, 'cancel.button')}
-        </button>
+        <div className="account-plan-actions">
+          <a className="btn-upgrade" href="/pricing">
+            {t(lang, 'account.upgradePlan')}
+          </a>
+          <button
+            type="button"
+            className="btn-manage-sub"
+            onClick={() => void onManageSubscription()}
+            disabled={portalBusy}
+          >
+            {portalBusy ? t(lang, 'account.portalOpening') : t(lang, 'account.manageSubscription')}
+          </button>
+          <button type="button" className="btn-cancel-plan" onClick={openCancelModal}>
+            {t(lang, 'cancel.button')}
+          </button>
+        </div>
       </section>
 
       <section className="account-card">

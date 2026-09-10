@@ -3,6 +3,7 @@
  */
 const { sendDunningEmail, resolveDunningPhase } = require('./stripeDunning');
 const { dunningReminder, queueEmail } = require('./emailTemplates');
+const { syncSubscriptionState } = require('./subscriptionSync');
 
 /** @type {Map<string, number>} */
 const invoiceFailureAttempts = new Map();
@@ -35,32 +36,17 @@ async function handleCheckoutSessionCompleted(event) {
     customer: session.customer || null,
   });
 
-  // Mark subscription / customer as active in Firestore when possible
-  try {
-    const { getFirestore } = require('firebase-admin/firestore');
-    const { FieldValue } = require('firebase-admin/firestore');
-    const db = getFirestore();
-    const uid = session.client_reference_id || session.metadata?.firebaseUid;
-    if (uid) {
-      await db
-        .collection('users')
-        .doc(String(uid))
-        .set(
-          {
-            subscriptionStatus: 'active',
-            stripeCustomerId: session.customer || null,
-            stripeSubscriptionId: session.subscription || null,
-            planId: session.metadata?.planId || null,
-            updatedAt: FieldValue.serverTimestamp(),
-          },
-          { merge: true }
-        );
-    }
-  } catch (_) {
-    /* optional */
-  }
+  const uid = session.client_reference_id || session.metadata?.firebaseUid || session.metadata?.uid;
+  await syncSubscriptionState({
+    uid,
+    email: session.customer_details?.email || session.customer_email || null,
+    planId: session.metadata?.planId || 'basic',
+    subscriptionStatus: 'active',
+    stripeCustomerId: session.customer || null,
+    stripeSubscriptionId: session.subscription || null,
+  });
 
-  return { action: 'checkout_fulfilled', sessionId: session.id, subscriptionActive: true };
+  return { action: 'checkout_fulfilled', sessionId: session.id, subscriptionActive: true, uid };
 }
 
 async function handleSubscriptionUpdated(event) {
@@ -71,7 +57,36 @@ async function handleSubscriptionUpdated(event) {
     customer: sub.customer,
     planId: sub.metadata?.planId || null,
   });
+
+  const uid = sub.metadata?.firebaseUid || sub.metadata?.uid || null;
+  if (uid) {
+    const active = sub.status === 'active' || sub.status === 'trialing';
+    await syncSubscriptionState({
+      uid,
+      planId: active ? sub.metadata?.planId || 'basic' : 'free',
+      subscriptionStatus: sub.status,
+      stripeCustomerId: sub.customer || null,
+      stripeSubscriptionId: sub.id,
+    });
+  }
+
   return { action: 'crm_sync', subscriptionId: sub.id, status: sub.status };
+}
+
+async function handleSubscriptionDeleted(event) {
+  const sub = event.data.object;
+  const uid = sub.metadata?.firebaseUid || sub.metadata?.uid || null;
+  console.info('[stripe] customer.subscription.deleted', { id: sub.id, uid });
+  if (uid) {
+    await syncSubscriptionState({
+      uid,
+      planId: 'free',
+      subscriptionStatus: 'inactive',
+      stripeCustomerId: sub.customer || null,
+      stripeSubscriptionId: sub.id,
+    });
+  }
+  return { action: 'downgraded_to_free', subscriptionId: sub.id, uid };
 }
 
 async function handleInvoicePaymentFailed(event, stripe) {
@@ -79,24 +94,23 @@ async function handleInvoicePaymentFailed(event, stripe) {
   const prev = invoiceFailureAttempts.get(invoice.id) || 0;
   const attempt = prev + 1;
   invoiceFailureAttempts.set(invoice.id, attempt);
+  const phase = resolveDunningPhase(attempt);
 
-  let customerEmail = invoice.customer_email || '';
-  if (!customerEmail && invoice.customer && stripe) {
-    try {
-      const customer = await stripe.customers.retrieve(String(invoice.customer));
-      if (customer && !customer.deleted) customerEmail = customer.email || '';
-    } catch (_) {
-      /* optional */
+  let customerEmail = '';
+  try {
+    if (stripe && invoice.customer) {
+      const customer = await stripe.customers.retrieve(invoice.customer);
+      customerEmail = customer.email || '';
     }
+  } catch (_) {
+    /* optional */
   }
 
-  const phase = resolveDunningPhase(attempt);
   const emailResult = await sendDunningEmail({
-    to: customerEmail,
-    invoiceId: invoice.id,
-    customerId: invoice.customer,
     attempt,
     phase,
+    invoiceId: invoice.id,
+    customerEmail,
     ...emailConfig(),
   });
 
@@ -128,6 +142,9 @@ async function processStripeEvent(event, stripe = null) {
     case 'customer.subscription.updated':
     case 'subscription.updated':
       return handleSubscriptionUpdated(event);
+    case 'customer.subscription.deleted':
+    case 'subscription.deleted':
+      return handleSubscriptionDeleted(event);
     case 'invoice.payment_failed':
       return handleInvoicePaymentFailed(event, stripe);
     default:
