@@ -75,3 +75,19 @@ export async function recordClientServiceEvent(eventType, metadata = {}) {
     return { ok: false, error: err.message };
   }
 }
+
+/** Open Stripe Customer Billing Portal (authenticated). */
+export async function openBillingPortal(returnUrl) {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://resumora.net';
+  const data = await fetchBilling('/billing-portal', {
+    method: 'POST',
+    body: JSON.stringify({
+      returnUrl: returnUrl || `${origin}/account`,
+    }),
+  });
+  if (data?.url) {
+    window.location.assign(data.url);
+    return { redirected: true, url: data.url };
+  }
+  throw new Error(data?.error || 'Billing portal unavailable');
+}

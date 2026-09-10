@@ -111,6 +111,10 @@
         "function": "createCheckoutSession"
       },
       {
+        "source": "/api/billing-portal",
+        "function": "createBillingPortalSession"
+      },
+      {
         "source": "/api/webhook",
         "function": "stripeWebhook"
       },

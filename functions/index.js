@@ -225,18 +225,34 @@ exports.createCheckoutSession = onRequest(
         fallback: price.currency || 'usd',
       });
 
+      // Optional Firebase UID for webhook → users / user_profiles sync
+      let firebaseUid = String(body.firebaseUid || body.uid || '').trim();
+      try {
+        const { getAuth } = require('firebase-admin/auth');
+        const header = String(req.get('authorization') || req.get('Authorization') || '');
+        const match = header.match(/^Bearer\s+(.+)$/i);
+        if (match) {
+          const decoded = await getAuth().verifyIdToken(match[1]);
+          firebaseUid = decoded.uid;
+        }
+      } catch (_) {
+        /* anonymous checkout still allowed */
+      }
+
       const sessionParams = buildOptimizedCheckoutParams(
         {
           mode,
           line_items: [{ price: priceId, quantity: 1 }],
           success_url: successUrl,
           cancel_url: cancelUrl,
+          ...(firebaseUid ? { client_reference_id: firebaseUid } : {}),
           metadata: {
             planId,
             projectId,
             source,
             expected_cents: String(expectedCents || price.unit_amount || ''),
             advisory_only_ui: 'true',
+            ...(firebaseUid ? { firebaseUid, uid: firebaseUid } : {}),
           },
         },
         { paymentMethodConfigurationId, currency }
