@@ -112,6 +112,7 @@ export default function AdminSystemHealthPage() {
   } | null>(null);
   const [rollbackHistory, setRollbackHistory] = useState<Array<Record<string, unknown>>>([]);
   const [documentation, setDocumentation] = useState<DocumentationStatus | null>(null);
+  const [systemErrors, setSystemErrors] = useState<Array<Record<string, unknown>>>([]);
   const [manualBusy, setManualBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
@@ -156,12 +157,14 @@ export default function AdminSystemHealthPage() {
             ? (data.documentation as DocumentationStatus)
             : null
         );
+        setSystemErrors(Array.isArray(data.systemErrors) ? data.systemErrors : []);
         setUnlocked(true);
         sessionStorage.setItem(SESSION_KEY, pw);
       } catch (err) {
         setUnlocked(false);
         sessionStorage.removeItem(SESSION_KEY);
         setHealth(null);
+        setSystemErrors([]);
         setError(err instanceof Error ? err.message : t(lang, 'heal.errorLoad'));
       } finally {
         setLoading(false);
@@ -172,6 +175,14 @@ export default function AdminSystemHealthPage() {
 
   useEffect(() => {
     if (unlocked && password) void load(password);
+  }, [unlocked, password, load]);
+
+  useEffect(() => {
+    if (!unlocked || !password) return undefined;
+    const id = window.setInterval(() => {
+      void load(password);
+    }, 20000);
+    return () => window.clearInterval(id);
   }, [unlocked, password, load]);
 
   const runCycle = useCallback(async () => {
@@ -363,6 +374,35 @@ export default function AdminSystemHealthPage() {
                 {notice}
               </p>
             ) : null}
+
+            <section className="panel" aria-labelledby="shared-memory-errors-heading">
+              <h2 id="shared-memory-errors-heading">{t(lang, 'heal.sharedMemoryTitle')}</h2>
+              <p className="text-sm opacity-80">{t(lang, 'heal.sharedMemoryLead')}</p>
+              {systemErrors.length === 0 ? (
+                <p className="text-sm opacity-80">{t(lang, 'heal.sharedMemoryEmpty')}</p>
+              ) : (
+                <ul className="admin-system-errors">
+                  {systemErrors.map((row) => (
+                    <li
+                      key={String(row.id || row.createdAt || row.message)}
+                      className="admin-system-errors__row"
+                    >
+                      <div className="admin-system-errors__meta">
+                        <strong>{String(row.severity || 'error')}</strong>
+                        <span> · {String(row.source || '—')}</span>
+                        {row.createdAt ? <span> · {String(row.createdAt)}</span> : null}
+                      </div>
+                      <p className="admin-system-errors__msg">{String(row.message || '—')}</p>
+                      {row.url ? (
+                        <p className="admin-system-errors__url" title={String(row.url)}>
+                          {String(row.url)}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
 
             <section className="panel" aria-labelledby="doc-status-heading">
               <h2 id="doc-status-heading">{t(lang, 'manual.docTitle')}</h2>

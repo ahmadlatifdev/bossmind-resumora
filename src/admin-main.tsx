@@ -10,8 +10,10 @@ import AdminRefundsPage from './pages/AdminRefundsPage';
 import AdminVideoAssetsPage from './pages/AdminVideoAssetsPage';
 import ChatHistoryPage from './pages/ChatHistoryPage';
 import AdminSystemHealthPage from './pages/AdminSystemHealth';
+import AdminManualPage from './pages/AdminManualPage';
 import FinancialPage from './pages/FinancialPage';
 import { LangProvider } from './i18n/LangContext';
+import { installFetchErrorLogger, installGlobalErrorHandler } from './lib/sharedMemoryClient';
 import './index.css';
 import './styles/tokens.css';
 import './admin-master.css';
@@ -19,6 +21,9 @@ import './admin-master.css';
 document.documentElement.classList.add('dark');
 document.documentElement.dataset.theme = 'dark';
 document.documentElement.style.colorScheme = 'dark';
+
+installGlobalErrorHandler('admin');
+installFetchErrorLogger('admin');
 
 function AdminApp() {
   return (
@@ -33,6 +38,7 @@ function AdminApp() {
               <Route path="/admin/financials" element={<FinancialPage />} />
               <Route path="/admin/refunds" element={<AdminRefundsPage />} />
               <Route path="/admin/videos" element={<AdminVideoAssetsPage />} />
+              <Route path="/admin/manual" element={<AdminManualPage />} />
               <Route path="/admin/chat-history" element={<ChatHistoryPage />} />
               <Route path="/admin" element={<Navigate to="/admin/master" replace />} />
               <Route path="/bossmind" element={<Navigate to="/admin/master" replace />} />

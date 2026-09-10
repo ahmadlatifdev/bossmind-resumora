@@ -10,6 +10,7 @@ const LINKS = [
   { to: '/admin/global-chat', key: 'master.nav.globalChat' },
   { to: '/admin/chat-history', key: 'master.nav.chatHistory' },
   { to: '/admin/system-health', key: 'master.nav.health' },
+  { to: '/admin/manual', key: 'master.nav.manual' },
   { to: '/admin/refunds', key: 'master.nav.refunds' },
   { to: '/admin/master#users', key: 'master.nav.users' },
   { to: '/admin/master#orchestration', key: 'master.nav.orchestration' },
@@ -81,7 +82,11 @@ export default function AdminShell() {
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === '/admin/videos' || link.to === '/admin/chat-history'}
+              end={
+                link.to === '/admin/videos' ||
+                link.to === '/admin/chat-history' ||
+                link.to === '/admin/manual'
+              }
               className={({ isActive }) =>
                 [
                   'admin-master__nav-link',

@@ -185,6 +185,18 @@
         "function": "updateSystemManual"
       },
       {
+        "source": "/api/shared-memory/errors",
+        "function": "postSharedMemoryError"
+      },
+      {
+        "source": "/api/admin/shared-memory/errors",
+        "function": "getSharedMemoryErrors"
+      },
+      {
+        "source": "/api/admin/manual",
+        "function": "bossMindManual"
+      },
+      {
         "source": "/api/admin/master-dashboard",
         "function": "getMasterDashboard"
       },
