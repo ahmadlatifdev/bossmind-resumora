@@ -27,10 +27,17 @@ function serializeDoc(doc) {
     const m = String(data.archive_url).match(/archive\/([^/]+)\//i);
     if (m) archiveQuarter = m[1];
   }
+  const title = String(data.title || data.title_EN || data.name || doc.id);
+  const displayName = data.display_name != null ? String(data.display_name).trim() : '';
+  const description = data.description != null ? String(data.description).trim() : '';
   return {
     id: doc.id,
     doc_id: doc.id,
-    title: String(data.title || data.title_EN || data.name || doc.id),
+    title,
+    display_name: displayName,
+    description,
+    /** Prefer admin-friendly name in lists; fall back to technical title. */
+    label: displayName || title,
     status,
     active_url: data.active_url ? String(data.active_url) : '',
     archive_url: data.archive_url ? String(data.archive_url) : '',
@@ -116,11 +123,105 @@ async function restoreRegistryVideo(db, docId) {
   };
 }
 
+async function updateRegistryMetadata(db, docId, patch = {}) {
+  const id = String(docId || '').trim();
+  if (!id) {
+    throw Object.assign(new Error('Missing docId'), { statusCode: 400 });
+  }
+  const docRef = db.collection(COLLECTION).doc(id);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    throw Object.assign(new Error('Video not found'), { statusCode: 404 });
+  }
+
+  const updates = {
+    updated_at: FieldValue.serverTimestamp(),
+  };
+  if (Object.prototype.hasOwnProperty.call(patch, 'display_name')) {
+    updates.display_name = String(patch.display_name || '').trim();
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, 'description')) {
+    updates.description = String(patch.description || '').trim();
+  }
+  if (
+    !Object.prototype.hasOwnProperty.call(updates, 'display_name') &&
+    !Object.prototype.hasOwnProperty.call(updates, 'description')
+  ) {
+    throw Object.assign(new Error('Provide display_name and/or description'), { statusCode: 400 });
+  }
+
+  await docRef.set(updates, { merge: true });
+  const fresh = await docRef.get();
+  return { ok: true, video: serializeDoc(fresh) };
+}
+
+/**
+ * Admin playback: resolve registry doc → gs/https object → V4 signed URL.
+ * Only allows objects in the resumora-videos bucket.
+ */
+async function signRegistryPlayUrl(db, { docId, url } = {}) {
+  const id = String(docId || '').trim();
+  let sourceUrl = String(url || '').trim();
+
+  if (id) {
+    const doc = await db.collection(COLLECTION).doc(id).get();
+    if (!doc.exists) {
+      throw Object.assign(new Error('Video not found'), { statusCode: 404 });
+    }
+    const data = doc.data() || {};
+    sourceUrl =
+      String(data.active_url || '').trim() || String(data.archive_url || '').trim() || sourceUrl;
+  }
+  if (!sourceUrl) {
+    throw Object.assign(new Error('Missing video URL'), { statusCode: 400 });
+  }
+
+  const filePath = parseObjectPath(sourceUrl);
+  if (!filePath) {
+    throw Object.assign(new Error('Unsupported video URL'), { statusCode: 400 });
+  }
+
+  let bucketName = BUCKET;
+  const gs = sourceUrl.match(/^gs:\/\/([^/]+)\//i);
+  const https = sourceUrl.match(/^https?:\/\/storage\.googleapis\.com\/([^/]+)\//i);
+  if (gs) bucketName = gs[1];
+  else if (https) bucketName = https[1];
+
+  if (bucketName !== BUCKET) {
+    throw Object.assign(new Error('URL not in video bucket'), { statusCode: 403 });
+  }
+
+  const file = getStorage().bucket(BUCKET).file(filePath);
+  const [exists] = await file.exists();
+  if (!exists) {
+    throw Object.assign(new Error('Object missing in GCS'), { statusCode: 404 });
+  }
+
+  // Browser-playable HTTPS URL; short TTL for admin dashboard playback.
+  const expiresMs = Date.now() + 15 * 60 * 1000;
+  const [signedUrl] = await file.getSignedUrl({
+    version: 'v4',
+    action: 'read',
+    expires: expiresMs,
+  });
+
+  return {
+    ok: true,
+    signedUrl,
+    expiresAt: new Date(expiresMs).toISOString(),
+    objectPath: filePath,
+    sourceUrl: `gs://${BUCKET}/${filePath}`,
+    docId: id || null,
+  };
+}
+
 module.exports = {
   COLLECTION,
   BUCKET,
   listVideoRegistry,
   restoreRegistryVideo,
+  updateRegistryMetadata,
+  signRegistryPlayUrl,
   parseObjectPath,
   serializeDoc,
 };

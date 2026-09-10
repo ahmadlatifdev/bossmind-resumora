@@ -265,6 +265,18 @@
         "function": "postAdminRestoreVideo"
       },
       {
+        "source": "/api/admin/video-registry/update",
+        "function": "postAdminUpdateVideoRegistry"
+      },
+      {
+        "source": "/api/admin/videos/signed-url",
+        "function": "postAdminVideoSignedUrl"
+      },
+      {
+        "source": "/api/get-signed-url",
+        "function": "postAdminVideoSignedUrl"
+      },
+      {
         "source": "/api/admin/tasks/create",
         "function": "createHarnessTask"
       },

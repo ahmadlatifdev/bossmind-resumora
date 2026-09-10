@@ -498,6 +498,9 @@ export type AdminRegistryVideo = {
   doc_id?: string;
   video_id?: string;
   title?: string;
+  display_name?: string;
+  description?: string;
+  label?: string;
   status?: string;
   active_url?: string;
   archive_url?: string;
@@ -561,6 +564,50 @@ export async function restoreAdminVideo(password: string, docId: string) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data as { ok?: boolean; message?: string; newUrl?: string; docId?: string };
+}
+
+export async function updateAdminRegistryVideo(
+  password: string,
+  docId: string,
+  patch: { display_name?: string; description?: string }
+) {
+  const res = await fetch('/api/admin/video-registry/update', {
+    method: 'POST',
+    headers: {
+      ...adminHeaders(password),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ docId, ...patch }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as { ok?: boolean; video?: AdminRegistryVideo };
+}
+
+export async function fetchAdminVideoSignedUrl(password: string, docId: string, gsUrl?: string) {
+  const res = await fetch('/api/admin/videos/signed-url', {
+    method: 'POST',
+    headers: {
+      ...adminHeaders(password),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      docId,
+      // Prefer explicit gs:// so the function can sign without re-reading Firestore.
+      url: gsUrl || undefined,
+      gsUrl: gsUrl || undefined,
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data as {
+    ok?: boolean;
+    signedUrl?: string;
+    expiresAt?: string;
+    objectPath?: string;
+    sourceUrl?: string;
+    docId?: string | null;
+  };
 }
 
 export type AdminGlobalChatMessage = {
