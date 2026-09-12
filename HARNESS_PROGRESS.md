@@ -2,6 +2,14 @@
 
 Newest entries at the top. AI reads only the last 5 on session start.
 
+## 2026-09-12 - Harness Deployed, Awaiting First Test
+
+- Phases A, B, C, D, and E are all complete and committed.
+- Phase D commit: bd8c623.
+- Phase E commit: 3b7d797.
+- Harness is live on Firestore + Cloud Function.
+- Status: deployed; next action: run the first harness test.
+
 ## 2026-09-12 - Phase A Complete (Shared Harness Foundation)
 
 - Created src/lib/harness/harnessTypes.ts
