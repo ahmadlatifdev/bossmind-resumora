@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import HealthScoreDiagnostic from '../components/HealthScoreDiagnostic';
 import { t } from '../lib/i18n.js';
 import '../app-shell.css';
 
@@ -464,6 +465,7 @@ export default function AdminSystemHealthPage() {
                   ? t(lang, 'heal.guardianPass')
                   : t(lang, 'heal.guardianFail')}
               </p>
+              <HealthScoreDiagnostic health={health} />
               {health?.lastGuardian?.checks?.expectedCheckoutPrefix ? (
                 <p className="text-sm opacity-70">
                   {t(lang, 'heal.checkoutPrefix')}:{' '}
