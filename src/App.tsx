@@ -12,6 +12,7 @@ import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AppLayout } from './components/Layout';
+import ClientHarnessWidget from './components/ClientHarness/ClientHarnessWidget';
 import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
 import AccountPage from './pages/AccountPage';
@@ -204,6 +205,12 @@ function AnalyticsRouteTracker() {
   return null;
 }
 
+function ClientHarnessMount() {
+  const location = useLocation();
+  if (location.pathname.startsWith('/admin')) return null;
+  return <ClientHarnessWidget />;
+}
+
 function AppRoutes() {
   return (
     <>
@@ -231,6 +238,7 @@ function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
+      <ClientHarnessMount />
     </>
   );
 }
