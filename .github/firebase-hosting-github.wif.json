@@ -1,0 +1,21 @@
+{
+  "comment": "Firebase Hosting + GitHub Actions via Workload Identity Federation (no JSON SA key).",
+  "projectId": "resumora-live",
+  "hostingSite": "client-resumora-live",
+  "auth": {
+    "method": "workload_identity_federation",
+    "githubSecrets": ["WORKLOAD_IDENTITY_PROVIDER", "SERVICE_ACCOUNT_EMAIL"],
+    "setupScript": "scripts/setup-workload-identity.ps1",
+    "actions": {
+      "auth": "google-github-actions/auth@v2",
+      "gcloud": "google-github-actions/setup-gcloud@v2",
+      "deploy": "npx firebase-tools@latest hosting:channel:deploy (ADC via GOOGLE_APPLICATION_CREDENTIALS)"
+    }
+  },
+  "workflows": [
+    ".github/workflows/deploy-preview.yml",
+    ".github/workflows/deploy-staging.yml",
+    ".github/workflows/deploy-prod.yml"
+  ],
+  "deprecatedSecrets": ["FIREBASE_SERVICE_ACCOUNT", "FIREBASE_SERVICE_ACCOUNT_BACKUP"]
+}

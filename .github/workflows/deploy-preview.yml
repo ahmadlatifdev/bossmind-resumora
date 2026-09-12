@@ -1,4 +1,5 @@
 # Preview Hosting channel — opens on PRs targeting main
+# Auth: Workload Identity Federation (OIDC) — no FIREBASE_SERVICE_ACCOUNT JSON key.
 name: Deploy Firebase Hosting Preview
 
 on:
@@ -14,12 +15,17 @@ permissions:
   checks: write
   contents: read
   pull-requests: write
+  id-token: write
 
 jobs:
   build_and_preview:
     runs-on: ubuntu-latest
-    # Skip forks (secrets are not available to fork PRs)
+    # Skip forks (OIDC secrets / WIF are not available to fork PRs)
     if: github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      GCP_PROJECT_ID: resumora-live
+      HOSTING_SITE: client-resumora-live
+      CHANNEL_ID: pr-${{ github.event.pull_request.number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +41,6 @@ jobs:
 
       - name: Build (Vite)
         env:
-          # Public Vite client vars — set in GitHub → Settings → Secrets and variables → Actions
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -52,12 +57,81 @@ jobs:
           VITE_PAYWALL_ALLOW_AUTHED: ${{ secrets.VITE_PAYWALL_ALLOW_AUTHED }}
         run: npm run build
 
-      - name: Deploy Hosting preview channel
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Verify Workload Identity secrets are configured
+        env:
+          WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -z "$WORKLOAD_IDENTITY_PROVIDER" ] || [ -z "$SERVICE_ACCOUNT_EMAIL" ]; then
+            echo "WORKLOAD_IDENTITY_PROVIDER or SERVICE_ACCOUNT_EMAIL GitHub Secret is missing."
+            echo "Run scripts/setup-workload-identity.ps1 -SetGitHubSecrets locally once."
+            exit 1
+          fi
+          echo "OIDC auth configured (values not printed)."
+
+      - name: Authenticate to Google Cloud (WIF)
+        id: auth
+        uses: google-github-actions/auth@v2
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: resumora-live
-          # Preview channel (not live). Site id comes from firebase.json → hosting.site
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Verify GCP credentials (OIDC smoke)
+        run: |
+          test -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" || { echo "Missing GOOGLE_APPLICATION_CREDENTIALS"; exit 1; }
+          test -f "${GOOGLE_APPLICATION_CREDENTIALS}" || { echo "Credentials file not found"; exit 1; }
+          echo "OIDC credentials file present (project=${GCP_PROJECT_ID})"
+          gcloud --project="${GCP_PROJECT_ID}" projects describe "${GCP_PROJECT_ID}" --format='value(projectId)'
+
+      - name: Deploy Hosting preview channel (ADC / WIF)
+        id: deploy
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
+        run: |
+          set -euo pipefail
+          OUT=$(npx firebase-tools@latest hosting:channel:deploy "${CHANNEL_ID}" \
+            --project "${GCP_PROJECT_ID}" \
+            --site "${HOSTING_SITE}" \
+            --expires 7d \
+            --non-interactive 2>&1 | tee /tmp/hosting-preview-out.txt)
+          URL=$(echo "$OUT" | grep -Eo 'https://[^[:space:]]+\.web\.app' | tail -n1 || true)
+          if [ -z "$URL" ]; then
+            URL=$(echo "$OUT" | grep -Eo 'https://[^[:space:]]+\.firebaseapp\.com' | tail -n1 || true)
+          fi
+          echo "channel_url=${URL}" >> "$GITHUB_OUTPUT"
+          echo "Preview channel ${CHANNEL_ID} deployed${URL:+ → $URL}"
+
+      - name: Comment preview URL on PR
+        if: steps.deploy.outputs.channel_url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.channel_url }}';
+            const body = `## Firebase Hosting Preview\n\nPreview channel **${{ env.CHANNEL_ID }}** (WIF / OIDC — no JSON service-account key):\n\n${url}\n`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const marker = '## Firebase Hosting Preview';
+            const existing = comments.find((c) => c.user?.type === 'Bot' && c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

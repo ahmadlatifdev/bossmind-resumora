@@ -1,5 +1,6 @@
 name: Deploy Staging (Blue-Green Preview)
 
+# Auth: Workload Identity Federation (OIDC) — no FIREBASE_SERVICE_ACCOUNT JSON key.
 on:
   push:
     branches: [staging, 'feature/**']
@@ -15,6 +16,7 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  id-token: write
 
 env:
   GCP_PROJECT_ID: resumora-live
@@ -40,6 +42,8 @@ jobs:
     needs: validate
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+    env:
+      CHANNEL_ID: staging-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,15 +52,49 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - name: Deploy preview channel (blue-green slot)
-        uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Verify Workload Identity secrets are configured
+        env:
+          WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          if [ -z "$WORKLOAD_IDENTITY_PROVIDER" ] || [ -z "$SERVICE_ACCOUNT_EMAIL" ]; then
+            echo "WORKLOAD_IDENTITY_PROVIDER or SERVICE_ACCOUNT_EMAIL GitHub Secret is missing."
+            echo "Run scripts/setup-workload-identity.ps1 -SetGitHubSecrets locally once."
+            exit 1
+          fi
+          echo "OIDC auth configured (values not printed)."
+
+      - name: Authenticate to Google Cloud (WIF)
+        uses: google-github-actions/auth@v2
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: resumora-live
-          channelId: staging-${{ github.run_id }}
-        continue-on-error: true
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Verify GCP credentials (OIDC smoke)
+        run: |
+          test -n "${GOOGLE_APPLICATION_CREDENTIALS:-}" || { echo "Missing GOOGLE_APPLICATION_CREDENTIALS"; exit 1; }
+          test -f "${GOOGLE_APPLICATION_CREDENTIALS}" || { echo "Credentials file not found"; exit 1; }
+          echo "OIDC credentials file present (project=${GCP_PROJECT_ID})"
+          gcloud --project="${GCP_PROJECT_ID}" projects describe "${GCP_PROJECT_ID}" --format='value(projectId)'
+
+      - name: Deploy preview channel (blue-green slot via WIF ADC)
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
+        run: |
+          set -euo pipefail
+          npx firebase-tools@latest hosting:channel:deploy "${CHANNEL_ID}" \
+            --project "${GCP_PROJECT_ID}" \
+            --site "${HOSTING_SITE}" \
+            --expires 7d \
+            --non-interactive
+
       - name: Staging note
         run: |
-          echo "Preview channel staging-${{ github.run_id }} — requires FIREBASE_SERVICE_ACCOUNT"
-          echo "Production remains on live channel until main merge + approval"
+          echo "Preview channel ${CHANNEL_ID} deployed via Workload Identity Federation (OIDC)."
+          echo "Production remains on live channel until main merge + approval."
