@@ -43,3 +43,5 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - admin-master.css appended
 - Commit: 1e7d15f
 - Next: Phase C (Client Harness UI)
+
+## 2026-09-12 15:20 - Activation trigger for all workflows
