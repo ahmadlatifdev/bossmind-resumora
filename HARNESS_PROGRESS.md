@@ -28,3 +28,10 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Google Cloud policy blocks service account JSON key creation
 - Workaround: manual local deploy
 - Future fix: Workload Identity Federation (WIF)
+
+## 2026-09-12 Phase B
+
+- AdminHarnessPanel + Toolbar + MasterAdmin mount + CSS
+- Commit: 1e7d15f feat(harness): admin harness panel + toolbar
+- Build: passed
+- Status: Phase B complete; awaiting Phase C

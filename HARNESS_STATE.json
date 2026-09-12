@@ -1,22 +1,24 @@
 {
-  "current_task": "Dual-harness build - Phase B (Admin Harness UI)",
-  "status": "in-progress",
+  "current_task": "Dual-harness build - Phase C (Client Harness UI)",
+  "status": "ready",
   "verified_facts": [
     "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
     "PR #55 merged to main",
     "Manual deploy workflow in use (CI/CD blocked by Google Cloud policy)",
-    "Phase A complete: harnessTypes.ts, harnessToolRegistry.ts, harnessClient.ts committed"
+    "Phase A complete: harnessTypes.ts, harnessToolRegistry.ts, harnessClient.ts committed",
+    "Phase B complete: AdminHarnessPanel + Toolbar mounted on MasterAdminPage; commit 1e7d15f on main"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
     "Auto-heal loop blinks infinitely when score is below 100",
     "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy"
   ],
-  "next_action": "Phase B: create Admin Harness panel + toolbar, mount in MasterAdminPage, append CSS",
+  "next_action": "Wait for user to start Phase C (Client Harness UI). Do not loop into C/D/E.",
   "must_not_redo": [
     "Do not re-create the 4 health score files — they exist and are deployed",
     "Do not re-run firebase deploy until state bug is fixed",
-    "Do not touch Stripe / PR #52 code"
+    "Do not touch Stripe / PR #52 code",
+    "Do not re-create Phase A or Phase B harness files"
   ],
   "invariants": [
     "Stripe integration must not be touched",
