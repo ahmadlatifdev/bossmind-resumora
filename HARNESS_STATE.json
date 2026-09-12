@@ -1,0 +1,25 @@
+{
+  "current_task": "Install dual-harness (admin + client AI chat)",
+  "status": "planning",
+  "verified_facts": [
+    "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
+    "PR #55 merged to main",
+    "Manual deploy workflow in use (CI/CD blocked by Google Cloud policy)"
+  ],
+  "known_bugs": [
+    "Health score displays mismatched values (100% vs 80% vs 40%)",
+    "Auto-heal loop blinks infinitely when score is below 100",
+    "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy"
+  ],
+  "next_action": "Review harness file list and type 'proceed' in Cursor",
+  "must_not_redo": [
+    "Do not re-create the 4 health score files — they exist and are deployed",
+    "Do not re-run firebase deploy until state bug is fixed",
+    "Do not touch Stripe / PR #52 code"
+  ],
+  "invariants": [
+    "Stripe integration must not be touched",
+    "Firestore rules must not be weakened",
+    "Client harness must never call admin-only tools"
+  ]
+}

@@ -1,0 +1,30 @@
+---
+description: BossMind Harness Constitution — read at EVERY session start
+alwaysApply: true
+---
+
+# BOSSMIND HARNESS CONSTITUTION
+
+## SESSION START PROTOCOL
+1. Read `HARNESS_STATE.json` — this is the single source of truth.
+2. Read the last 5 entries of `HARNESS_PROGRESS.md`.
+3. NEVER trust your own memory of previous sessions. The files are authoritative.
+4. Report the current task and next action. Wait for "proceed".
+
+## WORKFLOW GATES (mechanical, non-negotiable)
+- G1: Every change must be committed to git before claiming "done".
+- G2: Every change must pass `npm run build` before claiming "done".
+- G3: Every admin feature must be verified against the live deploy URL.
+- G4: No file outside `src/` may be modified without explicit written approval.
+- G5: Maximum 10 files per session. If more are needed, split into multiple sessions.
+
+## VERIFICATION RULE
+- After writing any file, run `git status` and paste the output.
+- If `git status` shows nothing changed, the write FAILED. Report the failure.
+- NEVER say "Done" without proof from `git status`.
+
+## SCOPE RULE
+- List every file you plan to modify BEFORE writing.
+- Wait for the user to type "proceed" before any write.
+- Do NOT use the Canvas feature. It is permanently disabled.
+- Always use `write_to_file` or `edit_file` to write directly to disk.

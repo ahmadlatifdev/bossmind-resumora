@@ -1,0 +1,26 @@
+---
+description: BossMind React/Vite technical rules
+globs: ["src/**/*.ts", "src/**/*.tsx"]
+alwaysApply: true
+---
+
+# TECHNICAL RULES
+
+## Stack
+- React + Vite + TypeScript
+- Firebase (Firestore, Auth, Hosting, Functions)
+- Stripe for billing — NEVER modify Stripe code without explicit approval
+- Admin pages live in `src/pages/Admin*.tsx`
+- Client pages live in `src/pages/*.tsx` (non-Admin)
+
+## File conventions
+- New admin components go in `src/components/Admin*/`
+- New client components go in `src/components/`
+- Shared utilities go in `src/lib/`
+- Never edit `firestore.rules`, `firebase.json`, or `.github/workflows/*` without approval
+
+## Code style
+- Use `type` over `interface` where possible
+- Use functional components with hooks
+- Prefer named exports for utilities, default exports for pages
+- All user-facing strings should use the i18n system when available

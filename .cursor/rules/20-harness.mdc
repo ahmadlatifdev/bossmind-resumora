@@ -1,0 +1,20 @@
+---
+description: Dual-harness (admin + client AI chat) architecture
+globs: ["src/lib/harness/**", "src/components/AdminHarness/**", "src/components/ClientHarness/**", "functions/lib/harness/**"]
+alwaysApply: false
+---
+
+# HARNESS ARCHITECTURE RULES
+
+## Scope isolation
+- Admin tools MUST be rejected at the registry level if called from client scope.
+- Client harness is READ-ONLY + support-ticket creation only.
+- Never send API keys, service account JSON, or `.env` values to either harness.
+
+## Audit logging
+- Every admin tool call must write a `pending` record to `harness_audit_log` BEFORE execution.
+- Update that record to `success` or `error` AFTER execution.
+
+## Auth
+- Admin harness requires `X-Admin-Password` header. Return 403 if missing/wrong.
+- Client harness has no admin auth but is rate-limited (20 msgs/hour/session).
