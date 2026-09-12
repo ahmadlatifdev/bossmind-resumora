@@ -1887,3 +1887,98 @@
   border: 1px solid rgba(212, 175, 55, 0.22);
   background: rgba(0, 0, 0, 0.28);
 }
+
+.health-score-diagnostic {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(212, 175, 55, 0.22);
+}
+.health-score-diagnostic__meter {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.health-score-diagnostic__meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+.health-score-diagnostic__summary {
+  margin: 0 0 12px;
+  color: #f5e6c8;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.health-score-diagnostic__cats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.health-score-diagnostic__cat {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(0, 0, 0, 0.28);
+  display: grid;
+  gap: 2px;
+}
+.health-score-diagnostic__cat--ok {
+  border-color: rgba(61, 214, 140, 0.45);
+}
+.health-score-diagnostic__cat--warn {
+  border-color: rgba(240, 160, 96, 0.5);
+}
+.health-score-diagnostic__cat--fail {
+  border-color: rgba(255, 107, 107, 0.55);
+}
+.health-score-diagnostic__cat-label {
+  font-size: 0.78rem;
+  color: #c9a84c;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.health-score-diagnostic__cat-detail {
+  font-size: 0.88rem;
+  color: #f5e6c8;
+  word-break: break-word;
+}
+.health-score-diagnostic__sev {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin: 12px 0 4px;
+  font-size: 0.8rem;
+  color: #a89860;
+}
+.health-score-diagnostic__blockers {
+  margin-top: 12px;
+}
+.health-score-diagnostic__blockers-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #d4af37;
+  font-weight: 600;
+}
+.health-score-diagnostic__blockers ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+.health-score-diagnostic__blockers li {
+  margin-bottom: 6px;
+  color: #f5e6c8;
+}
+.health-score-diagnostic__blocker-meta {
+  color: #a89860;
+  font-size: 0.85rem;
+}
+.health-score-diagnostic__none {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #a89860;
+  opacity: 0.9;
+}
