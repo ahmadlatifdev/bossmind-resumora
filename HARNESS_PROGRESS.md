@@ -35,3 +35,11 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Commit: 1e7d15f feat(harness): admin harness panel + toolbar
 - Build: passed
 - Status: Phase B complete; awaiting Phase C
+
+## 2026-09-12 - Phase B Complete (Admin Harness UI)
+
+- AdminHarnessPanel.tsx + AdminHarnessToolbar.tsx created
+- MasterAdminPage.tsx mounted panel
+- admin-master.css appended
+- Commit: 1e7d15f
+- Next: Phase C (Client Harness UI)
