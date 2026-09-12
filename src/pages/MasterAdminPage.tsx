@@ -26,6 +26,7 @@ import {
   type HarnessTask,
 } from '../lib/adminApi';
 import AdminHermesCommandChat from '../components/AdminHermesCommandChat';
+import AdminHarnessPanel from '../components/AdminHarness/AdminHarnessPanel';
 import { t, tFormat } from '../lib/i18n.js';
 
 const SELECTED_PROJECT_KEY = 'resumora_admin_selected_project';
@@ -794,6 +795,8 @@ export default function MasterAdminPage() {
         </div>
         <HealthGauge score={score} label={t(lang, 'master.healthTitle')} />
       </section>
+
+      <AdminHarnessPanel password={password} lang={lang} />
 
       <section className="admin-grid" aria-label={t(lang, 'master.projectsAria')}>
         {(data?.projects || []).map((p) => (
