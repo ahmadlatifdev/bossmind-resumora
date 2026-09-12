@@ -2,6 +2,14 @@
 
 Newest entries at the top. AI reads only the last 5 on session start.
 
+## 2026-09-12 - Phase A Complete (Shared Harness Foundation)
+
+- Created src/lib/harness/harnessTypes.ts
+- Created src/lib/harness/harnessToolRegistry.ts
+- Created src/lib/harness/harnessClient.ts
+- Committed and pushed to main
+- Next: Phase B (Admin Harness UI)
+
 ## 2026-09-12 — Harness Installed
 
 - Installed `.cursor/rules/*.mdc` (auto-loaded by Cursor every session)
