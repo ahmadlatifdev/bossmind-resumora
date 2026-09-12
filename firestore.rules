@@ -53,6 +53,29 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+  // Harness — admin chat sessions (authenticated users only)
+  match /harness_sessions/{sessionId} {
+    allow read, write: if isSignedIn();
+  }
+
+  // Harness — audit log (write via Cloud Functions only)
+  match /harness_audit_log/{logId} {
+    allow read: if isSignedIn();
+    allow write: if false;
+  }
+
+  // Harness — support tickets (public create, authenticated read)
+  match /support_tickets/{ticketId} {
+    allow create: if true;
+    allow read, update: if isSignedIn();
+    allow delete: if false;
+  }
+
+  // Harness — rate limits (write via Cloud Functions only)
+  match /harness_rate_limits/{sessionId} {
+    allow read, write: if false;
+  }
+
     // Deny all other client access (Admin SDK / Cloud Functions bypass rules)
     // Includes: system_*, videos, projects (BossMind harness registry), admin_settings, etc.
     match /{document=**} {
