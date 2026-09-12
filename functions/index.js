@@ -482,18 +482,21 @@ exports.sendChatMessage = onRequest(
 
 // Harness endpoints (admin + client AI chat)
 const { route: harnessRoute } = require('./lib/harness/harnessRouter');
-exports.harness = onRequest({ cors: true, secrets: [geminiApiKey] }, async (req, res) => {
-  try {
-    const body = req.body || {};
-    const result = await harnessRoute({
-      mode: body.mode,
-      sessionId: body.sessionId,
-      message: body.message,
-      history: body.history,
-      headers: req.headers,
-    });
-    res.json(result);
-  } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+exports.harness = onRequest(
+  { cors: true, secrets: [geminiApiKey], invoker: 'public' },
+  async (req, res) => {
+    try {
+      const body = req.body || {};
+      const result = await harnessRoute({
+        mode: body.mode,
+        sessionId: body.sessionId,
+        message: body.message,
+        history: body.history,
+        headers: req.headers,
+      });
+      res.json(result);
+    } catch (err) {
+      res.status(err.status || 500).json({ error: err.message });
+    }
   }
-});
+);
