@@ -77,3 +77,14 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - VideosPage.tsx upgraded with HLS-attach effect triggered by .m3u8 sources
 - Commit: 09f04e0
 - Next: upload test video to trigger autoTranscodeVideo
+
+## 2026-09-13 - Video Pipeline Complete
+
+- Cloud Storage bucket resumora-videos live with lifecycle rules
+- HLS template interview-hls-template deployed (1080p/720p/480p, 6s segments)
+- Manual transcode script scripts/transcode-video.ps1 created (uses --template-id flag)
+- HLS player wired into VideosPage.tsx with adaptive quality switching
+- Test video transcoded successfully - master.m3u8 + 3 quality levels produced
+- Eventarc trigger approach abandoned after multiple silent failures
+- Commits: 09f04e0, 6cd7d0f, 8f6cf5a, 6cc1f48
+- Next: produce actual 8-minute interview videos, run transcode script per video

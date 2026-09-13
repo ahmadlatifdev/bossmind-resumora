@@ -1,6 +1,6 @@
 {
-  "current_task": "Google Cloud video pipeline - Phase 7 (upload + verify)",
-  "status": "in-progress",
+  "current_task": "Video pipeline complete - awaiting content production",
+  "status": "complete",
   "verified_facts": [
     "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
     "PR #55 merged to main",
@@ -16,7 +16,12 @@
     "harness Cloud Function deployed and public (commit 2f061b5)",
     "api/harness returns HTTP 200 with toolResults and needs_human but no reply",
     "Video pipeline deployed: bucket resumora-videos created with lifecycle rules, Transcoder API enabled, HLS template interview-hls-template created (1080p/720p/480p), autoTranscodeVideo Cloud Function live",
-    "hls.js installed, HlsPlayer.tsx created, VideosPage.tsx upgraded with adaptive HLS attach effect (commit 09f04e0)"
+    "hls.js installed, HlsPlayer.tsx created, VideosPage.tsx upgraded with adaptive HLS attach effect (commit 09f04e0)",
+    "Video pipeline proven: test video transcoded successfully to HLS 1080p/720p/480p",
+    "Manual script scripts/transcode-video.ps1 works reliably (commit 8f6cf5a)",
+    "HLS player wired into VideosPage.tsx (lines 164-179, commit 6cd7d0f)",
+    "Pipeline config tracked: lifecycle.json + transcode-template.json (commit 6cc1f48)",
+    "Eventarc autoTranscodeVideo trigger abandoned - replaced by manual script"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
@@ -24,12 +29,13 @@
     "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy",
     "Gemini response does not populate the reply field"
   ],
-  "next_action": "Upload a test video to gs://resumora-videos/input/ and verify auto-transcode produces master.m3u8 playlist in output/",
+  "next_action": "Produce the 4 interview training videos (8 min each) and transcode with scripts/transcode-video.ps1, then update Firestore catalog with HLS URLs",
   "must_not_redo": [
     "Do not re-create the 4 health score files — they exist and are deployed",
     "Do not re-run firebase deploy until state bug is fixed",
     "Do not touch Stripe / PR #52 code",
-    "Do not re-create completed Phase A, B, C, D, or E harness work"
+    "Do not re-create completed Phase A, B, C, D, or E harness work",
+    "Do not attempt to recreate autoTranscodeVideo Eventarc trigger - it is abandoned"
   ],
   "invariants": [
     "Stripe integration must not be touched",
