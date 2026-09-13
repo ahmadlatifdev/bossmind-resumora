@@ -88,3 +88,9 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Eventarc trigger approach abandoned after multiple silent failures
 - Commits: 09f04e0, 6cd7d0f, 8f6cf5a, 6cc1f48
 - Next: produce actual 8-minute interview videos, run transcode script per video
+
+## 2026-09-13 - HLS Demo Live
+- Live URL: https://client-resumora-live.web.app/video-demo
+- Manifest verified: 200 OK with all 3 quality levels
+- Served via Firebase Hosting CDN (bypasses Cloud Storage IAM policy)
+- Pipeline fully operational end-to-end
