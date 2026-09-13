@@ -1,33 +1,26 @@
 import React, { useState } from 'react';
 import { localize } from '../lib/plans.js';
-import { formatDuration, getVoiceoverScript } from '../lib/videoLibrary.js';
 import { t, LANGS } from '../lib/i18n.js';
-import VideoPlayer from './VideoPlayer';
 
-export default function VideoCard({ video, uiLang, selected, busy, onPlay, onDownload }) {
+export default function VideoCard({ video, uiLang }) {
   const [videoLang, setVideoLang] = useState(uiLang);
   const title = localize(video.title, uiLang);
   const description = localize(video.description, uiLang);
-  const src = video.sources[videoLang] || video.sources.en;
-  const voiceoverText = getVoiceoverScript(video, videoLang);
 
   return (
-    <article className={`video-card${selected ? ' video-card--active' : ''}`}>
-      <div className="video-card__media">
-        <VideoPlayer
-          src={src}
-          title={title}
-          voiceoverText={voiceoverText}
-          lang={videoLang}
-          autoNarrate
-          preload={selected ? 'auto' : 'metadata'}
-        />
+    <article className="video-card">
+      <div
+        className="video-card__media video-card__media--placeholder"
+        aria-label="Video coming soon"
+      >
+        <div className="video-card__coming-soon">
+          <span aria-hidden="true">🎬</span>
+          <strong>Video coming soon</strong>
+          <span className="muted small">Full 8-minute video in production</span>
+        </div>
       </div>
       <div className="video-card__body">
-        <p className="video-card__duration" aria-label={t(uiLang, 'videos.duration')}>
-          {formatDuration(video.durationSec)}
-          {video.hasVoice ? ` · ${t(uiLang, 'videos.voiceoverTag')}` : ''}
-        </p>
+        <p className="video-card__duration">Audio available now · Video coming soon</p>
         <h2>{title}</h2>
         <p className="video-card__desc">{description}</p>
         <div className="video-card__lang" role="group" aria-label={t(uiLang, 'videos.audioLang')}>
@@ -45,24 +38,9 @@ export default function VideoCard({ video, uiLang, selected, busy, onPlay, onDow
           ))}
         </div>
         <div className="video-card__actions">
-          <button
-            type="button"
-            className="primary"
-            disabled={busy}
-            aria-label={`${t(uiLang, 'videos.play')} — ${title}`}
-            onClick={() => onPlay(video, videoLang)}
-          >
-            {t(uiLang, 'videos.play')}
-          </button>
-          <button
-            type="button"
-            className="secondary"
-            disabled={busy}
-            aria-label={`${t(uiLang, 'videos.download')} — ${title}`}
-            onClick={() => onDownload(video, videoLang)}
-          >
-            {t(uiLang, 'videos.download')}
-          </button>
+          <a className="primary" href="/interview-series">
+            ▶ Listen Now (EN / FR / ES)
+          </a>
         </div>
       </div>
     </article>
