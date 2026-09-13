@@ -53,3 +53,10 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Next: Phase C (Client Harness UI)
 
 ## 2026-09-12 15:20 - Activation trigger for all workflows
+
+## 2026-09-12 - Harness End-to-End Live
+
+- harness Cloud Function deployed and public at https://harness-lip26fm722a-uc.a.run.app
+- /api/harness rewrite working through client-resumora-live.web.app
+- Test returns: {"toolResults":[],"needs_human":false} - HTTP 200
+- REMAINING BUG: reply field is missing from Gemini response. The function returns toolResults and needs_human but no "reply" text. Next session must fix the Gemini prompt/parse in adminHarness.js and clientHarness.js so the "reply" key is populated.
