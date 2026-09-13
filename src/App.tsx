@@ -17,6 +17,7 @@ import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
 import VideoDemoPage from './pages/VideoDemoPage';
 import AccountPage from './pages/AccountPage';
+import InterviewSeriesPage from './pages/InterviewSeriesPage';
 import { useLang } from './i18n/LangContext';
 import { t, tFormat } from './lib/i18n.js';
 import {
