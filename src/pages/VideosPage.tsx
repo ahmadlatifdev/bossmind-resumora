@@ -161,6 +161,26 @@ export default function VideosPage() {
     }
   }
 
+  // Attach HLS.js when the current source is an .m3u8 playlist
+  useEffect(() => {
+    const video = modalVideoRef.current;
+    if (!video) return undefined;
+    const src = playingVideo?.sources?.[playingLang] || playingVideo?.sources?.en;
+    if (!src) return undefined;
+    if (!src.endsWith('.m3u8')) return undefined;
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = src;
+      return undefined;
+    }
+    if (Hls.isSupported()) {
+      const hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60 });
+      hls.loadSource(src);
+      hls.attachMedia(video);
+      return () => hls.destroy();
+    }
+    return undefined;
+  }, [playingVideo, playingLang]);
+
   return (
     <div className="app-main page-content">
       <h1>{t(lang, 'videos.title')}</h1>
