@@ -57,11 +57,16 @@ export default function ResetPasswordPage() {
 
   async function sendEmailReset(e) {
     e.preventDefault();
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError('Enter your email address.');
+      return;
+    }
     setBusy(true);
     setError('');
     setStatus('');
     try {
-      await requestPasswordReset(email.trim());
+      await requestPasswordReset(trimmedEmail);
       setStatus(t(lang, 'reset.sendLink') + ' ✓');
     } catch (err) {
       setError(err?.message || t(lang, 'reset.emailFailed'));
@@ -114,7 +119,14 @@ export default function ResetPasswordPage() {
       setConfirmation(result);
       setStatus(t(lang, 'reset.sendSms') + ' ✓');
     } catch (err) {
-      setError(err?.message || t(lang, 'reset.smsFailed'));
+      const code = err && typeof err === 'object' && 'code' in err ? String(err.code || '') : '';
+      if (code === 'auth/operation-not-allowed') {
+        setError(
+          'Phone verification is not available in your region yet. Please use email reset instead.'
+        );
+      } else {
+        setError('Unable to send the verification code. Please use email reset instead.');
+      }
     } finally {
       setBusy(false);
     }
@@ -223,13 +235,12 @@ export default function ResetPasswordPage() {
       <p className="lead">{t(lang, 'reset.lead')}</p>
 
       <form className="panel" onSubmit={sendEmailReset}>
-        <h2>{t(lang, 'reset.emailHeading')}</h2>
         <label>
           {t(lang, 'auth.email')}
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
-        <button className="primary" type="submit" disabled={busy}>
-          {t(lang, 'reset.sendLink')}
+        <button className="primary" type="submit" disabled={busy || !email.trim()}>
+          {busy ? 'Sending…' : t(lang, 'reset.sendLink')}
         </button>
       </form>
 
