@@ -69,3 +69,11 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - autoTranscodeVideo Cloud Function deployed and live
 - Next: Phase 6 (update player code with hls.js adaptive streaming)
 - Media CDN skipped (requires Google approval) - using Firebase Hosting CDN instead
+
+## 2026-09-13 - HLS Player Wired
+
+- hls.js installed in project dependencies
+- src/components/VideoPlayer/HlsPlayer.tsx created (reusable adaptive player)
+- VideosPage.tsx upgraded with HLS-attach effect triggered by .m3u8 sources
+- Commit: 09f04e0
+- Next: upload test video to trigger autoTranscodeVideo
