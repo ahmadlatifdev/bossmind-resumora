@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
-import {
-  getAuth,
-  sendPasswordResetEmail,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-} from 'firebase/auth';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { app } from '../lib/firebase';
+import { requestPasswordReset } from '../lib/authActions';
 
 export default function ResetPasswordPage() {
   const { lang } = useLangOptional();
@@ -26,7 +22,7 @@ export default function ResetPasswordPage() {
     setStatus('');
     try {
       const auth = getAuth(app);
-      await sendPasswordResetEmail(auth, email.trim());
+      await requestPasswordReset(email.trim());
       setStatus(t(lang, 'reset.sendLink') + ' ✓');
     } catch (err) {
       setError(err?.message || t(lang, 'reset.emailFailed'));

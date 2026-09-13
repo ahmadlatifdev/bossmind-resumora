@@ -4,6 +4,7 @@ import { useLangOptional } from '../i18n/LangContext';
 import { t, tFormat } from '../lib/i18n.js';
 import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
+import { requestEmailVerification } from '../lib/authActions';
 import './account.css';
 
 function StatusBadge({ status, lang }) {
@@ -97,6 +98,7 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [refunds, setRefunds] = useState([]);
+  const [verificationBusy, setVerificationBusy] = useState(false);
   const plan = getPlanById(readSelectedPlan()) || getPlanById('basic');
 
   const loadRefunds = useCallback(async () => {
@@ -164,6 +166,22 @@ export default function AccountPage() {
     }
   }
 
+  async function resendVerification() {
+    if (!user || verificationBusy) return;
+    setVerificationBusy(true);
+    try {
+      await requestEmailVerification(user);
+      setToast({ type: 'success', text: 'Verification email sent.' });
+    } catch (err) {
+      setToast({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Unable to send verification email.',
+      });
+    } finally {
+      setVerificationBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="account-page">
@@ -185,6 +203,37 @@ export default function AccountPage() {
 
   return (
     <div className="account-page">
+      {!user.emailVerified ? (
+        <div
+          role="status"
+          style={{
+            background: 'rgba(212, 175, 55, 0.14)',
+            border: '1px solid var(--color-gold)',
+            borderRadius: 12,
+            color: 'var(--color-gold)',
+            marginBottom: 20,
+            padding: '12px 16px',
+          }}
+        >
+          Your email is not yet verified. Check your inbox for the verification link.{' '}
+          <button
+            type="button"
+            onClick={resendVerification}
+            disabled={verificationBusy}
+            style={{
+              background: 'transparent',
+              border: 0,
+              color: 'inherit',
+              cursor: verificationBusy ? 'wait' : 'pointer',
+              fontWeight: 700,
+              padding: 0,
+              textDecoration: 'underline',
+            }}
+          >
+            {verificationBusy ? 'Sending…' : 'Resend verification email'}
+          </button>
+        </div>
+      ) : null}
       <header className="account-hero">
         <h1>{t(lang, 'account.title')}</h1>
       </header>
