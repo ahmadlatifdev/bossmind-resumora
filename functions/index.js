@@ -497,3 +497,7 @@ exports.harness = onRequest({ cors: true, secrets: [geminiApiKey] }, async (req,
     res.status(err.status || 500).json({ error: err.message });
   }
 });
+
+// Auto-transcode videos uploaded to gs://resumora-videos/input/
+const { autoTranscodeVideo } = require('./lib/video/transcodeTrigger');
+exports.autoTranscodeVideo = autoTranscodeVideo;
