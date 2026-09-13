@@ -15,6 +15,7 @@ import { AppLayout } from './components/Layout';
 import ClientHarnessWidget from './components/ClientHarness/ClientHarnessWidget';
 import LoginPage from './pages/Login';
 import VideosPage from './pages/VideosPage';
+import VideoDemoPage from './pages/VideoDemoPage';
 import AccountPage from './pages/AccountPage';
 import { useLang } from './i18n/LangContext';
 import { t, tFormat } from './lib/i18n.js';
@@ -219,6 +220,7 @@ function AppRoutes() {
         <Route element={<AppLayout shell="v6" />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/video-demo" element={<VideoDemoPage />} />
           <Route
             path="/account"
             element={
