@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { t } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { app } from '../lib/firebase';
 import { requestPasswordReset } from '../lib/authActions';
 
 export default function ResetPasswordPage() {
   const { lang } = useLangOptional();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const oobCode = searchParams.get('oobCode') || '';
+  const isResetRequest = searchParams.get('mode') === 'resetPassword' && Boolean(oobCode);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -14,6 +20,35 @@ export default function ResetPasswordPage() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [resetVerifying, setResetVerifying] = useState(isResetRequest);
+  const [resetReady, setResetReady] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    if (!isResetRequest) return undefined;
+    let active = true;
+    setResetVerifying(true);
+    verifyPasswordResetCode(getAuth(app), oobCode)
+      .then(() => {
+        if (active) setResetReady(true);
+      })
+      .catch(() => {
+        if (active) setError('This password reset link is invalid or has expired.');
+      })
+      .finally(() => {
+        if (active) setResetVerifying(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [isResetRequest, oobCode]);
+
+  useEffect(() => {
+    if (!status || !isResetRequest || !status.includes('successfully')) return undefined;
+    const timer = window.setTimeout(() => navigate('/login', { replace: true }), 3000);
+    return () => window.clearTimeout(timer);
+  }, [isResetRequest, navigate, status]);
 
   async function sendEmailReset(e) {
     e.preventDefault();
@@ -21,11 +56,33 @@ export default function ResetPasswordPage() {
     setError('');
     setStatus('');
     try {
-      const auth = getAuth(app);
       await requestPasswordReset(email.trim());
       setStatus(t(lang, 'reset.sendLink') + ' ✓');
     } catch (err) {
       setError(err?.message || t(lang, 'reset.emailFailed'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function updatePassword(e) {
+    e.preventDefault();
+    setError('');
+    if (newPassword.length < 8) {
+      setError('Choose a password with at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await confirmPasswordReset(getAuth(app), oobCode, newPassword);
+      setStatus('Password reset successfully. Redirecting to sign in…');
+      setResetReady(false);
+    } catch (err) {
+      setError(err?.message || 'Unable to reset your password. The link may have expired.');
     } finally {
       setBusy(false);
     }
@@ -66,6 +123,80 @@ export default function ResetPasswordPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (isResetRequest && resetVerifying) {
+    return (
+      <div className="app-main narrow page-content" aria-busy="true">
+        <h1>{t(lang, 'reset.title')}</h1>
+        <p className="lead">Verifying your password reset link…</p>
+        <div className="reset-spinner" role="status" aria-label="Verifying reset link">
+          <span aria-hidden="true">⟳</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isResetRequest && !resetReady) {
+    return (
+      <div className="app-main narrow page-content">
+        <h1>{t(lang, 'reset.title')}</h1>
+        <p className="banner err" role="alert">
+          {error || 'This password reset link is invalid or has expired.'}{' '}
+          <Link to="/reset-password">Request a new reset link</Link>
+        </p>
+      </div>
+    );
+  }
+
+  if (isResetRequest && resetReady) {
+    return (
+      <div className="app-main narrow page-content">
+        <h1>{t(lang, 'reset.title')}</h1>
+        <p className="lead">Choose a new password for your account.</p>
+        <form className="panel" onSubmit={updatePassword}>
+          <label>
+            New password
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </label>
+          <p className="muted small" role="status">
+            Password strength:{' '}
+            {newPassword.length >= 8 ? 'Strong enough' : 'Use at least 8 characters'}
+          </p>
+          <label>
+            Confirm new password
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+          </label>
+          {error ? (
+            <p className="banner err" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <button className="primary" type="submit" disabled={busy}>
+            {busy ? 'Resetting…' : 'Set new password'}
+          </button>
+        </form>
+        {status ? (
+          <p className="banner ok" role="status">
+            {status}
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   return (

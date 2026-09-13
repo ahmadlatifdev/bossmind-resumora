@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useLangOptional } from '../i18n/LangContext';
+import { onAuthStateChanged } from 'firebase/auth';
 import { t, tFormat } from '../lib/i18n.js';
 import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import { requestEmailVerification } from '../lib/authActions';
+import { auth } from '../lib/firebase';
 import './account.css';
 
 function StatusBadge({ status, lang }) {
@@ -99,6 +101,7 @@ export default function AccountPage() {
   const [toast, setToast] = useState(null);
   const [refunds, setRefunds] = useState([]);
   const [verificationBusy, setVerificationBusy] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(user?.emailVerified ?? true);
   const plan = getPlanById(readSelectedPlan()) || getPlanById('basic');
 
   const loadRefunds = useCallback(async () => {
@@ -113,6 +116,13 @@ export default function AccountPage() {
   useEffect(() => {
     if (user) loadRefunds();
   }, [user, loadRefunds]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+      setEmailVerified(nextUser ? nextUser.emailVerified : true);
+    });
+    return unsubscribe;
+  }, []);
 
   async function openCancelModal() {
     setModalOpen(true);
@@ -182,6 +192,26 @@ export default function AccountPage() {
     }
   }
 
+  async function refreshVerificationStatus() {
+    if (!user || verificationBusy) return;
+    setVerificationBusy(true);
+    try {
+      await user.reload();
+      setEmailVerified(user.emailVerified);
+      setToast({
+        type: 'success',
+        text: user.emailVerified ? 'Your email is verified.' : 'Your email is still not verified.',
+      });
+    } catch (err) {
+      setToast({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Unable to refresh verification status.',
+      });
+    } finally {
+      setVerificationBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="account-page">
@@ -203,7 +233,7 @@ export default function AccountPage() {
 
   return (
     <div className="account-page">
-      {!user.emailVerified ? (
+      {!emailVerified ? (
         <div
           role="status"
           style={{
@@ -231,6 +261,22 @@ export default function AccountPage() {
             }}
           >
             {verificationBusy ? 'Sending…' : 'Resend verification email'}
+          </button>
+          <button
+            type="button"
+            onClick={refreshVerificationStatus}
+            disabled={verificationBusy}
+            style={{
+              background: 'transparent',
+              border: 0,
+              color: 'inherit',
+              cursor: verificationBusy ? 'wait' : 'pointer',
+              marginLeft: 12,
+              padding: 0,
+              textDecoration: 'underline',
+            }}
+          >
+            Refresh status
           </button>
         </div>
       ) : null}

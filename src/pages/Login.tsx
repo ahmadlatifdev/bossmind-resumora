@@ -99,7 +99,7 @@ export default function LoginPage() {
     try {
       setAuthEmailLanguage(lang);
       await requestPasswordReset(trimmed);
-      setInfo(t(lang, 'auth.resetSuccess'));
+      setInfo('If an account exists with that email, a reset link has been sent.');
     } catch (err) {
       const code =
         err && typeof err === 'object' && 'code' in err
