@@ -221,6 +221,7 @@ function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/video-demo" element={<VideoDemoPage />} />
+          <Route path="/interview-series" element={<InterviewSeriesPage />} />
           <Route
             path="/account"
             element={
