@@ -90,7 +90,17 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Next: produce actual 8-minute interview videos, run transcode script per video
 
 ## 2026-09-13 - HLS Demo Live
+
 - Live URL: https://client-resumora-live.web.app/video-demo
 - Manifest verified: 200 OK with all 3 quality levels
 - Served via Firebase Hosting CDN (bypasses Cloud Storage IAM policy)
 - Pipeline fully operational end-to-end
+
+## 2026-09-13 - Free Training Series Published
+
+- Live URL: https://client-resumora-live.web.app/interview-series
+- 4 interview training modules with audio in EN, FR, ES
+- 12 TTS narrations generated via Google Cloud Text-to-Speech
+- 4 scripts committed in docs/interview-series/
+- Avatar video production deferred until demand is proven
+- Total spent: ~ (vs for D-ID, avoided)

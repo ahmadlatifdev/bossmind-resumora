@@ -1,6 +1,6 @@
 {
-  "current_task": "Video pipeline complete - awaiting content production",
-  "status": "complete",
+  "current_task": "Free training series live - monitoring demand",
+  "status": "published",
   "verified_facts": [
     "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
     "PR #55 merged to main",
@@ -22,7 +22,8 @@
     "HLS player wired into VideosPage.tsx (lines 164-179, commit 6cd7d0f)",
     "Pipeline config tracked: lifecycle.json + transcode-template.json (commit 6cc1f48)",
     "Eventarc autoTranscodeVideo trigger abandoned - replaced by manual script",
-    "HLS demo live at https://client-resumora-live.web.app/video-demo - verified 200 OK with 1080p/720p/480p adaptive streaming"
+    "HLS demo live at https://client-resumora-live.web.app/video-demo - verified 200 OK with 1080p/720p/480p adaptive streaming",
+    "Interview Series page live at https://client-resumora-live.web.app/interview-series with 4 audio modules in EN/FR/ES"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
@@ -30,7 +31,7 @@
     "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy",
     "Gemini response does not populate the reply field"
   ],
-  "next_action": "Produce the 4 English interview videos, then dub to FR/ES with Rask AI",
+  "next_action": "Watch traffic on /interview-series for 2-4 weeks. If demand exists, pay for D-ID and produce avatar videos.",
   "must_not_redo": [
     "Do not re-create the 4 health score files — they exist and are deployed",
     "Do not re-run firebase deploy until state bug is fixed",
