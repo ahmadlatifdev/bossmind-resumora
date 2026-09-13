@@ -45,7 +45,7 @@
       },
       {
         "source": "/api/harness",
-        "function": "harness"
+        "function": "resumora-checkout:harness"
       },
       {
         "source": "**",
