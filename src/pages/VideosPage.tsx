@@ -1,3 +1,4 @@
+import Hls from 'hls.js';
 // @ts-nocheck — legacy video library page; gated by ProtectedRoute / auth
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import VideoCard from '../components/VideoCard';
