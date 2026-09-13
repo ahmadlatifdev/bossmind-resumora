@@ -1,7 +1,7 @@
 // @ts-nocheck — legacy video library page; gated by ProtectedRoute / auth
 import React, { useEffect, useState } from 'react';
 import VideoCard from '../components/VideoCard';
-import { t } from '../lib/i18n.js';
+import { t, tFormat } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
 import { VIDEO_LIBRARY, MAX_VIDEO_DOWNLOADS } from '../lib/videoLibrary.js';
 import { fetchVideoCatalog } from '../lib/videoApi.js';

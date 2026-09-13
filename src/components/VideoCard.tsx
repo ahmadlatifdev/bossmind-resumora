@@ -9,15 +9,15 @@ export default function VideoCard({ video, uiLang }) {
 
   return (
     <article className="video-card">
-      <div
-        className="video-card__media video-card__media--placeholder"
-        aria-label="Video coming soon"
-      >
-        <div className="video-card__coming-soon">
-          <span aria-hidden="true">🎬</span>
-          <strong>Video coming soon</strong>
-          <span className="muted small">Full 8-minute video in production</span>
-        </div>
+      <div className="video-card__media" aria-label={`${title} video`}>
+        <video
+          key={`${video.id}-${videoLang}`}
+          controls
+          preload="metadata"
+          playsInline
+          src={`/videos/${video.id}-${videoLang}.mp4`}
+          title={title}
+        />
       </div>
       <div className="video-card__body">
         <p className="video-card__duration">Audio available now · Video coming soon</p>
@@ -38,8 +38,12 @@ export default function VideoCard({ video, uiLang }) {
           ))}
         </div>
         <div className="video-card__actions">
-          <a className="primary" href="/interview-series">
-            ▶ Listen Now (EN / FR / ES)
+          <a
+            className="primary"
+            href={`/videos/${video.id}-${videoLang}.mp4`}
+            download={`resumora-${video.id}-${videoLang}.mp4`}
+          >
+            {t(uiLang, 'videos.download')}
           </a>
         </div>
       </div>
