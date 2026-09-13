@@ -42,6 +42,14 @@ The most common mistake is rushing. When there is no feedback, we speak faster t
 
 If you are recording a video response, do three takes. The first is a warm-up. The second is the real one. The third is the insurance. Choose the second or third.
 
+## [6:00–7:15] SEGMENT 5 — Avoid the Common Async Interview Mistakes
+
+Most async answers fail for practical reasons rather than lack of ability. The first mistake is starting without a clear answer. Candidates spend the opening minute repeating the prompt, and the timer removes the space they needed for their actual thinking. Write a one-sentence position before you record, then use the rest of the response to support it.
+
+The second mistake is reading a script word for word. Notes are useful, but a full script makes your eyes move, your voice flatten, and your response sound detached. Use three short prompts instead: your position, your evidence, and your close. The third mistake is ignoring the frame. Test your camera, microphone, lighting, and background before the real take. A viewer should focus on your reasoning, not a flickering window or a cut-off face.
+
+The fourth mistake is answering the question you hoped to receive. Pause long enough to identify the decision being tested, then address that decision directly. The fifth is ending abruptly when the timer is nearly done. Reserve your final sentence before you begin so the answer has a deliberate landing. Finally, do not submit the first take automatically. Review the recording once for clarity and once with the sound off for body language. Small corrections in pace, eye line, and structure can turn a technically correct answer into a credible professional response.
+
 ## [7:30–8:00] CLOSING RECAP
 
 Three things. One — structure: thirty seconds to frame, ninety to deliver, thirty to close. Two — think transparently: name trade-offs, state assumptions, admit unknowns. Three — slow down; the camera rewards composure.

@@ -44,6 +44,14 @@ If you are at the start of your global career, do not wait for the perfect oppor
 
 Positioning statement template: "Product leader with eight years of experience delivering B2B SaaS across India, the UK, and remote-first US teams. Fluent in English and Hindi. Focused on scaling products in regulated markets." This statement works in every interview, in every market, because it is specific and it proves range.
 
+## [6:00–7:15] SEGMENT 5 — Signal Your Target Market on LinkedIn
+
+You can show employers where you want to work before you move there. Start with your headline and make the target market part of your professional direction: “Product leader targeting Toronto SaaS teams” is clearer than a generic title. Use the About section to explain the kind of role, industry, and working arrangement you are pursuing, along with the time zone or relocation plan that makes the move practical.
+
+Then build visible evidence. Follow companies and local professional groups in the market you are targeting. Comment thoughtfully on posts from leaders there, sharing a relevant lesson rather than announcing that you need a job. Publish one or two short pieces that connect your experience to a local business context. This gives recruiters a reason to see you as an informed candidate instead of a distant applicant.
+
+Be precise about location. You can add a target location in your profile preferences and job alerts while keeping your current location truthful. Never imply that you already live or have work authorization in a country when you do not. Instead, state your status directly and describe your plan: “Based in Mumbai, available for remote collaboration with UK teams and open to relocation.” Ask two or three people in the target market for an informational conversation, then use what you learn to improve your profile language. Consistent signals across your headline, activity, skills, and applications make your direction credible long before your address changes.
+
 ## [7:30–8:00] CLOSING RECAP
 
 Three things. One — the same story lands differently per market; adapt the emphasis, not the substance. Two — body language, pace, and eye contact are cultural choices, not universal rules. Three — position yourself as a multi-market candidate, because the future of work is borderless.

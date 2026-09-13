@@ -40,6 +40,14 @@ For each project, write three lines: the problem, your action, the measurable re
 
 Senior profiles should also include a one-line impact summary at the top: "Product leader with twelve years delivering B2B SaaS products that generated over forty million dollars in ARR." This line is what the human reads first. It is also what the ATS extracts as your headline.
 
+## [6:00–7:15] SEGMENT 5 — Adapt Your Resume to Each Job
+
+One generic resume feels efficient, but it asks the employer to do the matching work. A stronger approach is to keep one complete master resume and create a focused version for every serious application. Start with the job description and identify the three capabilities the employer repeats most often. Then move the evidence for those capabilities into the top third of your resume, where both the ATS and the hiring manager will see it quickly.
+
+Adapt the headline, summary, skills list, and the first bullets under your most relevant roles. Keep the facts accurate; change the emphasis. If one role values stakeholder management, lead with the project where you aligned competing teams. If another values process improvement, lead with the workflow you redesigned and the measurable time or cost savings. The same career can tell different truthful stories depending on the problem the employer needs solved.
+
+Do not copy every keyword into a crowded skills block. Place important terms inside accomplishment bullets so the reader can see the context and result. Before sending, compare your tailored version with the description and ask: can a recruiter identify the match in ten seconds? If not, reorder the evidence again. Save each version with the company and role in the filename so you can prepare for the interview from the exact resume the employer received.
+
 ## [7:30–8:00] CLOSING RECAP
 
 Three things. One — format for the ATS first: plain text, no graphics, single column. Two — mirror the job description vocabulary verbatim; not synonyms. Three — turn every keyword into a STAR story you can deliver in the interview.

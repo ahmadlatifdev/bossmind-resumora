@@ -50,6 +50,14 @@ Record yourself on your phone. Watch it back. You are listening for three things
 
 The best interviewers in the world sound unrehearsed because they rehearsed until it became natural. That is the goal. Not memorization. Fluency.
 
+## [6:00–7:15] SEGMENT 5 — When They Ask, “Tell Me More About That”
+
+Follow-up questions are a good sign. They usually mean the interviewer found a detail worth exploring. Do not treat “tell me more about that” as a request to repeat the whole story. Zoom in on the specific moment they named. Start by clarifying the scope: “Absolutely. The part I would expand on is how we handled the deadline.” Then give the missing detail in a short, structured answer.
+
+Use a three-step expansion. First, explain the decision or obstacle in one sentence. Second, describe your exact action and why you chose it. Third, connect the result back to the role. For example: “The risk was that two teams were working from different launch dates. I created one dependency map, confirmed owners in a fifteen-minute review, and sent a daily exception report. That removed the conflicting handoffs and helped us ship two weeks early.”
+
+Listen for the interviewer’s intent. If they ask about your role, separate your contribution from the team’s work. If they ask what you learned, name the behavior you changed afterward. If they challenge the result, stay calm and distinguish what you measured from what you observed. A follow-up is not an invitation to exaggerate. It is a chance to show depth, judgment, and ownership without losing the concise structure that made the original story effective.
+
 ## [7:30–8:00] CLOSING RECAP
 
 Three things. One — STAR is a ratio: ninety seconds of action, fifteen of context. Two — five story blocks cover every behavioral question you will face. Three — the weakness question rewards honesty plus systems, not perfection.
