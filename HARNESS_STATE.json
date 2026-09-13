@@ -1,5 +1,5 @@
 {
-  "current_task": "Fix missing reply field in harness Gemini response",
+  "current_task": "Google Cloud video pipeline - Phase 6 (HLS player)",
   "status": "in-progress",
   "verified_facts": [
     "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
@@ -14,7 +14,8 @@
     "Phase E complete and committed (3b7d797)",
     "Harness is live on Firestore + Cloud Function",
     "harness Cloud Function deployed and public (commit 2f061b5)",
-    "api/harness returns HTTP 200 with toolResults and needs_human but no reply"
+    "api/harness returns HTTP 200 with toolResults and needs_human but no reply",
+    "Video pipeline deployed: bucket resumora-videos created with lifecycle rules, Transcoder API enabled, HLS template interview-hls-template created (1080p/720p/480p), autoTranscodeVideo Cloud Function live"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
@@ -22,7 +23,7 @@
     "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy",
     "Gemini response does not populate the reply field"
   ],
-  "next_action": "Debug callGemini in adminHarness.js and clientHarness.js. Check that Gemini's raw response is being parsed correctly and the reply text is extracted.",
+  "next_action": "Update VideosPage.tsx to use hls.js adaptive player pointing at Firebase Hosting CDN URL for HLS master.m3u8 playlists",
   "must_not_redo": [
     "Do not re-create the 4 health score files — they exist and are deployed",
     "Do not re-run firebase deploy until state bug is fixed",

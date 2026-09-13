@@ -60,3 +60,12 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - /api/harness rewrite working through client-resumora-live.web.app
 - Test returns: {"toolResults":[],"needs_human":false} - HTTP 200
 - REMAINING BUG: reply field is missing from Gemini response. The function returns toolResults and needs_human but no "reply" text. Next session must fix the Gemini prompt/parse in adminHarness.js and clientHarness.js so the "reply" key is populated.
+
+## 2026-09-13 - Google Cloud Video Pipeline Deployed
+
+- gs://resumora-videos bucket created with lifecycle rules (input deleted at 30d, output Nearline at 90d)
+- Transcoder API + Cloud Functions + Pub/Sub APIs enabled
+- HLS template interview-hls-template created (1080p/720p/480p, 6s segments)
+- autoTranscodeVideo Cloud Function deployed and live
+- Next: Phase 6 (update player code with hls.js adaptive streaming)
+- Media CDN skipped (requires Google approval) - using Firebase Hosting CDN instead
