@@ -1,5 +1,5 @@
 // @ts-nocheck — legacy video library page; gated by ProtectedRoute / auth
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import VideoCard from '../components/VideoCard';
 import { t, tFormat } from '../lib/i18n.js';
 import { useLangOptional } from '../i18n/LangContext';
@@ -53,6 +53,9 @@ export default function VideosPage() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [playingVideo, setPlayingVideo] = useState(null);
+  const [playingLang, setPlayingLang] = useState(lang);
+  const modalVideoRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,11 +95,39 @@ export default function VideosPage() {
     };
   }, [firstSrc]);
 
-  async function onPlay(video) {
+  async function onPlay(video, videoLang) {
     setActiveId(video.id);
+    setPlayingVideo(video);
+    setPlayingLang(videoLang || lang);
     setNotice('');
     setError('');
   }
+
+  function closeVideoModal() {
+    setPlayingVideo(null);
+  }
+
+  useEffect(() => {
+    if (!playingVideo) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeVideoModal();
+      } else if (event.code === 'Space' && event.target === document.body) {
+        event.preventDefault();
+        const video = modalVideoRef.current;
+        if (!video) return;
+        if (video.paused) video.play();
+        else video.pause();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [playingVideo]);
 
   async function onDownload(video, videoLang) {
     setBusy(true);
@@ -164,6 +195,42 @@ export default function VideosPage() {
           />
         ))}
       </section>
+
+      {playingVideo ? (
+        <div
+          className="video-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="video-modal-title"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeVideoModal();
+          }}
+        >
+          <div className="video-modal__panel">
+            <header className="video-modal__header">
+              <h2 id="video-modal-title">{localize(playingVideo.title, lang)}</h2>
+              <button
+                type="button"
+                className="video-modal__close"
+                onClick={closeVideoModal}
+                aria-label={t(lang, 'nav.close')}
+              >
+                {t(lang, 'nav.close')}
+              </button>
+            </header>
+            <video
+              ref={modalVideoRef}
+              className="video-modal__player"
+              src={playingVideo.sources[playingLang] || playingVideo.sources.en}
+              controls
+              autoPlay
+              playsInline
+              aria-label={localize(playingVideo.title, lang)}
+            />
+            <p className="video-modal__hint muted small">Space: play/pause · Esc: close</p>
+          </div>
+        </div>
+      ) : null}
 
       <p className="muted small" style={{ marginTop: 20 }}>
         {catalogMeta.bilibiliConfigured
