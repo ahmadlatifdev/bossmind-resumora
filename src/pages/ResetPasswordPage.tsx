@@ -6,6 +6,10 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { app } from '../lib/firebase';
 import { requestPasswordReset } from '../lib/authActions';
+import { detectDefaultCountry, formatE164, type Country } from '../lib/countryCodes';
+import CountryCodeSelect from '../components/CountryCodeSelect';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function ResetPasswordPage() {
   const { lang } = useLangOptional();
@@ -15,6 +19,7 @@ export default function ResetPasswordPage() {
   const isResetRequest = searchParams.get('mode') === 'resetPassword' && Boolean(oobCode);
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState<Country>(() => detectDefaultCountry());
   const [otp, setOtp] = useState('');
   const [confirmation, setConfirmation] = useState(null);
   const [status, setStatus] = useState('');
@@ -95,12 +100,17 @@ export default function ResetPasswordPage() {
     setStatus('');
     try {
       const auth = getAuth(app);
+      const e164Phone = formatE164(selectedCountry.dial, phone);
+      if (e164Phone === selectedCountry.dial) {
+        setError('Enter a valid phone number.');
+        return;
+      }
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
         });
       }
-      const result = await signInWithPhoneNumber(auth, phone.trim(), window.recaptchaVerifier);
+      const result = await signInWithPhoneNumber(auth, e164Phone, window.recaptchaVerifier);
       setConfirmation(result);
       setStatus(t(lang, 'reset.sendSms') + ' ✓');
     } catch (err) {
@@ -117,6 +127,14 @@ export default function ResetPasswordPage() {
     setError('');
     try {
       await confirmation.confirm(otp.trim());
+      const currentUser = getAuth(app).currentUser;
+      if (currentUser?.phoneNumber) {
+        await setDoc(
+          doc(db, 'users', currentUser.uid),
+          { phoneCountryCode: selectedCountry.code },
+          { merge: true }
+        );
+      }
       setStatus(t(lang, 'reset.verify') + ' ✓');
     } catch (err) {
       setError(err?.message || t(lang, 'reset.invalidOtp'));
@@ -217,6 +235,7 @@ export default function ResetPasswordPage() {
 
       <form className="panel" onSubmit={sendSmsOtp}>
         <h2>{t(lang, 'reset.cell')}</h2>
+        <CountryCodeSelect value={selectedCountry} onChange={setSelectedCountry} />
         <label>
           {t(lang, 'reset.phoneLabel')}
           <input
