@@ -12,7 +12,7 @@ const ADMIN_TOOLS = [
 ];
 
 async function callGemini(message) {
-  const key = process.env.GOOGLE_AI_KEY;
+  const key = process.env.GEMINI_API_KEY;
   if (!key) return { reply: 'AI key not configured.', toolCalls: [], needs_human: false };
   const url =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' +
