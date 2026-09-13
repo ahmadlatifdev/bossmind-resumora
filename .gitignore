@@ -85,3 +85,6 @@ hermes-idea-queue/dist-test/
 hermes-idea-queue/node_modules/
 hermes-idea-queue/.env
 
+
+# Third-party video tools
+HeyGem.ai/

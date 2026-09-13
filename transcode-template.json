@@ -1,0 +1,74 @@
+{
+  "config": {
+    "elementaryStreams": [
+      {
+        "key": "video-stream-1080p",
+        "videoStream": {
+          "h264": {
+            "widthPixels": 1920,
+            "heightPixels": 1080,
+            "bitrateBps": 6000000,
+            "frameRate": 30
+          }
+        }
+      },
+      {
+        "key": "video-stream-720p",
+        "videoStream": {
+          "h264": {
+            "widthPixels": 1280,
+            "heightPixels": 720,
+            "bitrateBps": 3000000,
+            "frameRate": 30
+          }
+        }
+      },
+      {
+        "key": "video-stream-480p",
+        "videoStream": {
+          "h264": {
+            "widthPixels": 854,
+            "heightPixels": 480,
+            "bitrateBps": 1500000,
+            "frameRate": 30
+          }
+        }
+      },
+      {
+        "key": "audio-stream",
+        "audioStream": {
+          "codec": "aac",
+          "bitrateBps": 128000,
+          "channelCount": 2
+        }
+      }
+    ],
+    "muxStreams": [
+      {
+        "key": "hls-1080p",
+        "container": "ts",
+        "elementaryStreams": ["video-stream-1080p", "audio-stream"],
+        "segmentSettings": { "segmentDuration": "6s" }
+      },
+      {
+        "key": "hls-720p",
+        "container": "ts",
+        "elementaryStreams": ["video-stream-720p", "audio-stream"],
+        "segmentSettings": { "segmentDuration": "6s" }
+      },
+      {
+        "key": "hls-480p",
+        "container": "ts",
+        "elementaryStreams": ["video-stream-480p", "audio-stream"],
+        "segmentSettings": { "segmentDuration": "6s" }
+      }
+    ],
+    "manifests": [
+      {
+        "fileName": "master.m3u8",
+        "type": "HLS",
+        "muxStreams": ["hls-1080p", "hls-720p", "hls-480p"]
+      }
+    ]
+  }
+}

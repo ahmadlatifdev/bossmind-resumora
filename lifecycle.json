@@ -1,0 +1,12 @@
+{
+  "rule": [
+    {
+      "action": { "type": "Delete" },
+      "condition": { "age": 30, "matchesPrefix": ["input/"] }
+    },
+    {
+      "action": { "type": "SetStorageClass", "storageClass": "NEARLINE" },
+      "condition": { "age": 90, "matchesPrefix": ["output/"] }
+    }
+  ]
+}
