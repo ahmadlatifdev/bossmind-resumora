@@ -35,7 +35,7 @@ async function callGemini(message) {
   const prompt =
     'You are BossMind Client Support. READ-ONLY tools only: ' +
     CLIENT_TOOLS.join(', ') +
-    '. NEVER perform admin actions. Reply in JSON: {"reply": string, "toolCalls": [{"tool": string, "args": object}], "needs_human": boolean}. User: ' +
+    '. NEVER perform admin actions. Reply with ONLY valid JSON (no markdown, no backticks). The JSON MUST use the key "reply" for the text response. Example: {"reply": "your answer here"}, "toolCalls": [{"tool": string, "args": object}], "needs_human": boolean}. User: ' +
     message;
   const res = await fetch(url, {
     method: 'POST',
