@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import Layout from './components/Layout';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import './styles/tokens.css';
@@ -13,9 +14,11 @@ const el = document.getElementById('reset-root');
 if (el) {
   createRoot(el).render(
     <React.StrictMode>
-      <Layout currentPath="/reset-password" shell="v6">
-        <ResetPasswordPage />
-      </Layout>
+      <BrowserRouter>
+        <Layout currentPath="/reset-password" shell="v6">
+          <ResetPasswordPage />
+        </Layout>
+      </BrowserRouter>
     </React.StrictMode>
   );
 }
