@@ -1,0 +1,13 @@
+---
+description: Pointer to BossMind Master AI Coordinator (Cursor Projects)
+alwaysApply: true
+---
+
+# BossMind Coordinator (workspace pointer)
+
+This repo is part of the BossMind ecosystem. Development coordination instructions live in:
+
+- `docs/CURSOR_PROJECTS_COORDINATOR.md` (this repo)
+- Hub (local): `D:\BossMind\PROJECT_COORDINATOR.md` and `.cursor/rules/bossmind-cursor-projects-coordinator.mdc`
+
+Neon `bossmind_shared` remains the shared-memory authority. Do not enable production memory delivery as part of coordinator setup. Keep projects isolated.
