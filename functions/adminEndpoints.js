@@ -1193,6 +1193,69 @@ function registerAdminEndpoints(exportsObj) {
     }
   );
 
+  /** Update display_name / description on a video_registry doc. */
+  exportsObj.postAdminUpdateVideoRegistry = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST' && req.method !== 'PATCH') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      await assertAdminAccess(req, db, readAdminPassword());
+      const body = parseBody(req);
+      const videoRegistry = require('./lib/videoRegistry');
+      const patch = {};
+      if (Object.prototype.hasOwnProperty.call(body, 'display_name')) {
+        patch.display_name = body.display_name;
+      }
+      if (Object.prototype.hasOwnProperty.call(body, 'description')) {
+        patch.description = body.description;
+      }
+      const out = await videoRegistry.updateRegistryMetadata(
+        db,
+        body.docId || body.doc_id || body.id,
+        patch
+      );
+      res.status(200).json(out);
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Registry update failed' });
+    }
+  });
+
+  /** Temporary GCS signed URL for admin playback (gs:// is not browser-playable). */
+  exportsObj.postAdminVideoSignedUrl = onRequest(
+    { ...adminHttpOpts, timeoutSeconds: 60, memory: '256MiB' },
+    async (req, res) => {
+      adminCors(res, req);
+      if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+      }
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+      }
+      try {
+        await assertAdminAccess(req, db, readAdminPassword());
+        const body = parseBody(req);
+        const videoRegistry = require('./lib/videoRegistry');
+        const out = await videoRegistry.signRegistryPlayUrl(db, {
+          docId: body.docId || body.doc_id || body.id,
+          url: body.url || body.active_url || body.gsUrl || body.gs_url,
+        });
+        res.status(200).json(out);
+      } catch (err) {
+        const code = err.statusCode || 500;
+        res.status(code).json({ error: err.message || 'Signed URL failed' });
+      }
+    }
+  );
+
   exportsObj.createHarnessTask = onRequest(adminHttpOpts, async (req, res) => {
     adminCors(res, req);
     if (req.method === 'OPTIONS') {
