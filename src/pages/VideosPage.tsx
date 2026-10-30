@@ -49,7 +49,7 @@ export default function VideosPage() {
   const [remaining, setRemaining] = useState(() => remainingVideoDownloads());
   const [library, setLibrary] = useState(VIDEO_LIBRARY);
   const [catalogMeta, setCatalogMeta] = useState({ bilibiliConfigured: false, source: 'local' });
-  const [activeId, setActiveId] = useState(VIDEO_LIBRARY[0].id);
+  const [activeId, setActiveId] = useState(VIDEO_LIBRARY[0]?.id || '');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');

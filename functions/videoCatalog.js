@@ -6,10 +6,10 @@
 const { getFirestore } = require('firebase-admin/firestore');
 const { getStorage } = require('firebase-admin/storage');
 const bilibiliPublish = require('./bilibiliPublish');
-const { PLAYABLE_DEMOS, INTERVIEW_SERIES_CATALOG, SERIES_ID } = require('./interviewSeriesCatalog');
+const { SERIES_ID } = require('./interviewSeriesCatalog');
 
-/** Premium Interview Series catalog (4 × EN/FR/ES) — SSoT for fallback + Firestore seed. */
-const FALLBACK_CATALOG = INTERVIEW_SERIES_CATALOG;
+/** Cleared — no hardcoded demo fallback. */
+const FALLBACK_CATALOG = [];
 
 function bilibiliConfigured() {
   return bilibiliPublish.cookiesConfigured(bilibiliPublish.readCookieBundle());
@@ -27,10 +27,6 @@ function toHttpsUrl(raw) {
 
 function isPlayableHttp(url) {
   return /^https?:\/\//i.test(String(url || '').trim());
-}
-
-function demoForIndex(index) {
-  return PLAYABLE_DEMOS[Math.abs(Number(index) || 0) % PLAYABLE_DEMOS.length];
 }
 
 /** True when URL is a dead Google sample host (403) or otherwise unusable for <video>. */
@@ -56,7 +52,7 @@ function multilingualUrls(video = {}, index = 0) {
   let es = toHttpsUrl((nested && nested.es) || video.url_mp4_es || video.url_es || en) || en;
 
   // Dead Google sample hosts → replace with known-good demos
-  if (isDeadGtvOrMissing(en) || !isPlayableHttp(en)) en = demoForIndex(index);
+  if (isDeadGtvOrMissing(en) || !isPlayableHttp(en)) en = '';
   if (isDeadGtvOrMissing(fr) || !isPlayableHttp(fr)) fr = en;
   if (isDeadGtvOrMissing(es) || !isPlayableHttp(es)) es = en;
 
@@ -75,31 +71,9 @@ function normalizeVideo(video = {}, index = 0) {
   };
 }
 
-/** Upsert Premium Interview Series docs into Firestore `videos` (idempotent). */
+/** Disabled — no longer re-inserts hardcoded demo data into Firestore. */
 async function seedFirestoreInterviewSeries() {
-  const db = getFirestore();
-  const batch = db.batch();
-  let upserted = 0;
-  for (const item of INTERVIEW_SERIES_CATALOG) {
-    const ref = db.collection('videos').doc(item.video_id);
-    batch.set(
-      ref,
-      {
-        ...item,
-        urls: {
-          en: item.url_mp4_en,
-          fr: item.url_mp4_fr,
-          es: item.url_mp4_es,
-        },
-        updated_at: new Date().toISOString(),
-        seeded_from: SERIES_ID,
-      },
-      { merge: true }
-    );
-    upserted += 1;
-  }
-  await batch.commit();
-  return { upserted, series_id: SERIES_ID };
+  return { upserted: 0, series_id: SERIES_ID, disabled: true };
 }
 
 /**
@@ -115,7 +89,7 @@ async function migrateFirestoreGtvVideoUrls() {
   let batchCount = 0;
   snap.docs.forEach((doc, i) => {
     const data = doc.data() || {};
-    const demo = demoForIndex(i);
+    const demo = '';
     const urls = multilingualUrls(data, i);
     const patch = {
       urls: { en: urls.en, fr: urls.fr, es: urls.es },
@@ -223,7 +197,6 @@ exports.normalizeVideo = normalizeVideo;
 exports.toHttpsUrl = toHttpsUrl;
 exports.withSignedPlayUrls = withSignedPlayUrls;
 exports.seedFirestoreInterviewSeries = seedFirestoreInterviewSeries;
-exports.PLAYABLE_DEMOS = PLAYABLE_DEMOS;
 exports.FALLBACK_CATALOG = FALLBACK_CATALOG;
 
 exports.getCatalog = async function getCatalog() {
@@ -236,62 +209,29 @@ exports.getCatalog = async function getCatalog() {
 
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
-  // Series catalog is canonical; force public MDN/W3Schools until masters are public.
-  const demos = FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i));
-  const byId = new Map(demos.map((v) => [v.video_id, v]));
 
-  if (fromFs && fromFs.length) {
-    const seriesDocs = fromFs.filter((d) => byId.has(String(d.video_id || d.id || '')));
-    const useDocs = seriesDocs.length ? seriesDocs : fromFs;
-    const videos = useDocs.map((doc, i) => {
-      const id = String(doc.video_id || doc.id || '');
-      const demo = byId.get(id) || demos[i % demos.length];
-      const titleKeep = {
-        title_EN: doc.title_EN || doc.title || demo.title_EN,
-        title_FR: doc.title_FR || demo.title_FR,
-        title_ES: doc.title_ES || demo.title_ES,
-        title: doc.title || doc.title_EN || demo.title_EN,
-      };
-      return {
-        ...demo,
-        ...titleKeep,
-        video_id: id || demo.video_id,
-        id: doc.id || demo.video_id,
-        order: doc.order != null ? doc.order : demo.order,
-        duration: demo.duration || doc.duration || 480,
-        series_id: demo.series_id || SERIES_ID,
-        script_path: demo.script_path || doc.script_path || '',
-        urls: { ...demo.urls },
-        url_mp4_en: demo.urls.en,
-        url_mp4_fr: demo.urls.fr,
-        url_mp4_es: demo.urls.es,
-        source: 'interview-series',
-        status: 'public-demo',
-      };
-    });
-    // Prefer exactly the 4 series lessons (sorted by order).
-    const ordered = demos.map((demo) => {
-      const hit = videos.find((v) => v.video_id === demo.video_id);
-      return hit || demo;
-    });
+  const videos = (fromFs || []).map((doc, i) => {
+    const id = String(doc.video_id || doc.id || '');
+    const urls = multilingualUrls(doc, i);
     return {
-      videos: ordered,
-      source: 'interview-series',
-      series_id: SERIES_ID,
-      seed,
-      bilibiliConfigured: configured,
-      cacheControl: 'no-store',
-      note: 'Premium Interview Series v1 — MDN/W3Schools placeholders until 1080p masters upload.',
+      ...doc,
+      video_id: id,
+      id: doc.id || id,
+      urls: { ...(doc.urls || {}), en: urls.en, fr: urls.fr, es: urls.es },
+      url_mp4_en: urls.en,
+      url_mp4_fr: urls.fr,
+      url_mp4_es: urls.es,
     };
-  }
+  });
+
   return {
-    videos: demos,
-    source: 'interview-series',
+    videos,
+    source: 'firestore',
     series_id: SERIES_ID,
     seed,
     bilibiliConfigured: configured,
     cacheControl: 'no-store',
-    note: 'Premium Interview Series v1 fallback. Upload masters to gs://resumora-videos/masters/interview-series-v1/.',
+    note: 'Serving Firestore video records only — no hardcoded demos.',
   };
 };
 

@@ -1079,7 +1079,6 @@ function registerAdminEndpoints(exportsObj) {
       const videoCatalog = require('./videoCatalog');
       const catalog = await videoCatalog.getCatalog();
       const videos = Array.isArray(catalog.videos) ? catalog.videos : [];
-      const demos = Array.isArray(videoCatalog.PLAYABLE_DEMOS) ? videoCatalog.PLAYABLE_DEMOS : [];
       const rows = videos.map((v, i) => {
         const video_id = String(v.video_id || v.id || '');
         const title = String(v.title_EN || v.title || v.name || video_id || 'untitled');
@@ -1102,13 +1101,10 @@ function registerAdminEndpoints(exportsObj) {
             v.master_path ||
             (video_id ? `gs://resumora-videos/masters/interview-series-v1/${video_id}` : '—')
         );
-        const demo = String(demos[i % Math.max(demos.length, 1)] || demos[0] || '').trim();
-        const forced =
-          demo || 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
         const urls = {
-          en: String(v.url_mp4_en || v.urls?.en || forced),
-          fr: String(v.url_mp4_fr || v.urls?.fr || forced),
-          es: String(v.url_mp4_es || v.urls?.es || forced),
+          en: String(v.url_mp4_en || v.urls?.en || ''),
+          fr: String(v.url_mp4_fr || v.urls?.fr || ''),
+          es: String(v.url_mp4_es || v.urls?.es || ''),
         };
         return {
           video_id,

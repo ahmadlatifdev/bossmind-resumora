@@ -98,6 +98,5 @@ CV y entrevista son un pipeline. Alinee con honestidad, convierta el ATS y abra 
 
 ## On-screen graphics (all langs)
 
-- Title card: Resume-to-Interview Mastery
 - Lower-third: AI Keyword Tool · ATS → STAR · Project-first
 - End card: Next — Behavioral & STAR · resumora.net

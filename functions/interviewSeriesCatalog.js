@@ -1,17 +1,10 @@
 /**
  * Premium Interview Series (Enterprise education library foundation).
- * 4 topics × EN/FR/ES — playable MDN/W3Schools placeholders until masters upload.
+ * 4 topics × EN/FR/ES — catalog metadata only; no hardcoded demo sources.
  * Full production scripts: content/interview-series/
  */
 
 'use strict';
-
-const PLAYABLE_DEMOS = [
-  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  'https://www.w3schools.com/html/mov_bbb.mp4',
-  'https://www.w3schools.com/html/movie.mp4',
-  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-];
 
 /** Target runtime per lesson (8:00). */
 const SERIES_DURATION_SEC = 480;
@@ -36,9 +29,9 @@ const INTERVIEW_SERIES_CATALOG = [
       'Alignez les mots-clés sur l’offre, transformez le score ATS en arguments d’entretien, et utilisez un format projet-d’abord pour juniors et seniors.',
     description_ES:
       'Alinee palabras clave con la oferta, convierta mejoras ATS en argumentos de entrevista y use formatos centrados en proyectos para junior y senior.',
-    url_mp4_en: PLAYABLE_DEMOS[0],
-    url_mp4_fr: PLAYABLE_DEMOS[0],
-    url_mp4_es: PLAYABLE_DEMOS[0],
+    url_mp4_en: '',
+    url_mp4_fr: '',
+    url_mp4_es: '',
     script_path: 'content/interview-series/01-resume-to-interview.md',
     source: 'interview-series',
     status: 'public-demo',
@@ -61,9 +54,9 @@ const INTERVIEW_SERIES_CATALOG = [
       'Approfondissez STAR, préparez 4–5 blocs d’histoires polyvalents, et traitez la « plus grande faiblesse » avec transparence.',
     description_ES:
       'Profundice en STAR, prepare 4–5 bloques de historias versátiles y responda la “mayor debilidad” con transparencia.',
-    url_mp4_en: PLAYABLE_DEMOS[1],
-    url_mp4_fr: PLAYABLE_DEMOS[1],
-    url_mp4_es: PLAYABLE_DEMOS[1],
+    url_mp4_en: '',
+    url_mp4_fr: '',
+    url_mp4_es: '',
     script_path: 'content/interview-series/02-star-behavioral.md',
     source: 'interview-series',
     status: 'public-demo',
@@ -86,9 +79,9 @@ const INTERVIEW_SERIES_CATALOG = [
       'Gérez les prompts situationnels (pensée critique, QE), respectez le timing 2+6 minutes, et ouvrez avec une intro concise et forte.',
     description_ES:
       'Gestione prompts situacionales (pensamiento crítico, IE), use timing 2+6 minutos y abra con una intro breve e impactante.',
-    url_mp4_en: PLAYABLE_DEMOS[2],
-    url_mp4_fr: PLAYABLE_DEMOS[2],
-    url_mp4_es: PLAYABLE_DEMOS[2],
+    url_mp4_en: '',
+    url_mp4_fr: '',
+    url_mp4_es: '',
     script_path: 'content/interview-series/03-situational-async.md',
     source: 'interview-series',
     status: 'public-demo',
@@ -111,9 +104,9 @@ const INTERVIEW_SERIES_CATALOG = [
       'Normes d’entretien Inde/US/UK/Canada/Australie, langage corporel pour audiences globales, et recherche d’emploi IA par marché.',
     description_ES:
       'Normas de entrevista en India/EE. UU./UK/Canadá/Australia, lenguaje corporal global y búsqueda de empleo con IA por mercado.',
-    url_mp4_en: PLAYABLE_DEMOS[3],
-    url_mp4_fr: PLAYABLE_DEMOS[3],
-    url_mp4_es: PLAYABLE_DEMOS[3],
+    url_mp4_en: '',
+    url_mp4_fr: '',
+    url_mp4_es: '',
     script_path: 'content/interview-series/04-global-career.md',
     source: 'interview-series',
     status: 'public-demo',
@@ -123,7 +116,6 @@ const INTERVIEW_SERIES_CATALOG = [
 ];
 
 module.exports = {
-  PLAYABLE_DEMOS,
   SERIES_DURATION_SEC,
   SERIES_ID,
   SERIES_TIER,
