@@ -10,7 +10,7 @@ Enterprise education library foundation for Resumora (BossMind global client int
 | 4   | `vid-global-career`       | Multi-Language & Global Career Positioning     | ≤8:00    | [04](./04-global-career.md)       |
 
 **Languages:** EN, FR, ES (Admin Video Asset Manager language buttons).  
-**Playback placeholders:** public MDN / W3Schools MP4s until private `gs://resumora-videos` masters are approved.  
+**Playback:** production masters served from `gs://resumora-videos` / R2 — no placeholder demo MP4s.  
 **TTV prompts:** [ttv-prompts.json](./ttv-prompts.json) for Veo / HeyGen / script-based studios.  
 **Catalog SSoT (Functions):** `functions/interviewSeriesCatalog.js`  
 **Client library:** `src/lib/videoLibrary.js`

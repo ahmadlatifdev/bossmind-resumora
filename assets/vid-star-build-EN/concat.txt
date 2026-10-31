@@ -1,0 +1,2 @@
+file 'D:/BossMind/bossmind-resumora/assets/vid-star-build-EN/video_000.mp4'
+file 'D:/BossMind/bossmind-resumora/assets/vid-star-build-EN/video_001.mp4'

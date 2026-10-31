@@ -2,7 +2,7 @@
 
 **Series:** Premium Interview Series v1 · Enterprise education foundation  
 **Runtime:** 8:00 max (2:00 hook · 5:00 body · 1:00 CTA)  
-**Languages:** EN / FR / ES · Format: 1080p MP4 · Placeholders: MDN/W3Schools until masters upload  
+**Languages:** EN / FR / ES · Format: 1080p MP4  
 **Core messaging framework:** Claim → Proof → Relevance → Ask (CPRA)
 
 ---

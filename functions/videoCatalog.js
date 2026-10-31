@@ -77,8 +77,8 @@ async function seedFirestoreInterviewSeries() {
 }
 
 /**
- * Persist MDN/W3Schools replacements for any Firestore `videos` docs still on gtv-videos-bucket.
- * Idempotent — skips docs that already use public demos.
+ * Legacy migration — no longer inserts public demo (MDN/W3Schools) replacements.
+ * Only clears dead gtv-videos-bucket URLs; placeholder demos have been removed.
  */
 async function migrateFirestoreGtvVideoUrls() {
   const db = getFirestore();

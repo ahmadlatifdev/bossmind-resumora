@@ -45,6 +45,7 @@ sentry.edge.config.*
 hostinger/
 .env*.local
 .env
+.env.replicate
 functions/.env
 bilibili_secrets.env
 firebase-service-account.json
@@ -84,4 +85,11 @@ hermes-idea-queue/dist/
 hermes-idea-queue/dist-test/
 hermes-idea-queue/node_modules/
 hermes-idea-queue/.env
+
+# Environment variables (secrets)
+.env
+.env.*
+!.env.example
+
+
 
