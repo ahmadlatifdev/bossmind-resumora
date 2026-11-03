@@ -1,0 +1,13 @@
+name: OSV-Scanner PR Scan
+on:
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *' # Runs automatically every night at midnight UTC
+permissions:
+  actions: read
+  security-events: write
+  contents: read
+jobs:
+  scan-pr:
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.0"
