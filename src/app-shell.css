@@ -234,6 +234,28 @@
   margin: 0;
   white-space: nowrap;
 }
+.header-actions .nav-login {
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-bright));
+  color: var(--color-navy) !important;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.28);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+.header-actions .nav-login:hover,
+.header-actions .nav-login:focus-visible {
+  background: linear-gradient(135deg, var(--color-gold-bright), var(--color-gold));
+  color: var(--color-navy) !important;
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 10px 24px rgba(212, 175, 55, 0.42);
+  outline: none;
+}
 .header-actions > a:hover,
 .header-actions > a:focus-visible {
   background: rgba(212, 175, 55, 0.14);

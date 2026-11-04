@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { t } from '../lib/i18n.js';
+import { useAuth } from '../auth/AuthContext';
 
 /**
  * Shared top header — SSoT chrome (single Resumora mark + nav + EN/FR/ES).
@@ -15,6 +16,7 @@ export default function SiteHeader({
   extraLinks = null,
 }) {
   const [open, setOpen] = useState(false);
+  const { user, loading } = useAuth();
   const links = [
     { href: '/', key: 'nav.home', match: ['/'] },
     { href: '/pricing', key: 'nav.pricing', match: ['/pricing'] },
@@ -74,6 +76,11 @@ export default function SiteHeader({
           </a>
         ))}
         <a href="/reset-password">{t(lang || 'en', 'nav.reset')}</a>
+        {!loading && !user ? (
+          <a href="/login" className="nav-login">
+            Login
+          </a>
+        ) : null}
         {extraLinks}
       </nav>
 
