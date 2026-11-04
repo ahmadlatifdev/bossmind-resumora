@@ -20,7 +20,7 @@ export default function TermsOfService() {
   return (
     <section className="legal-page max-w-3xl mx-auto px-4 py-12 text-left">
       <h1 className="v6-heading text-3xl md:text-4xl mb-2">Terms of Service</h1>
-      <p className="text-sm opacity-70 mb-6">Last updated: November 2026</p>
+      <p className="text-sm opacity-70 mb-6">Last updated: November 4, 2026</p>
 
       <p className="text-sm opacity-90 leading-relaxed">
         These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Resumora

@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
   return (
     <section className="legal-page max-w-3xl mx-auto px-4 py-12 text-left">
       <h1 className="v6-heading text-3xl md:text-4xl mb-2">Privacy Policy</h1>
-      <p className="text-sm opacity-70 mb-6">Last updated: November 2026</p>
+      <p className="text-sm opacity-70 mb-6">Last updated: November 4, 2026</p>
 
       <p className="text-sm opacity-90 leading-relaxed">
         Resumora (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;us&rdquo;) respects your privacy. This
