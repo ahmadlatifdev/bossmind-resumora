@@ -15,5 +15,8 @@
     "resend": "^6.25.0",
     "stripe": "^17.3.0"
   },
+  "overrides": {
+    "proxy-addr": "^2.0.8"
+  },
   "private": true
 }
