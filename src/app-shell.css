@@ -256,6 +256,86 @@
   box-shadow: 0 10px 24px rgba(212, 175, 55, 0.42);
   outline: none;
 }
+.header-actions .nav-login-text {
+  color: var(--color-gold-bright);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.header-actions .nav-login-text:hover,
+.header-actions .nav-login-text:focus-visible {
+  color: #fff;
+  background: transparent;
+  outline: none;
+}
+.account-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.account-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-gold-bright);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  border-radius: 999px;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.account-menu__trigger:hover,
+.account-menu__trigger:focus-visible {
+  background: rgba(212, 175, 55, 0.14);
+  color: #fff;
+  outline: none;
+}
+.account-menu__caret {
+  font-size: 0.7em;
+  opacity: 0.85;
+}
+.account-menu__dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(10, 26, 58, 0.98);
+  border: 1px solid var(--color-gold-border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  z-index: 60;
+}
+.account-menu__dropdown a,
+.account-menu__dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--color-gold-bright);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.account-menu__dropdown a:hover,
+.account-menu__dropdown button:hover,
+.account-menu__dropdown a:focus-visible,
+.account-menu__dropdown button:focus-visible {
+  background: rgba(212, 175, 55, 0.16);
+  color: #fff;
+  outline: none;
+}
 .header-actions > a:hover,
 .header-actions > a:focus-visible {
   background: rgba(212, 175, 55, 0.14);

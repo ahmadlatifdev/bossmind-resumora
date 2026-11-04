@@ -1,5 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { onAuthStateChanged, signOut as firebaseSignOut, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
@@ -7,12 +15,14 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   subscriptionActive: boolean;
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   subscriptionActive: false,
+  signOut: async () => {},
 });
 
 async function resolveSubscriptionActive(user: User): Promise<boolean> {
@@ -71,9 +81,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsub();
   }, []);
 
+  const signOut = useCallback(async () => {
+    await firebaseSignOut(auth);
+  }, []);
+
   const value = useMemo(
-    () => ({ user, loading, subscriptionActive }),
-    [user, loading, subscriptionActive]
+    () => ({ user, loading, subscriptionActive, signOut }),
+    [user, loading, subscriptionActive, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

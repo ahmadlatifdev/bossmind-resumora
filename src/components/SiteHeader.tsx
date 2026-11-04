@@ -16,17 +16,25 @@ export default function SiteHeader({
   extraLinks = null,
 }) {
   const [open, setOpen] = useState(false);
-  const { user, loading } = useAuth();
-  const links = [
+  const [accountOpen, setAccountOpen] = useState(false);
+  const { user, loading, signOut } = useAuth();
+  const alwaysLinks = [
     { href: '/', key: 'nav.home', match: ['/'] },
     { href: '/pricing', key: 'nav.pricing', match: ['/pricing'] },
-    { href: '/video-library', key: 'nav.videos', match: ['/video-library', '/videos'] },
     { href: '/studio', key: 'nav.studio', match: ['/studio', '/resume-studio'] },
-    { href: '/account', key: 'nav.account', match: ['/account'] },
+  ];
+  const memberLinks = [
+    { href: '/video-library', key: 'nav.videos', match: ['/video-library', '/videos'] },
   ];
 
   function isCurrent(match: string[]) {
     return match.some((m) => currentPath === m || (m !== '/' && currentPath.startsWith(m)));
+  }
+
+  async function handleSignOut() {
+    setAccountOpen(false);
+    await signOut();
+    window.location.href = '/';
   }
 
   return (
@@ -66,7 +74,7 @@ export default function SiteHeader({
         className={`header-actions main-nav-links${open ? ' is-open' : ''}`}
         aria-label={t(lang || 'en', 'nav.primaryAria')}
       >
-        {links.map((link) => (
+        {alwaysLinks.map((link) => (
           <a
             key={link.href}
             href={link.href}
@@ -75,12 +83,56 @@ export default function SiteHeader({
             {t(lang || 'en', link.key)}
           </a>
         ))}
-        <a href="/reset-password">{t(lang || 'en', 'nav.reset')}</a>
-        {!loading && !user ? (
-          <a href="/login" className="nav-login">
-            Login
-          </a>
+
+        {!loading && user ? (
+          <>
+            {memberLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                aria-current={isCurrent(link.match) ? 'page' : undefined}
+              >
+                {t(lang || 'en', link.key)}
+              </a>
+            ))}
+            <div className="account-menu">
+              <button
+                type="button"
+                className="account-menu__trigger"
+                aria-expanded={accountOpen}
+                aria-haspopup="true"
+                onClick={() => setAccountOpen((v) => !v)}
+              >
+                {t(lang || 'en', 'nav.account')}
+                <span className="account-menu__caret" aria-hidden="true">
+                  ▾
+                </span>
+              </button>
+              {accountOpen ? (
+                <div className="account-menu__dropdown" role="menu">
+                  <a href="/account" role="menuitem" onClick={() => setAccountOpen(false)}>
+                    Dashboard
+                  </a>
+                  <button type="button" role="menuitem" onClick={handleSignOut}>
+                    {t(lang || 'en', 'nav.signOut')}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </>
         ) : null}
+
+        {!loading && !user ? (
+          <>
+            <a href="/login" className="nav-login-text">
+              Log In
+            </a>
+            <a href="/studio" className="nav-login">
+              Build Resume
+            </a>
+          </>
+        ) : null}
+
         {extraLinks}
       </nav>
 

@@ -98,7 +98,7 @@ export const SERVICE_PLANS = Object.freeze([
         { title: 'Entrega', detail: 'EN / FR / ES + entregables descargables — pago único $29.' },
       ],
     },
-    cta: { en: 'Choose Basic', fr: 'Choisir Basic', es: 'Elegir Básico' },
+    cta: { en: 'Start Building', fr: 'Commencer maintenant', es: 'Empezar ahora' },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_BASIC',
       'NEXT_PUBLIC_STRIPE_PRICE_BASIC',
@@ -119,7 +119,7 @@ export const SERVICE_PLANS = Object.freeze([
       fr: 'Un CV (1–2 pages), lettre de motivation, ATS avancé et 2 modifications incluses.',
       es: 'Un CV (1–2 páginas), carta de presentación, ATS avanzado y 2 ediciones incluidas.',
     },
-    badge: { en: 'Most selected', fr: 'Le plus choisi', es: 'Más elegido' },
+    badge: { en: 'Most Popular', fr: 'Le plus populaire', es: 'Más popular' },
     highlighted: true,
     features: {
       en: [
@@ -167,7 +167,7 @@ export const SERVICE_PLANS = Object.freeze([
         { title: 'Ediciones', detail: '2 revisiones automatizadas cuando las solicite.' },
       ],
     },
-    cta: { en: 'Choose Balanced', fr: 'Choisir Équilibré', es: 'Elegir Equilibrado' },
+    cta: { en: 'Get Hired Faster', fr: 'Décrochez un entretien', es: 'Consiga una entrevista' },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_BALANCED',
       'STRIPE_PRICE_BALANCED',
@@ -235,7 +235,11 @@ export const SERVICE_PLANS = Object.freeze([
         { title: 'Ediciones', detail: '3 revisiones automatizadas cuando las solicite.' },
       ],
     },
-    cta: { en: 'Choose Professional', fr: 'Choisir Professionnel', es: 'Elegir Profesional' },
+    cta: {
+      en: 'Upgrade to Professional',
+      fr: 'Passez à Professionnel',
+      es: 'Actualice a Profesional',
+    },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_PROFESSIONAL_TIER',
       'STRIPE_PRICE_PROFESSIONAL_TIER',
@@ -305,7 +309,7 @@ export const SERVICE_PLANS = Object.freeze([
         { title: 'Acceso', detail: 'Hasta 5 descargas en la biblioteca de videos.' },
       ],
     },
-    cta: { en: 'Choose Advanced', fr: 'Choisir Avancé', es: 'Elegir Avanzado' },
+    cta: { en: 'Get Advanced', fr: 'Obtenir Avancé', es: 'Obtener Avanzado' },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_ADVANCED',
       'NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED',
