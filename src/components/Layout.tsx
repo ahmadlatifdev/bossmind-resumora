@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { LangProvider, useLang } from '../i18n/LangContext';
 import SiteHeader from './SiteHeader';
 import SiteFooter from './SiteFooter';
+import CookieConsent from './CookieConsent';
 import ClientChat from './ClientChat';
 import { AuthProvider } from '../auth/AuthContext';
 import '../index.css';
@@ -36,6 +37,7 @@ function LayoutChrome({ currentPath, shell = 'v6', children }: ChromeProps) {
       </main>
       <ClientChat />
       <SiteFooter lang={lang} />
+      <CookieConsent />
     </div>
   );
 }
