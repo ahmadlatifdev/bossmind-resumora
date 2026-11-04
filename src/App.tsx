@@ -18,6 +18,8 @@ import VideosPage from './pages/VideosPage';
 import VideoDemoPage from './pages/VideoDemoPage';
 import AccountPage from './pages/AccountPage';
 import InterviewSeriesPage from './pages/InterviewSeriesPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import { useLang } from './i18n/LangContext';
 import { t, tFormat } from './lib/i18n.js';
 import {
@@ -223,6 +225,8 @@ function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/video-demo" element={<VideoDemoPage />} />
           <Route path="/interview-series" element={<InterviewSeriesPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route
             path="/account"
             element={

@@ -5,6 +5,8 @@
  * Never send secrets, full emails, or payment IDs to analytics.
  */
 
+import { hasCookieConsent } from './consent.js';
+
 function getGtag() {
   if (typeof window === 'undefined') return null;
   return typeof window.gtag === 'function' ? window.gtag : null;
@@ -32,6 +34,7 @@ export function ensureGaConfigured() {
  * @param {string} [pagePath]
  */
 export function trackPageView(pagePath) {
+  if (!hasCookieConsent()) return;
   ensureGaConfigured();
   const gtag = getGtag();
   if (!gtag) return;
@@ -50,6 +53,7 @@ export function trackPageView(pagePath) {
  * @param {{ itemId: string, itemName: string, priceLabel?: string, index?: number }} payload
  */
 export function trackSelectItem(payload) {
+  if (!hasCookieConsent()) return;
   ensureGaConfigured();
   const gtag = getGtag();
   if (!gtag) return;
@@ -73,6 +77,7 @@ export function trackSelectItem(payload) {
  * @param {{ method?: string, leadType?: string }} [payload]
  */
 export function trackGenerateLead(payload = {}) {
+  if (!hasCookieConsent()) return;
   ensureGaConfigured();
   const gtag = getGtag();
   if (!gtag) return;
@@ -87,6 +92,7 @@ export function trackGenerateLead(payload = {}) {
  * @param {{ title?: string, src?: string, lang?: string }} [payload]
  */
 export function trackVideoStart(payload = {}) {
+  if (!hasCookieConsent()) return;
   ensureGaConfigured();
   const gtag = getGtag();
   if (!gtag) return;

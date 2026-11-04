@@ -82,6 +82,8 @@ export default function SiteFooter({ lang = 'en' }: SiteFooterProps) {
           <a href="/video-library">{t(lang, 'nav.videos')}</a>
           <a href="/studio">{t(lang, 'nav.studio')}</a>
           <a href="/account">{t(lang, 'nav.account')}</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
         </nav>
         {social.length > 0 ? (
           <nav className="site-footer__social" aria-label={t(lang, 'footer.socialNav')}>
