@@ -79,6 +79,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "express": "^5.2.1",
     "globals": "^16.5.0",
+    "google-tts-api": "^2.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "p-queue": "^9.3.3",
