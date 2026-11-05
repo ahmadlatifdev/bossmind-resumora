@@ -96,6 +96,12 @@ export default function AdminShell() {
               {t(lang, link.key)}
             </NavLink>
           ))}
+          <NavLink
+            to="/admin/orchestrator"
+            className={({ isActive }) => `admin-master__nav-link${isActive ? ' is-active' : ''}`}
+          >
+            Orchestrator
+          </NavLink>
           <a
             className="admin-master__nav-link"
             href="/admin-dashboard.html"

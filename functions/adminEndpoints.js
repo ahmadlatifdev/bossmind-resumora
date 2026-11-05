@@ -41,6 +41,7 @@ const {
 } = require('./lib/financeLedger');
 const { runDailyStockAllocation } = require('./lib/financeAllocation');
 const brocOps = require('./lib/brocOps');
+const { listCatalog } = require('./lib/orchestratorCatalog');
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 const adminRefundPassword = defineSecret('ADMIN_REFUND_PASSWORD');
@@ -418,6 +419,26 @@ function registerAdminEndpoints(exportsObj) {
     } catch (err) {
       const code = err.statusCode || 500;
       res.status(code).json({ error: err.message || 'Owner console failed' });
+    }
+  });
+
+  /** Orchestrator "God View" catalog — owner/super-admin gated, read-only. */
+  exportsObj.getOrchestratorCatalog = onRequest(adminHttpOpts, async (req, res) => {
+    adminCors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'GET') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      assertOwnerAccess(req, readOwnerPassword());
+      res.status(200).json({ ok: true, owner: true, projects: listCatalog() });
+    } catch (err) {
+      const code = err.statusCode || 500;
+      res.status(code).json({ error: err.message || 'Orchestrator catalog failed' });
     }
   });
 
