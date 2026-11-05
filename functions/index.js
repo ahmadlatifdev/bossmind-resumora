@@ -225,18 +225,23 @@ exports.createCheckoutSession = onRequest(
         fallback: price.currency || 'usd',
       });
 
+      const firebaseUid = String(body.firebaseUid || '').trim() || null;
+      const clientReferenceId = firebaseUid || String(body.clientReferenceId || '').trim() || null;
+
       const sessionParams = buildOptimizedCheckoutParams(
         {
           mode,
           line_items: [{ price: priceId, quantity: 1 }],
           success_url: successUrl,
           cancel_url: cancelUrl,
+          client_reference_id: clientReferenceId,
           metadata: {
             planId,
             projectId,
             source,
             expected_cents: String(expectedCents || price.unit_amount || ''),
             advisory_only_ui: 'true',
+            ...(firebaseUid ? { firebaseUid } : {}),
           },
         },
         { paymentMethodConfigurationId, currency }

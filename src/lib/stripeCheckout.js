@@ -1,4 +1,5 @@
 import { loadStripe } from '@stripe/stripe-js';
+import { auth } from './firebase';
 import {
   getStripePublishableKey,
   getStripePriceIdForPlan,
@@ -24,11 +25,11 @@ export function getStripe() {
 }
 
 /**
- * Start checkout for a selected plan (sandbox-safe).
+ * Start checkout for a selected plan.
  *
  * Priority:
- * 1) Amount-matched Payment Link (works even when Cloud Functions IAM blocks /api)
- * 2) Checkout Session API with planId + verified priceId + expectedCents
+ * 1) Checkout Session API with planId + verified priceId + expectedCents + firebaseUid
+ * 2) Amount-matched Payment Link — ONLY in explicit test mode (never in live production)
  */
 export async function startStripeCheckoutForPlan(planId) {
   const plan = getPlanById(planId);
@@ -39,20 +40,7 @@ export async function startStripeCheckoutForPlan(planId) {
   const priceId = getStripePriceIdForPlan(planId);
   const expectedCents = getExpectedCentsForPlan(planId);
   const origin = window.location.origin;
-  const paymentLink = getStripePaymentLinkForPlan(planId);
-
-  // Payment Links are the reliable sandbox path while createCheckoutSession is IAM-blocked (403).
-  if (paymentLink) {
-    window.location.assign(paymentLink);
-    return {
-      redirected: true,
-      planId,
-      priceId,
-      via: 'payment_link',
-      expectedCents,
-      testMode: isStripeTestMode(),
-    };
-  }
+  const firebaseUid = auth.currentUser?.uid || null;
 
   if (!priceId) {
     throw new Error(
@@ -77,6 +65,7 @@ export async function startStripeCheckoutForPlan(planId) {
           planId,
           priceId,
           expectedCents,
+          firebaseUid,
           successUrl: `${origin}/pricing?checkout=success&plan=${encodeURIComponent(planId)}`,
           cancelUrl: `${origin}/pricing?checkout=canceled&plan=${encodeURIComponent(planId)}`,
         }),
@@ -113,6 +102,20 @@ export async function startStripeCheckoutForPlan(planId) {
       priceId,
       sessionId: payload.sessionId,
       via: 'redirectToCheckout',
+    };
+  }
+
+  // Fall back to a Payment Link ONLY in explicit test mode (never in live production).
+  const paymentLink = getStripePaymentLinkForPlan(planId);
+  if (paymentLink && isStripeTestMode()) {
+    window.location.assign(paymentLink);
+    return {
+      redirected: true,
+      planId,
+      priceId,
+      via: 'payment_link',
+      expectedCents,
+      testMode: true,
     };
   }
 

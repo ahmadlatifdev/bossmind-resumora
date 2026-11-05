@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom';
 import { trackPageView } from './lib/analytics.js';
 import { ThemeProvider } from './theme/ThemeContext';
-import { AuthProvider } from './auth/AuthContext';
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AppLayout } from './components/Layout';
 import ClientHarnessWidget from './components/ClientHarness/ClientHarnessWidget';
@@ -26,6 +26,7 @@ import {
   CANONICAL_STRIPE_PRICE_IDS,
   getExpectedCentsForPlan,
   getStripePaymentLinkForPlan,
+  isStripeTestMode,
 } from './lib/plans.js';
 import './styles/tokens.css';
 import './v6-luxury.css';
@@ -46,6 +47,7 @@ const PLAN_ID_MAP: Record<string, string> = {
 
 function HomePage() {
   const { lang } = useLang();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const showPaywall = searchParams.get('paywall') === '1';
   const [selectedStripePriceId, setSelectedStripePriceId] = useState<string | null>(null);
@@ -88,6 +90,7 @@ function HomePage() {
         planId,
         priceId,
         expectedCents,
+        firebaseUid: user?.uid || null,
         successUrl: `${window.location.origin}/?checkout=success&plan=${encodeURIComponent(planId)}`,
         cancelUrl: `${window.location.origin}/?checkout=canceled&plan=${encodeURIComponent(planId)}`,
       });
@@ -109,7 +112,7 @@ function HomePage() {
       }
 
       const paymentLink = getStripePaymentLinkForPlan(planId);
-      if (paymentLink) {
+      if (paymentLink && isStripeTestMode()) {
         window.location.href = paymentLink;
         return;
       }

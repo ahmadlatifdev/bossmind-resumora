@@ -31,36 +31,52 @@ async function handleCheckoutSessionCompleted(event) {
   console.info('[stripe] checkout.session.completed', {
     id: session.id,
     mode: session.mode,
+    paymentStatus: session.payment_status || null,
+    livemode: session.livemode,
     planId: session.metadata?.planId || null,
     customer: session.customer || null,
   });
 
-  // Mark subscription / customer as active in Firestore when possible
+  // Only grant premium access for genuinely paid payment/subscription sessions.
+  if (session.mode !== 'payment' && session.mode !== 'subscription') {
+    return { action: 'ignored', sessionId: session.id, reason: 'non_payment_mode' };
+  }
+  if (session.payment_status && session.payment_status !== 'paid') {
+    return {
+      action: 'ignored',
+      sessionId: session.id,
+      reason: `payment_status=${session.payment_status}`,
+    };
+  }
+
+  const uid = session.client_reference_id || session.metadata?.firebaseUid;
+  if (!uid) {
+    return { action: 'no_uid', sessionId: session.id, subscriptionActive: false };
+  }
+
+  // Mark subscription / customer as active in Firestore (webhook-only, verified paid).
   try {
     const { getFirestore } = require('firebase-admin/firestore');
     const { FieldValue } = require('firebase-admin/firestore');
     const db = getFirestore();
-    const uid = session.client_reference_id || session.metadata?.firebaseUid;
-    if (uid) {
-      await db
-        .collection('users')
-        .doc(String(uid))
-        .set(
-          {
-            subscriptionStatus: 'active',
-            stripeCustomerId: session.customer || null,
-            stripeSubscriptionId: session.subscription || null,
-            planId: session.metadata?.planId || null,
-            updatedAt: FieldValue.serverTimestamp(),
-          },
-          { merge: true }
-        );
-    }
-  } catch (_) {
-    /* optional */
+    await db
+      .collection('users')
+      .doc(String(uid))
+      .set(
+        {
+          subscriptionStatus: 'active',
+          stripeCustomerId: session.customer || null,
+          stripeSubscriptionId: session.subscription || null,
+          planId: session.metadata?.planId || null,
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    return { action: 'checkout_fulfilled', sessionId: session.id, uid, subscriptionActive: true };
+  } catch (err) {
+    console.error('[stripe] failed to mark active', err?.message || err);
+    return { action: 'fulfillment_failed', sessionId: session.id, uid };
   }
-
-  return { action: 'checkout_fulfilled', sessionId: session.id, subscriptionActive: true };
 }
 
 async function handleSubscriptionUpdated(event) {
