@@ -1,5 +1,5 @@
 /**
- * Resumora service plan catalog — Basic / Balanced / Professional / Advanced.
+ * Resumora service plan catalog — Basic / Pro / Business / Enterprise.
  * Multilingual: EN / FR / ES.
  *
  * Stripe: each plan has a canonical Price ID + Payment Link verified against
@@ -108,7 +108,7 @@ export const SERVICE_PLANS = Object.freeze([
   },
   {
     id: 'balanced',
-    name: { en: 'Balanced', fr: 'Équilibré', es: 'Equilibrado' },
+    name: { en: 'Pro', fr: 'Pro', es: 'Pro' },
     priceLabel: '$49',
     priceCents: 4900,
     stripePriceId: CANONICAL_STRIPE_PRICE_IDS.balanced,
@@ -176,7 +176,7 @@ export const SERVICE_PLANS = Object.freeze([
   },
   {
     id: 'professional',
-    name: { en: 'Professional', fr: 'Professionnel', es: 'Profesional' },
+    name: { en: 'Business', fr: 'Business', es: 'Negocio' },
     priceLabel: '$79',
     priceCents: 7900,
     stripePriceId: CANONICAL_STRIPE_PRICE_IDS.professional,
@@ -236,9 +236,9 @@ export const SERVICE_PLANS = Object.freeze([
       ],
     },
     cta: {
-      en: 'Upgrade to Professional',
-      fr: 'Passez à Professionnel',
-      es: 'Actualice a Profesional',
+      en: 'Upgrade to Business',
+      fr: 'Passez à Business',
+      es: 'Actualice a Negocio',
     },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_PROFESSIONAL_TIER',
@@ -250,7 +250,7 @@ export const SERVICE_PLANS = Object.freeze([
   },
   {
     id: 'advanced',
-    name: { en: 'Advanced', fr: 'Avancé', es: 'Avanzado' },
+    name: { en: 'Enterprise', fr: 'Enterprise', es: 'Empresa' },
     priceLabel: '$110',
     priceCents: 11000,
     stripePriceId: CANONICAL_STRIPE_PRICE_IDS.advanced,
@@ -309,7 +309,7 @@ export const SERVICE_PLANS = Object.freeze([
         { title: 'Acceso', detail: 'Hasta 5 descargas en la biblioteca de videos.' },
       ],
     },
-    cta: { en: 'Get Advanced', fr: 'Obtenir Avancé', es: 'Obtener Avanzado' },
+    cta: { en: 'Get Enterprise', fr: 'Obtenir Enterprise', es: 'Obtener Empresa' },
     envPriceKeys: [
       'VITE_STRIPE_PRICE_ADVANCED',
       'NEXT_PUBLIC_STRIPE_PRICE_ESSENTIAL_ADVANCED',

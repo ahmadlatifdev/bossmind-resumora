@@ -5,7 +5,7 @@ import { fetchVideoStreamUrl } from '../lib/videoApi.js';
 import { useAuth } from '../auth/AuthContext';
 
 export default function VideoCard({ video, uiLang }) {
-  const { subscriptionActive } = useAuth();
+  const { subscriptionActive, planId } = useAuth();
   const [videoLang, setVideoLang] = useState(uiLang);
   const [streamUrl, setStreamUrl] = useState('');
   const [streamState, setStreamState] = useState('loading');
@@ -13,9 +13,12 @@ export default function VideoCard({ video, uiLang }) {
   const description = localize(video.description, uiLang);
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
 
+  // Video Library is Enterprise ($110 / "advanced") only.
+  const isEnterprise = subscriptionActive && planId === 'advanced';
+
   useEffect(() => {
     let cancelled = false;
-    if (!subscriptionActive) return;
+    if (!isEnterprise) return;
     setStreamUrl('');
     setStreamState('loading');
     fetchVideoStreamUrl({ videoId: video.id, language: videoLang })
@@ -34,9 +37,9 @@ export default function VideoCard({ video, uiLang }) {
     return () => {
       cancelled = true;
     };
-  }, [video.id, videoLang, subscriptionActive]);
+  }, [video.id, videoLang, isEnterprise]);
 
-  if (!subscriptionActive) {
+  if (!isEnterprise) {
     return (
       <article className="video-card">
         <div
@@ -59,7 +62,7 @@ export default function VideoCard({ video, uiLang }) {
                 textTransform: 'uppercase',
               }}
             >
-              Premium
+              Enterprise
             </p>
             <p style={{ color: '#fff', marginTop: 4, opacity: 0.9 }}>{title}</p>
           </div>
@@ -69,7 +72,7 @@ export default function VideoCard({ video, uiLang }) {
           <p className="video-card__desc">{description}</p>
           <div className="video-card__actions">
             <a className="primary" href="/pricing">
-              Upgrade to Pro to Unlock
+              Upgrade to Enterprise to access this video
             </a>
           </div>
         </div>
@@ -97,10 +100,12 @@ export default function VideoCard({ video, uiLang }) {
               display: 'flex',
               justifyContent: 'center',
               minHeight: 200,
-              opacity: 0.7,
+              opacity: 0.8,
+              padding: 16,
+              textAlign: 'center',
             }}
           >
-            {streamState === 'error' ? 'Video unavailable' : 'Loading…'}
+            {streamState === 'error' ? 'Video in Production — Coming Soon' : 'Loading…'}
           </div>
         )}
       </div>
