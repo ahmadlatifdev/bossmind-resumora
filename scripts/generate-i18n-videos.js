@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 /**
- * Generate i18n videos end-to-end:
- *   1. Extract PER-LANGUAGE script text from docs/interview-series/<id>.md
- *   2. TTS → MP3 (Google Cloud Text-to-Speech, with google-tts-api fallback)
- *      — reuses existing audio/<id>-<lang>.mp3 when present
- *   3. FFmpeg: loop a static brand background + audio → 1080p H.264 MP4
- *   4. Verify output duration with ffprobe
+ * Generate dynamic, conversational i18n videos (100% open-source: Node + FFmpeg).
+ *
+ * Pipeline:
+ *   1. Extract PER-LANGUAGE narration from docs/interview-series/<id>.md
+ *   2. Split into conversational turns (alternating Interviewer / Candidate)
+ *   3. Time the turns proportionally over the audio duration (approx sync)
+ *   4. Generate a styled .ass subtitle track (bold, bottom-center, drop shadow)
+ *   5. FFmpeg render: solid navy base → alternating lighter-navy background per
+ *      Candidate turn (drawbox) → Resumora logo (top-right) → burned .ass subtitles
+ *   6. Verify output duration with ffprobe
  *
  * Output: assets/vid-star-conversational-build-<LANG>/<id>-<lang>.mp4
  *
  * Usage:
  *   node scripts/generate-i18n-videos.js
- *   node scripts/generate-i18n-videos.js --lang en          # English only
- *   node scripts/generate-i18n-videos.js --video 01-resume-to-interview --lang en
- *   node scripts/generate-i18n-videos.js --skip-tts         # don't synthesize (reuse audio only)
+ *   node scripts/generate-i18n-videos.js --lang en
+ *   node scripts/generate-i18n-videos.js --video 02-star-behavioral --lang en
+ *   node scripts/generate-i18n-videos.js --skip-tts
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,7 +28,7 @@ const AUDIO_DIR = path.join(ROOT, 'audio');
 const SCRIPTS_DIR = path.join(ROOT, 'docs', 'interview-series');
 const LOGO = path.join(ROOT, 'public', 'resumora-logo.png');
 const ASSETS_DIR = path.join(ROOT, 'assets');
-const BACKGROUND = path.join(ASSETS_DIR, 'resumora-background.png');
+const SOLID_BG = path.join(ASSETS_DIR, 'resumora-solid-bg.png');
 
 const VIDEOS = [
   { id: '01-resume-to-interview', title: 'Resume-to-Interview Mastery' },
@@ -39,6 +43,13 @@ const VOICES = {
   fr: { languageCode: 'fr-FR', name: 'fr-FR-Chirp3-HD-Charon' },
   es: { languageCode: 'es-ES', name: 'es-ES-Chirp3-HD-Charon' },
 };
+
+// Background colors (navy shades) — Interviewer = dark, Candidate = lighter.
+const INTERVIEWER_COLOR = '0x0a1a3a';
+const CANDIDATE_COLOR = '0x16233f';
+const CANDIDATE_TEXT_COLOR = '&H00D9B36A'; // gold-ish for the CANDIDATE label
+const INTERVIEWER_TEXT_COLOR = '&H007FD4F0'; // light blue for the INTERVIEWER label
+const BODY_TEXT_COLOR = '&H00FFFFFF'; // white
 
 function parseArgs(argv) {
   const args = { langs: ALL_LANGS, video: null, skipTts: false };
@@ -59,10 +70,7 @@ function outDirFor(lang) {
   return path.join(ASSETS_DIR, `vid-star-conversational-build-${lang.toUpperCase()}`);
 }
 
-/**
- * Extract the text for a single language from the multi-language .md script.
- * Sections are delimited by "## EN", "## FR", "## ES" headings.
- */
+/** Extract the text for one language from the multi-language .md script. */
 function extractLanguageScript(id, lang) {
   const p = path.join(SCRIPTS_DIR, `${id}.md`);
   if (!fs.existsSync(p)) return '';
@@ -90,8 +98,124 @@ function extractLanguageScript(id, lang) {
     .replace(/^[-*]\s+/gm, '')
     .replace(/^#+\s*/gm, '')
     .replace(/^\d+\.\s+/gm, '')
-    .replace(/\n{2,}/g, '\n')
+    .replace(/[ \t]+/g, ' ')
     .trim();
+}
+
+/** Split narration into sentences, then into alternating Interviewer/Candidate turns. */
+function splitTurns(text) {
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const turns = [];
+  for (let i = 0; i < sentences.length; i++) {
+    turns.push({
+      speaker: i % 2 === 0 ? 'Interviewer' : 'Candidate',
+      text: sentences[i],
+    });
+  }
+  return turns;
+}
+
+function probeDuration(file) {
+  try {
+    const out = execFileSync(
+      'ffprobe',
+      ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file],
+      { encoding: 'utf8' }
+    );
+    const d = parseFloat(out.trim());
+    return Number.isFinite(d) ? d : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Distribute turn timings proportionally over the audio duration. */
+function assignTimings(turns, audioDuration) {
+  const totalChars = turns.reduce((sum, t) => sum + t.text.length, 0) || 1;
+  let cursor = 0;
+  return turns.map((t) => {
+    const dur = Math.max(0.6, (t.text.length / totalChars) * audioDuration);
+    const start = cursor;
+    const end = Math.min(audioDuration, cursor + dur);
+    cursor = end;
+    return { ...t, start, end };
+  });
+}
+
+function toAssTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = (sec % 60).toFixed(2).padStart(5, '0');
+  return `${h}:${String(m).padStart(2, '0')}:${s}`;
+}
+
+function escapeAss(text) {
+  return String(text).replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}');
+}
+
+function wrapAssText(text, maxLen = 52) {
+  const words = escapeAss(text).split(' ');
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    if ((line + ' ' + w).trim().length > maxLen && line) {
+      lines.push(line.trim());
+      line = w;
+    } else {
+      line = (line ? line + ' ' : '') + w;
+    }
+  }
+  if (line.trim()) lines.push(line.trim());
+  return lines.join('\\N');
+}
+
+/** Build a styled .ass subtitle track with speaker labels + alternating colors. */
+function buildAss(turns) {
+  const header = `[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,50,&H00FFFFFF,&H00FFFFFF,&H00101010,&H96000000,-1,0,0,0,100,100,0,0,1,3,2,2,80,80,64,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+`;
+  const lines = turns.map((t) => {
+    const color = t.speaker === 'Interviewer' ? INTERVIEWER_TEXT_COLOR : CANDIDATE_TEXT_COLOR;
+    const body = wrapAssText(t.text);
+    const text = `{\\c${color}\\b1}${t.speaker.toUpperCase()}: {\\c${BODY_TEXT_COLOR}\\b0}${body}`;
+    return `Dialogue: 0,${toAssTime(t.start)},${toAssTime(t.end)},Default,,0,0,0,,${text}`;
+  });
+  return header + lines.join('\n') + '\n';
+}
+
+/** Generate a solid navy 1920x1080 base (no logo — logo is overlaid separately). */
+function generateSolidBackground() {
+  if (fs.existsSync(SOLID_BG)) return;
+  ensureDir(ASSETS_DIR);
+  execFileSync(
+    'ffmpeg',
+    [
+      '-y',
+      '-f',
+      'lavfi',
+      '-i',
+      `color=c=${INTERVIEWER_COLOR}:s=1920x1080:d=1`,
+      '-frames:v',
+      '1',
+      SOLID_BG,
+    ],
+    { stdio: 'inherit' }
+  );
+  console.log(`solid background: ${path.relative(ROOT, SOLID_BG)}`);
 }
 
 function chunkText(text, maxBytes = 4500) {
@@ -141,7 +265,6 @@ async function synthGoogleTtsApi(text, lang) {
   return Buffer.concat(buffers);
 }
 
-/** Determine the TTS backend once (GCP if usable, else google-tts-api). */
 async function pickTts() {
   try {
     const tts = await import('@google-cloud/text-to-speech');
@@ -172,68 +295,45 @@ async function ensureMp3(id, lang, skipTts) {
   const chunks = chunkText(text, 4500);
   const buffers = [];
   for (let i = 0; i < chunks.length; i++) {
-    const chunk = chunks[i];
     let buf;
-    if (tts.name === 'gcp') {
-      buf = await synthGoogleCloud(chunk, VOICES[lang]);
-    } else {
-      buf = await synthGoogleTtsApi(chunk, lang);
-    }
+    if (tts.name === 'gcp') buf = await synthGoogleCloud(chunks[i], VOICES[lang]);
+    else buf = await synthGoogleTtsApi(chunks[i], lang);
     if (!buf || !buf.length) throw new Error(`TTS produced no audio for chunk ${i}`);
     buffers.push(buf);
     console.log(`    chunk ${i + 1}/${chunks.length} → ${buf.length} bytes`);
   }
   fs.writeFileSync(out, Buffer.concat(buffers));
-  console.log(`  generated: ${path.relative(ROOT, out)} (${chunks.length} chunk(s))`);
+  console.log(`  generated: ${path.relative(ROOT, out)}`);
   return out;
-}
-
-function generateBackground() {
-  if (fs.existsSync(BACKGROUND)) return;
-  ensureDir(ASSETS_DIR);
-  execFileSync(
-    'ffmpeg',
-    [
-      '-y',
-      '-f',
-      'lavfi',
-      '-i',
-      'color=c=0x0a1a3a:s=1920x1080:d=1',
-      '-i',
-      LOGO,
-      '-filter_complex',
-      'overlay=(W-w)/2:(H-h)/2',
-      '-frames:v',
-      '1',
-      BACKGROUND,
-    ],
-    { stdio: 'inherit' }
-  );
-  console.log(`background: ${path.relative(ROOT, BACKGROUND)}`);
-}
-
-function probeDuration(file) {
-  try {
-    const out = execFileSync(
-      'ffprobe',
-      ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file],
-      { encoding: 'utf8' }
-    );
-    const d = parseFloat(out.trim());
-    return Number.isFinite(d) ? d : null;
-  } catch {
-    return null;
-  }
 }
 
 function buildVideo(id, lang, mp3Path) {
   const dir = outDirFor(lang);
   ensureDir(dir);
-  const concat = path.join(dir, 'concat.txt');
-  // Write concat.txt (FFmpeg concat list) for reference / multi-chunk use.
-  fs.writeFileSync(concat, `file '${mp3Path.replace(/\\/g, '/')}'\n`);
   const out = path.join(dir, `${id}-${lang}.mp4`);
-  // Direct -i (single MP3) is more reliable than the concat demuxer for MP3.
+  const assFile = path.join(dir, `${id}-${lang}.ass`);
+
+  const audioDuration = probeDuration(mp3Path) || 480;
+  const turns = assignTimings(splitTurns(extractLanguageScript(id, lang)), audioDuration);
+  fs.writeFileSync(assFile, buildAss(turns));
+
+  // drawbox for each Candidate turn (lighter navy) on top of the dark base.
+  const candidateBoxes = turns
+    .filter((t) => t.speaker === 'Candidate')
+    .map(
+      (t) =>
+        `drawbox=x=0:y=0:w=iw:h=ih:color=${CANDIDATE_COLOR}:t=fill:enable='between(t,${t.start.toFixed(3)},${t.end.toFixed(3)})'`
+    )
+    .join(',');
+
+  const assRel = path.relative(ROOT, assFile).replace(/\\/g, '/');
+  const filter = [
+    `[0:v]${candidateBoxes ? ',' + candidateBoxes : ''}[bg]`,
+    '[1:v]scale=180:180:force_original_aspect_ratio=decrease[logo]',
+    '[bg][logo]overlay=W-w-48:40:shortest=0[withlogo]',
+    `[withlogo]ass=${assRel}[outv]`,
+  ].join(';');
+
   execFileSync(
     'ffmpeg',
     [
@@ -241,9 +341,19 @@ function buildVideo(id, lang, mp3Path) {
       '-loop',
       '1',
       '-i',
-      BACKGROUND,
+      SOLID_BG,
+      '-loop',
+      '1',
+      '-i',
+      LOGO,
       '-i',
       mp3Path,
+      '-filter_complex',
+      filter,
+      '-map',
+      '[outv]',
+      '-map',
+      '2:a',
       '-c:v',
       'libx264',
       '-preset',
@@ -263,12 +373,13 @@ function buildVideo(id, lang, mp3Path) {
     ],
     { stdio: 'inherit' }
   );
+
   const dur = probeDuration(out);
   const label = dur != null ? `${Math.round(dur)}s` : 'unknown';
   if (dur == null || dur < 5) {
     console.warn(`  ⚠  ${path.relative(ROOT, out)} duration=${label} — possible blank video!`);
   } else {
-    console.log(`  ✓ ${path.relative(ROOT, out)} (${label})`);
+    console.log(`  ✓ ${path.relative(ROOT, out)} (${label}, ${turns.length} turns)`);
   }
 }
 
@@ -282,8 +393,8 @@ async function main() {
   console.log(
     `Languages: ${args.langs.join(', ')}  |  Videos: ${videos.map((v) => v.id).join(', ')}  |  skip-tts: ${args.skipTts}`
   );
-  console.log('Generating background (if needed)...');
-  generateBackground();
+  console.log('Generating solid background (if needed)...');
+  generateSolidBackground();
 
   let ok = 0;
   let failed = 0;
