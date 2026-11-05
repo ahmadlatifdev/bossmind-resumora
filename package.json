@@ -18,6 +18,7 @@
     "prepare": "husky",
     "lighthouse": "lhci autorun",
     "deploy:hosting": "npm run build && node scripts/deploy-hosting-api.mjs",
+    "deploy:safe": "npm run build && cd functions && npm install && cd .. && npx firebase-tools deploy",
     "deploy:notify": "node scripts/notify-deploy.mjs",
     "stripe:env": "node scripts/ensure-stripe-env.mjs",
     "stripe:server": "tsx server/stripe/index.ts",
