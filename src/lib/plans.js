@@ -9,12 +9,12 @@
 
 export const PLAN_IDS = Object.freeze(['basic', 'balanced', 'professional', 'advanced']);
 
-/** Verified Stripe Price IDs (test mode) — amount-matched to UI labels. */
+/** Verified Stripe Price IDs (live mode) — amount-matched to UI labels. */
 export const CANONICAL_STRIPE_PRICE_IDS = Object.freeze({
-  basic: 'price_1U4D7wGjsXTaeZBgdrQVEE0M', // $29
-  balanced: 'price_1TYBCSGjsXTaeZBgt9c9wB02', // $49
-  professional: 'price_1TxeAPGjsXTaeZBgsSoy8CBJ', // $79
-  advanced: 'price_1TYBCQGjsXTaeZBg2q8BLeGv', // $110
+  basic: 'price_1UYMmnCf0DJHGjuimJQfJAap', // $29
+  balanced: 'price_1UYNHlCf0DJHGjuirmgctnvo', // $49
+  professional: 'price_1UYPj0Cf0DJHGjuitexbW5Eu', // $79
+  advanced: 'price_1UYNVMCf0DJHGjuiTpbP547h', // $110
 });
 
 /** UI aliases only — never send these to Stripe Checkout. */

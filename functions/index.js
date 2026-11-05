@@ -60,10 +60,10 @@ const PLAN_ENV_KEYS = {
 
 /** Amount-verified Price IDs (must match UI $29 / $49 / $79 / $110). */
 const CANONICAL_PRICE_IDS = {
-  basic: 'price_1U4D7wGjsXTaeZBgdrQVEE0M',
-  balanced: 'price_1TYBCSGjsXTaeZBgt9c9wB02',
-  professional: 'price_1TxeAPGjsXTaeZBgsSoy8CBJ',
-  advanced: 'price_1TYBCQGjsXTaeZBg2q8BLeGv',
+  basic: 'price_1UYMmnCf0DJHGjuimJQfJAap',
+  balanced: 'price_1UYNHlCf0DJHGjuirmgctnvo',
+  professional: 'price_1UYPj0Cf0DJHGjuitexbW5Eu',
+  advanced: 'price_1UYNVMCf0DJHGjuiTpbP547h',
 };
 
 const EXPECTED_CENTS = {
