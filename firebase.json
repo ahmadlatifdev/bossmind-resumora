@@ -156,6 +156,10 @@
         "function": "videoDownload"
       },
       {
+        "source": "/api/video/signed-url",
+        "function": "videoSignedUrl"
+      },
+      {
         "source": "/api/chat/message",
         "run": {
           "serviceId": "sendchatmessage",

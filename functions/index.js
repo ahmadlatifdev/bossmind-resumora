@@ -9,6 +9,7 @@ const { onObjectFinalized } = require('firebase-functions/v2/storage');
 const { defineSecret } = require('firebase-functions/params');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
+const { getStorage } = require('firebase-admin/storage');
 
 initializeApp();
 const db = getFirestore();
@@ -110,6 +111,40 @@ const videoCatalog = require('./videoCatalog');
 const bilibiliPublish = require('./bilibiliPublish');
 const { stripeApiSecrets, getStripeClient } = require('./lib/stripeSecrets');
 const { resolveProjectCheckout, normalizeProject } = require('./lib/projectCheckout');
+
+async function verifyIdToken(req) {
+  const header = String(req.get('authorization') || req.get('Authorization') || '');
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) return null;
+  try {
+    return await getAuth().verifyIdToken(match[1]);
+  } catch {
+    return null;
+  }
+}
+
+async function isSubscriptionActive(uid) {
+  if (!uid) return false;
+  try {
+    const snap = await db.collection('users').doc(String(uid)).get();
+    if (!snap.exists) return false;
+    const data = snap.data() || {};
+    if (String(data.subscriptionStatus || '').toLowerCase() === 'active') return true;
+    if (data.paid === true || data.hasActiveSubscription === true) return true;
+  } catch {
+    /* treat as inactive */
+  }
+  return false;
+}
+
+function seriesObjectPath(videoId, lang) {
+  const slug = String(videoId || '').replace(/^vid-/, '');
+  const catalog = videoCatalog.FALLBACK_CATALOG || [];
+  const entry = catalog.find((v) => v.video_id === videoId);
+  const num = String(entry && entry.order ? entry.order : 1).padStart(2, '0');
+  const language = ['en', 'fr', 'es'].includes(String(lang)) ? String(lang) : 'en';
+  return `masters/interview-series-v1/${num}-${slug}-${language}.mp4`;
+}
 
 function parseBody(req) {
   let body = req.body;
@@ -319,13 +354,86 @@ exports.videoDownload = onRequest(
       return;
     }
     try {
-      const result = await videoCatalog.recordDownload(parseBody(req));
+      const decoded = await verifyIdToken(req);
+      if (!decoded) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+      const active = await isSubscriptionActive(decoded.uid);
+      if (!active) {
+        res.status(403).json({ error: 'Active subscription required' });
+        return;
+      }
+      const result = await videoCatalog.recordDownload({
+        ...parseBody(req),
+        userId: decoded.uid,
+      });
       res.status(result.ok ? 200 : 403).json(result);
     } catch (err) {
       const code = err.code === 'BAD_REQUEST' ? 400 : 500;
       res
         .status(code)
         .json({ error: err.message || 'Download track failed', code: err.code || null });
+    }
+  }
+);
+
+/**
+ * Signed stream URL for a private GCS video (resumora-videos) — auth + subscription gated.
+ * Object path: masters/interview-series-v1/{NN}-{slug}-{lang}.mp4
+ */
+exports.videoSignedUrl = onRequest(
+  {
+    region: 'us-central1',
+    cors: false,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    cors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      const decoded = await verifyIdToken(req);
+      if (!decoded) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+      const active = await isSubscriptionActive(decoded.uid);
+      if (!active) {
+        res.status(403).json({ error: 'Active subscription required' });
+        return;
+      }
+      const body = parseBody(req);
+      const videoId = String(body.videoId || body.video_id || '').trim();
+      const language = String(body.language || 'en')
+        .trim()
+        .toLowerCase();
+      if (!videoId) {
+        res.status(400).json({ error: 'videoId is required' });
+        return;
+      }
+      const objectPath = seriesObjectPath(videoId, language);
+      const file = getStorage().bucket('resumora-videos').file(objectPath);
+      const [exists] = await file.exists();
+      if (!exists) {
+        res.status(404).json({ error: 'Video not found in storage', objectPath });
+        return;
+      }
+      const [signed] = await file.getSignedUrl({
+        version: 'v4',
+        action: 'read',
+        expires: Date.now() + 60 * 60 * 1000,
+      });
+      res.status(200).json({ url: signed, videoId, language, expiresInSec: 3600 });
+    } catch (err) {
+      res.status(500).json({ error: err.message || 'Signed URL failed' });
     }
   }
 );

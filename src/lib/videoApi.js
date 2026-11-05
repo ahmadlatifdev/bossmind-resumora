@@ -3,6 +3,8 @@
  * HeyGen removed — catalog + download tracking only; publish via Bilibili pipeline.
  */
 
+import { auth } from './firebase';
+
 const API_BASE = '';
 
 async function postJson(path, body) {
@@ -38,6 +40,28 @@ export function fetchVideoCatalog() {
 /** Server-side download tracking (5-cap). */
 export function trackVideoDownload(payload) {
   return postJson('/api/video/download', payload);
+}
+
+/** Auth + subscription-gated signed stream URL for a private GCS video. */
+export async function fetchVideoStreamUrl({ videoId, language = 'en' }) {
+  let token = '';
+  try {
+    token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+  } catch {
+    token = '';
+  }
+  const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}/api/video/signed-url`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ videoId, language }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Stream URL failed (${res.status})`);
+  }
+  return data;
 }
 
 export const CORE_VIDEO_PROMPTS = Object.freeze([
