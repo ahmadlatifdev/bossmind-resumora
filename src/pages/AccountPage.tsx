@@ -6,6 +6,7 @@ import { t, tFormat } from '../lib/i18n.js';
 import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import { requestEmailVerification } from '../lib/authActions';
+import { fetchLuxuryPdfUrl, LUXURY_PDFS } from '../lib/luxuryPdf.js';
 import { auth } from '../lib/firebase';
 import './account.css';
 
@@ -98,6 +99,7 @@ export default function AccountPage() {
   const [preview, setPreview] = useState(null);
   const [previewError, setPreviewError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [refunds, setRefunds] = useState([]);
   const [verificationBusy, setVerificationBusy] = useState(false);
@@ -212,6 +214,22 @@ export default function AccountPage() {
     }
   }
 
+  async function downloadLuxuryPdf(fileName) {
+    if (!subscriptionActive || pdfBusy) return;
+    setPdfBusy(true);
+    try {
+      const data = await fetchLuxuryPdfUrl(fileName);
+      window.open(data.url, '_blank', 'noopener');
+    } catch (err) {
+      setToast({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Unable to download PDF.',
+      });
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="account-page">
@@ -305,6 +323,35 @@ export default function AccountPage() {
           {t(lang, 'cancel.button')}
         </button>
       </section>
+
+      {subscriptionActive ? (
+        <section className="account-card">
+          <h2>Luxury PDFs</h2>
+          <p className="muted">Download your premium branded templates and career guides.</p>
+          <div className="luxury-pdf-list" style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {LUXURY_PDFS.map((item) => (
+              <button
+                key={item.fileName}
+                type="button"
+                disabled={pdfBusy}
+                onClick={() => downloadLuxuryPdf(item.fileName)}
+                style={{
+                  background:
+                    'linear-gradient(135deg, var(--color-gold), var(--color-gold-bright))',
+                  border: 0,
+                  borderRadius: 999,
+                  color: 'var(--color-navy)',
+                  cursor: pdfBusy ? 'wait' : 'pointer',
+                  fontWeight: 700,
+                  padding: '10px 18px',
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="account-card">
         <h2>{t(lang, 'account.tabInvoices')}</h2>

@@ -160,6 +160,10 @@
         "function": "videoSignedUrl"
       },
       {
+        "source": "/api/luxury-pdf-url",
+        "function": "getLuxuryPdfUrl"
+      },
+      {
         "source": "/api/chat/message",
         "run": {
           "serviceId": "sendchatmessage",

@@ -439,6 +439,68 @@ exports.videoSignedUrl = onRequest(
 );
 
 /**
+ * Signed download URL for a private luxury PDF (luxury-pdfs/) — auth + subscription gated.
+ */
+exports.getLuxuryPdfUrl = onRequest(
+  {
+    region: 'us-central1',
+    cors: false,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+  },
+  async (req, res) => {
+    cors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      const decoded = await verifyIdToken(req);
+      if (!decoded) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+      const active = await isSubscriptionActive(decoded.uid);
+      if (!active) {
+        res.status(403).json({ error: 'Active subscription required' });
+        return;
+      }
+      const body = parseBody(req);
+      const fileName = String(body.fileName || body.file || '').trim();
+      if (!fileName) {
+        res.status(400).json({ error: 'fileName is required' });
+        return;
+      }
+      if (!/^[A-Za-z0-9._-]+\.pdf$/.test(fileName)) {
+        res.status(400).json({ error: 'Invalid fileName' });
+        return;
+      }
+      const bucket = process.env.LUXURY_PDF_BUCKET || 'resumora-videos';
+      const objectPath = `luxury-pdfs/${fileName}`;
+      const file = getStorage().bucket(bucket).file(objectPath);
+      const [exists] = await file.exists();
+      if (!exists) {
+        res.status(404).json({ error: 'PDF not found in storage', objectPath });
+        return;
+      }
+      const [signed] = await file.getSignedUrl({
+        version: 'v4',
+        action: 'read',
+        expires: Date.now() + 60 * 60 * 1000,
+        responseDisposition: `attachment; filename="${fileName}"`,
+      });
+      res.status(200).json({ url: signed, fileName, expiresInSec: 3600 });
+    } catch (err) {
+      res.status(500).json({ error: err.message || 'Luxury PDF URL failed' });
+    }
+  }
+);
+
+/**
  * GCS finalize → Bilibili publish (bucket: resumora-videos).
  * Only objects under BILIBILI_UPLOAD_PREFIX (default: bilibili-outbox/) are published.
  * Cookies: BILIBILI_SESSDATA, BILIBILI_BILI_JCT, BILIBILI_DEDE_USER_ID (Secret Manager).
