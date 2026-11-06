@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 /**
- * Master orchestrator for the conversational interview video pipeline
- * (Serverless Video API).
+ * Master orchestrator for the conversational interview video pipeline (HeyGen).
  *
- *   1. generate_audio.py      — Edge-TTS → per-speaker MP3s
- *   2. generate_timestamps.py — Whisper → word-level timestamps (per role)
- *   3. render_via_api.js      — JSON2Video API → render + poll + download MP4
+ *   1. generate_audio.py   — Edge-TTS → per-speaker MP3s
+ *   2. heygen_pipeline.js  — upload audio → HeyGen avatar → poll → download → Firebase
  *
- * Final outputs: pipeline/outputs/<role>.mp4
+ * Final outputs: pipeline/outputs/<role>.mp4 (+ uploaded to Firebase Storage)
  *
  * Usage: node pipeline/build_interviews.js
  */
@@ -40,11 +38,8 @@ function main() {
   // 1. Audio (Edge-TTS).
   run('python', [path.join(PIPELINE_DIR, 'scripts', 'generate_audio.py')]);
 
-  // 2. Word timestamps (Whisper).
-  run('python', [path.join(PIPELINE_DIR, 'scripts', 'generate_timestamps.py')]);
-
-  // 3. Serverless API render (JSON2Video).
-  run('node', [path.join(PIPELINE_DIR, 'scripts', 'render_via_api.js')]);
+  // 2. HeyGen avatar generation + Firebase upload.
+  run('node', [path.join(PIPELINE_DIR, 'scripts', 'heygen_pipeline.js')]);
 
   console.log(`\nDone. Final videos in ${OUTPUTS}`);
 }
