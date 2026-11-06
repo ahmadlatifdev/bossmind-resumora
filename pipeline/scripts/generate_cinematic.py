@@ -32,6 +32,8 @@ import sys
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = ROOT / "docs" / "interview-series"
 PIPELINE = ROOT / "pipeline"
@@ -170,8 +172,9 @@ def _backend():
     """Return the configured wan-2.2-s2v backend, or None."""
     if os.environ.get("WAN_S2V_API_URL"):
         return ("local", os.environ["WAN_S2V_API_URL"])
-    if os.environ.get("REPLICATE_API_TOKEN"):
-        return ("replicate", os.environ["REPLICATE_API_TOKEN"])
+    token = os.environ.get("REPLICATE_API_TOKEN", "").strip()
+    if token and token != "your_token_here":
+        return ("replicate", token)
     if os.environ.get("FAL_KEY"):
         return ("fal", os.environ["FAL_KEY"])
     return None
@@ -294,13 +297,26 @@ async def main():
     parser = argparse.ArgumentParser(description="Chunked conversational video pipeline")
     parser.add_argument("--script", default=str(SCRIPTS_DIR / "01_build_strong_resume.md"))
     parser.add_argument("--json", default=None)
+    parser.add_argument("--limit", type=int, default=0, help="Process only the first N turns (0 = all)")
     args = parser.parse_args()
+
+    load_dotenv(ROOT / ".env")
+
+    token = os.environ.get("REPLICATE_API_TOKEN", "").strip()
+    if token == "your_token_here":
+        print("=" * 64)
+        print("[ACTION REQUIRED] REPLICATE_API_TOKEN is still the placeholder.")
+        print("  Paste your real token into the root .env file, replacing")
+        print("  'your_token_here', then re-run this script.")
+        print("=" * 64)
 
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     SEGMENTS_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
     turns = normalize_turns(load_turns(args.json, args.script))
+    if args.limit > 0:
+        turns = turns[: args.limit]
     print(f"Total turns: {len(turns)}")
 
     segments = []
