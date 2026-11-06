@@ -1,0 +1,782 @@
+{
+  "episodes": [
+    {
+      "id": "01_build_strong_resume",
+      "title": "Build a Strong Resume",
+      "audio_file": "01_build_strong_resume.mp3",
+      "clip_count": 27,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "Wide shot of a warm, modern coaching office. The Career Coach sits across from the Job Seeker, both holding a printed resume."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach nodding, then pointing at a line on the resume."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume. A highlighted bullet reads \"Managed team calendar.\" A cursor draws a red circle around it."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "Close up of the Coach writing on a whiteboard. The words \"Action + Result\" appear in large letters."
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "Screen share showing the before-and-after bullets side by side, the new one glowing gold."
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "The Coach turns a laptop toward the Job Seeker, revealing a list of action verbs."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker looking slightly concerned, then the Coach leaning in reassuringly."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The Coach smiles and taps the table twice."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume where one dense paragraph is highlighted, then it shrinks into three short bullets."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "Close up on the resume, fingers pointing to the bullets under each role."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head, thinking, then leans forward."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach nodding firmly."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "Wide shot of the Coach leaning back, then pointing to the top of the page."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "The Coach chuckles and nods."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a skills section overflowing with keywords, then it trims down to a clean list."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "The Coach gestures to the bottom of the page."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Coach hands the Job Seeker a single sheet of paper with three steps printed on it."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker, then the Coach smiling warmly."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker pauses, then asks a follow-up with a furrowed brow."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "The Coach holds up a hand, palm open, to signal reassurance."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume where \"manage\" is highlighted in the current role and \"managed\" in an older one."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head and points at a clean, single-column template."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach laughs and nods."
+        },
+        {
+          "clip": 24,
+          "duration_seconds": 8,
+          "prompt": "The Coach gestures to show two pages stacked."
+        },
+        {
+          "clip": 25,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume where one company has two stacked role titles."
+        },
+        {
+          "clip": 26,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back and counts on their fingers."
+        },
+        {
+          "clip": 27,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the laptop, the office light warm behind them."
+        }
+      ]
+    },
+    {
+      "id": "02_tailor_resume",
+      "title": "Tailor Your Resume for Every Job",
+      "audio_file": "02_tailor_resume.mp3",
+      "clip_count": 24,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "The Career Coach and Job Seeker sit at a desk with a job description open on a laptop between them."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the laptop screen showing a job posting with several keywords highlighted."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head gently, then points at the screen."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a job description. The Coach scrolls and highlights phrases one at a time."
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker looking uncertain."
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "The Coach rearranges index cards on the desk, moving one card to the top."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a skills section being edited, with matching terms moving to the front."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back and taps the screen thoughtfully."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "The Coach scrolls through a vague posting, frowning slightly."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach's hands making a \"stop\" gesture."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a folder with clearly named files like \"resume_product_manager.pdf\" and \"resume_data_analyst.pdf\"."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "The Coach smiles reassuringly."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "The Coach pulls up a posting for a marketing coordinator role."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker brightening as they realize the connection."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the laptop."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "Wide shot of the Coach standing to shake hands."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker sits back down, a new thought forming."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach nodding thoughtfully."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "The Coach spreads their hands to show a wide range."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head and points at the resume."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume where an old, irrelevant role shrinks to a single line."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head, weighing the question."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and opens both documents side by side."
+        },
+        {
+          "clip": 24,
+          "duration_seconds": 8,
+          "prompt": "Wide shot of the Coach standing to shake hands again, smiling."
+        }
+      ]
+    },
+    {
+      "id": "03_cover_letter",
+      "title": "Write a Cover Letter That Works",
+      "audio_file": "03_cover_letter.mp3",
+      "clip_count": 24,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "The Career Coach and Job Seeker sit in the office, a blank document open on the screen in front of them."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach shaking their head and leaning forward."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a clean, three-paragraph letter."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "The cursor highlights the opening paragraph of the letter."
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "The Coach types into the blank document: \"I'm applying for the Marketing Coordinator role because my two years building email campaigns map directly to the work your team does each week.\""
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "The Coach scrolls down to the body of the letter."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head while pointing between the resume and the letter."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The cursor highlights the final paragraph."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach nodding enthusiastically."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back, gesturing with an open hand."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker looks slightly worried, then the Coach smiles."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "The Coach points to the greeting of the letter."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach tilting their head, considering."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head firmly."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans in and speaks softly."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "The Coach pulls up a job posting and begins typing, the Job Seeker leaning in to watch."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Coach finishes typing and turns the screen toward the Job Seeker."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker studies the draft, then looks up with another question."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach nodding enthusiastically."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans forward and gestures to bridge the two areas."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head, then answers carefully."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach points to the greeting line."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach types a closing line and highlights it."
+        },
+        {
+          "clip": 24,
+          "duration_seconds": 8,
+          "prompt": "The Coach finishes typing and turns the screen toward the Job Seeker, smiling."
+        }
+      ]
+    },
+    {
+      "id": "04_interview_prep",
+      "title": "Interview Preparation",
+      "audio_file": "04_interview_prep.mp3",
+      "clip_count": 24,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "The Career Coach sits across from the Job Seeker in the office, a notepad open between them. The mood is focused."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach smiling and leaning forward."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "The Coach holds up three fingers, counting down as they speak."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "Screen share of three short bullet points, each lighting up in turn."
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back and nods slowly."
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker nodding with recognition, then the Coach pointing at the notepad."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "The Coach flips through the notepad, revealing a list of story titles."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The Coach holds up a hand in a calm gesture."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a short list of thoughtful questions."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head and smiles."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "The Coach gestures toward the window, then back to the Job Seeker."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a video call window with the Job Seeker's face in a well-lit frame."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and points to the edge of the screen."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach speaking reassuringly."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "The Coach opens an email draft on the laptop."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans forward with a kind expression."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the notepad."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker leans forward, wanting to go deeper."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "The Coach sits up straighter and speaks as if in an interview."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "The Coach holds up a hand to mime a time limit."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "The Coach shrugs slightly and smiles."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach gestures toward a notepad with questions."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans in, lowering their voice for emphasis."
+        },
+        {
+          "clip": 24,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the notepad, satisfied."
+        }
+      ]
+    },
+    {
+      "id": "05_career_gaps",
+      "title": "Address Employment Gaps with Confidence",
+      "audio_file": "05_career_gaps.mp3",
+      "clip_count": 24,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "The Career Coach and Job Seeker sit in the office. The Job Seeker looks slightly nervous, holding a resume with a visible gap in the dates."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach shaking their head gently."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans forward, hands open on the table."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a list: \"caregiving,\" \"education,\" \"health,\" \"job search,\" \"personal project.\""
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Job Seeker, then the Coach nodding."
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "The Coach points to the resume timeline on the screen."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "The Coach's expression softens."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head and leans forward seriously."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "The Coach counts on their fingers."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back and speaks slowly, as if in an interview."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach smiling."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head, considering."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "The Coach points between the resume and a blank document."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "The Coach gestures broadly, as if redirecting."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "The Coach writes a single practice prompt on the notepad."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the laptop."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker thinks for a moment, then raises another concern."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods firmly and points at the resume."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "The Coach tilts their head and smiles."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a resume where volunteer experience appears in its own section."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "The Coach shakes their head gently and points at a chronological layout."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach leans back, considering."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach meets the Job Seeker's eyes and speaks evenly."
+        },
+        {
+          "clip": 24,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and closes the laptop, satisfied."
+        }
+      ]
+    },
+    {
+      "id": "06_resumora_walkthrough",
+      "title": "Resumora Walkthrough",
+      "audio_file": "06_resumora_walkthrough.mp3",
+      "clip_count": 23,
+      "clips": [
+        {
+          "clip": 1,
+          "duration_seconds": 8,
+          "prompt": "A clean, modern screen showing the Resumora dashboard. The Career Coach sits beside the Job Seeker, both looking at the screen."
+        },
+        {
+          "clip": 2,
+          "duration_seconds": 8,
+          "prompt": "Close up on the screen as the cursor hovers over the \"Create Resume\" button."
+        },
+        {
+          "clip": 3,
+          "duration_seconds": 8,
+          "prompt": "Screen share of the \"Start from scratch\" and \"Upload existing resume\" options side by side."
+        },
+        {
+          "clip": 4,
+          "duration_seconds": 8,
+          "prompt": "The cursor clicks \"Create Resume,\" opening a form with fields for name, title, and contact info."
+        },
+        {
+          "clip": 5,
+          "duration_seconds": 8,
+          "prompt": "Screen share of the experience form, with a prompt asking \"What did you do in this role?\""
+        },
+        {
+          "clip": 6,
+          "duration_seconds": 8,
+          "prompt": "The Coach smiles and nods."
+        },
+        {
+          "clip": 7,
+          "duration_seconds": 8,
+          "prompt": "Screen share scrolling through the summary and skills sections, each with helpful prompts."
+        },
+        {
+          "clip": 8,
+          "duration_seconds": 8,
+          "prompt": "The screen shows several clean, professional templates in a gallery."
+        },
+        {
+          "clip": 9,
+          "duration_seconds": 8,
+          "prompt": "Close up on the Coach pointing at the template options."
+        },
+        {
+          "clip": 10,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a \"Save as new version\" option appearing."
+        },
+        {
+          "clip": 11,
+          "duration_seconds": 8,
+          "prompt": "The screen navigates to a cover letter builder with prompts."
+        },
+        {
+          "clip": 12,
+          "duration_seconds": 8,
+          "prompt": "The screen shows a menu with \"Interview Prep\" and \"Practice Questions\" sections."
+        },
+        {
+          "clip": 13,
+          "duration_seconds": 8,
+          "prompt": "The cursor clicks \"Export,\" and a clean PDF preview appears."
+        },
+        {
+          "clip": 14,
+          "duration_seconds": 8,
+          "prompt": "The Coach points to a help icon on the screen."
+        },
+        {
+          "clip": 15,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and leans back."
+        },
+        {
+          "clip": 16,
+          "duration_seconds": 8,
+          "prompt": "The Coach smiles and gestures toward the screen."
+        },
+        {
+          "clip": 17,
+          "duration_seconds": 8,
+          "prompt": "The Job Seeker hovers over the screen, then asks another practical question."
+        },
+        {
+          "clip": 18,
+          "duration_seconds": 8,
+          "prompt": "Screen share of an autosave indicator appearing briefly in the corner."
+        },
+        {
+          "clip": 19,
+          "duration_seconds": 8,
+          "prompt": "The Coach nods and points to the \"My Resumes\" menu."
+        },
+        {
+          "clip": 20,
+          "duration_seconds": 8,
+          "prompt": "Screen share of a language selector showing English, French, and Spanish."
+        },
+        {
+          "clip": 21,
+          "duration_seconds": 8,
+          "prompt": "The Coach turns to face the Job Seeker directly, speaking seriously."
+        },
+        {
+          "clip": 22,
+          "duration_seconds": 8,
+          "prompt": "The Coach points to a help and examples menu on the screen."
+        },
+        {
+          "clip": 23,
+          "duration_seconds": 8,
+          "prompt": "The Coach smiles warmly and gestures toward the screen one last time."
+        }
+      ]
+    }
+  ]
+}
