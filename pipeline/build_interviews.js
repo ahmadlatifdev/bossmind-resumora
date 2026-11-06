@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Master orchestrator for the conversational interview video pipeline (pure FFmpeg).
+ * Master orchestrator for the conversational interview video pipeline
+ * (Serverless Video API).
  *
  *   1. generate_audio.py      — Edge-TTS → per-speaker MP3s
  *   2. generate_timestamps.py — Whisper → word-level timestamps (per role)
- *   3. json_to_srt.py         — word timestamps → .srt subtitles
- *   4. render_ffmpeg.js       — navy background + subtitles + audio → MP4
+ *   3. render_via_api.js      — JSON2Video API → render + poll + download MP4
  *
  * Final outputs: pipeline/outputs/<role>.mp4
  *
@@ -43,11 +43,8 @@ function main() {
   // 2. Word timestamps (Whisper).
   run('python', [path.join(PIPELINE_DIR, 'scripts', 'generate_timestamps.py')]);
 
-  // 3. SRT conversion.
-  run('python', [path.join(PIPELINE_DIR, 'scripts', 'json_to_srt.py')]);
-
-  // 4. FFmpeg render.
-  run('node', [path.join(PIPELINE_DIR, 'scripts', 'render_ffmpeg.js')]);
+  // 3. Serverless API render (JSON2Video).
+  run('node', [path.join(PIPELINE_DIR, 'scripts', 'render_via_api.js')]);
 
   console.log(`\nDone. Final videos in ${OUTPUTS}`);
 }

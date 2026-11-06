@@ -1,49 +1,64 @@
 # Conversational Interview Video Pipeline
 
-100% open-source pipeline that produces 4 conversational interview videos
-(Software Engineer, Data Scientist, Product Manager, Marketing Manager) with
-lip-synced avatars (MultiTalk) and kinetic "Word-Pop" subtitles (Remotion).
+Open-source pipeline that produces 4 conversational interview videos
+(Software Engineer, Data Scientist, Product Manager, Marketing Manager) with a
+**Serverless Video API** (JSON2Video) for reliable, Windows-proof rendering.
 
 ```
 pipeline/
 ├── build_interviews.js          # master orchestrator (Node)
+├── .env.example                 # JSON2VIDEO_API_KEY / AUDIO_BASE_URL placeholders
 ├── assets/
 │   ├── interview_scripts.json   # dialogue for the 4 roles
 │   ├── audio/                   # generated MP3s (Edge-TTS)
-│   ├── images/                  # interviewer.png / candidate.png reference images
+│   ├── images/                  # (optional) reference images
 │   └── transcripts/             # Whisper word timestamps (JSON)
-├── outputs/                     # raw avatars + final MP4s
-├── scripts/
-│   ├── generate_audio.py        # Edge-TTS → per-speaker MP3
-│   └── generate_avatars.py      # MultiTalk lip-sync (validates + TODO)
-└── remotion-editor/             # Remotion Word-Pop renderer
+├── outputs/                     # final MP4s
+└── scripts/
+    ├── generate_audio.py        # Edge-TTS → per-speaker MP3
+    ├── generate_timestamps.py   # Whisper → word timestamps JSON
+    └── render_via_api.js        # JSON2Video API → render + poll + download
 ```
 
-## Install (manual steps — run in order)
+## Setup (one-time)
 
 ```bash
 # 1. Audio TTS
 pip install edge-tts
 
-# 2. MultiTalk (heavy, GPU)
-git clone https://github.com/MeiGen-AI/MultiTalk.git ../MultiTalk
-cd ../MultiTalk && pip install -r requirements.txt
-# TODO: download the pretrained checkpoint into MultiTalk/checkpoints/
-
-# 3. Remotion
-cd pipeline/remotion-editor && npm install
-
-# 4. Whisper (word timestamps)
+# 2. Whisper (word timestamps)
 pip install openai-whisper
+
+# 3. Sign up for JSON2Video (https://json2video.com)
+#    Dashboard → API Key → copy it.
+
+# 4. Upload the audio MP3s to Firebase Storage (or any public bucket), then:
+#    AUDIO_BASE_URL=https://storage.googleapis.com/<bucket>/audio
+```
+
+## Configure
+
+```powershell
+cp pipeline/.env.example pipeline/.env
+# edit pipeline/.env:
+#   JSON2VIDEO_API_KEY=...
+#   AUDIO_BASE_URL=...
+```
+
+Or export directly:
+
+```powershell
+$env:JSON2VIDEO_API_KEY = "<your-key>"
+$env:AUDIO_BASE_URL = "https://storage.googleapis.com/<bucket>/audio"
 ```
 
 ## Run
 
-```bash
+```powershell
 node pipeline/build_interviews.js
 ```
 
-The orchestrator runs audio generation immediately, then prints the exact TODO
-commands for the GPU/model-weighted steps (MultiTalk inference, Whisper
-timestamps, Remotion render) since those can't run until the weights are
-installed.
+This generates audio (Edge-TTS), transcribes it (Whisper word timestamps), then
+sends each role to JSON2Video — which renders a dark-blue (#0A1A3A) background,
+the audio, and gold (#D4AF37) text overlays — then polls until done and
+downloads the MP4 into `pipeline/outputs/`.
