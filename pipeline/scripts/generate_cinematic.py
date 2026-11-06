@@ -192,29 +192,48 @@ def _download_url(url: str, out_path: Path) -> bool:
 def _run_replicate(image_path: Path, audio_path: Path):
     import httpx
     import replicate
+    from replicate.exceptions import ReplicateError
 
     # Default SDK read timeout is 30s, which is too short for video generation.
     client = replicate.Client(
         timeout=httpx.Timeout(connect=10.0, read=1800.0, write=60.0, pool=10.0)
     )
 
-    with open(image_path, "rb") as img, open(audio_path, "rb") as aud:
-        input_data = {
-            "image": img,
-            "audio": aud,
-            "prompt": (
-                "A professional career coach speaking clearly to the camera, "
-                "cinematic lighting, realistic."
-            ),
-            "interpolate": False,
-        }
-        output = client.run("wan-video/wan-2.2-s2v", input=input_data)
+    # Try slugs in order; fall back to the next one only on a 404 (renamed/moved model).
+    model_slugs = [
+        "wan-video/wan-2.2-s2v",
+        "wan-ai/wan-2.2-s2v",
+        "replicate-pruna/wan-2.2-s2v",
+    ]
 
-    if isinstance(output, list):
-        output = output[0] if output else None
-    if output is None:
-        return None
-    return getattr(output, "url", None) or str(output)
+    last_error = None
+    for slug in model_slugs:
+        with open(image_path, "rb") as img, open(audio_path, "rb") as aud:
+            input_data = {
+                "image": img,
+                "audio": aud,
+                "prompt": (
+                    "A professional career coach speaking clearly to the camera, "
+                    "cinematic lighting, realistic."
+                ),
+                "interpolate": False,
+            }
+            try:
+                output = client.run(slug, input=input_data)
+            except ReplicateError as exc:
+                if exc.status == 404:
+                    last_error = exc
+                    print(f"  [replicate] {slug} not found (404); trying next slug")
+                    continue
+                raise
+
+        if isinstance(output, list):
+            output = output[0] if output else None
+        if output is None:
+            return None
+        return getattr(output, "url", None) or str(output)
+
+    raise last_error
 
 
 def generate_turn_video(audio_path: Path, image_path: Path, out_path: Path) -> bool:
