@@ -1,0 +1,88 @@
+{
+  "roles": {
+    "software_engineer": {
+      "title": "Software Engineer",
+      "turns": [
+        {
+          "speaker": "Interviewer",
+          "text": "Walk me through a system you designed that had to scale from hundreds to millions of requests."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I built a job-matching service that started as a single Postgres-backed API. When traffic grew, I introduced read replicas, moved hot lookups into Redis, and sharded the matching queue by tenant. That cut p99 latency from nine hundred milliseconds to under two hundred."
+        },
+        {
+          "speaker": "Interviewer",
+          "text": "What trade-offs did you make, and how did you handle a production incident during the migration?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "The main trade-off was eventual consistency on the matching index. During the rollout, a replica lag caused stale results, so I added a version check and a canary, then rolled back within minutes. We documented the incident and shipped a backfill job the same week."
+        }
+      ]
+    },
+    "data_scientist": {
+      "title": "Data Scientist",
+      "turns": [
+        {
+          "speaker": "Interviewer",
+          "text": "Describe a model you built where the business outcome was more important than the metric."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I built a churn-prediction model where precision alone looked great but wasn't actionable. I switched the objective to expected revenue saved, tuned the threshold for the support team's capacity, and the campaign recovered fourteen percent of at-risk accounts."
+        },
+        {
+          "speaker": "Interviewer",
+          "text": "How did you handle missing data and explain the model to non-technical stakeholders?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I imputed missing fields with domain-aware rules rather than a blanket mean, and I explained the model with a one-page scorecard. Leadership cared about the why, not the math, so I anchored every feature to a business reason."
+        }
+      ]
+    },
+    "product_manager": {
+      "title": "Product Manager",
+      "turns": [
+        {
+          "speaker": "Interviewer",
+          "text": "Tell me about a product decision you made with incomplete information."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "We had to choose between shipping a new onboarding flow or fixing a checkout bug. I ran a quick cohort analysis, shipped the bug fix first, and framed the onboarding change as a series of small experiments instead of one big launch. Activation rose eleven percent over two months."
+        },
+        {
+          "speaker": "Interviewer",
+          "text": "How did you prioritize when engineering and sales disagreed on the roadmap?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I brought both teams to a single scoring framework based on revenue impact, effort, and risk. The framework made the trade-offs visible, and we shipped the top two initiatives without losing trust on either side."
+        }
+      ]
+    },
+    "marketing_manager": {
+      "title": "Marketing Manager",
+      "turns": [
+        {
+          "speaker": "Interviewer",
+          "text": "Give me an example of a campaign that underperformed and what you did about it."
+        },
+        {
+          "speaker": "Candidate",
+          "text": "A paid social campaign was getting impressions but no conversions. I re-audited the landing page and found the offer was too generic, so I rebuilt the message around a single customer pain point. Cost per acquisition dropped forty percent within three weeks."
+        },
+        {
+          "speaker": "Interviewer",
+          "text": "How do you measure brand versus direct-response performance?"
+        },
+        {
+          "speaker": "Candidate",
+          "text": "I separate them. Brand is measured by recall and search lift over a quarter, while direct response is measured weekly on conversion and return on ad spend. Reporting both separately keeps short-term spend from cannibalizing long-term demand."
+        }
+      ]
+    }
+  }
+}
