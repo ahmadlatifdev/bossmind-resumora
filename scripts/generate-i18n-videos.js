@@ -6,17 +6,19 @@
  *   1. Extract PER-LANGUAGE narration from docs/interview-series/<id>.md
  *   2. Split into conversational turns (alternating Interviewer / Candidate)
  *   3. Time the turns proportionally over the audio duration (approx sync)
- *   4. Generate a styled .ass subtitle track (bold, bottom-center, drop shadow)
- *   5. FFmpeg render: solid navy base → alternating lighter-navy background per
- *      Candidate turn (drawbox) → Resumora logo (top-right) → burned .ass subtitles
- *   6. Verify output duration with ffprobe
+ *   4. FFmpeg render:
+ *        - solid navy base
+ *        - drawbox → lighter-navy background during Candidate turns
+ *        - drawtext → speaker-labeled text (explicit arial.ttf) per turn
+ *        - Resumora logo (top-right)
+ *   5. Log the exact FFmpeg command + verify output duration with ffprobe
  *
  * Output: assets/vid-star-conversational-build-<LANG>/<id>-<lang>.mp4
  *
  * Usage:
  *   node scripts/generate-i18n-videos.js
  *   node scripts/generate-i18n-videos.js --lang en
- *   node scripts/generate-i18n-videos.js --video 02-star-behavioral --lang en
+ *   node scripts/generate-i18n-videos.js --video 04-global-career --lang en
  *   node scripts/generate-i18n-videos.js --skip-tts
  */
 import fs from 'node:fs';
@@ -47,9 +49,7 @@ const VOICES = {
 // Background colors (navy shades) — Interviewer = dark, Candidate = lighter.
 const INTERVIEWER_COLOR = '0x0a1a3a';
 const CANDIDATE_COLOR = '0x16233f';
-const CANDIDATE_TEXT_COLOR = '&H00D9B36A'; // gold-ish for the CANDIDATE label
-const INTERVIEWER_TEXT_COLOR = '&H007FD4F0'; // light blue for the INTERVIEWER label
-const BODY_TEXT_COLOR = '&H00FFFFFF'; // white
+const FONT_PATH = 'C\\:/Windows/Fonts/arial.ttf';
 
 function parseArgs(argv) {
   const args = { langs: ALL_LANGS, video: null, skipTts: false };
@@ -70,23 +70,26 @@ function outDirFor(lang) {
   return path.join(ASSETS_DIR, `vid-star-conversational-build-${lang.toUpperCase()}`);
 }
 
-/** Extract the text for one language from the multi-language .md script. */
+/** Extract the text for one language from the .md script (multi- or single-language). */
 function extractLanguageScript(id, lang) {
   const p = path.join(SCRIPTS_DIR, `${id}.md`);
   if (!fs.existsSync(p)) return '';
   const lines = fs.readFileSync(p, 'utf8').split('\n');
+  const hasLangSections = lines.some((l) => /^##\s+(EN|FR|ES)\b/i.test(l));
+
   const out = [];
-  let current = null;
+  let current = hasLangSections ? null : lang;
   for (const line of lines) {
-    const h = line.match(/^##\s+(EN|FR|ES)\b/i);
-    if (h) {
-      current = h[1].toLowerCase() === lang.toLowerCase() ? lang : null;
+    const langMatch = line.match(/^##\s+(EN|FR|ES)\b/i);
+    if (hasLangSections && langMatch) {
+      current = langMatch[1].toLowerCase() === lang.toLowerCase() ? lang : null;
       continue;
     }
-    if (/^##\s/.test(line)) {
-      current = null;
+    if (/^#/.test(line)) {
+      if (/production notes/i.test(line)) current = null;
       continue;
     }
+    if (/^\*\*/.test(line) || /^---\s*$/.test(line)) continue;
     if (current) out.push(line);
   }
   return out
@@ -96,9 +99,9 @@ function extractLanguageScript(id, lang) {
     .replace(/\[(.*?)\]\(.*?\)/g, '$1')
     .replace(/`([^`]*)`/g, '$1')
     .replace(/^[-*]\s+/gm, '')
-    .replace(/^#+\s*/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .replace(/[ \t]+/g, ' ')
+    .replace(/\n{2,}/g, '\n')
     .trim();
 }
 
@@ -143,58 +146,6 @@ function assignTimings(turns, audioDuration) {
     cursor = end;
     return { ...t, start, end };
   });
-}
-
-function toAssTime(sec) {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = (sec % 60).toFixed(2).padStart(5, '0');
-  return `${h}:${String(m).padStart(2, '0')}:${s}`;
-}
-
-function escapeAss(text) {
-  return String(text).replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}');
-}
-
-function wrapAssText(text, maxLen = 52) {
-  const words = escapeAss(text).split(' ');
-  const lines = [];
-  let line = '';
-  for (const w of words) {
-    if ((line + ' ' + w).trim().length > maxLen && line) {
-      lines.push(line.trim());
-      line = w;
-    } else {
-      line = (line ? line + ' ' : '') + w;
-    }
-  }
-  if (line.trim()) lines.push(line.trim());
-  return lines.join('\\N');
-}
-
-/** Build a styled .ass subtitle track with speaker labels + alternating colors. */
-function buildAss(turns) {
-  const header = `[Script Info]
-ScriptType: v4.00+
-PlayResX: 1920
-PlayResY: 1080
-WrapStyle: 2
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Arial,50,&H00FFFFFF,&H00FFFFFF,&H00101010,&H96000000,-1,0,0,0,100,100,0,0,1,3,2,2,80,80,64,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`;
-  const lines = turns.map((t) => {
-    const color = t.speaker === 'Interviewer' ? INTERVIEWER_TEXT_COLOR : CANDIDATE_TEXT_COLOR;
-    const body = wrapAssText(t.text);
-    const text = `{\\c${color}\\b1}${t.speaker.toUpperCase()}: {\\c${BODY_TEXT_COLOR}\\b0}${body}`;
-    return `Dialogue: 0,${toAssTime(t.start)},${toAssTime(t.end)},Default,,0,0,0,,${text}`;
-  });
-  return header + lines.join('\n') + '\n';
 }
 
 /** Generate a solid navy 1920x1080 base (no logo — logo is overlaid separately). */
@@ -311,13 +262,11 @@ function buildVideo(id, lang, mp3Path) {
   const dir = outDirFor(lang);
   ensureDir(dir);
   const out = path.join(dir, `${id}-${lang}.mp4`);
-  const assFile = path.join(dir, `${id}-${lang}.ass`);
 
   const audioDuration = probeDuration(mp3Path) || 480;
   const turns = assignTimings(splitTurns(extractLanguageScript(id, lang)), audioDuration);
-  fs.writeFileSync(assFile, buildAss(turns));
 
-  // drawbox for each Candidate turn (lighter navy) on top of the dark base.
+  // Background alternation: lighter navy during Candidate turns.
   const candidateBoxes = turns
     .filter((t) => t.speaker === 'Candidate')
     .map(
@@ -326,53 +275,73 @@ function buildVideo(id, lang, mp3Path) {
     )
     .join(',');
 
-  const assRel = path.relative(ROOT, assFile).replace(/\\/g, '/');
+  // Write each turn's text to a file (avoids drawtext inline-text escaping issues).
+  const turnFiles = turns.map((t, i) => {
+    const abs = path.join(dir, `turn-${String(i).padStart(3, '0')}.txt`);
+    fs.writeFileSync(abs, `${t.speaker.toUpperCase()}: ${t.text}`, 'utf8');
+    return { abs, rel: path.relative(ROOT, abs).replace(/\\/g, '/') };
+  });
+
+  // Text overlay: one drawtext per turn (explicit font + textfile per turn).
+  const drawtexts = turns
+    .map((t, i) => {
+      return `drawtext=fontfile='${FONT_PATH}':textfile='${turnFiles[i].rel}':fontcolor=white:fontsize=46:box=1:boxcolor=black@0.45:boxborderw=12:x=(w-text_w)/2:y=h-150:enable='between(t,${t.start.toFixed(3)},${t.end.toFixed(3)})'`;
+    })
+    .join(',');
+
   const filter = [
-    `[0:v]${candidateBoxes ? ',' + candidateBoxes : ''}[bg]`,
+    `[0:v]${[candidateBoxes, drawtexts].filter(Boolean).join(',')}[bg]`,
     '[1:v]scale=180:180:force_original_aspect_ratio=decrease[logo]',
-    '[bg][logo]overlay=W-w-48:40:shortest=0[withlogo]',
-    `[withlogo]ass=${assRel}[outv]`,
+    '[bg][logo]overlay=W-w-48:40:shortest=0[outv]',
   ].join(';');
 
-  execFileSync(
-    'ffmpeg',
-    [
-      '-y',
-      '-loop',
-      '1',
-      '-i',
-      SOLID_BG,
-      '-loop',
-      '1',
-      '-i',
-      LOGO,
-      '-i',
-      mp3Path,
-      '-filter_complex',
-      filter,
-      '-map',
-      '[outv]',
-      '-map',
-      '2:a',
-      '-c:v',
-      'libx264',
-      '-preset',
-      'veryfast',
-      '-crf',
-      '23',
-      '-pix_fmt',
-      'yuv420p',
-      '-r',
-      '30',
-      '-c:a',
-      'aac',
-      '-b:a',
-      '192k',
-      '-shortest',
-      out,
-    ],
-    { stdio: 'inherit' }
-  );
+  const args = [
+    '-y',
+    '-loop',
+    '1',
+    '-i',
+    SOLID_BG,
+    '-loop',
+    '1',
+    '-i',
+    LOGO,
+    '-i',
+    mp3Path,
+    '-filter_complex',
+    filter,
+    '-map',
+    '[outv]',
+    '-map',
+    '2:a',
+    '-c:v',
+    'libx264',
+    '-preset',
+    'veryfast',
+    '-crf',
+    '23',
+    '-pix_fmt',
+    'yuv420p',
+    '-r',
+    '30',
+    '-c:a',
+    'aac',
+    '-b:a',
+    '192k',
+    '-shortest',
+    out,
+  ];
+
+  console.log(`  ffmpeg ${args.map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' ')}`);
+
+  execFileSync('ffmpeg', args, { stdio: 'inherit' });
+
+  for (const { abs } of turnFiles) {
+    try {
+      fs.unlinkSync(abs);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const dur = probeDuration(out);
   const label = dur != null ? `${Math.round(dur)}s` : 'unknown';
