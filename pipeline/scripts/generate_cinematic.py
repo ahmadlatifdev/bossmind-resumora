@@ -27,9 +27,11 @@ import argparse
 import asyncio
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -180,6 +182,28 @@ def _backend():
     return None
 
 
+def _download_url(url: str, out_path: Path) -> bool:
+    req = urllib.request.Request(url, headers={"User-Agent": "resumora-pipeline/1.0"})
+    with urllib.request.urlopen(req, timeout=600) as resp, open(out_path, "wb") as f:
+        shutil.copyfileobj(resp, f)
+    return out_path.exists() and out_path.stat().st_size > 0
+
+
+def _run_replicate(image_path: Path, audio_path: Path):
+    import replicate
+
+    with open(image_path, "rb") as img, open(audio_path, "rb") as aud:
+        output = replicate.run(
+            "wavespeedai/wan-2.1-s2v",
+            input={"image": img, "audio": aud},
+        )
+    if isinstance(output, list):
+        output = output[0] if output else None
+    if output is None:
+        return None
+    return getattr(output, "url", None) or str(output)
+
+
 def generate_turn_video(audio_path: Path, image_path: Path, out_path: Path) -> bool:
     backend = _backend()
     if backend is None:
@@ -203,16 +227,17 @@ def generate_turn_video(audio_path: Path, image_path: Path, out_path: Path) -> b
 
     for attempt in range(1, RETRY_ATTEMPTS + 1):
         try:
-            # TODO: replace with the actual wan-2.2-s2v call for `backend[0]`.
-            #   local     -> POST {backend[1]} with {image, audio}
-            #   replicate -> replicate.run("owner/wan-2.2-s2v", input={...})
-            #   fal       -> fal.subscribe("fal-ai/wan-2.2-s2v", arguments={...})
             print(
-                f"  [wan-2.2-s2v] (attempt {attempt}/{RETRY_ATTEMPTS}) generating "
+                f"  [replicate] (attempt {attempt}/{RETRY_ATTEMPTS}) generating "
                 f"{out_path.name} from {audio_path.name} ({len(chunks)} chunk(s))"
             )
-            # Placeholder: mark done without producing a real clip.
-            return False
+            url = _run_replicate(image_path, chunks[0])
+            if not url:
+                print("  [replicate] no output URL returned")
+                return False
+            _download_url(url, out_path)
+            print(f"  [replicate] done -> {out_path.name}")
+            return True
         except Exception as exc:
             wait = 2 ** attempt
             print(f"  [retry] attempt {attempt} failed ({exc}); waiting {wait}s")
