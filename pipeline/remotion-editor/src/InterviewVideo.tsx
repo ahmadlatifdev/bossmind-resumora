@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence, Video } from 'remotion';
+import { AbsoluteFill, Audio, Sequence, staticFile, useVideoConfig } from 'remotion';
 import { WordPop } from './WordPop';
 
 export type TranscriptWord = {
@@ -8,20 +8,22 @@ export type TranscriptWord = {
 };
 
 export type InterviewVideoProps = {
-  src: string;
   transcript: TranscriptWord[];
-  fps: number;
+  /** Audio file path relative to remotion-editor/public/ */
+  audioFile: string;
 };
 
 /**
- * Composition: full-screen raw interview video + word-pop subtitles, synced to
- * word-level timestamps (seconds). Each word pops in at the bottom center during
- * its time window.
+ * Final interview video: stylish navy background + conversation audio + gold
+ * word-pop subtitles synced to word-level timestamps.
  */
-export const InterviewVideo: React.FC<InterviewVideoProps> = ({ src, transcript, fps }) => {
+export const InterviewVideo = ({ transcript, audioFile }: InterviewVideoProps) => {
+  const { fps } = useVideoConfig();
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#0a1a3a' }}>
-      <Video src={src} style={{ position: 'absolute', width: '100%', height: '100%' }} />
+      <Audio src={staticFile(audioFile)} />
+
       {transcript.map((word, i) => {
         const from = Math.max(0, Math.round(word.start * fps));
         const duration = Math.max(1, Math.round((word.end - word.start) * fps));

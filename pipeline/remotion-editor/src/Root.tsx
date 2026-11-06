@@ -1,18 +1,29 @@
 import { Composition } from 'remotion';
-import { InterviewVideo } from './InterviewVideo';
+import { InterviewVideo, InterviewVideoProps } from './InterviewVideo';
 
 const FPS = 30;
-const DEFAULT_DURATION_SECONDS = 120;
+const WIDTH = 1920;
+const HEIGHT = 1080;
 
-export const RemotionRoot: React.FC = () => {
+export const RemotionRoot = () => {
   return (
     <Composition
       id="InterviewVideo"
       component={InterviewVideo}
-      durationInFrames={FPS * DEFAULT_DURATION_SECONDS}
       fps={FPS}
-      width={1920}
-      height={1080}
+      width={WIDTH}
+      height={HEIGHT}
+      defaultProps={{ transcript: [], audioFile: 'audio/placeholder.mp3' }}
+      calculateMetadata={({ props }) => {
+        const lastEnd = props.transcript.length
+          ? props.transcript[props.transcript.length - 1].end
+          : 120;
+        return {
+          durationInFrames: Math.ceil((lastEnd + 1) * FPS),
+        };
+      }}
     />
   );
 };
+
+export type { InterviewVideoProps };
