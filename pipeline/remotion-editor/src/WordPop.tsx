@@ -1,13 +1,22 @@
 import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
 /**
- * Kinetic "Word-Pop" typography — each word scales in with a spring overshoot,
- * styled in the Resumora gold with a drop shadow for readability.
+ * Kinetic "Word-Pop" typography — each word pops from 50% to full scale, styled
+ * in the Resumora gold with a drop shadow for readability. The short
+ * durationInFrames ensures the word is fully visible (not stuck at scale 0).
  */
 export const WordPop = ({ word }: { word: string }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const scale = spring({ frame, fps, config: { damping: 9, stiffness: 220, mass: 0.7 } });
+
+  const scale = spring({
+    frame,
+    fps,
+    from: 0.5,
+    to: 1,
+    config: { damping: 200 },
+    durationInFrames: Math.max(2, Math.round(fps * 0.12)),
+  });
 
   return (
     <span
@@ -15,7 +24,7 @@ export const WordPop = ({ word }: { word: string }) => {
         display: 'inline-block',
         color: '#D4AF37',
         fontWeight: 800,
-        fontSize: 72,
+        fontSize: 64,
         letterSpacing: 1,
         transform: `scale(${scale})`,
         textShadow: '0 3px 10px rgba(0, 0, 0, 0.85)',
