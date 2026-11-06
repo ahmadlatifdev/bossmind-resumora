@@ -23,7 +23,6 @@ const AUDIO_DIR = path.join(ASSETS, 'audio');
 const TRANSCRIPTS_DIR = path.join(ASSETS, 'transcripts');
 const OUTPUTS = path.join(PIPELINE_DIR, 'outputs');
 const REMOTION_DIR = path.join(PIPELINE_DIR, 'remotion-editor');
-const REMOTION_PUBLIC = path.join(REMOTION_DIR, 'public', 'audio');
 
 const ROLES = ['software_engineer', 'data_scientist', 'product_manager', 'marketing_manager'];
 
@@ -61,13 +60,13 @@ function renderRole(role) {
     return false;
   }
 
-  // Copy the combined audio into Remotion's public/ dir so staticFile() can load it.
-  ensureDir(REMOTION_PUBLIC);
-  const publicAudioName = `${role}.mp3`;
-  fs.copyFileSync(combinedAudio, path.join(REMOTION_PUBLIC, publicAudioName));
-
+  // No copy needed — remotion.config.ts sets the public dir to pipeline/assets/,
+  // so staticFile() resolves audio directly from assets/audio/.
   const { words } = JSON.parse(fs.readFileSync(transcriptPath, 'utf8'));
-  const props = JSON.stringify({ transcript: words || [], audioFile: `audio/${publicAudioName}` });
+  const props = JSON.stringify({
+    transcript: words || [],
+    audioFile: `audio/${role}_combined.mp3`,
+  });
   const output = path.join(OUTPUTS, `${role}.mp4`);
   ensureDir(OUTPUTS);
 

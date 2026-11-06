@@ -9,7 +9,7 @@ export type TranscriptWord = {
 
 export type InterviewVideoProps = {
   transcript: TranscriptWord[];
-  /** Audio file path relative to remotion-editor/public/ */
+  /** Audio file path relative to pipeline/assets/ (the configured public dir). */
   audioFile: string;
 };
 
