@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
- * Master orchestrator for the conversational interview video pipeline.
+ * Master orchestrator for the conversational interview video pipeline (pure FFmpeg).
  *
  *   1. generate_audio.py      — Edge-TTS → per-speaker MP3s
  *   2. generate_timestamps.py — Whisper → word-level timestamps (per role)
- *   3. Remotion render        — navy background + audio + Word-Pop → MP4
+ *   3. json_to_srt.py         — word timestamps → .srt subtitles
+ *   4. render_ffmpeg.js       — navy background + subtitles + audio → MP4
  *
  * Final outputs: pipeline/outputs/<role>.mp4
  *
@@ -18,13 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PIPELINE_DIR = path.resolve(__dirname, '..');
-const ASSETS = path.join(PIPELINE_DIR, 'assets');
-const AUDIO_DIR = path.join(ASSETS, 'audio');
-const TRANSCRIPTS_DIR = path.join(ASSETS, 'transcripts');
 const OUTPUTS = path.join(PIPELINE_DIR, 'outputs');
-const REMOTION_DIR = path.join(PIPELINE_DIR, 'remotion-editor');
-
-const ROLES = ['software_engineer', 'data_scientist', 'product_manager', 'marketing_manager'];
 
 function run(cmd, args, opts = {}) {
   console.log(`\n$ ${cmd} ${args.join(' ')}`);
@@ -33,52 +28,14 @@ function run(cmd, args, opts = {}) {
     cwd: opts.cwd || PIPELINE_DIR,
     shell: false,
   });
-  if (res.status !== 0 && !opts.allowFailure) {
-    console.error(`[ERROR] command failed: ${cmd} ${args.join(' ')}`);
+  if (res.status !== 0) {
+    console.error(`[ERROR] command failed (exit ${res.status}): ${cmd} ${args.join(' ')}`);
     process.exit(1);
   }
-  if (res.status !== 0) {
-    console.warn(`[WARN] command exited ${res.status} (continuing): ${cmd}`);
-  }
-  return res.status === 0;
-}
-
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
-}
-
-function renderRole(role) {
-  const transcriptPath = path.join(TRANSCRIPTS_DIR, `${role}_transcript.json`);
-  const combinedAudio = path.join(AUDIO_DIR, `${role}_combined.mp3`);
-
-  if (!fs.existsSync(transcriptPath)) {
-    console.warn(`[WARN] No transcript for ${role} — run generate_timestamps.py first.`);
-    return false;
-  }
-  if (!fs.existsSync(combinedAudio)) {
-    console.warn(`[WARN] No combined audio for ${role}.`);
-    return false;
-  }
-
-  // No copy needed — remotion.config.ts sets the public dir to pipeline/assets/,
-  // so staticFile() resolves audio directly from assets/audio/.
-  const { words } = JSON.parse(fs.readFileSync(transcriptPath, 'utf8'));
-  const props = JSON.stringify({
-    transcript: words || [],
-    audioFile: `audio/${role}_combined.mp3`,
-  });
-  const output = path.join(OUTPUTS, `${role}.mp4`);
-  ensureDir(OUTPUTS);
-
-  console.log(`\n[RENDER] ${role} (${(words || []).length} words)`);
-  run('npx', ['remotion', 'render', 'InterviewVideo', output, `--props=${props}`], {
-    cwd: REMOTION_DIR,
-  });
-  return fs.existsSync(output);
 }
 
 function main() {
-  ensureDir(OUTPUTS);
+  fs.mkdirSync(OUTPUTS, { recursive: true });
 
   // 1. Audio (Edge-TTS).
   run('python', [path.join(PIPELINE_DIR, 'scripts', 'generate_audio.py')]);
@@ -86,18 +43,13 @@ function main() {
   // 2. Word timestamps (Whisper).
   run('python', [path.join(PIPELINE_DIR, 'scripts', 'generate_timestamps.py')]);
 
-  // 3. Remotion render per role.
-  if (!fs.existsSync(path.join(REMOTION_DIR, 'node_modules'))) {
-    console.warn('\n[WARN] Remotion deps missing. Run: cd pipeline/remotion-editor && npm install');
-    process.exit(1);
-  }
+  // 3. SRT conversion.
+  run('python', [path.join(PIPELINE_DIR, 'scripts', 'json_to_srt.py')]);
 
-  let ok = 0;
-  for (const role of ROLES) {
-    if (renderRole(role)) ok += 1;
-  }
+  // 4. FFmpeg render.
+  run('node', [path.join(PIPELINE_DIR, 'scripts', 'render_ffmpeg.js')]);
 
-  console.log(`\nDone. ${ok}/${ROLES.length} video(s) rendered to ${OUTPUTS}`);
+  console.log(`\nDone. Final videos in ${OUTPUTS}`);
 }
 
 main();
