@@ -164,6 +164,10 @@
         "function": "getLuxuryPdfUrl"
       },
       {
+        "source": "/api/secure-asset-url",
+        "function": "secureAssetUrl"
+      },
+      {
         "source": "/api/chat/message",
         "run": {
           "serviceId": "sendchatmessage",

@@ -19,6 +19,9 @@ try {
   /* settings already applied */
 }
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
+const r2AccountId = defineSecret('R2_ACCOUNT_ID');
+const r2AccessKeyId = defineSecret('R2_ACCESS_KEY_ID');
+const r2SecretAccessKey = defineSecret('R2_SECRET_ACCESS_KEY');
 
 function loadEnvFiles() {
   try {
@@ -439,6 +442,68 @@ exports.videoSignedUrl = onRequest(
       res.status(200).json({ url: signed, videoId, language, expiresInSec: 3600 });
     } catch (err) {
       res.status(500).json({ error: err.message || 'Signed URL failed' });
+    }
+  }
+);
+
+/**
+ * Signed URL for a Cloudflare R2 object (referenced as r2://bucket/key).
+ * Auth-gated; returns a temporary presigned URL.
+ */
+exports.secureAssetUrl = onRequest(
+  {
+    region: 'us-central1',
+    cors: false,
+    timeoutSeconds: 30,
+    memory: '256MiB',
+    secrets: [r2AccountId, r2AccessKeyId, r2SecretAccessKey],
+  },
+  async (req, res) => {
+    cors(res, req);
+    if (req.method === 'OPTIONS') {
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+    try {
+      const decoded = await verifyIdToken(req);
+      if (!decoded) {
+        res.status(401).json({ error: 'Authentication required' });
+        return;
+      }
+      const body = parseBody(req);
+      const bucket = String(body.bucket || '').trim();
+      const key = String(body.key || '').trim();
+      if (!bucket || !key) {
+        res.status(400).json({ error: 'bucket and key are required' });
+        return;
+      }
+
+      const accountId = process.env.R2_ACCOUNT_ID || '';
+      const accessKeyId = process.env.R2_ACCESS_KEY_ID || '';
+      const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY || '';
+      if (!accountId || !accessKeyId || !secretAccessKey) {
+        res.status(500).json({ error: 'R2 credentials are not configured' });
+        return;
+      }
+
+      const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+      const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+
+      const s3 = new S3Client({
+        region: 'auto',
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: { accessKeyId, secretAccessKey },
+      });
+      const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+      const signed = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+      res.status(200).json({ url: signed, bucket, key, expiresInSec: 3600 });
+    } catch (err) {
+      res.status(500).json({ error: err.message || 'Secure asset URL failed' });
     }
   }
 );

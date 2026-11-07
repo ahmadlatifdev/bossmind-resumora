@@ -64,6 +64,49 @@ export async function fetchVideoStreamUrl({ videoId, language = 'en' }) {
   return data;
 }
 
+/** True when a URL uses the r2://bucket/key scheme (Cloudflare R2 reference). */
+export function isR2Url(url) {
+  return /^r2:\/\//i.test(String(url || '').trim());
+}
+
+/** Parse r2://bucket/key into { bucket, key }. Returns null for non-r2 URLs. */
+export function parseR2Url(url) {
+  const match = String(url || '')
+    .trim()
+    .match(/^r2:\/\/([^/]+)\/(.+)$/i);
+  if (!match) return null;
+  return { bucket: match[1], key: match[2] };
+}
+
+/**
+ * Resolve an r2://bucket/key reference into a temporary signed link by calling
+ * the `secureAssetUrl` Firebase function (hosted at /api/secure-asset-url).
+ */
+export async function secureAssetUrl(r2Url) {
+  const parsed = parseR2Url(r2Url);
+  if (!parsed) return r2Url;
+
+  let token = '';
+  try {
+    token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+  } catch {
+    token = '';
+  }
+  const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}/api/secure-asset-url`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ bucket: parsed.bucket, key: parsed.key }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Secure asset URL failed (${res.status})`);
+  }
+  return data.url || data.signedUrl || data.signed_url || '';
+}
+
 export const CORE_VIDEO_PROMPTS = Object.freeze([
   {
     id: 'vid-resume-to-interview',
