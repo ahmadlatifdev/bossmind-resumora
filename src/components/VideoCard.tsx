@@ -25,16 +25,14 @@ export default function VideoCard({ video, uiLang }) {
         if (data.url) setStreamUrl(data.url);
       })
       .catch(() => {
-        /* fall back to the catalog source below */
+        /* leave empty until this episode's master is generated */
       });
     return () => {
       cancelled = true;
     };
   }, [video.id, videoLang, isEpisode1]);
 
-  const src = isEpisode1
-    ? EPISODE_1_URL
-    : streamUrl || (video.sources && video.sources[videoLang]) || '';
+  const src = isEpisode1 ? EPISODE_1_URL : streamUrl || '';
 
   return (
     <article className="video-card">
