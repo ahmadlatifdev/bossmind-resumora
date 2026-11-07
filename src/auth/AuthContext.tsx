@@ -51,19 +51,34 @@ async function resolveSubscription(user: User): Promise<SubscriptionState> {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (snap.exists()) {
       const data = snap.data() as Record<string, unknown>;
+      console.log('[AuthContext] user plan doc:', {
+        planId: data.planId,
+        subscriptionStatus: data.subscriptionStatus,
+        hasActiveSubscription: data.hasActiveSubscription,
+        entitlementState: data.entitlementState,
+        paid: data.paid,
+      });
       if (typeof data.planId === 'string' && data.planId) state.planId = data.planId;
       const status = String(data.subscriptionStatus || data.subscription_status || '');
       if (status.toLowerCase() === 'active') state.active = true;
       if (data.paid === true || data.hasActiveSubscription === true) state.active = true;
+    } else {
+      console.log('[AuthContext] no user doc found for', user.uid);
     }
-  } catch {
-    /* treat as inactive */
+  } catch (err) {
+    console.log('[AuthContext] Firestore read failed:', err);
   }
 
   // Sandbox / test-mode gate: allow any signed-in user when explicitly enabled.
   if (String(import.meta.env.VITE_PAYWALL_ALLOW_AUTHED || '').toLowerCase() === 'true') {
     state.active = true;
   }
+
+  console.log('[AuthContext] resolved subscription:', {
+    uid: user.uid,
+    active: state.active,
+    planId: state.planId,
+  });
 
   return state;
 }

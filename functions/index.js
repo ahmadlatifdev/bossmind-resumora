@@ -138,6 +138,11 @@ async function isSubscriptionActive(uid) {
 }
 
 function seriesObjectPath(videoId, lang) {
+  // Episode 1 plays the single stitched cinematic master (final_interview.mp4),
+  // not the per-language 01-resume-to-interview-<lang>.mp4 files.
+  if (String(videoId) === 'vid-resume-to-interview') {
+    return 'masters/interview-series-v1/final_interview.mp4';
+  }
   const slug = String(videoId || '').replace(/^vid-/, '');
   const catalog = videoCatalog.FALLBACK_CATALOG || [];
   const entry = catalog.find((v) => v.video_id === videoId);

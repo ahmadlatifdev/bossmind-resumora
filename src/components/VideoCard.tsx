@@ -13,12 +13,13 @@ export default function VideoCard({ video, uiLang }) {
   const description = localize(video.description, uiLang);
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
 
-  // Video Library is Enterprise ($110 / "advanced") only.
-  const isEnterprise = subscriptionActive && planId === 'advanced';
+  // Unlock for any active subscription, or the "advanced"/"enterprise" plan.
+  const isUnlocked =
+    subscriptionActive === true || planId === 'advanced' || planId === 'enterprise';
 
   useEffect(() => {
     let cancelled = false;
-    if (!isEnterprise) return;
+    if (!isUnlocked) return;
     setStreamUrl('');
     setStreamState('loading');
     fetchVideoStreamUrl({ videoId: video.id, language: videoLang })
@@ -37,9 +38,9 @@ export default function VideoCard({ video, uiLang }) {
     return () => {
       cancelled = true;
     };
-  }, [video.id, videoLang, isEnterprise]);
+  }, [video.id, videoLang, isUnlocked]);
 
-  if (!isEnterprise) {
+  if (!isUnlocked) {
     return (
       <article className="video-card">
         <div
