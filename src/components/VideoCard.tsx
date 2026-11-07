@@ -8,7 +8,6 @@ export default function VideoCard({ video, uiLang }) {
   const { user, subscriptionActive, planId } = useAuth();
   const [videoLang, setVideoLang] = useState(uiLang);
   const [streamUrl, setStreamUrl] = useState('');
-  const [streamState, setStreamState] = useState('loading');
   const title = localize(video.title, uiLang);
   const description = localize(video.description, uiLang);
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
@@ -17,28 +16,31 @@ export default function VideoCard({ video, uiLang }) {
   const isAdmin = user?.email === 'ahmadlatifzz20@gmail.com';
   const isUnlocked = isAdmin || subscriptionActive === true || planId === 'advanced';
 
+  // Episode 1 plays the uploaded cinematic master directly from Firebase Storage.
+  const EPISODE_1_URL =
+    'https://firebasestorage.googleapis.com/v0/b/resumora-live.firebasestorage.app/o/masters%2Finterview-series-v1%2Ffinal_interview.mp4?alt=media';
+  const isEpisode1 = video.id === 'vid-resume-to-interview';
+
   useEffect(() => {
+    if (!isUnlocked || isEpisode1) return;
     let cancelled = false;
-    if (!isUnlocked) return;
     setStreamUrl('');
-    setStreamState('loading');
     fetchVideoStreamUrl({ videoId: video.id, language: videoLang })
       .then((data) => {
         if (cancelled) return;
-        if (data.url) {
-          setStreamUrl(data.url);
-          setStreamState('ready');
-        } else {
-          setStreamState('error');
-        }
+        if (data.url) setStreamUrl(data.url);
       })
       .catch(() => {
-        if (!cancelled) setStreamState('error');
+        /* fall back to the catalog source below */
       });
     return () => {
       cancelled = true;
     };
-  }, [video.id, videoLang, isUnlocked]);
+  }, [video.id, videoLang, isUnlocked, isEpisode1]);
+
+  const src = isEpisode1
+    ? EPISODE_1_URL
+    : streamUrl || (video.sources && video.sources[videoLang]) || '';
 
   if (!isUnlocked) {
     return (
@@ -84,31 +86,14 @@ export default function VideoCard({ video, uiLang }) {
   return (
     <article className="video-card">
       <div className="video-card__media" aria-label={`${title} video`}>
-        {streamUrl ? (
-          <video
-            key={`${video.id}-${videoLang}`}
-            controls
-            preload="metadata"
-            playsInline
-            src={streamUrl}
-            title={title}
-          />
-        ) : (
-          <div
-            className="video-card__media-placeholder"
-            style={{
-              alignItems: 'center',
-              display: 'flex',
-              justifyContent: 'center',
-              minHeight: 200,
-              opacity: 0.8,
-              padding: 16,
-              textAlign: 'center',
-            }}
-          >
-            {streamState === 'error' ? 'Video in Production — Coming Soon' : 'Loading…'}
-          </div>
-        )}
+        <video
+          key={`${video.id}-${videoLang}`}
+          controls
+          preload="metadata"
+          playsInline
+          src={src}
+          title={title}
+        />
       </div>
       <div className="video-card__body">
         <h2>{title}</h2>
@@ -128,8 +113,8 @@ export default function VideoCard({ video, uiLang }) {
           ))}
         </div>
         <div className="video-card__actions">
-          {streamUrl ? (
-            <a className="primary" href={streamUrl} download={downloadName}>
+          {src ? (
+            <a className="primary" href={src} download={downloadName}>
               {t(uiLang, 'videos.download')}
             </a>
           ) : null}
