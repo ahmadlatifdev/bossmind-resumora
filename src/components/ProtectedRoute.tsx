@@ -6,15 +6,13 @@ import { t } from '../lib/i18n.js';
 
 type Props = {
   children: ReactNode;
-  /** When true, also requires an active subscription claim/Firestore status. */
-  requireSubscription?: boolean;
 };
 
 /**
- * Gates Video Library (and similar) behind Firebase Auth + optional paid status.
+ * Gates routes behind Firebase Auth only.
  */
-export default function ProtectedRoute({ children, requireSubscription = true }: Props) {
-  const { user, loading, subscriptionActive } = useAuth();
+export default function ProtectedRoute({ children }: Props) {
+  const { user, loading } = useAuth();
   const { lang } = useLangOptional();
   const location = useLocation();
 
@@ -28,16 +26,6 @@ export default function ProtectedRoute({ children, requireSubscription = true }:
 
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
-
-  if (requireSubscription && !subscriptionActive) {
-    return (
-      <Navigate
-        to="/?paywall=1"
-        replace
-        state={{ from: location.pathname, reason: 'subscription_required' }}
-      />
-    );
   }
 
   return <>{children}</>;

@@ -219,7 +219,7 @@ function AppRoutes() {
           <Route
             path="/account"
             element={
-              <ProtectedRoute requireSubscription={false}>
+              <ProtectedRoute>
                 <AccountPage />
               </ProtectedRoute>
             }
@@ -227,7 +227,7 @@ function AppRoutes() {
           <Route
             path="/video-library"
             element={
-              <ProtectedRoute requireSubscription={false}>
+              <ProtectedRoute>
                 <VideosPage />
               </ProtectedRoute>
             }
