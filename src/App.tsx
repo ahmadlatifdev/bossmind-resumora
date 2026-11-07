@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useSearchParams,
-} from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { trackPageView } from './lib/analytics.js';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider, useAuth } from './auth/AuthContext';
@@ -48,8 +41,6 @@ const PLAN_ID_MAP: Record<string, string> = {
 function HomePage() {
   const { lang } = useLang();
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const showPaywall = searchParams.get('paywall') === '1';
   const [selectedStripePriceId, setSelectedStripePriceId] = useState<string | null>(null);
 
   const handlePlanClick = (priceId: string) => {
@@ -143,11 +134,6 @@ function HomePage() {
 
   return (
     <section className="v6-hero-panel flex flex-col items-center w-full px-4 py-16 mx-auto">
-      {showPaywall ? (
-        <p className="mb-6 text-sm text-center border border-[color:var(--color-gold)]/40 bg-[color:var(--color-gold)]/10 px-4 py-3 rounded-lg max-w-xl">
-          {t(lang, 'home.paywall')}
-        </p>
-      ) : null}
       <h1 className="v6-heading text-4xl md:text-5xl mb-4 text-center">
         {t(lang, 'home.heroTitle')}
       </h1>
