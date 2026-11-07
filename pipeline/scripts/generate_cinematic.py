@@ -198,6 +198,8 @@ def _run_replicate(image_path: Path, audio_path: Path):
     client = replicate.Client(
         timeout=httpx.Timeout(connect=10.0, read=1800.0, write=60.0, pool=10.0)
     )
+    # "Prefer: wait" is capped at 60s by the API, so poll instead (non-blocking).
+    client.poll_interval = 5.0
 
     # Try slugs in order; fall back to the next one only on a 404 (renamed/moved model).
     model_slugs = [
@@ -219,7 +221,7 @@ def _run_replicate(image_path: Path, audio_path: Path):
                 "interpolate": False,
             }
             try:
-                output = client.run(slug, input=input_data)
+                output = client.run(slug, input=input_data, wait=False)
             except ReplicateError as exc:
                 if exc.status == 404:
                     last_error = exc
