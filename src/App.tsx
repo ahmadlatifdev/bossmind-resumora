@@ -241,7 +241,7 @@ function AppRoutes() {
           <Route
             path="/video-library"
             element={
-              <ProtectedRoute requireSubscription>
+              <ProtectedRoute requireSubscription={false}>
                 <VideosPage />
               </ProtectedRoute>
             }
