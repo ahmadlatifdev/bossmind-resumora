@@ -29,6 +29,10 @@ function isPlayableHttp(url) {
   return /^https?:\/\//i.test(String(url || '').trim());
 }
 
+function isR2Url(url) {
+  return /^r2:\/\//i.test(String(url || '').trim());
+}
+
 function demoForIndex(index) {
   return PLAYABLE_DEMOS[Math.abs(Number(index) || 0) % PLAYABLE_DEMOS.length];
 }
@@ -55,10 +59,11 @@ function multilingualUrls(video = {}, index = 0) {
   let fr = toHttpsUrl((nested && nested.fr) || video.url_mp4_fr || video.url_fr || en) || en;
   let es = toHttpsUrl((nested && nested.es) || video.url_mp4_es || video.url_es || en) || en;
 
-  // Dead Google sample hosts → replace with known-good demos
-  if (isDeadGtvOrMissing(en) || !isPlayableHttp(en)) en = demoForIndex(index);
-  if (isDeadGtvOrMissing(fr) || !isPlayableHttp(fr)) fr = en;
-  if (isDeadGtvOrMissing(es) || !isPlayableHttp(es)) es = en;
+  // Dead Google sample hosts / non-resolvable URLs → replace with known-good demos.
+  // r2:// references are kept as-is (the frontend resolves them via secureAssetUrl).
+  if (isDeadGtvOrMissing(en) || (!isPlayableHttp(en) && !isR2Url(en))) en = demoForIndex(index);
+  if (isDeadGtvOrMissing(fr) || (!isPlayableHttp(fr) && !isR2Url(fr))) fr = en;
+  if (isDeadGtvOrMissing(es) || (!isPlayableHttp(es) && !isR2Url(es))) es = en;
 
   return { en, fr, es };
 }
@@ -227,61 +232,56 @@ exports.PLAYABLE_DEMOS = PLAYABLE_DEMOS;
 exports.FALLBACK_CATALOG = FALLBACK_CATALOG;
 
 exports.getCatalog = async function getCatalog() {
-  let seed = null;
-  try {
-    seed = await seedFirestoreInterviewSeries();
-  } catch (_) {
-    seed = { upserted: 0, error: true };
-  }
+  const seed = null;
 
   const fromFs = await loadCatalogFromFirestore();
   const configured = bilibiliConfigured();
-  // Series catalog is canonical; force public MDN/W3Schools until masters are public.
   const demos = FALLBACK_CATALOG.map((v, i) => normalizeVideo(v, i));
-  const byId = new Map(demos.map((v) => [v.video_id, v]));
 
   if (fromFs && fromFs.length) {
-    const seriesDocs = fromFs.filter((d) => byId.has(String(d.video_id || d.id || '')));
-    const useDocs = seriesDocs.length ? seriesDocs : fromFs;
-    const videos = useDocs.map((doc, i) => {
-      const id = String(doc.video_id || doc.id || '');
-      const demo = byId.get(id) || demos[i % demos.length];
-      const titleKeep = {
-        title_EN: doc.title_EN || doc.title || demo.title_EN,
-        title_FR: doc.title_FR || demo.title_FR,
-        title_ES: doc.title_ES || demo.title_ES,
-        title: doc.title || doc.title_EN || demo.title_EN,
-      };
-      return {
-        ...demo,
-        ...titleKeep,
-        video_id: id || demo.video_id,
-        id: doc.id || demo.video_id,
-        order: doc.order != null ? doc.order : demo.order,
-        duration: demo.duration || doc.duration || 480,
-        series_id: demo.series_id || SERIES_ID,
-        script_path: demo.script_path || doc.script_path || '',
-        urls: { ...demo.urls },
-        url_mp4_en: demo.urls.en,
-        url_mp4_fr: demo.urls.fr,
-        url_mp4_es: demo.urls.es,
-        source: 'interview-series',
-        status: 'public-demo',
-      };
-    });
-    // Prefer exactly the 4 series lessons (sorted by order).
-    const ordered = demos.map((demo) => {
-      const hit = videos.find((v) => v.video_id === demo.video_id);
-      return hit || demo;
-    });
+    // Return the real Firestore docs (r2:// and public R2 URLs) instead of forced demos.
+    const videos = fromFs
+      .map((doc, i) => {
+        const id = String(doc.video_id || doc.id || '');
+        const normalized = normalizeVideo(doc, i);
+        const en = normalized.urls.en || '';
+        const isDemo = /mdn\.mozilla\.net|w3schools\.com|gtv-videos-bucket|googlevideo\.com/i.test(
+          en
+        );
+        return {
+          ...doc,
+          video_id: id || doc.id,
+          id: doc.id || id,
+          title: doc.title || doc.title_EN || id || 'untitled',
+          title_EN: doc.title_EN || doc.title || id,
+          title_FR: doc.title_FR || doc.title || id,
+          title_ES: doc.title_ES || doc.title || id,
+          urls: { ...normalized.urls },
+          url_mp4_en: en,
+          url_mp4_fr: normalized.urls.fr,
+          url_mp4_es: normalized.urls.es,
+          order: doc.order != null ? Number(doc.order) : 0,
+          status: doc.status || (isDemo ? 'public-demo' : 'available'),
+          source: doc.source || 'firestore',
+        };
+      })
+      .filter((v) => {
+        const u = String(v.url_mp4_en || '');
+        return (
+          !/\.pdf($|\?)/i.test(u) &&
+          !/mdn\.mozilla\.net|w3schools\.com|gtv-videos-bucket|googlevideo\.com/i.test(u)
+        );
+      });
+    videos.sort((a, b) => (a.order || 0) - (b.order || 0));
+
     return {
-      videos: ordered,
-      source: 'interview-series',
+      videos: videos.length ? videos : demos,
+      source: videos.length ? 'firestore' : 'interview-series',
       series_id: SERIES_ID,
       seed,
       bilibiliConfigured: configured,
       cacheControl: 'no-store',
-      note: 'Premium Interview Series v1 — MDN/W3Schools placeholders until 1080p masters upload.',
+      note: 'Firestore-backed catalog (real R2 URLs).',
     };
   }
   return {

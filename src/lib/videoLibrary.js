@@ -8,11 +8,11 @@ export const MAX_VIDEO_DOWNLOADS = 5;
 export const VIDEO_DURATION_SEC = 480;
 export const SERIES_ID = 'premium-interview-series-v1';
 
-/** Public sample MP4s (gtv-videos-bucket returns 403). */
-const AUDIO_MP4_A = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
-const AUDIO_MP4_B = 'https://www.w3schools.com/html/mov_bbb.mp4';
-const AUDIO_MP4_C = 'https://www.w3schools.com/html/movie.mp4';
-const AUDIO_MP4_D = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+/** No hardcoded sample MP4s — real URLs come from the backend catalog (r2://). */
+const AUDIO_MP4_A = '';
+const AUDIO_MP4_B = '';
+const AUDIO_MP4_C = '';
+const AUDIO_MP4_D = '';
 
 export const VIDEO_LIBRARY = Object.freeze([
   {
