@@ -11,6 +11,7 @@ import AdminVideoAssetsPage from './pages/AdminVideoAssetsPage';
 import ChatHistoryPage from './pages/ChatHistoryPage';
 import AdminSystemHealthPage from './pages/AdminSystemHealth';
 import FinancialPage from './pages/FinancialPage';
+import OrchestratorView from './components/OrchestratorView';
 import { LangProvider } from './i18n/LangContext';
 import './index.css';
 import './styles/tokens.css';
@@ -32,6 +33,7 @@ function AdminApp() {
               <Route path="/admin/global-chat" element={<AdminGlobalChatPage />} />
               <Route path="/admin/financials" element={<FinancialPage />} />
               <Route path="/admin/refunds" element={<AdminRefundsPage />} />
+              <Route path="/admin/orchestrator" element={<OrchestratorView />} />
               <Route path="/admin/videos" element={<AdminVideoAssetsPage />} />
               <Route path="/admin/chat-history" element={<ChatHistoryPage />} />
               <Route path="/admin" element={<Navigate to="/admin/master" replace />} />
