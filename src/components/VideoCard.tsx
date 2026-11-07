@@ -13,7 +13,7 @@ export default function VideoCard({ video, uiLang }) {
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
 
   // Admin email bypass + any active subscription or "advanced" plan.
-  const isAdmin = user?.email === 'ahmadlatifzz20@gmail.com';
+  const isAdmin = user?.email?.toLowerCase() === 'ahmadlatifzz20@gmail.com';
   const isUnlocked = isAdmin || subscriptionActive === true || planId === 'advanced';
 
   // Episode 1 plays the uploaded cinematic master directly from Firebase Storage.
