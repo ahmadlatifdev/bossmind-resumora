@@ -5,7 +5,7 @@ import { fetchVideoStreamUrl } from '../lib/videoApi.js';
 import { useAuth } from '../auth/AuthContext';
 
 export default function VideoCard({ video, uiLang }) {
-  const { subscriptionActive, planId } = useAuth();
+  const { user, subscriptionActive, planId } = useAuth();
   const [videoLang, setVideoLang] = useState(uiLang);
   const [streamUrl, setStreamUrl] = useState('');
   const [streamState, setStreamState] = useState('loading');
@@ -13,9 +13,9 @@ export default function VideoCard({ video, uiLang }) {
   const description = localize(video.description, uiLang);
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
 
-  // Unlock for any active subscription, or the "advanced"/"enterprise" plan.
-  const isUnlocked =
-    subscriptionActive === true || planId === 'advanced' || planId === 'enterprise';
+  // Admin email bypass + any active subscription or "advanced" plan.
+  const isAdmin = user?.email === 'ahmadlatifzz20@gmail.com';
+  const isUnlocked = isAdmin || subscriptionActive === true || planId === 'advanced';
 
   useEffect(() => {
     let cancelled = false;
