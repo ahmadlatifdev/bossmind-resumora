@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { secureAssetUrl, isR2Url } from '../lib/videoApi.js';
 
 export type VideoLang = 'en' | 'fr' | 'es';
 
@@ -55,18 +56,41 @@ export default function AdminMultilingualVideoPlayer({
 }: AdminMultilingualVideoPlayerProps) {
   const [lang, setLang] = useState<VideoLang>('en');
   const [mediaError, setMediaError] = useState('');
+  const [resolvedSrc, setResolvedSrc] = useState('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const src = resolveUrl(urls, lang);
+  const rawSrc = resolveUrl(urls, lang);
   const durationLabel = formatDuration(durationSec);
 
+  // Resolve r2:// references into playable signed URLs via secureAssetUrl.
   useEffect(() => {
+    let cancelled = false;
     setMediaError('');
+    if (isR2Url(rawSrc)) {
+      secureAssetUrl(rawSrc)
+        .then((signed) => {
+          if (!cancelled) setResolvedSrc(signed);
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setResolvedSrc('');
+            setMediaError('Playback failed — could not resolve r2:// asset.');
+          }
+        });
+    } else {
+      setResolvedSrc(rawSrc);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [rawSrc]);
+
+  useEffect(() => {
     const el = videoRef.current;
-    if (!el || !src) return;
-    el.setAttribute('src', src);
-    el.src = src;
+    if (!el || !resolvedSrc) return;
+    el.setAttribute('src', resolvedSrc);
+    el.src = resolvedSrc;
     el.load();
-  }, [src]);
+  }, [resolvedSrc]);
 
   return (
     <article className="admin-video-player">
@@ -99,7 +123,7 @@ export default function AdminMultilingualVideoPlayer({
           </button>
         ))}
       </div>
-      {src ? (
+      {resolvedSrc ? (
         <>
           <video
             ref={videoRef}
@@ -107,7 +131,7 @@ export default function AdminMultilingualVideoPlayer({
             controls
             playsInline
             preload="metadata"
-            src={src}
+            src={resolvedSrc}
             onError={() =>
               setMediaError('Playback failed — URL blocked or unreachable for this language.')
             }
@@ -118,8 +142,8 @@ export default function AdminMultilingualVideoPlayer({
               {mediaError}
             </p>
           ) : null}
-          <p className="admin-video-player__src" title={src}>
-            {src}
+          <p className="admin-video-player__src" title={resolvedSrc}>
+            {resolvedSrc}
           </p>
           {scriptPath ? (
             <p className="admin-video-player__src" title={scriptPath}>
