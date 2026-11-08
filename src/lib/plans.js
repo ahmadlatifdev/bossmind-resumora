@@ -11,10 +11,10 @@ export const PLAN_IDS = Object.freeze(['basic', 'balanced', 'professional', 'adv
 
 /** Verified Stripe Price IDs (live mode) — amount-matched to UI labels. */
 export const CANONICAL_STRIPE_PRICE_IDS = Object.freeze({
-  basic: 'price_1UYMmnCf0DJHGjuimJQfJAap', // $29
-  balanced: 'price_1UYNHlCf0DJHGjuirmgctnvo', // $49
-  professional: 'price_1UYPj0Cf0DJHGjuitexbW5Eu', // $79
-  advanced: 'price_1UYNVMCf0DJHGjuiTpbP547h', // $110
+  basic: 'price_1UWzcnKDmqaZUHNogqJyfWrH', // $29
+  balanced: 'price_1UWzcoKDmqaZUHNo9rXhTedQ', // $49
+  professional: 'price_1UWzcpKDmqaZUHNov1LULtQi', // $79
+  advanced: 'price_1UWzcpKDmqaZUHNoVE1Jm46M', // $110
 });
 
 /** UI aliases only — never send these to Stripe Checkout. */
@@ -25,12 +25,12 @@ export const PRICE_ALIASES = Object.freeze({
   price_110: 'advanced',
 });
 
-/** Verified Payment Links matching the same amounts (fallback if Checkout API is blocked). */
+/** Verified Live Payment Links matching the same amounts (fallback if Checkout API is blocked). */
 export const CANONICAL_STRIPE_PAYMENT_LINKS = Object.freeze({
-  basic: 'https://buy.stripe.com/test_28E3cv5XL9BFf1j0Ja0Fi0c',
-  balanced: 'https://buy.stripe.com/test_28E7sLbi5aFJ6uNbnO0Fi01',
-  professional: 'https://buy.stripe.com/test_cNiaEXeuh5lp8CVcrS0Fi08',
-  advanced: 'https://buy.stripe.com/test_3cIeVd99XaFJ4mFeA00Fi00',
+  basic: 'https://buy.stripe.com/8x2bJ2flT6ihaVM2aMg7e01',
+  balanced: 'https://buy.stripe.com/5kQeVegpXeON4xo9Deg7e02',
+  professional: 'https://buy.stripe.com/7sY28sgpXgWV2pg3eQg7e03',
+  advanced: 'https://buy.stripe.com/14AbJ27TreONe7Y5mYg7e04',
 });
 
 export const SERVICE_PLANS = Object.freeze([

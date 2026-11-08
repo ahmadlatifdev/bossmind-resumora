@@ -89,3 +89,11 @@ hermes-idea-queue/.env
 
 # Third-party video tools
 HeyGem.ai/
+
+# Generated pipeline media + Python cache (do not commit)
+pipeline/assets/
+pipeline/outputs/
+pipeline/scripts/__pycache__/
+__pycache__/
+*.pyc
+assets/vid-*/
