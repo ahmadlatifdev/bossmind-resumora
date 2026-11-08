@@ -144,6 +144,14 @@
         "function": "advanceCinematicJob"
       },
       {
+        "source": "/api/cinematic/export-zip",
+        "function": "exportManualAssemblyZip"
+      },
+      {
+        "source": "/api/cinematic/veed-render",
+        "function": "submitVeedRender"
+      },
+      {
         "source": "/api/service-event",
         "function": "recordServiceEventHttp"
       },
