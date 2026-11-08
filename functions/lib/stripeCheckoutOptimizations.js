@@ -43,7 +43,6 @@ function buildOptimizedCheckoutParams(base, opts = {}) {
   const params = {
     ...base,
     allow_promotion_codes: base.allow_promotion_codes ?? true,
-    payment_method_types: ['card', 'link'],
     automatic_tax: { enabled: true },
     payment_method_options: {
       card: { request_three_d_secure: 'automatic' },
