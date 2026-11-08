@@ -58,7 +58,16 @@ function registerStripeWebhook(exports) {
       }
 
       const result = enqueueStripeEvent(event, {
-        onProcess: async (evt) => processStripeEvent(evt, stripe),
+        onProcess: async (evt) => {
+          try {
+            await processStripeEvent(evt, stripe);
+          } catch (err) {
+            console.error(
+              '[stripeWebhook] unhandled processing error',
+              err && err.message ? err.message : err
+            );
+          }
+        },
       });
 
       res.status(200).json({

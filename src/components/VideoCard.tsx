@@ -11,16 +11,11 @@ export default function VideoCard({ video, uiLang }) {
   const description = localize(video.description, uiLang);
   const downloadName = `resumora-${video.id}-${videoLang}.mp4`;
 
-  // Episode 1 plays the uploaded cinematic master directly from Firebase Storage.
-  const EPISODE_1_URL =
-    'https://firebasestorage.googleapis.com/v0/b/resumora-live.firebasestorage.app/o/masters%2Finterview-series-v1%2Ffinal_interview.mp4?alt=media';
-  const isEpisode1 = video.id === 'vid-resume-to-interview';
-
   const rawSource = (video.sources && video.sources[videoLang]) || video.url || '';
   const isR2 = isR2Url(rawSource);
 
   useEffect(() => {
-    if (isEpisode1 || isR2) return;
+    if (isR2) return;
     let cancelled = false;
     setStreamUrl('');
     fetchVideoStreamUrl({ videoId: video.id, language: videoLang })
@@ -34,7 +29,7 @@ export default function VideoCard({ video, uiLang }) {
     return () => {
       cancelled = true;
     };
-  }, [video.id, videoLang, isEpisode1, isR2]);
+  }, [video.id, videoLang, isR2]);
 
   useEffect(() => {
     if (!isR2) {
@@ -54,7 +49,7 @@ export default function VideoCard({ video, uiLang }) {
     };
   }, [rawSource, isR2]);
 
-  const src = isEpisode1 ? EPISODE_1_URL : isR2 ? resolvedR2Url : streamUrl || '';
+  const src = isR2 ? resolvedR2Url : streamUrl || '';
 
   return (
     <article className="video-card">

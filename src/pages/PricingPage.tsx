@@ -255,7 +255,15 @@ function PricingInner() {
 }
 
 export default function PricingPage() {
-  const stripePromise = useMemo(() => getStripe().catch(() => null), []);
+  // Never let Stripe.js init crash the render tree (loadStripe can throw synchronously
+  // on a malformed publishable key). A null stripe degrades to the session-URL flow.
+  const stripePromise = useMemo(() => {
+    try {
+      return getStripe().catch(() => null);
+    } catch (_) {
+      return Promise.resolve(null);
+    }
+  }, []);
   return (
     <Elements stripe={stripePromise}>
       <PricingInner />

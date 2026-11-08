@@ -80,11 +80,11 @@ export default function VideosPage() {
         ))}
       </section>
 
-      <p className="muted small" style={{ marginTop: 20 }}>
-        {catalogMeta.bilibiliConfigured
-          ? tFormat(lang, 'videos.bilibiliConfigured', { source: catalogMeta.source })
-          : t(lang, 'videos.bilibiliNote')}
-      </p>
+      {catalogMeta.bilibiliConfigured ? (
+        <p className="muted small" style={{ marginTop: 20 }}>
+          {tFormat(lang, 'videos.bilibiliConfigured', { source: catalogMeta.source })}
+        </p>
+      ) : null}
     </div>
   );
 }

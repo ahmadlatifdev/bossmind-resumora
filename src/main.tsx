@@ -32,8 +32,54 @@ document.documentElement.style.colorScheme = 'dark';
 
 trackPageView();
 
+/** Fallback UI shown if any subtree throws during render (captured by Sentry). */
+function AppFallback({ resetError }: { resetError: () => void }) {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1rem',
+        padding: '2rem',
+        textAlign: 'center',
+        background: '#0a1a3a',
+        color: '#f9f5eb',
+        fontFamily: 'Montserrat, system-ui, sans-serif',
+      }}
+    >
+      <h1 style={{ margin: 0, fontSize: '1.5rem', letterSpacing: '0.06em' }}>
+        Something went wrong
+      </h1>
+      <p style={{ margin: 0, opacity: 0.85 }}>
+        We&apos;ve been notified. Please refresh the page, or try again.
+      </p>
+      <button
+        type="button"
+        onClick={resetError}
+        style={{
+          marginTop: '0.5rem',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '999px',
+          border: 0,
+          cursor: 'pointer',
+          fontWeight: 700,
+          background: 'linear-gradient(135deg, #d4af37, #f4e8c1)',
+          color: '#0a1a3a',
+        }}
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Sentry.ErrorBoundary fallback={({ resetError }) => <AppFallback resetError={resetError} />}>
+      <App />
+    </Sentry.ErrorBoundary>
   </StrictMode>
 );
