@@ -132,6 +132,18 @@
         "function": "processClientRefund"
       },
       {
+        "source": "/api/cinematic/trigger",
+        "function": "triggerCinematicJob"
+      },
+      {
+        "source": "/api/cinematic/heygen-webhook",
+        "function": "heyGenWebhook"
+      },
+      {
+        "source": "/api/cinematic/advance",
+        "function": "advanceCinematicJob"
+      },
+      {
         "source": "/api/service-event",
         "function": "recordServiceEventHttp"
       },

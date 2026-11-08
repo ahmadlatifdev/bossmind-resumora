@@ -1,0 +1,14 @@
+{
+  "name": "resumora-cloud-assembly",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^8.4.0",
+    "express": "^5.0.0"
+  }
+}

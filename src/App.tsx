@@ -11,6 +11,8 @@ import VideosPage from './pages/VideosPage';
 import VideoDemoPage from './pages/VideoDemoPage';
 import AccountPage from './pages/AccountPage';
 import InterviewSeriesPage from './pages/InterviewSeriesPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import { useLang } from './i18n/LangContext';
@@ -214,6 +216,8 @@ function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/video-demo" element={<VideoDemoPage />} />
           <Route path="/interview-series" element={<InterviewSeriesPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route
