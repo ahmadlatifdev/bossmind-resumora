@@ -53,6 +53,18 @@ export async function cancelSubscription(body = {}) {
   });
 }
 
+/**
+ * Client self-service refund for one-time payments.
+ * The backend resolves the payment source from the authenticated user's
+ * Firestore document — no payment id is sent from the client.
+ */
+export async function processClientRefund() {
+  return fetchBilling('/process-client-refund', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
 export async function listRefundHistory(params = {}) {
   const qs = new URLSearchParams();
   if (params.customerId) qs.set('customerId', params.customerId);

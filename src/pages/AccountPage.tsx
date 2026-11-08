@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useLangOptional } from '../i18n/LangContext';
 import { onAuthStateChanged } from 'firebase/auth';
 import { t, tFormat } from '../lib/i18n.js';
-import { getRefundPreview, cancelSubscription, listRefundHistory } from '../lib/billingApi.js';
+import { getRefundPreview, processClientRefund, listRefundHistory } from '../lib/billingApi.js';
 import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
 import { requestEmailVerification } from '../lib/authActions';
 import { fetchLuxuryPdfUrl, LUXURY_PDFS } from '../lib/luxuryPdf.js';
@@ -162,14 +162,14 @@ export default function AccountPage() {
     setBusy(true);
     setPreviewError('');
     try {
-      await cancelSubscription({
-        planId: plan?.id || 'basic',
-        email: user?.email,
-        totalPaidCents: plan?.priceCents || 2900,
-      });
+      await processClientRefund();
       setModalOpen(false);
       setToast({ type: 'success', text: t(lang, 'cancel.successToast') });
       await loadRefunds();
+      // Redirect to the homepage after a brief pause so the user sees the confirmation.
+      window.setTimeout(() => {
+        window.location.assign('/');
+      }, 1500);
     } catch (err) {
       setPreviewError(err.message || t(lang, 'cancel.error'));
       setToast({ type: 'error', text: err.message || t(lang, 'cancel.error') });
