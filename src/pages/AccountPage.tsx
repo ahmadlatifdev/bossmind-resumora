@@ -92,19 +92,58 @@ function CancelModal({ open, onClose, preview, loading, error, onConfirm, lang }
   );
 }
 
+function RefundModal({ open, onClose, loading, error, onConfirm, lang }) {
+  if (!open) return null;
+  return (
+    <div className="cancel-modal-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="cancel-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="refund-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="refund-modal-title">{t(lang, 'refund.requestButton')}</h2>
+        <p>{t(lang, 'refund.confirmWarning')}</p>
+        {error ? <p className="error-text">{error}</p> : null}
+        <div className="cancel-modal__actions">
+          <button type="button" className="btn-keep" onClick={onClose} disabled={loading}>
+            {t(lang, 'cancel.keepPlan')}
+          </button>
+          <button
+            type="button"
+            className="btn-confirm-cancel"
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? t(lang, 'refund.working') : t(lang, 'refund.confirm')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AccountPage() {
   const { lang } = useLangOptional();
-  const { user, loading: authLoading, subscriptionActive } = useAuth();
+  const { user, loading: authLoading, subscriptionActive, planId } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [preview, setPreview] = useState(null);
   const [previewError, setPreviewError] = useState('');
   const [busy, setBusy] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [refundBusy, setRefundBusy] = useState(false);
+  const [refundPending, setRefundPending] = useState(false);
+  const [refundError, setRefundError] = useState('');
   const [toast, setToast] = useState(null);
   const [refunds, setRefunds] = useState([]);
   const [verificationBusy, setVerificationBusy] = useState(false);
   const [emailVerified, setEmailVerified] = useState(user?.emailVerified ?? true);
   const plan = getPlanById(readSelectedPlan()) || getPlanById('basic');
+
+  const hasActivePaidPlan =
+    subscriptionActive && !!planId && !['free', 'none', 'Free', 'None'].includes(planId);
 
   const loadRefunds = useCallback(async () => {
     try {
@@ -175,6 +214,23 @@ export default function AccountPage() {
       setToast({ type: 'error', text: err.message || t(lang, 'cancel.error') });
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function requestRefund() {
+    setRefundBusy(true);
+    setRefundError('');
+    try {
+      await processClientRefund();
+      setRefundModalOpen(false);
+      setRefundPending(true);
+      setToast({ type: 'success', text: t(lang, 'refund.success') });
+      await loadRefunds();
+    } catch (err) {
+      setRefundError(err.message || t(lang, 'refund.error'));
+      setToast({ type: 'error', text: err.message || t(lang, 'refund.error') });
+    } finally {
+      setRefundBusy(false);
     }
   }
 
@@ -322,6 +378,16 @@ export default function AccountPage() {
         <button type="button" className="btn-cancel-plan" onClick={openCancelModal}>
           {t(lang, 'cancel.button')}
         </button>
+        {hasActivePaidPlan ? (
+          <button
+            type="button"
+            className="btn-cancel-plan"
+            onClick={() => setRefundModalOpen(true)}
+            disabled={refundPending}
+          >
+            {refundPending ? t(lang, 'refund.pendingButton') : t(lang, 'refund.requestButton')}
+          </button>
+        ) : null}
       </section>
 
       {subscriptionActive ? (
@@ -389,6 +455,15 @@ export default function AccountPage() {
         loading={busy}
         error={previewError}
         onConfirm={confirmCancel}
+        lang={lang}
+      />
+
+      <RefundModal
+        open={refundModalOpen}
+        onClose={() => !refundBusy && setRefundModalOpen(false)}
+        loading={refundBusy}
+        error={refundError}
+        onConfirm={requestRefund}
         lang={lang}
       />
 
