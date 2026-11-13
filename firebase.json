@@ -238,6 +238,10 @@
         "function": "ownerMasterConsole"
       },
       {
+        "source": "/api/orchestrator/catalog",
+        "function": "getOrchestratorCatalog"
+      },
+      {
         "source": "/api/admin/broc/**",
         "function": "brocMissionControl"
       },
