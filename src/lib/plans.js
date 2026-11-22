@@ -262,6 +262,7 @@ export const SERVICE_PLANS = Object.freeze([
       es: 'Videos de formación (EN/FR/ES), simulaciones y biblioteca de consejos descargable.',
     },
     badge: { en: 'Videos & tips', fr: 'Vidéos & conseils', es: 'Videos y consejos' },
+    comingSoon: { en: 'Coming Soon', fr: 'Bientôt disponible', es: 'Próximamente' },
     highlighted: false,
     features: {
       en: [

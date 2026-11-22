@@ -30,6 +30,7 @@ function PlanCard({ plan, lang, selected, busyPlanId, onSelect, onChoose }) {
   const name = localize(plan.name, lang);
   const features = localize(plan.features, lang);
   const badge = plan.badge ? localize(plan.badge, lang) : null;
+  const comingSoon = plan.comingSoon ? localize(plan.comingSoon, lang) : '';
   return (
     <article
       className={`plan-card pricing-plan${plan.highlighted ? ' plan-card--featured' : ''}${selected ? ' plan-card--selected active' : ''}`}
@@ -61,15 +62,16 @@ function PlanCard({ plan, lang, selected, busyPlanId, onSelect, onChoose }) {
         <button
           type="button"
           className="plan-cta"
-          disabled={Boolean(busyPlanId)}
-          aria-label={localize(plan.cta, lang)}
+          disabled={Boolean(busyPlanId) || Boolean(comingSoon)}
+          aria-label={comingSoon || localize(plan.cta, lang)}
           onClick={(event) => {
             event.stopPropagation();
+            if (comingSoon) return;
             onSelect(plan.stripePriceId);
             onChoose(plan.stripePriceId);
           }}
         >
-          {isBusy ? t(lang, 'pricing.redirecting') : localize(plan.cta, lang)}
+          {comingSoon || (isBusy ? t(lang, 'pricing.redirecting') : localize(plan.cta, lang))}
         </button>
       </div>
     </article>
@@ -81,6 +83,7 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
   const name = localize(plan.name, lang);
   const features = localize(plan.features, lang) || [];
   const rows = localize(plan.servicesBreakdown, lang) || [];
+  const comingSoon = plan.comingSoon ? localize(plan.comingSoon, lang) : '';
   return (
     <section
       className="plan-breakdown"
@@ -120,13 +123,15 @@ function ServiceBreakdown({ plan, lang, onCheckout, busy }) {
           type="button"
           className="primary"
           id="checkout-button-text"
-          disabled={busy}
+          disabled={busy || Boolean(comingSoon)}
           data-stripe-price-id={plan.stripePriceId}
           onClick={() => onCheckout(plan.stripePriceId)}
         >
-          {busy
-            ? t(lang, 'pricing.redirecting')
-            : `${t(lang, 'pricing.chooseCheckout')} (${plan.priceLabel})`}
+          {comingSoon
+            ? comingSoon
+            : busy
+              ? t(lang, 'pricing.redirecting')
+              : `${t(lang, 'pricing.chooseCheckout')} (${plan.priceLabel})`}
         </button>
         <a className="plan-secondary-link" href="/studio">
           {t(lang, 'pricing.continueStudio')}
@@ -172,6 +177,7 @@ function PricingInner() {
       setError(t(lang, 'home.selectPlanFirst'));
       return;
     }
+    if (plan.comingSoon) return;
     setError('');
     handleSelect(plan.id);
     setBusyPlanId(plan.id);

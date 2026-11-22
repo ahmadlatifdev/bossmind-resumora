@@ -2,6 +2,15 @@
 
 Newest entries at the top. AI reads only the last 5 on session start.
 
+## 2026-11-22 - Enterprise Pricing Card i18n Fixed & Deployed
+
+- Added `comingSoon` copy (EN/FR/ES) to the Enterprise ($110) plan in `src/lib/plans.js`
+- `PricingPage` now disables the Enterprise plan CTA and breakdown checkout, and blocks checkout start
+- Added `home.entFeature1..6`, `home.comingSoonBtn`, `pricing.kicker`, `pricing.sub`, `pricing.advisory` to en/fr/es
+- `npm run build` passed
+- Deployed hosting via `node scripts/deploy-hosting-api.mjs` (Firebase CLI token expired; gcloud token used)
+- Release: 1795364042104000 — live at https://client-resumora-live.web.app
+
 ## 2026-09-12 - Harness Deployed, Awaiting First Test
 
 - Phases A, B, C, D, and E are all complete and committed.

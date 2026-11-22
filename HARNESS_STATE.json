@@ -23,13 +23,16 @@
     "Pipeline config tracked: lifecycle.json + transcode-template.json (commit 6cc1f48)",
     "Eventarc autoTranscodeVideo trigger abandoned - replaced by manual script",
     "HLS demo live at https://client-resumora-live.web.app/video-demo - verified 200 OK with 1080p/720p/480p adaptive streaming",
-    "Interview Series page live at https://client-resumora-live.web.app/interview-series with 4 audio modules in EN/FR/ES"
+    "Interview Series page live at https://client-resumora-live.web.app/interview-series with 4 audio modules in EN/FR/ES",
+    "Enterprise pricing card i18n fixed: home.entFeature1-6, home.comingSoonBtn, pricing.kicker/sub/advisory added to EN/FR/ES (2026-11-22)",
+    "Hosting deployed 2026-11-22 via gcloud REST script; release 1795364042104000 live on client-resumora-live"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
     "Auto-heal loop blinks infinitely when score is below 100",
     "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy",
-    "Gemini response does not populate the reply field"
+    "Gemini response does not populate the reply field",
+    "Firebase CLI login expired — use node scripts/deploy-hosting-api.mjs (gcloud auth) for hosting deploys"
   ],
   "next_action": "Watch traffic on /interview-series for 2-4 weeks. If demand exists, pay for D-ID and produce avatar videos.",
   "must_not_redo": [
