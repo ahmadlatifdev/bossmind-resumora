@@ -9,7 +9,8 @@ Newest entries at the top. AI reads only the last 5 on session start.
 - Added `home.entFeature1..6`, `home.comingSoonBtn`, `pricing.kicker`, `pricing.sub`, `pricing.advisory` to en/fr/es
 - `npm run build` passed
 - Deployed hosting via `node scripts/deploy-hosting-api.mjs` (Firebase CLI token expired; gcloud token used)
-- Release: 1795364042104000 — live at https://client-resumora-live.web.app
+- First deploy used a stale local snapshot; corrected by rebuilding from `origin/main` (which had 22 newer commits)
+- Final release: 1795364338371000 — live at https://client-resumora-live.web.app
 
 ## 2026-09-12 - Harness Deployed, Awaiting First Test
 

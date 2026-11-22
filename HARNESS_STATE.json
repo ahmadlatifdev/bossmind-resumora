@@ -25,7 +25,8 @@
     "HLS demo live at https://client-resumora-live.web.app/video-demo - verified 200 OK with 1080p/720p/480p adaptive streaming",
     "Interview Series page live at https://client-resumora-live.web.app/interview-series with 4 audio modules in EN/FR/ES",
     "Enterprise pricing card i18n fixed: home.entFeature1-6, home.comingSoonBtn, pricing.kicker/sub/advisory added to EN/FR/ES (2026-11-22)",
-    "Hosting deployed 2026-11-22 via gcloud REST script; release 1795364042104000 live on client-resumora-live"
+    "Hosting deployed 2026-11-22 from origin/main + pricing fix; final release 1795364338371000 live on client-resumora-live",
+    "Local working tree is a stale snapshot missing upstream files — build/deploy from origin/main, not the dirty tree"
   ],
   "known_bugs": [
     "Health score displays mismatched values (100% vs 80% vs 40%)",
