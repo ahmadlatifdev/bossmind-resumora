@@ -87,6 +87,33 @@ async function postFacebook(text) {
   return data.id || null;
 }
 
+// TikTok requires a video asset + an OAuth access token. The client key/secret
+// are stored in Secret Manager (TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET) for the
+// OAuth flow; posting needs TIKTOK_ACCESS_TOKEN + TIKTOK_VIDEO_URL (text-only is
+// not supported by TikTok).
+async function postTikTok(caption) {
+  const accessToken = env('TIKTOK_ACCESS_TOKEN');
+  const videoUrl = env('TIKTOK_VIDEO_URL');
+  if (!accessToken || !videoUrl) {
+    log('tiktok', false, 'missing access token or video url');
+    return null;
+  }
+  const res = await fetch('https://open.tiktokapis.com/v2/post/publish/video/init/', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      post_info: { title: caption.slice(0, 2200), privacy_level: 'PUBLIC_TO_EVERYONE' },
+      source_info: { source: 'PULL_FROM_URL', video_url: videoUrl },
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`TikTok ${res.status}: ${JSON.stringify(data).slice(0, 300)}`);
+  return (data && data.data && data.data.publish_id) || null;
+}
+
 const MESSAGES = {
   twitter: {
     en:
@@ -121,6 +148,17 @@ const MESSAGES = {
       'Consigue m\u00e1s entrevistas con Resumora \u2728\n\nCV + carta optimizados con IA, videos de entrevista y plantillas PDF premium \u2014 un solo pago, sin cuotas mensuales.\n\nEmpieza en ' +
       BRAND_URL,
   },
+  tiktok: {
+    en:
+      'Beat the ATS & ace interviews with Resumora \u2728\nAI resume + interview videos, one-time payment.\n#resume #interview #jobsearch ' +
+      BRAND_URL,
+    fr:
+      'Bat l\u2019ATS & r\u00e9ussis tes entretiens avec Resumora \u2728\nCV IA + vid\u00e9os d\u2019entretien, paiement unique.\n#cv #entretien #emploi ' +
+      BRAND_URL,
+    es:
+      'Supera el ATS & triunfa en entrevistas con Resumora \u2728\nCV IA + videos de entrevista, pago \u00fanico.\n#cv #entrevista #empleo ' +
+      BRAND_URL,
+  },
 };
 
 exports.weeklySocialBlast = onSchedule(
@@ -137,6 +175,7 @@ exports.weeklySocialBlast = onSchedule(
       ['twitter', postTwitter],
       ['linkedin', postLinkedIn],
       ['facebook', postFacebook],
+      ['tiktok', postTikTok],
     ];
     const results = {};
     for (const [channel, fn] of CHANNELS) {
