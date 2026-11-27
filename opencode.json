@@ -7,7 +7,7 @@
     { "action": "shell", "resource": "rm *", "effect": "deny" },
     { "action": "shell", "resource": "git push --force *", "effect": "deny" },
     { "action": "shell", "resource": "kubectl delete *", "effect": "deny" },
-    { "action": "edit", "resource": "*", "effect": "deny" },
+    { "action": "edit", "resource": "*", "effect": "allow" },
     { "action": "edit", "resource": "src/**", "effect": "ask" },
     { "action": "edit", "resource": "tests/**", "effect": "allow" },
     { "action": "edit", "resource": "infra/**", "effect": "deny" },
