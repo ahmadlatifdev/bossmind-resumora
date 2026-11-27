@@ -140,6 +140,38 @@ async function isSubscriptionActive(uid) {
   return false;
 }
 
+// Resolve the paid plan id (canonical: basic/balanced/professional/advanced).
+async function getPlanId(uid) {
+  if (!uid) return '';
+  try {
+    const snap = await db.collection('users').doc(String(uid)).get();
+    if (!snap.exists) return '';
+    return String((snap.data() || {}).planId || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+// Per-tier video download limits (mirrors src/lib/plans.js TIER_LIMITS).
+const TIER_MAX_DOWNLOADS = {
+  basic: 3,
+  balanced: 5,
+  professional: 9999,
+  advanced: 5,
+};
+
+async function getMaxDownloads(uid) {
+  const planId = await getPlanId(uid);
+  return TIER_MAX_DOWNLOADS[planId] !== undefined ? TIER_MAX_DOWNLOADS[planId] : 5;
+}
+
+// Luxury PDFs are a Pro/Business entitlement (Basic is excluded).
+async function hasLuxuryPdfAccess(uid) {
+  if (!(await isSubscriptionActive(uid))) return false;
+  const planId = await getPlanId(uid);
+  return planId === 'balanced' || planId === 'professional' || planId === 'advanced';
+}
+
 function seriesObjectPath(videoId, lang) {
   // Episode 1 plays the single stitched cinematic master (final_interview.mp4),
   // not the per-language 01-resume-to-interview-<lang>.mp4 files.
@@ -372,9 +404,11 @@ exports.videoDownload = onRequest(
         res.status(403).json({ error: 'Active subscription required' });
         return;
       }
+      const maxDownloads = await getMaxDownloads(decoded.uid);
       const result = await videoCatalog.recordDownload({
         ...parseBody(req),
         userId: decoded.uid,
+        maxDownloads,
       });
       res.status(result.ok ? 200 : 403).json(result);
     } catch (err) {
@@ -534,9 +568,9 @@ exports.getLuxuryPdfUrl = onRequest(
         res.status(401).json({ error: 'Authentication required' });
         return;
       }
-      const active = await isSubscriptionActive(decoded.uid);
-      if (!active) {
-        res.status(403).json({ error: 'Active subscription required' });
+      const hasPdfs = await hasLuxuryPdfAccess(decoded.uid);
+      if (!hasPdfs) {
+        res.status(403).json({ error: 'Pro or Business plan required for Luxury PDFs' });
         return;
       }
       const body = parseBody(req);

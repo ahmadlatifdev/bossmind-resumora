@@ -4,7 +4,7 @@ import { useLangOptional } from '../i18n/LangContext';
 import { onAuthStateChanged } from 'firebase/auth';
 import { t, tFormat } from '../lib/i18n.js';
 import { getRefundPreview, processClientRefund, listRefundHistory } from '../lib/billingApi.js';
-import { readSelectedPlan, getPlanById, localize } from '../lib/plans.js';
+import { readSelectedPlan, getPlanById, localize, getTierLimits } from '../lib/plans.js';
 import { requestEmailVerification } from '../lib/authActions';
 import { fetchLuxuryPdfUrl, LUXURY_PDFS } from '../lib/luxuryPdf.js';
 import { auth } from '../lib/firebase';
@@ -145,6 +145,9 @@ export default function AccountPage() {
   const hasActivePaidPlan =
     subscriptionActive && !!planId && !['free', 'none', 'Free', 'None'].includes(planId);
 
+  const tierLimits = getTierLimits(planId);
+  const hasLuxuryPdfs = subscriptionActive && tierLimits.hasLuxuryPdfs;
+
   const loadRefunds = useCallback(async () => {
     try {
       const data = await listRefundHistory();
@@ -271,7 +274,7 @@ export default function AccountPage() {
   }
 
   async function downloadLuxuryPdf(fileName) {
-    if (!subscriptionActive || pdfBusy) return;
+    if (!hasLuxuryPdfs || pdfBusy) return;
     setPdfBusy(true);
     try {
       const data = await fetchLuxuryPdfUrl(fileName);
@@ -390,7 +393,7 @@ export default function AccountPage() {
         ) : null}
       </section>
 
-      {subscriptionActive ? (
+      {hasLuxuryPdfs ? (
         <section className="account-card">
           <h2>Luxury PDFs</h2>
           <p className="muted">Download your premium branded templates and career guides.</p>

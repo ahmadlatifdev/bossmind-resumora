@@ -307,7 +307,8 @@ exports.recordDownload = async function recordDownload(body = {}) {
   }
 
   const db = getFirestore();
-  const MAX = 5;
+  const maxDownloads = Number(body.maxDownloads);
+  const MAX = Number.isFinite(maxDownloads) && maxDownloads > 0 ? maxDownloads : 5;
   const existing = await db
     .collection('user_downloads')
     .where('user_id', '==', userId)

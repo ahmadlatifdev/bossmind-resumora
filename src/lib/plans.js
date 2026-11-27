@@ -43,9 +43,9 @@ export const SERVICE_PLANS = Object.freeze([
     stripePaymentLink: CANONICAL_STRIPE_PAYMENT_LINKS.basic,
     intervalLabel: { en: 'One-time', fr: 'Paiement unique', es: 'Pago único' },
     blurb: {
-      en: 'Resume Studio, Video Library (4 interview masterclasses), and Luxury PDF templates.',
-      fr: 'Studio CV, bibliothèque vidéo (4 masterclass entretien) et modèles PDF premium.',
-      es: 'Estudio de CV, biblioteca de videos (4 masterclass) y plantillas PDF premium.',
+      en: 'Resume Studio, Video Library (4 masterclasses), and 3 video downloads.',
+      fr: 'Studio CV, bibliothèque vidéo (4 masterclass) et 3 téléchargements vidéo.',
+      es: 'Estudio de CV, biblioteca de videos (4 masterclass) y 3 descargas de video.',
     },
     badge: null,
     highlighted: false,
@@ -53,22 +53,19 @@ export const SERVICE_PLANS = Object.freeze([
       en: [
         'Resume Studio — structured resume draft',
         'Video Library — 4 interview masterclasses',
-        'Up to 5 video downloads',
-        'Luxury PDF templates & career guides',
+        '3 video downloads',
         'EN / FR / ES delivery',
       ],
       fr: [
         'Studio CV — brouillon de CV structuré',
         'Bibliothèque vidéo — 4 masterclass entretien',
-        "Jusqu'à 5 téléchargements vidéo",
-        'Modèles PDF premium et guides carrière',
+        '3 téléchargements vidéo',
         'Livraison EN / FR / ES',
       ],
       es: [
         'Estudio de CV — borrador de CV estructurado',
         'Biblioteca de videos — 4 masterclass de entrevista',
-        'Hasta 5 descargas de video',
-        'Plantillas PDF premium y guías de carrera',
+        '3 descargas de video',
         'Entrega EN / FR / ES',
       ],
     },
@@ -79,8 +76,7 @@ export const SERVICE_PLANS = Object.freeze([
           detail: 'Upload or paste your resume to get a structured draft.',
         },
         { title: 'Video Library', detail: '4 interview-series masterclasses in EN / FR / ES.' },
-        { title: 'Downloads', detail: 'Up to 5 video downloads.' },
-        { title: 'Luxury PDFs', detail: 'Premium templates and career guides.' },
+        { title: 'Downloads', detail: '3 video downloads.' },
       ],
       fr: [
         {
@@ -88,8 +84,7 @@ export const SERVICE_PLANS = Object.freeze([
           detail: 'Téléversez ou collez votre CV pour obtenir un brouillon structuré.',
         },
         { title: 'Bibliothèque vidéo', detail: '4 masterclass entretien en EN / FR / ES.' },
-        { title: 'Téléchargements', detail: "Jusqu'à 5 téléchargements vidéo." },
-        { title: 'PDF premium', detail: 'Modèles premium et guides carrière.' },
+        { title: 'Téléchargements', detail: '3 téléchargements vidéo.' },
       ],
       es: [
         {
@@ -97,8 +92,7 @@ export const SERVICE_PLANS = Object.freeze([
           detail: 'Sube o pega tu CV para obtener un borrador estructurado.',
         },
         { title: 'Biblioteca de videos', detail: '4 masterclass de entrevista en EN / FR / ES.' },
-        { title: 'Descargas', detail: 'Hasta 5 descargas de video.' },
-        { title: 'PDF premium', detail: 'Plantillas premium y guías de carrera.' },
+        { title: 'Descargas', detail: '3 descargas de video.' },
       ],
     },
     cta: { en: 'Start Building', fr: 'Commencer maintenant', es: 'Empezar ahora' },
@@ -118,61 +112,48 @@ export const SERVICE_PLANS = Object.freeze([
     stripePaymentLink: CANONICAL_STRIPE_PAYMENT_LINKS.balanced,
     intervalLabel: { en: 'One-time', fr: 'Paiement unique', es: 'Pago único' },
     blurb: {
-      en: 'Resume Studio, Video Library (4 interview masterclasses), and Luxury PDF templates.',
-      fr: 'Studio CV, bibliothèque vidéo (4 masterclass entretien) et modèles PDF premium.',
-      es: 'Estudio de CV, biblioteca de videos (4 masterclass) y plantillas PDF premium.',
+      en: 'Everything in Basic, plus 5 downloads and Luxury PDF templates.',
+      fr: 'Tout le plan Basic, plus 5 téléchargements et modèles PDF premium.',
+      es: 'Todo el plan Básico, más 5 descargas y plantillas PDF premium.',
     },
     badge: { en: 'Most Popular', fr: 'Le plus populaire', es: 'Más popular' },
     highlighted: true,
     features: {
-      en: [
-        'Resume Studio — structured resume draft',
-        'Video Library — 4 interview masterclasses',
-        'Up to 5 video downloads',
-        'Luxury PDF templates & career guides',
-        'EN / FR / ES delivery',
-      ],
+      en: ['Everything in Basic', '5 video downloads', 'Luxury PDF templates & career guides'],
       fr: [
-        'Studio CV — brouillon de CV structuré',
-        'Bibliothèque vidéo — 4 masterclass entretien',
-        "Jusqu'à 5 téléchargements vidéo",
+        'Tout le plan Basic',
+        '5 téléchargements vidéo',
         'Modèles PDF premium et guides carrière',
-        'Livraison EN / FR / ES',
       ],
       es: [
-        'Estudio de CV — borrador de CV estructurado',
-        'Biblioteca de videos — 4 masterclass de entrevista',
-        'Hasta 5 descargas de video',
+        'Todo el plan Básico',
+        '5 descargas de video',
         'Plantillas PDF premium y guías de carrera',
-        'Entrega EN / FR / ES',
       ],
     },
     servicesBreakdown: {
       en: [
         {
-          title: 'Resume Studio',
-          detail: 'Upload or paste your resume to get a structured draft.',
+          title: 'Everything in Basic',
+          detail: 'Resume Studio + Video Library (4 masterclasses).',
         },
-        { title: 'Video Library', detail: '4 interview-series masterclasses in EN / FR / ES.' },
-        { title: 'Downloads', detail: 'Up to 5 video downloads.' },
+        { title: 'Downloads', detail: '5 video downloads.' },
         { title: 'Luxury PDFs', detail: 'Premium templates and career guides.' },
       ],
       fr: [
         {
-          title: 'Studio CV',
-          detail: 'Téléversez ou collez votre CV pour obtenir un brouillon structuré.',
+          title: 'Tout le plan Basic',
+          detail: 'Studio CV + bibliothèque vidéo (4 masterclass).',
         },
-        { title: 'Bibliothèque vidéo', detail: '4 masterclass entretien en EN / FR / ES.' },
-        { title: 'Téléchargements', detail: "Jusqu'à 5 téléchargements vidéo." },
+        { title: 'Téléchargements', detail: '5 téléchargements vidéo.' },
         { title: 'PDF premium', detail: 'Modèles premium et guides carrière.' },
       ],
       es: [
         {
-          title: 'Estudio de CV',
-          detail: 'Sube o pega tu CV para obtener un borrador estructurado.',
+          title: 'Todo el plan Básico',
+          detail: 'Estudio de CV + biblioteca de videos (4 masterclass).',
         },
-        { title: 'Biblioteca de videos', detail: '4 masterclass de entrevista en EN / FR / ES.' },
-        { title: 'Descargas', detail: 'Hasta 5 descargas de video.' },
+        { title: 'Descargas', detail: '5 descargas de video.' },
         { title: 'PDF premium', detail: 'Plantillas premium y guías de carrera.' },
       ],
     },
@@ -192,62 +173,50 @@ export const SERVICE_PLANS = Object.freeze([
     stripePaymentLink: CANONICAL_STRIPE_PAYMENT_LINKS.professional,
     intervalLabel: { en: 'One-time', fr: 'Paiement unique', es: 'Pago único' },
     blurb: {
-      en: 'Resume Studio, Video Library (4 interview masterclasses), and Luxury PDF templates.',
-      fr: 'Studio CV, bibliothèque vidéo (4 masterclass entretien) et modèles PDF premium.',
-      es: 'Estudio de CV, biblioteca de videos (4 masterclass) y plantillas PDF premium.',
+      en: 'Everything in Pro, plus unlimited downloads.',
+      fr: 'Tout le plan Pro, plus des téléchargements illimités.',
+      es: 'Todo el plan Pro, más descargas ilimitadas.',
     },
     badge: null,
     highlighted: false,
     features: {
       en: [
-        'Resume Studio — structured resume draft',
-        'Video Library — 4 interview masterclasses',
-        'Up to 5 video downloads',
+        'Everything in Pro',
+        'Unlimited video downloads',
         'Luxury PDF templates & career guides',
-        'EN / FR / ES delivery',
       ],
       fr: [
-        'Studio CV — brouillon de CV structuré',
-        'Bibliothèque vidéo — 4 masterclass entretien',
-        "Jusqu'à 5 téléchargements vidéo",
+        'Tout le plan Pro',
+        'Téléchargements vidéo illimités',
         'Modèles PDF premium et guides carrière',
-        'Livraison EN / FR / ES',
       ],
       es: [
-        'Estudio de CV — borrador de CV estructurado',
-        'Biblioteca de videos — 4 masterclass de entrevista',
-        'Hasta 5 descargas de video',
+        'Todo el plan Pro',
+        'Descargas de video ilimitadas',
         'Plantillas PDF premium y guías de carrera',
-        'Entrega EN / FR / ES',
       ],
     },
     servicesBreakdown: {
       en: [
         {
-          title: 'Resume Studio',
-          detail: 'Upload or paste your resume to get a structured draft.',
+          title: 'Everything in Pro',
+          detail: 'Resume Studio + Video Library (4 masterclasses) + Luxury PDFs.',
         },
-        { title: 'Video Library', detail: '4 interview-series masterclasses in EN / FR / ES.' },
-        { title: 'Downloads', detail: 'Up to 5 video downloads.' },
-        { title: 'Luxury PDFs', detail: 'Premium templates and career guides.' },
+        { title: 'Downloads', detail: 'Unlimited video downloads.' },
       ],
       fr: [
         {
-          title: 'Studio CV',
-          detail: 'Téléversez ou collez votre CV pour obtenir un brouillon structuré.',
+          title: 'Tout le plan Pro',
+          detail: 'Studio CV + bibliothèque vidéo (4 masterclass) + PDF premium.',
         },
-        { title: 'Bibliothèque vidéo', detail: '4 masterclass entretien en EN / FR / ES.' },
-        { title: 'Téléchargements', detail: "Jusqu'à 5 téléchargements vidéo." },
-        { title: 'PDF premium', detail: 'Modèles premium et guides carrière.' },
+        { title: 'Téléchargements', detail: 'Téléchargements vidéo illimités.' },
       ],
       es: [
         {
-          title: 'Estudio de CV',
-          detail: 'Sube o pega tu CV para obtener un borrador estructurado.',
+          title: 'Todo el plan Pro',
+          detail: 'Estudio de CV + biblioteca de videos (4 masterclass) + PDF premium.',
         },
-        { title: 'Biblioteca de videos', detail: '4 masterclass de entrevista en EN / FR / ES.' },
-        { title: 'Descargas', detail: 'Hasta 5 descargas de video.' },
-        { title: 'PDF premium', detail: 'Plantillas premium y guías de carrera.' },
+        { title: 'Descargas', detail: 'Descargas de video ilimitadas.' },
       ],
     },
     cta: {
@@ -387,6 +356,23 @@ export function getStripePaymentLinkForPlan(planId) {
 export function getExpectedCentsForPlan(planId) {
   const plan = SERVICE_PLANS.find((p) => p.id === planId);
   return plan ? plan.priceCents : 0;
+}
+
+// Per-tier delivery limits — Basic / Pro / Business deliver different amounts.
+// `advanced` (Enterprise) is Coming Soon; its limits mirror Pro until launch.
+export const TIER_LIMITS = Object.freeze({
+  basic: { maxDownloads: 3, hasLuxuryPdfs: false },
+  balanced: { maxDownloads: 5, hasLuxuryPdfs: true },
+  professional: { maxDownloads: Infinity, hasLuxuryPdfs: true },
+  advanced: { maxDownloads: 5, hasLuxuryPdfs: true },
+});
+
+export function getTierLimits(planId) {
+  return TIER_LIMITS[planId] || TIER_LIMITS.basic;
+}
+
+export function getMaxDownloads(planId) {
+  return getTierLimits(planId).maxDownloads;
 }
 
 export function getStripePublishableKey() {
