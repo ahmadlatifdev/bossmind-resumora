@@ -140,7 +140,7 @@ export default function AccountPage() {
   const [refunds, setRefunds] = useState([]);
   const [verificationBusy, setVerificationBusy] = useState(false);
   const [emailVerified, setEmailVerified] = useState(user?.emailVerified ?? true);
-  const plan = getPlanById(readSelectedPlan()) || getPlanById('basic');
+  const plan = getPlanById(planId) || getPlanById(readSelectedPlan()) || getPlanById('basic');
 
   const hasActivePaidPlan =
     subscriptionActive && !!planId && !['free', 'none', 'Free', 'None'].includes(planId);
