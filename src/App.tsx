@@ -71,6 +71,10 @@ function HomePage() {
       alert(t(lang, 'home.selectPlanFirst'));
       return;
     }
+    if (!user) {
+      window.location.href = `/login?from=${encodeURIComponent('/')}`;
+      return;
+    }
     console.log(
       'Sandbox checkout: if asked for a confirmation code, type `000000` to continue testing. Real emails/SMS apply in live mode.'
     );

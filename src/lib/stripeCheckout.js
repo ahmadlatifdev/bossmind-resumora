@@ -37,6 +37,14 @@ export async function startStripeCheckoutForPlan(planId) {
     throw new Error(`Unknown plan: ${planId}`);
   }
 
+  // Require sign-in BEFORE checkout: the webhook attaches the purchase to the
+  // Firebase UID via client_reference_id. An anonymous buyer would be charged
+  // with no entitlement, so redirect them to sign in first.
+  if (!auth.currentUser) {
+    window.location.assign(`/login?from=${encodeURIComponent('/pricing')}`);
+    throw new Error('Please sign in to continue to checkout.');
+  }
+
   const priceId = getStripePriceIdForPlan(planId);
   const expectedCents = getExpectedCentsForPlan(planId);
   const origin = window.location.origin;
