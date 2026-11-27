@@ -1,5 +1,5 @@
 {
-  "current_task": "Free training series live - monitoring demand",
+  "current_task": "Monetization live + AI/agent optimized; pending CI functions deploy + Vertex billing",
   "status": "published",
   "verified_facts": [
     "Health Score Diagnostic deployed to https://client-resumora-live.web.app",
@@ -29,13 +29,10 @@
     "Local working tree is a stale snapshot missing upstream files — build/deploy from origin/main, not the dirty tree"
   ],
   "known_bugs": [
-    "Health score displays mismatched values (100% vs 80% vs 40%)",
-    "Auto-heal loop blinks infinitely when score is below 100",
-    "GitHub Actions FIREBASE_SERVICE_ACCOUNT secret blocked by org policy",
-    "Gemini response does not populate the reply field",
+    "Gemini free-tier API key hits 429 quota — needs Vertex billing OR paid Gemini key (aiplatform API now enabled)",
     "Firebase CLI login expired — use node scripts/deploy-hosting-api.mjs (gcloud auth) for hosting deploys"
   ],
-  "next_action": "Watch traffic on /interview-series for 2-4 weeks. If demand exists, pay for D-ID and produce avatar videos.",
+  "next_action": "Approve CI production gate (14 VITE_* secrets now set) + enable Vertex billing/paid key to unblock AI. Functions deploy (model upgrade + harness fix + HeyGen removal) goes live on CI.",
   "must_not_redo": [
     "Do not re-create the 4 health score files — they exist and are deployed",
     "Do not re-run firebase deploy until state bug is fixed",

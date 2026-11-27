@@ -2,6 +2,15 @@
 
 Newest entries at the top. AI reads only the last 5 on session start.
 
+## 2026-11-27 - Monetization Live + AI/Agent Optimization + CI/Vertex Unblocked
+
+- Monetization: Stripe checkout live (sign-in gated), social links wired, tier differentiation (Basic 3 dl / Pro 5 dl + PDFs / Business unlimited + PDFs)
+- _*14 VITE_* GitHub CI secrets set_* via gh CLI (unblocks CI build: publishable key, Firebase, social) — previously the CI was missing them
+- **Vertex AI: aiplatform.googleapis.com enabled** (project now has 81 enabled services)
+- AI/agent optimization (commit 3c67c0b): Gemini 2.5-flash upgrade, harness reply-field fix, self-heal loop fix, legacy HeyGen/Veed removed (-637 lines)
+- Score band labels aligned (commit 9584c14)
+- Remaining (owner actions): approve CI "production" gate + enable Vertex billing OR paid Gemini key (free-tier key is 429-quota-blocked)
+
 ## 2026-11-22 - Enterprise Pricing Card i18n Fixed & Deployed
 
 - Added `comingSoon` copy (EN/FR/ES) to the Enterprise ($110) plan in `src/lib/plans.js`
