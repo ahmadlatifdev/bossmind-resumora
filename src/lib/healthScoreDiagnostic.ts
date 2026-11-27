@@ -51,7 +51,7 @@ export type HealthScoreInput = {
   } | null;
 };
 
-export type ScoreBand = 'critical' | 'degraded' | 'watch' | 'healthy' | 'unknown';
+export type ScoreBand = 'critical' | 'impaired' | 'degraded' | 'healthy' | 'unknown';
 
 export type DiagnosticCategory = {
   id: string;
@@ -85,8 +85,8 @@ export function scoreBand(score?: number | null): ScoreBand {
   if (score == null || Number.isNaN(Number(score))) return 'unknown';
   const n = Number(score);
   if (n >= 90) return 'healthy';
-  if (n >= 70) return 'watch';
-  if (n >= 40) return 'degraded';
+  if (n >= 70) return 'degraded';
+  if (n >= 40) return 'impaired';
   return 'critical';
 }
 
@@ -94,10 +94,10 @@ export function scoreBandLabel(band: ScoreBand): string {
   switch (band) {
     case 'healthy':
       return 'Healthy';
-    case 'watch':
-      return 'Watch';
     case 'degraded':
       return 'Degraded';
+    case 'impaired':
+      return 'Impaired';
     case 'critical':
       return 'Critical';
     default:
@@ -108,8 +108,8 @@ export function scoreBandLabel(band: ScoreBand): string {
 export function scoreColor(score?: number | null): string {
   const band = scoreBand(score);
   if (band === 'healthy') return '#3dd68c';
-  if (band === 'watch') return '#d4af37';
-  if (band === 'degraded') return '#f0a060';
+  if (band === 'degraded') return '#d4af37';
+  if (band === 'impaired') return '#f0a060';
   if (band === 'critical') return '#ff6b6b';
   return '#a89860';
 }
@@ -143,7 +143,7 @@ function buildCategories(input: HealthScoreInput): DiagnosticCategory[] {
       status:
         scoreBand(input.score) === 'healthy'
           ? 'ok'
-          : scoreBand(input.score) === 'watch'
+          : scoreBand(input.score) === 'degraded'
             ? 'warn'
             : scoreBand(input.score) === 'unknown'
               ? 'warn'
