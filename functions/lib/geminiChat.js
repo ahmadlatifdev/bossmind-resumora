@@ -41,7 +41,7 @@ function modelName() {
     process.env.GEMINI_CHAT_MODEL ||
     process.env.GEMINI_MODEL ||
     process.env.VERTEX_GEMINI_MODEL ||
-    'gemini-2.0-flash'
+    'gemini-2.5-flash'
   );
 }
 

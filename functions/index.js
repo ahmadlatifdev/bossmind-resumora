@@ -670,9 +670,6 @@ registerStripeWebhook(exports);
 const { registerBillingEndpoints } = require('./billingEndpoints');
 registerBillingEndpoints(exports);
 
-const { registerCinematicEndpoints } = require('./cinematicEndpoints');
-registerCinematicEndpoints(exports);
-
 Object.assign(exports, require('./socialBlast'));
 
 const { getAuth } = require('firebase-admin/auth');

@@ -132,26 +132,6 @@
         "function": "processClientRefund"
       },
       {
-        "source": "/api/cinematic/trigger",
-        "function": "triggerCinematicJob"
-      },
-      {
-        "source": "/api/cinematic/heygen-webhook",
-        "function": "heyGenWebhook"
-      },
-      {
-        "source": "/api/cinematic/advance",
-        "function": "advanceCinematicJob"
-      },
-      {
-        "source": "/api/cinematic/export-zip",
-        "function": "exportManualAssemblyZip"
-      },
-      {
-        "source": "/api/cinematic/veed-render",
-        "function": "submitVeedRender"
-      },
-      {
         "source": "/api/service-event",
         "function": "recordServiceEventHttp"
       },

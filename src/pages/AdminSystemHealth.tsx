@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import HealthScoreDiagnostic from '../components/HealthScoreDiagnostic';
 import { t } from '../lib/i18n.js';
 import '../app-shell.css';
@@ -213,13 +213,26 @@ export default function AdminSystemHealthPage() {
   }, [password, lang, load]);
 
   // Hands-free: heal immediately on unlock, then every 10s until score is 100.
+  // Refs keep the interval stable (no "blink" re-render on score changes) and cap
+  // the number of auto-heal cycles so a stuck sub-100 score can't loop forever.
+  const healthRef = useRef(health);
+  healthRef.current = health;
+  const runningRef = useRef(running);
+  runningRef.current = running;
+  const loadingRef = useRef(loading);
+  loadingRef.current = loading;
+  const cyclesRef = useRef(0);
+
   useEffect(() => {
     if (!unlocked || !password) return undefined;
     let cancelled = false;
     const tick = async () => {
-      if (cancelled || running || loading) return;
-      const score = Number(health?.score);
-      if (Number.isFinite(score) && score >= 100 && health?.lastGuardian?.passed) return;
+      if (cancelled || runningRef.current || loadingRef.current) return;
+      const score = Number(healthRef.current?.score);
+      const passed = healthRef.current?.lastGuardian?.passed;
+      if (Number.isFinite(score) && score >= 100 && passed) return;
+      if (cyclesRef.current >= 30) return; // stop after ~5 min (30 × 10s)
+      cyclesRef.current += 1;
       try {
         await runCycle();
       } catch {
@@ -234,16 +247,7 @@ export default function AdminSystemHealthPage() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [
-    unlocked,
-    password,
-    health?.score,
-    health?.lastGuardian?.passed,
-    running,
-    loading,
-    load,
-    runCycle,
-  ]);
+  }, [unlocked, password, load, runCycle]);
 
   async function onUnlock(e: FormEvent) {
     e.preventDefault();

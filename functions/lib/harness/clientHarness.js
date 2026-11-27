@@ -30,7 +30,7 @@ async function callGemini(message) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return { reply: 'AI key not configured.', toolCalls: [], needs_human: true };
   const url =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' +
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' +
     key;
   const prompt =
     'You are BossMind Client Support. READ-ONLY tools only: ' +
@@ -42,6 +42,13 @@ async function callGemini(message) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] }),
   });
+  if (!res.ok) {
+    return {
+      reply: `AI service unavailable (HTTP ${res.status}). Please try again later.`,
+      toolCalls: [],
+      needs_human: true,
+    };
+  }
   const data = await res.json();
   const text =
     (data &&
