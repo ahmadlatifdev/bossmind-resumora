@@ -88,15 +88,39 @@ async function postFacebook(text) {
 }
 
 const MESSAGES = {
-  twitter:
-    'Beat the ATS + ace the interview with Resumora.\nAI resume & cover letter, EN/FR interview videos, luxury PDFs.\nOne-time payment. No subscription.\n#jobsearch #resume #career #ATS #interviewprep\n' +
-    BRAND_URL,
-  linkedin:
-    'Your resume and your interview are one system.\n\nResumora fixes both:\n  • ATS-optimized resumes & cover letters\n  • Cinematic EN/FR interview training videos\n  • Luxury executive PDF templates\n  • One-time payment — no subscription\n\n→ ' +
-    BRAND_URL,
-  facebook:
-    'Land more interviews with Resumora ✨\n\nAI-optimized resume + cover letter, interview training videos, and premium PDF templates — one simple payment, no monthly fees.\n\nStart now at ' +
-    BRAND_URL,
+  twitter: {
+    en:
+      'Beat the ATS + ace the interview with Resumora.\nAI resume & cover letter, EN/FR interview videos, luxury PDFs.\nOne-time payment. No subscription.\n#jobsearch #resume #career #ATS #interviewprep\n' +
+      BRAND_URL,
+    fr:
+      'Bat l\u2019ATS + r\u00e9ussis l\u2019entretien avec Resumora.\nCV & lettre IA, vid\u00e9os d\u2019entretien EN/FR, PDF premium.\nPaiement unique. Sans abonnement.\n#emploi #cv #carriere #ATS #entretien\n' +
+      BRAND_URL,
+    es:
+      'Supera el ATS + triunfa en la entrevista con Resumora.\nCV y carta IA, videos de entrevista EN/FR, PDF premium.\nPago \u00fanico. Sin suscripci\u00f3n.\n#empleo #cv #carrera #ATS #entrevista\n' +
+      BRAND_URL,
+  },
+  linkedin: {
+    en:
+      'Your resume and your interview are one system.\n\nResumora fixes both:\n  \u2022 ATS-optimized resumes & cover letters\n  \u2022 Cinematic EN/FR interview training videos\n  \u2022 Luxury executive PDF templates\n  \u2022 One-time payment \u2014 no subscription\n\n\u2192 ' +
+      BRAND_URL,
+    fr:
+      'Votre CV et votre entretien forment un seul syst\u00e8me.\n\nResumora corrige les deux :\n  \u2022 CV et lettres optimis\u00e9s ATS\n  \u2022 Vid\u00e9os d\u2019entretien cin\u00e9matiques EN/FR\n  \u2022 Mod\u00e8les PDF ex\u00e9cutifs premium\n  \u2022 Paiement unique \u2014 sans abonnement\n\n\u2192 ' +
+      BRAND_URL,
+    es:
+      'Tu CV y tu entrevista son un solo sistema.\n\nResumora corrige ambos:\n  \u2022 CV y cartas optimizados ATS\n  \u2022 Videos de entrevista cinematogr\u00e1ficos EN/FR\n  \u2022 Plantillas PDF ejecutivas premium\n  \u2022 Pago \u00fanico \u2014 sin suscripci\u00f3n\n\n\u2192 ' +
+      BRAND_URL,
+  },
+  facebook: {
+    en:
+      'Land more interviews with Resumora \u2728\n\nAI-optimized resume + cover letter, interview training videos, and premium PDF templates \u2014 one simple payment, no monthly fees.\n\nStart now at ' +
+      BRAND_URL,
+    fr:
+      'D\u00e9crochez plus d\u2019entretiens avec Resumora \u2728\n\nCV + lettre optimis\u00e9s IA, vid\u00e9os d\u2019entretien et mod\u00e8les PDF premium \u2014 un seul paiement, sans frais mensuels.\n\nCommencez sur ' +
+      BRAND_URL,
+    es:
+      'Consigue m\u00e1s entrevistas con Resumora \u2728\n\nCV + carta optimizados con IA, videos de entrevista y plantillas PDF premium \u2014 un solo pago, sin cuotas mensuales.\n\nEmpieza en ' +
+      BRAND_URL,
+  },
 };
 
 exports.weeklySocialBlast = onSchedule(
@@ -108,19 +132,24 @@ exports.weeklySocialBlast = onSchedule(
     region: 'us-central1',
   },
   async (event) => {
+    const LANGS = ['en', 'fr', 'es'];
+    const CHANNELS = [
+      ['twitter', postTwitter],
+      ['linkedin', postLinkedIn],
+      ['facebook', postFacebook],
+    ];
     const results = {};
-    for (const [channel, fn, text] of [
-      ['twitter', postTwitter, MESSAGES.twitter],
-      ['linkedin', postLinkedIn, MESSAGES.linkedin],
-      ['facebook', postFacebook, MESSAGES.facebook],
-    ]) {
-      try {
-        const id = await fn(text);
-        results[channel] = id ? { ok: true, id } : { ok: false, reason: 'unconfigured' };
-        log(channel, Boolean(id), id || 'skipped');
-      } catch (err) {
-        results[channel] = { ok: false, error: err.message };
-        log(channel, false, err.message);
+    for (const [channel, fn] of CHANNELS) {
+      for (const lang of LANGS) {
+        const key = `${channel}_${lang}`;
+        try {
+          const id = await fn(MESSAGES[channel][lang]);
+          results[key] = id ? { ok: true, id } : { ok: false, reason: 'unconfigured' };
+          log(key, Boolean(id), id || 'skipped');
+        } catch (err) {
+          results[key] = { ok: false, error: err.message };
+          log(key, false, err.message);
+        }
       }
     }
     console.info(
