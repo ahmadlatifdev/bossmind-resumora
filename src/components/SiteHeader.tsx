@@ -111,7 +111,7 @@ export default function SiteHeader({
               {accountOpen ? (
                 <div className="account-menu__dropdown" role="menu">
                   <a href="/account" role="menuitem" onClick={() => setAccountOpen(false)}>
-                    Dashboard
+                    {t(lang || 'en', 'nav.dashboard')}
                   </a>
                   <button type="button" role="menuitem" onClick={handleSignOut}>
                     {t(lang || 'en', 'nav.signOut')}
@@ -125,10 +125,10 @@ export default function SiteHeader({
         {!loading && !user ? (
           <>
             <a href="/login" className="nav-login-text">
-              Log In
+              {t(lang || 'en', 'nav.logIn')}
             </a>
             <a href="/studio" className="nav-login">
-              Build Resume
+              {t(lang || 'en', 'nav.createResume')}
             </a>
           </>
         ) : null}

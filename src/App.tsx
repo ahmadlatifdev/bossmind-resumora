@@ -66,6 +66,7 @@ function HomePage() {
     : t(lang, 'home.selectPlan');
 
   const redirectToStripe = async () => {
+    if (selectedStripePriceId === 'price_110') return;
     if (!selectedStripePriceId) {
       alert(t(lang, 'home.selectPlanFirst'));
       return;
@@ -128,10 +129,20 @@ function HomePage() {
   };
 
   const homePlans = [
-    { id: 'price_29', price: '$29', nameKey: 'plans.basic.name' },
-    { id: 'price_49', price: '$49', nameKey: 'plans.pro.name' },
-    { id: 'price_79', price: '$79', nameKey: 'plans.business.name' },
-    { id: 'price_110', price: '$110', nameKey: 'plans.enterprise.name' },
+    { id: 'price_29', price: '$29', nameKey: 'plans.basic.name', blurbKey: 'plans.basic.blurb' },
+    { id: 'price_49', price: '$49', nameKey: 'plans.pro.name', blurbKey: 'plans.pro.blurb' },
+    {
+      id: 'price_79',
+      price: '$79',
+      nameKey: 'plans.business.name',
+      blurbKey: 'plans.business.blurb',
+    },
+    {
+      id: 'price_110',
+      price: '$110',
+      nameKey: 'plans.enterprise.name',
+      blurbKey: 'plans.enterprise.blurb',
+    },
   ] as const;
 
   return (
@@ -149,20 +160,24 @@ function HomePage() {
             key={plan.id}
             id={`plan-${plan.id}`}
             className="pricing-plan cursor-pointer border-2 border-gray-200/40 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 rounded-2xl p-6 text-center"
-            onClick={() => handlePlanClick(plan.id)}
+            aria-disabled={plan.id === 'price_110' || undefined}
+            onClick={plan.id === 'price_110' ? undefined : () => handlePlanClick(plan.id)}
           >
-            <h3 className="text-xl font-semibold mb-2 tracking-wide">{t(lang, plan.nameKey)}</h3>
+            <h3 className="text-xl font-semibold mb-2 tracking-wide">
+              {t(lang, plan.nameKey)}
+              {plan.id === 'price_110' && (
+                <small style={{ display: 'block', color: '#e8c456' }}>
+                  {t(lang, 'home.comingSoonBtn')}
+                </small>
+              )}
+            </h3>
             <p className="text-3xl font-bold text-[color:var(--color-gold)]">
               {plan.price}{' '}
               <span className="text-sm font-normal opacity-70">
                 {t(lang, 'home.intervalOneTime')}
               </span>
             </p>
-            <div className="mt-4 text-sm opacity-75 space-y-1">
-              <p>{t(lang, 'home.featureStandard')}</p>
-              <p>{t(lang, 'home.featurePriority')}</p>
-              <p>{t(lang, 'home.featureAdvanced')}</p>
-            </div>
+            <p className="mt-4 text-sm opacity-75">{t(lang, plan.blurbKey)}</p>
           </div>
         ))}
       </div>
