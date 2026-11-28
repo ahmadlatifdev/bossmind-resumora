@@ -77,7 +77,7 @@ async function postFacebook(text) {
     log('facebook', false, 'missing credentials');
     return null;
   }
-  const res = await fetch(`https://graph.facebook.com/v19.0/${pageId}/feed`, {
+  const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/feed`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: text, access_token: token }),
