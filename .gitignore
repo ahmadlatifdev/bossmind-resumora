@@ -45,6 +45,7 @@ sentry.edge.config.*
 hostinger/
 .env*.local
 .env
+.tiktok-oauth-state
 functions/.env
 bilibili_secrets.env
 firebase-service-account.json
